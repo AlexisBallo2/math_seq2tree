@@ -6,7 +6,8 @@ import time
 import torch.optim
 from src.expressions_transfer import *
 
-batch_size = 64
+# batch_size = 64
+batch_size = 2 
 embedding_size = 128
 hidden_size = 512
 n_epochs = 80

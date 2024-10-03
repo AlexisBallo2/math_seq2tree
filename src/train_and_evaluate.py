@@ -369,6 +369,7 @@ def get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_siz
     indices = torch.LongTensor(indices)
     masked_index = torch.ByteTensor(masked_index)
     masked_index = masked_index.view(batch_size, num_size, hidden_size)
+    masked_index = masked_index.bool()
     if USE_CUDA:
         indices = indices.cuda()
         masked_index = masked_index.cuda()
