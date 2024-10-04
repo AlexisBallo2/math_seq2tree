@@ -87,12 +87,27 @@ def load_raw_data(filename):  # load the json data to list(dict()) for MATH 23K
     f = open(filename, encoding="utf-8")
     js = ""
     data = []
+    # for each line
     for i, s in enumerate(f):
+        # build string of 7 lines
         js += s
         i += 1
+
         if i % 7 == 0:  # every 7 line is a json
+            # convert 7 lines to json 
             data_d = json.loads(js)
+            # if km/h is in the equation, remove it
             if "千米/小时" in data_d["equation"]:
+                # ex: '{
+                # "id":"10431",
+                # "original_text":"The speed of a car is 80 kilometers per hour. 
+                    #   It can be written as: how much. Speed ​​* how much = distance.",
+                # "segmented_text":" The speed of a car is 80 kilometers per hour, which can be written as: how much. speed * how much = distance. ",
+                # "equation":"x=80 kilometers per hour",
+                # "ans":"80"
+                # }'
+                # -> remove " kilometers per hour"
+                # = x=80
                 data_d["equation"] = data_d["equation"][:-5]
             data.append(data_d)
             js = ""
@@ -270,71 +285,120 @@ def load_roth_data(filename):  # load the json data to dict(dict()) for roth dat
 
 def transfer_num(data):  # transfer num into "NUM"
     print("Transfer numbers...")
+    # number regex
     pattern = re.compile("\d*\(\d+/\d+\)\d*|\d+\.\d+%?|\d+%?")
     pairs = []
     generate_nums = []
     generate_nums_dict = {}
     copy_nums = 0
     for d in data:
+        # numbers in this problem's text
         nums = []
+        # text after masking
         input_seq = []
+        # break up segmented text into each word
         seg = d["segmented_text"].strip().split(" ")
+
+        # strip "x=" from the equation
         equations = d["equation"][2:]
 
         for s in seg:
+            # search if its a number
             pos = re.search(pattern, s)
+
+            # if its a number (pos is not None and the start of the number is at the start of the string)
             if pos and pos.start() == 0:
+                # appeend the captured number only (not surrounding text in the word)
                 nums.append(s[pos.start(): pos.end()])
+                # mask the number in the input sequence
                 input_seq.append("NUM")
+                # if there was trailing text after the num (ex "80km/h" -> "80") append text to seq (ex "km/h")
                 if pos.end() < len(s):
                     input_seq.append(s[pos.end():])
             else:
+                # not number: just append word
                 input_seq.append(s)
         if copy_nums < len(nums):
             copy_nums = len(nums)
 
+        # fractions in the text
         nums_fraction = []
 
+        # for nums in this problem
         for num in nums:
+            # capture it if it's a fraction
             if re.search("\d*\(\d+/\d+\)\d*", num):
                 nums_fraction.append(num)
+
+        # sort the fractions by length (not magnitude?). longest first
         nums_fraction = sorted(nums_fraction, key=lambda x: len(x), reverse=True)
 
-        def seg_and_tag(st):  # seg the equation and tag the num
+        # seg the equation and tag the num
+        # ex st: '(11-1)*2'
+        def seg_and_tag(st):  
+            # will become: 
+
             res = []
+            # for largest to smallest fractions:
             for n in nums_fraction:
+                # if fraction in this equation
                 if n in st:
+                    # find where in the equation
                     p_start = st.find(n)
                     p_end = p_start + len(n)
+                    # if there is text before the fraction, seq_and_tag it seperately
                     if p_start > 0:
                         res += seg_and_tag(st[:p_start])
+                    # if this fraction is in the input text, append it as "N#"
                     if nums.count(n) == 1:
                         res.append("N"+str(nums.index(n)))
+                    # if not, leave as variable
                     else:
                         res.append(n)
+                    # recurse if text after number
                     if p_end < len(st):
                         res += seg_and_tag(st[p_end:])
                     return res
+            # if no fractions, or fractions are not in equation 
+            # sequence and tag non fractions
             pos_st = re.search("\d+\.\d+%?|\d+%?", st)
+            # if have number
             if pos_st:
                 p_start = pos_st.start()
                 p_end = pos_st.end()
                 if p_start > 0:
+                    # seq and tag text before number
                     res += seg_and_tag(st[:p_start])
+                # strip text around number
                 st_num = st[p_start:p_end]
                 if nums.count(st_num) == 1:
+                    # same as fractions, append as "N#" if in the input text 
                     res.append("N"+str(nums.index(st_num)))
                 else:
+                    # if 
                     res.append(st_num)
                 if p_end < len(st):
+                    # seq and tag text after number
                     res += seg_and_tag(st[p_end:])
                 return res
+            # if no number
             for ss in st:
+                # just keep text
                 res.append(ss)
             return res
 
+        # tag the equation (replace numbers (only ones that are in the input text), in the equation with "N#")
+        # ex: ['(', 'N1', '-', '1', ')', '*', 'N0']
         out_seq = seg_and_tag(equations)
-        for s in out_seq:  # tag the num which is generated
+
+
+        # for each elem in equation sequence 
+        for s in out_seq:  
+            # if the first char is a digit and it's not in the input text 
+            # this happens if we have a number in the equation that is not in the input text
+            # store 
+            #   list of numbers in the equation that are not in the input text
+            #   dict of the number and the number of times it appears in the equation
             if s[0].isdigit() and s not in generate_nums and s not in nums:
                 generate_nums.append(s)
                 generate_nums_dict[s] = 0
@@ -346,13 +410,19 @@ def transfer_num(data):  # transfer num into "NUM"
             if j == "NUM":
                 num_pos.append(i)
         assert len(nums) == len(num_pos)
-        # pairs.append((input_seq, out_seq, nums, num_pos, d["ans"]))
+        # input_seq: masked text
+        # out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
+        # nums: list of numbers in the text
+        # num_pos: list of positions of the numbers in the text
         pairs.append((input_seq, out_seq, nums, num_pos))
 
     temp_g = []
     for g in generate_nums:
+        # only keep generated numbers if they are common in the text
         if generate_nums_dict[g] >= 5:
             temp_g.append(g)
+
+    # copy_nums: max length of numbers
     return pairs, temp_g, copy_nums
 
 

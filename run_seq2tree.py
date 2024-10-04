@@ -18,14 +18,31 @@ n_layers = 2
 
 os.makedirs("models", exist_ok=True)
 data = load_raw_data("data/Math_23K.json")
+# data format:
+# {
+# "id":"10431",
+# "original_text":"The speed of a car is 80 kilometers per hour. It can be written as: how much. Speed ​​* how much = distance.",
+# "segmented_text":"The speed of a car is 80 kilometers per hour, which can be written as: how much. speed * how much = distance. ",
+# "equation":"x=80",
+# "ans":"80"
+# }'
 
 pairs, generate_nums, copy_nums = transfer_num(data)
+# pairs: list of tuples:
+#   input_seq: masked text
+#   out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
+#   nums: list of numbers in the text
+#   num_pos: list of positions of the numbers in the text
+# generate_nums: list of common numbers not in input text (ex constants)
+# copy_nums:  max length of numbers
 
 temp_pairs = []
 for p in pairs:
+    # input_seq, prefixed equation, nums, num_pos
     temp_pairs.append((p[0], from_infix_to_prefix(p[1]), p[2], p[3]))
 pairs = temp_pairs
 
+# split data into groups of 20%
 fold_size = int(len(pairs) * 0.2)
 fold_pairs = []
 for split_fold in range(4):
@@ -39,6 +56,7 @@ best_acc_fold = []
 for fold in range(5):
     pairs_tested = []
     pairs_trained = []
+    # train on current fold, test on other folds
     for fold_t in range(5):
         if fold_t == fold:
             pairs_tested += fold_pairs[fold_t]

@@ -76,6 +76,7 @@ def from_infix_to_prefix(expression):
     priority = {"+": 0, "-": 0, "*": 1, "/": 1, "^": 2}
     expression = deepcopy(expression)
     expression.reverse()
+    # Shunting Yard Algorithm
     for e in expression:
         if e in [")", "]"]:
             st.append(e)
