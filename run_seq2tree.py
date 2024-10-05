@@ -7,7 +7,7 @@ import torch.optim
 from src.expressions_transfer import *
 
 # batch_size = 64
-batch_size = 2 
+batch_size = 1 
 embedding_size = 128
 hidden_size = 512
 n_epochs = 80
@@ -65,6 +65,14 @@ for fold in range(5):
 
     input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums,
                                                                     copy_nums, tree=True)
+    # pair:
+    #   input: sentence with all numbers masked as NUM
+    #   length of input
+    #   output: prefix equation. Numbers from input as N{i}, non input as constants
+    #   length of output
+    #   nums: numbers from the input text
+    #   loc nums: where nums are in the text
+    #   [[] of where each number in the equation (that is not in the output lang) is found in the nums array]
     # Initialize models
     encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,
                          n_layers=n_layers)
@@ -102,6 +110,14 @@ for fold in range(5):
         generate_scheduler.step()
         merge_scheduler.step()
         loss_total = 0
+        # input_batches: padded inputs
+        # input_lengths: length of the inputs (without padding)
+        # output_batches: padded outputs
+        # output_length: length of the outputs (without padding)
+        # num_batches: numbers from the input text 
+        # num_stack_batches: the corresponding nums lists
+        # num_pos_batches: positions of the numbers lists
+        # num_size_batches: number of numbers from the input text
         input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches = prepare_train_batch(train_pairs, batch_size)
         print("fold:", fold + 1)
         print("epoch:", epoch + 1)

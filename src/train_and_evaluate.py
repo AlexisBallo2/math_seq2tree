@@ -645,13 +645,27 @@ class TreeEmbedding:  # the class save the tree
 def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, generate_nums,
                encoder, predict, generate, merge, encoder_optimizer, predict_optimizer, generate_optimizer,
                merge_optimizer, output_lang, num_pos, english=False):
+    # input_batch: padded inputs
+    # input_length: length of the inputs (without padding)
+    # target_batch: padded outputs
+    # target_length: length of the outputs (without padding)
+    # num_stack_batch: the corresponding nums lists
+    # num_size_batch: number of numbers from the input text
+    # generate_nums: numbers to generate
+
+    # num_pos: positions of the numbers lists
+
+
     # sequence mask for attention
+    # 0s where in input, 1s where not in input
     seq_mask = []
     max_len = max(input_length)
     for i in input_length:
         seq_mask.append([0 for _ in range(i)] + [1 for _ in range(i, max_len)])
     seq_mask = torch.ByteTensor(seq_mask)
 
+    # number mask 
+    # 0s where the numbers are from input, 1s where not in input
     num_mask = []
     max_num_size = max(num_size_batch) + len(generate_nums)
     for i in num_size_batch:
@@ -663,7 +677,6 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
     # Turn padded arrays into (batch_size x max_len) tensors, transpose into (max_len x batch_size)
     input_var = torch.LongTensor(input_batch).transpose(0, 1)
-
     target = torch.LongTensor(target_batch).transpose(0, 1)
 
     padding_hidden = torch.FloatTensor([0.0 for _ in range(predict.hidden_size)]).unsqueeze(0)
@@ -687,6 +700,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     merge_optimizer.zero_grad()
     # Run words through encoder
 
+    # embedding + dropout layer
     encoder_outputs, problem_output = encoder(input_var, input_length)
     # Prepare input and output variables
     node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]

@@ -175,16 +175,45 @@ class EncoderSeq(nn.Module):
         self.gru_pade = nn.GRU(embedding_size, hidden_size, n_layers, dropout=dropout, bidirectional=True)
 
     def forward(self, input_seqs, input_lengths, hidden=None):
-        # Note: we run this all at once (over multiple batches of multiple sequences)
+        # input_seqs: max_len x batch_size
+        # max_len comes from longest in the batch
+        # embedded = max_len x num_batches x embedding_dim
         embedded = self.embedding(input_seqs)  # S x B x E
         embedded = self.em_dropout(embedded)
+        # packed = lengths x embedding
+        # with multiple batches it seems to concatenate the padded 
+        # sequences of variable length
+        # https://stackoverflow.com/questions/51030782/why-do-we-pack-the-sequences-in-pytorch
+        # convert to RNN form
         packed = torch.nn.utils.rnn.pack_padded_sequence(embedded, input_lengths)
-        pade_hidden = hidden
-        pade_outputs, pade_hidden = self.gru_pade(packed, pade_hidden)
-        pade_outputs, _ = torch.nn.utils.rnn.pad_packed_sequence(pade_outputs)
 
-        problem_output = pade_outputs[-1, :, :self.hidden_size] + pade_outputs[0, :, self.hidden_size:]
-        pade_outputs = pade_outputs[:, :, :self.hidden_size] + pade_outputs[:, :, self.hidden_size:]  # S x B x H
+
+        # initial hidden state for gru
+        pade_hidden = hidden
+        # pass equation through GRU
+        # this is equation (1) AND (2) (bidirectional GRU)
+        # pade_outputs: max_len x num_batches x (2 (bidirectional) * hidden_size)
+        #   these are the values from the last layer in the GRU
+        # pade_hidden: (2 (bidirectional) * num_layers) x num_batches x hidden_size
+        pade_outputs1, pade_hidden = self.gru_pade(packed, pade_hidden)
+
+
+        # convert the GRU packed format back into dense tensor form
+        # pade_outputs: max_len x num_batches x (2 (bidirectional) * hidden_size) 
+        pade_outputs2, _ = torch.nn.utils.rnn.pad_packed_sequence(pade_outputs1)
+
+        # problem_output = 
+        #   embedding (512) of the last GRU unit (from forward gru) 
+        #   +
+        #   embedding (512) of the first GRU unit (from backward gru)
+        # this is equation (4)
+        # num_batches x hidden_size
+        problem_output = pade_outputs2[-1, :, :self.hidden_size] + pade_outputs2[0, :, self.hidden_size:]
+
+        # pade_outputs = 
+        #  forward GRU embeddings + backward GRU embeddings
+        # max_length x num_batches x hidden_size
+        pade_outputs = pade_outputs2[:, :, :self.hidden_size] + pade_outputs2[:, :, self.hidden_size:]  # S x B x H
         return pade_outputs, problem_output
 
 
