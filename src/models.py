@@ -115,14 +115,35 @@ class Score(nn.Module):
         self.attn = nn.Linear(hidden_size + input_size, hidden_size)
         self.score = nn.Linear(hidden_size, 1, bias=False)
 
-    def forward(self, hidden, num_embeddings, num_mask=None):
+    def forward(self, hidden1, num_embeddings, num_mask=None):
+        # hidden1 is the subgoal of a leaf : q
+        # num_embeddings is the embedding weights and number encodings
+        #   batch_size x num_length x hidden_dim
+        # max_len is max of num_lengths
         max_len = num_embeddings.size(1)
-        repeat_dims = [1] * hidden.dim()
+        repeat_dims = [1] * hidden1.dim()
         repeat_dims[1] = max_len
-        hidden = hidden.repeat(*repeat_dims)  # B x O x H
+        # repeat the leaf embeddings across 
+        # hidden: batch_size x 1 x 2*hidden_dim
+        # ->
+        # batch_size x num_length x 2*hidden_dim
+        hidden = hidden1.repeat(*repeat_dims)  # B x O x H
+
+
         # For each position of encoder outputs
+        # batch_size
         this_batch_size = num_embeddings.size(0)
-        energy_in = torch.cat((hidden, num_embeddings), 2).view(-1, self.input_size + self.hidden_size)
+
+        # batch_size x num_length x (2*hidden_dim + hidden_dim)
+        # energy_in1 = [q h_p]
+        energy_in1 = torch.cat((hidden, num_embeddings), 2)
+        # input size is the length of numbers that must be generated
+        # hidden size is a constant
+        # according to paper, energy_in is
+        #   [q c e(y|P)]
+        energy_in = energy_in1.view(-1, self.input_size + self.hidden_size)
+
+        # this is equation (7)
         score = self.score(torch.tanh(self.attn(energy_in)))  # (B x O) x 1
         score = score.squeeze(1)
         score = score.view(this_batch_size, -1)  # B x O
@@ -213,6 +234,7 @@ class EncoderSeq(nn.Module):
         # pade_outputs = 
         #  forward GRU embeddings + backward GRU embeddings
         # max_length x num_batches x hidden_size
+        # token embedding of each 
         pade_outputs = pade_outputs2[:, :, :self.hidden_size] + pade_outputs2[:, :, self.hidden_size:]  # S x B x H
         return pade_outputs, problem_output
 
@@ -245,60 +267,136 @@ class Prediction(nn.Module):
         self.score = Score(hidden_size * 2, hidden_size)
 
     def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, seq_mask, mask_nums):
-        current_embeddings = []
+        # node_stacks: [TreeNodes] for each token containing embedding and left flag
+        # left_childs: [] of 
+        # encoder_outputs: token embeddings: max_len x num_batches x hidden state 
+        # num_pads:  embeddings of the numbers: num_batches x num_size x hidden_size 
+        # padding_hidden: 0s of hidden_size
+        # seq_mask: num_batches x seq_len 
+        # mask_nums: 0s where the num in the nums emb come from input text. 
+        # this aligns with the num_pades. num_batches x num_size
 
+        # let num_length = 2 + len(numbers)
+
+        current_embeddings1 = []
+
+        # for each stack of tokens 
+        # 2 batches = 2 stacks
         for st in node_stacks:
+            # not sure why would be zero. it's initialized w/ single num each 
+            # if it is zero, let that token's embedding be the zero embedding
             if len(st) == 0:
-                current_embeddings.append(padding_hidden)
+                current_embeddings1.append(padding_hidden)
             else:
+                # use embedding from the last node in the stack
                 current_node = st[-1]
-                current_embeddings.append(current_node.embedding)
+                current_embeddings1.append(current_node.embedding)
+        
+        # current_embeddings1 = the embedding of the last node in the stack
 
         current_node_temp = []
-        for l, c in zip(left_childs, current_embeddings):
+        for l, c in zip(left_childs, current_embeddings1):
+            # l = left child
+            # c = embedding of parent node
+            # equation (13)
+            # ^^^ think thats wrong
             if l is None:
+                # if not left child (this is a leaf)
+                # nodes context vector 1 x hidden_dim
                 c = self.dropout(c)
                 g = torch.tanh(self.concat_l(c))
                 t = torch.sigmoid(self.concat_lg(c))
                 current_node_temp.append(g * t)
             else:
+                # equation (11)
                 ld = self.dropout(l)
                 c = self.dropout(c)
                 g = torch.tanh(self.concat_r(torch.cat((ld, c), 1)))
                 t = torch.sigmoid(self.concat_rg(torch.cat((ld, c), 1)))
                 current_node_temp.append(g * t)
 
-        current_node = torch.stack(current_node_temp)
 
+        # batch_size x 1 x hidden_dim
+        current_node = torch.stack(current_node_temp)
+        # this is the q of the current subtree
         current_embeddings = self.dropout(current_node)
 
+        # this gets the score calculation and relation between each 
+        # encoded token
+        # this is the a in equation (6)
         current_attn = self.attn(current_embeddings.transpose(0, 1), encoder_outputs, seq_mask)
+        # the encoder_outputs are the h
+
+        # this is the context vector 
+        # equation (6)
         current_context = current_attn.bmm(encoder_outputs.transpose(0, 1))  # B x 1 x N
 
         # the information to get the current quantity
         batch_size = current_embeddings.size(0)
+
+
         # predict the output (this node corresponding to output(number or operator)) with PADE
 
         repeat_dims = [1] * self.embedding_weight.dim()
         repeat_dims[0] = batch_size
-        embedding_weight = self.embedding_weight.repeat(*repeat_dims)  # B x input_size x N
-        embedding_weight = torch.cat((embedding_weight, num_pades), dim=1)  # B x O x N
+        # self.embedding_weight:
+        #   1 x 2 x hidden_dim
+        #   this is the amount to weight the each hidden dim for 2 things
+        #       maybe the current context, and the leaf context? 
 
-        leaf_input = torch.cat((current_node, current_context), 2)
-        leaf_input = leaf_input.squeeze(1)
+
+        # repeat the embedding weight for each batch
+        # batch_size x 2 x hidden_dim
+        embedding_weight1 = self.embedding_weight.repeat(*repeat_dims)  # B x input_size x N
+
+        # batch_size x (2 + number of numbers we have encodings for) x hidden_dim
+        # batch_size is the embeddings of the numbers
+        #   batch_size x nums_count x hidden_dim
+        embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
+
+
+        # get the embedding of a leaf
+        # embedding of a leaf is the concatenation of 
+        #   the node embedding and the embedding after attention
+        # this is the [q c]
+        # batch_size x 1 x 2*hidden_dim 
+        leaf_input1 = torch.cat((current_node, current_context), 2)
+        # batch_size x 2*hidden_dim 
+        leaf_input = leaf_input1.squeeze(1)
         leaf_input = self.dropout(leaf_input)
 
         # p_leaf = nn.functional.softmax(self.is_leaf(leaf_input), 1)
         # max pooling the embedding_weight
         embedding_weight_ = self.dropout(embedding_weight)
+
+
+        # get the scores between the leaves,  
+        # leaf_input is the embedding of a leaf
+        # TODO
+        # embedding_weight is the weight matrix of scaling the input hidden dims? (need to conform this is true)
+        # mask_nums is batch_size x max_nums_length and is 0 where the num comes from text
+        # equation (7) done here
+        # this is the log likliehood of generating token y from the specified vocab
+        #   doesnt seem like the full vocab is being used, only
         num_score = self.score(leaf_input.unsqueeze(1), embedding_weight_, mask_nums)
 
-        # num_score = nn.functional.softmax(num_score, 1)
-
+        # get the predicted operation (classification)
+        # batch_size x num_ops 
         op = self.ops(leaf_input)
 
         # return p_leaf, num_score, op, current_embeddings, current_attn
 
+        # this returns
+        #   num_score: batch_size x num_length
+        #       score values of each number
+        #   op: operation list
+        #       batch_size x num_ops
+        #   current_node: q : batch_size x 1 x hidden_size
+        #       goal vector for the subtree
+        #   current_context: c : batch_size x 1 x hidden_size
+        #       context vector for the subtree
+        #   embedding_weight : batch_size x num_length x hidden_size
+        #       number embeddings
         return num_score, op, current_node, current_context, embedding_weight
 
 
@@ -317,21 +415,50 @@ class GenerateNode(nn.Module):
         self.generate_rg = nn.Linear(hidden_size * 2 + embedding_size, hidden_size)
 
     def forward(self, node_embedding, node_label, current_context):
+        # node_embedding: g : batch_size x 1 x hidden_dim
+        # node_label: [operator tokens at position t]
+        # current_context: c : batch_size x 1 x hidden_dim
+
+        # the operators will all be embedded the same way
         node_label_ = self.embeddings(node_label)
         node_label = self.em_dropout(node_label_)
+
+        # squeeze embedding and context for each
+        # node_embedding: batch_size x hidden_dim
+        # current_context: batch_size x hidden_dim
         node_embedding = node_embedding.squeeze(1)
         current_context = current_context.squeeze(1)
         node_embedding = self.em_dropout(node_embedding)
         current_context = self.em_dropout(current_context)
 
+
+        # first half of equation (10)
+
+        # C_l = tanh( W_cl [q c e(\hat y | P)] ) 
         l_child = torch.tanh(self.generate_l(torch.cat((node_embedding, current_context, node_label), 1)))
+        # o_l = sigmoid( W_ol [q c e(\hat y | P)] ) 
         l_child_g = torch.sigmoid(self.generate_lg(torch.cat((node_embedding, current_context, node_label), 1)))
-        r_child = torch.tanh(self.generate_r(torch.cat((node_embedding, current_context, node_label), 1)))
-        r_child_g = torch.sigmoid(self.generate_rg(torch.cat((node_embedding, current_context, node_label), 1)))
+        # h_l = o_1 * C_l
         l_child = l_child * l_child_g
+
+
+        # first half of equation (11)
+        # C_r = tanh( W_cr [q c e(\hat y | P)] ) 
+        r_child = torch.tanh(self.generate_r(torch.cat((node_embedding, current_context, node_label), 1)))
+        # o_r = sigmoid( W_or [q c e(\hat y | P)] ) 
+        r_child_g = torch.sigmoid(self.generate_rg(torch.cat((node_embedding, current_context, node_label), 1)))
+        # h_r = o_r * C_r
         r_child = r_child * r_child_g
+
+        # l_child: hidden state h_l:
+        #   batch_size x hidden_dim
+        # r_child: hidden state h_r:
+        #   batch_size x hidden_dim
+        # node_label_ : embedding of the operator
+        #   batch_size x embedding_size 
         return l_child, r_child, node_label_
 
+        # equation (11)
 
 class Merge(nn.Module):
     def __init__(self, hidden_size, embedding_size, dropout=0.5):
@@ -349,6 +476,7 @@ class Merge(nn.Module):
         sub_tree_2 = self.em_dropout(sub_tree_2)
         node_embedding = self.em_dropout(node_embedding)
 
+        # this is equation (13)
         sub_tree = torch.tanh(self.merge(torch.cat((node_embedding, sub_tree_1, sub_tree_2), 1)))
         sub_tree_g = torch.sigmoid(self.merge_g(torch.cat((node_embedding, sub_tree_1, sub_tree_2), 1)))
         sub_tree = sub_tree * sub_tree_g

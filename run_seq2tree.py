@@ -7,11 +7,11 @@ import torch.optim
 from src.expressions_transfer import *
 
 # batch_size = 64
-batch_size = 1 
+batch_size = 14
 embedding_size = 128
 hidden_size = 512
 n_epochs = 80
-learning_rate = 1e-3
+learning_rate = 1e-3 
 weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
