@@ -298,8 +298,7 @@ class Prediction(nn.Module):
         for l, c in zip(left_childs, current_embeddings1):
             # l = left child
             # c = embedding of parent node
-            # equation (13)
-            # ^^^ think thats wrong
+            # equation (10)
             if l is None:
                 # if not left child (this is a leaf)
                 # nodes context vector 1 x hidden_dim

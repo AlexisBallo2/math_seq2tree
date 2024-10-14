@@ -741,6 +741,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     
     # make a TreeNode for each token
     # node just has embedding and a left flag? 
+    tempSplit = problem_output.split(1, dim=0)
+    # problem_output is q_0 for each token in equation, so use last one
     node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
 
     max_target_length = max(target_length)
@@ -824,12 +826,17 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         left_childs = []
         for idx, l, r, node_stack, i, o in zip(range(batch_size), left_child.split(1), right_child.split(1),
                                                node_stacks, target[t].tolist(), embeddings_stacks):
+            current_token = output_lang.ids_to_tokens([i])
+            current_equation = output_lang.ids_to_tokens(target.transpose(0,1)[idx])
+            print("at token", current_token, "in", current_equation)
+            print("current node_stack length", len(node_stack))
             # for 
             #   batch_num
             #   the left child: h_l 
             #   the right child: h_r
             if len(node_stack) != 0:
                 node = node_stack.pop()
+                print("removed last from node_stack, now", len(node_stack), "elems")
             else:
                 left_childs.append(None)
                 continue
@@ -837,13 +844,16 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             # i is the num in language of where that specific language token is
             # if i is an operator
             if i < num_start:
+                print(current_token, "is an operator, making a left and right node")
                 # make a left and right tree node
                 node_stack.append(TreeNode(r))
                 node_stack.append(TreeNode(l, left_flag=True))
                 # save the embedding of the operator 
                 # terminal means a leaf node
                 o.append(TreeEmbedding(node_label[idx].unsqueeze(0), False))
+                print("saving node embedding to o (non terminal node), and r, and l to node_stack. o now of size", len(o), "node_stack of size", len(node_stack))
             else:
+                print(current_token, "is not an operator")
                 # otherwise its either a number from the input equation or a copy number
                 # we have a list (o) of the current nodes in the tree
                 # if we have a leaf node at the top of the stack, get it.
@@ -853,37 +863,51 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
                 # current_nums_embedding: batch_size x num_length x hidden_size
                 # current_num = num_embedding of the number selected
+                # CONCERNING - using equation token id to get embedding?
                 current_num = current_nums_embeddings[idx, i - num_start].unsqueeze(0)
                 # while there are tokens in the embedding stack and the last element IS a leaf node
                 while len(o) > 0 and o[-1].terminal:
+                    print("terminal element in o, getting terminal element and operator, and merging")
                     # get the two elements from it
                     sub_stree = o.pop()
                     op = o.pop()
                     # contains equation (13)
                     # this combines a left and right tree along with a node
                     current_num = merge(op.embedding, sub_stree.embedding, current_num)
+                    print('merged. o now of size', len(o))
                 # then re-add the node back to the stack
+                print("adding current_num to o (terminal node)")
                 o.append(TreeEmbedding(current_num, True))
             if len(o) > 0 and o[-1].terminal:
-
+                print("terminal element in o, adding to left child")
                 # i think left_childs is a running vector of the sub tree embeddings "t" 
                 # capture it for _____
                 left_childs.append(o[-1].embedding)
             else:
                 left_childs.append(None)
+            # print(left_child)
 
     # all_leafs = torch.stack(all_leafs, dim=1)  # B x S x 2
-    all_node_outputs = torch.stack(all_node_outputs, dim=1)  # B x S x N
+    
+    # all_node_outputs:  for each token in the equation:
+    #   the current scoring of nums for each batch
+    # 
+    # transform to 
+    # all_node_outputs2: for each batch:
+    #   the current scoring of nums for each token in equation
+    # = batch_size x max_len x num_nums
+    all_node_outputs2 = torch.stack(all_node_outputs, dim=1)  # B x S x N
 
     target = target.transpose(0, 1).contiguous()
     if USE_CUDA:
         # all_leafs = all_leafs.cuda()
-        all_node_outputs = all_node_outputs.cuda()
+        all_node_outputs2 = all_node_outputs2.cuda()
         target = target.cuda()
 
     # op_target = target < num_start
     # loss_0 = masked_cross_entropy_without_logit(all_leafs, op_target.long(), target_length)
-    loss = masked_cross_entropy(all_node_outputs, target, target_length)
+    print('done equation')
+    loss = masked_cross_entropy(all_node_outputs2, target, target_length)
     # loss = loss_0 + loss_1
     loss.backward()
     # clip the grad

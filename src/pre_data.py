@@ -80,6 +80,11 @@ class Lang:
 
         for i, j in enumerate(self.index2word):
             self.word2index[j] = i
+    def ids_to_tokens(self, ids):
+        output = [] 
+        for i in ids:
+            output.append(self.index2word[i])
+        return output
 
 
 def load_raw_data(filename):  # load the json data to list(dict()) for MATH 23K

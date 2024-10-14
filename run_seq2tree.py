@@ -7,7 +7,7 @@ import torch.optim
 from src.expressions_transfer import *
 
 # batch_size = 64
-batch_size = 14
+batch_size = 1 
 embedding_size = 128
 hidden_size = 512
 n_epochs = 80
