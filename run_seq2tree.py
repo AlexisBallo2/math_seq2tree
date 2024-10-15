@@ -28,6 +28,7 @@ data = load_raw_data("data/Math_23K.json")
 # }'
 
 pairs, generate_nums, copy_nums = transfer_num(data)
+pairs = pairs[0:30]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
@@ -132,15 +133,20 @@ for fold in range(5):
         print("loss:", loss_total / len(input_lengths))
         print("training time", time_since(time.time() - start))
         print("--------------------------------")
-        if epoch % 10 == 0 or epoch > n_epochs - 5:
+        # if epoch % 10 == 0 or epoch > n_epochs - 5:
+        if True:
             value_ac = 0
             equation_ac = 0
             eval_total = 0
             start = time.time()
+            # print('test pairs', test_pairs)
             for test_batch in test_pairs:
                 test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, encoder, predict, generate,
                                          merge, output_lang, test_batch[5], beam_size=beam_size)
+                # print('test result', test_res)
                 val_ac, equ_ac, _, _ = compute_prefix_tree_result(test_res, test_batch[2], output_lang, test_batch[4], test_batch[6])
+                # print('value accuracy', val_ac)
+                # print('equation accuracy', equation_ac)
                 if val_ac:
                     value_ac += 1
                 if equ_ac:
