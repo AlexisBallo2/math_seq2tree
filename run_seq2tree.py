@@ -143,8 +143,33 @@ for fold in range(5):
             for test_batch in test_pairs:
                 test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, encoder, predict, generate,
                                          merge, output_lang, test_batch[5], beam_size=beam_size)
-                # print('test result', test_res)
-                val_ac, equ_ac, _, _ = compute_prefix_tree_result(test_res, test_batch[2], output_lang, test_batch[4], test_batch[6])
+                # print('test res', test_res)
+                # for i in test_res:
+                #     print('i', i)
+                #     # for j in i:
+                #     #     print('j', j)
+                #     print(output_lang.index2word(i))
+                # print('test result', [output_lang.index2word(i) for i in test_res ])
+                val_ac, equ_ac, test, tar = compute_prefix_tree_result(test_res, test_batch[2], output_lang, test_batch[4], test_batch[6])
+                # print('test', test)
+                # print('tar', tar)
+                # print('actual', test_batch[2])
+                actual = [output_lang.index2word[i] for i in test_batch[2]]
+                predicted = [output_lang.index2word[i] for i in test_res]
+                same = 0
+                print(len(actual), len(predicted))
+                for i in range(min(len(actual), len(predicted))):
+                    if actual[i] == predicted[i]:
+                        same += 1
+                print("actual     " , actual)
+                print("predicted  ", predicted)
+                print('same:', same, (2*same)/(len(actual) + len(predicted)))
+
+                print("\n")
+                # for i in test_res:
+                #     print(output_lang.index2word[i])
+                # for i in test_batch[2]:
+                #     print(output_lang.index2word[i])
                 # print('value accuracy', val_ac)
                 # print('equation accuracy', equation_ac)
                 if val_ac:

@@ -267,7 +267,7 @@ class Prediction(nn.Module):
         self.score = Score(hidden_size * 2, hidden_size)
 
     def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, seq_mask, mask_nums):
-        # node_stacks: [TreeNodes] for each token containing embedding and left flag
+        # node_stacks: [TreeNodes] for each node containing the hidden state for the node
         # left_childs: [] of 
         # encoder_outputs: token embeddings: max_len x num_batches x hidden state 
         # num_pads:  embeddings of the numbers: num_batches x num_size x hidden_size 
@@ -298,7 +298,7 @@ class Prediction(nn.Module):
         for l, c in zip(left_childs, current_embeddings1):
             # l = left child
             # c = embedding of parent node
-            # equation (10)
+            # second half of equation (10)
             if l is None:
                 # if not left child (this is a leaf)
                 # nodes context vector 1 x hidden_dim
@@ -307,7 +307,7 @@ class Prediction(nn.Module):
                 t = torch.sigmoid(self.concat_lg(c))
                 current_node_temp.append(g * t)
             else:
-                # equation (11)
+                # second half of equation (11)
                 ld = self.dropout(l)
                 c = self.dropout(c)
                 g = torch.tanh(self.concat_r(torch.cat((ld, c), 1)))
@@ -414,7 +414,7 @@ class GenerateNode(nn.Module):
         self.generate_rg = nn.Linear(hidden_size * 2 + embedding_size, hidden_size)
 
     def forward(self, node_embedding, node_label, current_context):
-        # node_embedding: g : batch_size x 1 x hidden_dim
+        # node_embedding: q : batch_size x 1 x hidden_dim
         # node_label: [operator tokens at position t]
         # current_context: c : batch_size x 1 x hidden_dim
 
