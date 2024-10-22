@@ -116,7 +116,7 @@ class Score(nn.Module):
         self.score = nn.Linear(hidden_size, 1, bias=False)
 
     def forward(self, hidden1, num_embeddings, num_mask=None):
-        # hidden1 is the subgoal of a leaf : q
+        # hidden1 is the concatenation [q c]
         # num_embeddings is the embedding weights and number encodings
         #   batch_size x num_length x hidden_dim
         # max_len is max of num_lengths
@@ -135,12 +135,10 @@ class Score(nn.Module):
         this_batch_size = num_embeddings.size(0)
 
         # batch_size x num_length x (2*hidden_dim + hidden_dim)
-        # energy_in1 = [q h_p]
+        # energy_in1 = [q c e(y|P)] but e(y|P) for number tokens is just h^p for each num
         energy_in1 = torch.cat((hidden, num_embeddings), 2)
         # input size is the length of numbers that must be generated
         # hidden size is a constant
-        # according to paper, energy_in is
-        #   [q c e(y|P)]
         energy_in = energy_in1.view(-1, self.input_size + self.hidden_size)
 
         # this is equation (7)
