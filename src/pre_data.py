@@ -86,8 +86,13 @@ class Lang:
             output.append(self.index2word[i])
         return output
 
+def load_DRAW_data(filename):  # load the json data to list(dict()) for MATH 23K
+    print("Reading file...")
+    f = open(filename, encoding="utf-8")
+    data = json.loads(f.read())
+    return data
 
-def load_raw_data(filename):  # load the json data to list(dict()) for MATH 23K
+def load_MATH23k_data(filename):  # load the json data to list(dict()) for MATH 23K
     print("Reading lines...")
     f = open(filename, encoding="utf-8")
     js = ""
@@ -288,10 +293,13 @@ def load_roth_data(filename):  # load the json data to dict(dict()) for roth dat
 #     return test_str
 
 
-def transfer_num(data):  # transfer num into "NUM"
+def transfer_num(data, setName):  # transfer num into "NUM"
     print("Transfer numbers...")
     # number regex
-    pattern = re.compile("\d*\(\d+/\d+\)\d*|\d+\.\d+%?|\d+%?")
+    # pattern = re.compile("\d*\(\d+/\d+\)\d*|\d+\.\d+%?|\d+%?")
+    patternOLD = re.compile("\d*\(\d+/\d+\)\d*|\d+\.\d+%?|\d+%?")
+    # CAPTURE NEGATIVE NUMBERS
+    pattern = re.compile("-?\d*\(\d+/\d+\)\d*|-?\d+\.\d+%?|-?\d+%?")
     pairs = []
     generate_nums = []
     generate_nums_dict = {}
@@ -302,10 +310,17 @@ def transfer_num(data):  # transfer num into "NUM"
         # text after masking
         input_seq = []
         # break up segmented text into each word
-        seg = d["segmented_text"].strip().split(" ")
+        if setName == "MATH":
+            seg = d["segmented_text"].strip().split(" ")
+        else: 
+            seg = d["sQuestion"].strip().split(" ")
+
 
         # strip "x=" from the equation
-        equations = d["equation"][2:]
+        if setName == "MATH":
+            equations = d["equation"][2:]
+        else:
+            equations = d["lEquations"]
 
         for s in seg:
             # search if its a number
@@ -376,6 +391,9 @@ def transfer_num(data):  # transfer num into "NUM"
                     res += seg_and_tag(st[:p_start])
                 # strip text around number
                 st_num = st[p_start:p_end]
+                # because MATH has ".0" in equations
+                if st_num[-2:] == ".0":
+                    st_num = st_num[:-2]
                 if nums.count(st_num) == 1:
                     # same as fractions, append as "N#" if in the input text 
                     res.append("N"+str(nums.index(st_num)))
@@ -394,21 +412,25 @@ def transfer_num(data):  # transfer num into "NUM"
 
         # tag the equation (replace numbers (only ones that are in the input text), in the equation with "N#")
         # ex: ['(', 'N1', '-', '1', ')', '*', 'N0']
-        out_seq = seg_and_tag(equations)
+        if setName == "MATH":
+            out_seq_list = [seg_and_tag(equations)]
+        else:
+            out_seq_list = [seg_and_tag(i) for i in equations]
 
 
+        for out_seq in out_seq_list:
         # for each elem in equation sequence 
-        for s in out_seq:  
-            # if the first char is a digit and it's not in the input text 
-            # this happens if we have a number in the equation that is not in the input text
-            # store 
-            #   list of numbers in the equation that are not in the input text
-            #   dict of the number and the number of times it appears in the equation
-            if s[0].isdigit() and s not in generate_nums and s not in nums:
-                generate_nums.append(s)
-                generate_nums_dict[s] = 0
-            if s in generate_nums and s not in nums:
-                generate_nums_dict[s] = generate_nums_dict[s] + 1
+            for s in out_seq:  
+                # if the first char is a digit and it's not in the input text 
+                # this happens if we have a number in the equation that is not in the input text
+                # store 
+                #   list of numbers in the equation that are not in the input text
+                #   dict of the number and the number of times it appears in the equation
+                if s[0].isdigit() and s not in generate_nums and s not in nums:
+                    generate_nums.append(s)
+                    generate_nums_dict[s] = 0
+                if s in generate_nums and s not in nums:
+                    generate_nums_dict[s] = generate_nums_dict[s] + 1
 
         num_pos = []
         for i, j in enumerate(input_seq):
@@ -419,7 +441,24 @@ def transfer_num(data):  # transfer num into "NUM"
         # out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
         # nums: list of numbers in the text
         # num_pos: list of positions of the numbers in the text
-        pairs.append((input_seq, out_seq, nums, num_pos))
+        print(input_seq, out_seq_list, nums, num_pos)
+
+        if setName == "MATH":
+            pairs.append((input_seq, out_seq_list, nums, num_pos))
+        else:
+            final_out_seq_list = []
+            equationTargetVars = []
+            for outputEquation in out_seq_list:
+                # only want equations in this form
+                if outputEquation[-1][0] != "N" or outputEquation[-2] != "=":
+                    continue
+                else:
+                    # remove = N{i} 
+                    equationTargetVars.append(outputEquation[-1])
+                    final_out_seq_list.append(outputEquation[:-2])
+            if len(equationTargetVars) != len(out_seq_list):
+                continue
+            pairs.append((input_seq, final_out_seq_list, equationTargetVars, nums, num_pos))
 
     temp_g = []
     for g in generate_nums:
@@ -716,7 +755,8 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             input_lang.add_sen_to_vocab(pair[0])
             # vocab for the equations. note that this does not add numbers or num tokens
             # to the lang
-            output_lang.add_sen_to_vocab(pair[1])
+            for eq in pair[1]:
+                output_lang.add_sen_to_vocab(eq)
     # this is hard coded at 5
     # cuts off words that appear less than 5 times 
     input_lang.build_input_lang(trim_min_count)
@@ -736,32 +776,33 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
 
         # if its not in the nums list, then have that val in equation come from ALL
         # the numbers
-        for word in pair[1]:
-            temp_num = []
-            flag_not = True
-            # we already added equation to output lang, but numbers were not added
-            # so capture the indexs of the constants
-            if word not in output_lang.index2word:
-                flag_not = False
-                # for each in nums list
-                for i, j in enumerate(pair[2]):
-                    if j == word:
-                        temp_num.append(i)
+        for equation in pair[1]:
+            for word in equation:
+                temp_num = []
+                flag_not = True
+                # we already added equation to output lang, but numbers were not added
+                # so capture the indexs of the constants
+                if word not in output_lang.index2word:
+                    flag_not = False
+                    # for each in nums list
+                    for i, j in enumerate(pair[2]):
+                        if j == word:
+                            temp_num.append(i)
 
-            if not flag_not and len(temp_num) != 0:
-                # num_stack has the locations in the list of nums of where there is a number
-                # that is in the input text and the equation
-                num_stack.append(temp_num)
-            if not flag_not and len(temp_num) == 0:
-                # if no nums in both, let all numbers be in both??
-                num_stack.append([_ for _ in range(len(pair[2]))])
+                if not flag_not and len(temp_num) != 0:
+                    # num_stack has the locations in the list of nums of where there is a number
+                    # that is in the input text and the equation
+                    num_stack.append(temp_num)
+                if not flag_not and len(temp_num) == 0:
+                    # if no nums in both, let all numbers be in both??
+                    num_stack.append([_ for _ in range(len(pair[2]))])
 
         # ???
         num_stack.reverse()
 
         # convert input sentence and equation into the vocab tokens
         input_cell = indexes_from_sentence(input_lang, pair[0])
-        output_cell = indexes_from_sentence(output_lang, pair[1], tree)
+        output_cells = [indexes_from_sentence(output_lang, i, tree) for i in pair[1]]
         # pair:
         #   input: sentence with all numbers masked as NUM
         #   length of input
@@ -770,7 +811,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         #   nums: numbers from the input text
         #   loc nums: where nums are in the text
         #   [[] of where each token in the equation is found in the nums array]
-        train_pairs.append((input_cell, len(input_cell), output_cell, len(output_cell),
+        train_pairs.append((input_cell, len(input_cell), output_cells, len(output_cells),
                             pair[2], pair[3], num_stack))
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
     print('Number of training data %d' % (len(train_pairs)))
@@ -792,10 +833,10 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
 
         num_stack.reverse()
         input_cell = indexes_from_sentence(input_lang, pair[0])
-        output_cell = indexes_from_sentence(output_lang, pair[1], tree)
+        output_cells = [indexes_from_sentence(output_lang, i, tree) for i in pair[1]]
         # train_pairs.append((input_cell, len(input_cell), output_cell, len(output_cell),
         #                     pair[2], pair[3], num_stack, pair[4]))
-        test_pairs.append((input_cell, len(input_cell), output_cell, len(output_cell),
+        test_pairs.append((input_cell, len(input_cell), output_cells, len(output_cells),
                            pair[2], pair[3], num_stack))
     print('Number of testind data %d' % (len(test_pairs)))
     return input_lang, output_lang, train_pairs, test_pairs

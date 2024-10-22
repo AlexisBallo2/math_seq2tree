@@ -17,8 +17,9 @@ beam_size = 5
 n_layers = 2
 
 os.makedirs("models", exist_ok=True)
-data = load_raw_data("data/Math_23K.json")
-# data format:
+# data = load_MATH23k_data("data/Math_23K.json")
+data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
+# MATH data format:
 # {
 # "id":"10431",
 # "original_text":"The speed of a car is 80 kilometers per hour. It can be written as: how much. Speed ​​* how much = distance.",
@@ -26,12 +27,19 @@ data = load_raw_data("data/Math_23K.json")
 # "equation":"x=80",
 # "ans":"80"
 # }'
+# DRAW format:
+# {
+# "sQuestion",
+# "lEquations",
+# }
 
-pairs, generate_nums, copy_nums = transfer_num(data)
+setName = "DRAW"
+pairs, generate_nums, copy_nums = transfer_num(data, setName)
 pairs = pairs[0:30]
 # pairs: list of tuples:
 #   input_seq: masked text
-#   out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
+#   [out_seq]: equation with in text numbers replaced with "N#", and other numbers left as is
+#   IF MATH: target equation answer
 #   nums: list of numbers in the text
 #   num_pos: list of positions of the numbers in the text
 # generate_nums: list of common numbers not in input text (ex constants)
@@ -39,8 +47,16 @@ pairs = pairs[0:30]
 
 temp_pairs = []
 for p in pairs:
-    # input_seq, prefixed equation, nums, num_pos
-    temp_pairs.append((p[0], from_infix_to_prefix(p[1]), p[2], p[3]))
+    if setName == "MATH": 
+        # for MATH:
+        # input_seq, prefixed equation, nums, num_pos
+        temp_pairs.append((p[0], from_infix_to_prefix(p[1]), p[2], p[3]))
+    else:
+        # for DRAW:
+        # input_seq, prefixed equation, target equation output, nums, num_pos
+        temp_pairs.append((p[0], from_infix_to_prefix(p[1]), p[2], p[3], p[4]))
+
+
 pairs = temp_pairs
 
 # split data into groups of 20%
@@ -64,8 +80,12 @@ for fold in range(5):
         else:
             pairs_trained += fold_pairs[fold_t]
 
-    input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums,
+    input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 0, generate_nums,
                                                                     copy_nums, tree=True)
+    # confirm:
+    print("for input:", temp_pairs[0])
+    print("     problem", input_lang.ids_to_tokens(train_pairs[0][0]))
+    print("     equations", [output_lang.ids_to_tokens(train_pairs[0][2][i]) for i in range(len(train_pairs[0][2]))])
     # pair:
     #   input: sentence with all numbers masked as NUM
     #   length of input
