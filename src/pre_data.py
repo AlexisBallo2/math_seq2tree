@@ -443,11 +443,15 @@ def transfer_num(data, setName):  # transfer num into "NUM"
         # num_pos: list of positions of the numbers in the text
         print(input_seq, out_seq_list, nums, num_pos)
 
+        # if setName == "MATH":
+        #     pairs.append((input_seq, out_seq_list, nums, num_pos))
+        # else:
+        final_out_seq_list = []
+        equationTargetVars = []
         if setName == "MATH":
-            pairs.append((input_seq, out_seq_list, nums, num_pos))
+            equationTargetVars = ['x']
+            final_out_seq_list = out_seq_list
         else:
-            final_out_seq_list = []
-            equationTargetVars = []
             for outputEquation in out_seq_list:
                 # only want equations in this form
                 if outputEquation[-1][0] != "N" or outputEquation[-2] != "=":
@@ -458,7 +462,7 @@ def transfer_num(data, setName):  # transfer num into "NUM"
                     final_out_seq_list.append(outputEquation[:-2])
             if len(equationTargetVars) != len(out_seq_list):
                 continue
-            pairs.append((input_seq, final_out_seq_list, equationTargetVars, nums, num_pos))
+        pairs.append((input_seq, final_out_seq_list, equationTargetVars, nums, num_pos))
 
     temp_g = []
     for g in generate_nums:
@@ -755,8 +759,9 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             input_lang.add_sen_to_vocab(pair[0])
             # vocab for the equations. note that this does not add numbers or num tokens
             # to the lang
-            for eq in pair[1]:
-                output_lang.add_sen_to_vocab(eq)
+            for eqs in pair[1]:
+                for equ in eqs:
+                    output_lang.add_sen_to_vocab(equ)
     # this is hard coded at 5
     # cuts off words that appear less than 5 times 
     input_lang.build_input_lang(trim_min_count)
@@ -811,8 +816,10 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         #   nums: numbers from the input text
         #   loc nums: where nums are in the text
         #   [[] of where each token in the equation is found in the nums array]
-        train_pairs.append((input_cell, len(input_cell), output_cells, len(output_cells),
-                            pair[2], pair[3], num_stack))
+        train_pairs.append(
+            (input_cell, len(input_cell), 
+             output_cells, [len(output_cell) for output_cell in output_cells],
+             pair[2], pair[3], num_stack))
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
     print('Number of training data %d' % (len(train_pairs)))
     for pair in pairs_tested:
@@ -839,6 +846,14 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         test_pairs.append((input_cell, len(input_cell), output_cells, len(output_cells),
                            pair[2], pair[3], num_stack))
     print('Number of testind data %d' % (len(test_pairs)))
+            # pair:
+        #   input: sentence with all numbers masked as NUM
+        #   length of input
+        #   output: prefix equation. Numbers from input as N{i}, non input as constants
+        #   length of output
+        #   nums: numbers from the input text
+        #   loc nums: where nums are in the text
+        #   [[] of where each token in the equation is found in the nums array]
     return input_lang, output_lang, train_pairs, test_pairs
 
 
@@ -959,28 +974,50 @@ def prepare_train_batch(pairs_to_batch, batch_size):
         batches.append(pairs[pos:pos+batch_size])
         pos += batch_size
     batches.append(pairs[pos:])
+    
+
+    # get max lengths of each equation and number of equations in the batch
+    max_equations_per_problem = 0
+    max_tokens_per_equation = 0
+    for batch in batches:
+        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack in batch:
+        # for equation in output_length:
+            max_equations_per_problem = max(max_equations_per_problem, len(equations))
+            for equation in equations:
+                # print('equation', equation)
+                max_tokens_per_equation = max(max_tokens_per_equation, len(equation))
+    
+    print("max equations per problem: ", max_equations_per_problem)
+    print('max tokens per equation: ', max_tokens_per_equation)
+
 
     for batch in batches:
         batch = sorted(batch, key=lambda tp: tp[1], reverse=True)
         input_length = []
         output_length = []
         # for each item in a pair
-        for _, i, _, j, _, _, _ in batch:
+        # for _, i, _, j, _, _, _ in batch:
+        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack in batch:
             # i = length if input in pair
-            input_length.append(i)
+            input_length.append(input_length_temp)
             # j = length of output in pair
-            output_length.append(j)
+            output_length.append(equation_lengths)
         input_lengths.append(input_length)
         output_lengths.append(output_length)
         input_len_max = input_length[0]
-        output_len_max = max(output_length)
+        output_len_max = 0
+        # for equation in output_length:
+        #     output_len_max = max(output_len_max, *equation)
+        # output_len_max = max(output_length)
         input_batch = []
         output_batch = []
+        output_batch_mask = []
         num_batch = []
         num_stack_batch = []
         num_pos_batch = []
         num_size_batch = []
-        for i, li, j, lj, num, num_pos, num_stack in batch:
+        # for i, li, j, lj, num, num_pos, num_stack in batch:
+        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack in batch:
             # pair:
             #   input: sentence with all numbers masked as NUM
             #   length of input
@@ -989,17 +1026,34 @@ def prepare_train_batch(pairs_to_batch, batch_size):
             #   nums: numbers from the input text
             #   loc nums: where nums are in the text
             #   [[] of where each number in the equation (that is not in the output lang) is found in the nums array]
-            num_batch.append(len(num))
+            num_batch.append(len(input_nums))
             # input batch: padded input text
-            input_batch.append(pad_seq(i, li, input_len_max))
+            input_batch.append(pad_seq(input_seq, input_length_temp, input_len_max))
             # output batch: padded output text
-            output_batch.append(pad_seq(j, lj, output_len_max))
+
+            equations_final = []
+            equations_mask = []
+            # pads number of equations
+            for i in range(max_equations_per_problem):
+                if i < len(equations):
+                    # pads tokens per equation
+                    equations_final.append(pad_seq(equations[i], equation_lengths[i], max_tokens_per_equation))
+                    equations_mask.append([0] * equation_lengths[i] + [1] * (max_tokens_per_equation - equation_lengths[i]))
+                else:
+                    equations_final.append([PAD_token] * max_tokens_per_equation)
+                    equations_mask.append([1] * max_tokens_per_equation)
+
+
+            output_batch.append(equations_final)
+            output_batch_mask.append(equations_mask)
+            # output_batch.append(pad_seq(j, lj, output_len_max))
             # the corresponding arrays
             num_stack_batch.append(num_stack)
             # positions of numbers
-            num_pos_batch.append(num_pos)
+            num_pos_batch.append(input_nums_pos)
             # size of numbers from input
-            num_size_batch.append(len(num_pos))
+            num_size_batch.append(len(input_nums_pos))
+
         input_batches.append(input_batch)
         nums_batches.append(num_batch)
         output_batches.append(output_batch)
@@ -1009,12 +1063,13 @@ def prepare_train_batch(pairs_to_batch, batch_size):
     # input_batches: padded inputs
     # input_lengths: length of the inputs (without padding)
     # output_batches: padded outputs
+    # output_batches_mask: where padding is
     # output_length: length of the outputs (without padding)
     # num_batches: numbers from the input text 
     # num_stack_batches: the corresponding nums lists
     # num_pos_batches: positions of the numbers lists
     # num_size_batches: number of numbers from the input text
-    return input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches
+    return input_batches, input_lengths, output_batches, output_batch_mask, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches
 
 
 def get_num_stack(eq, output_lang, num_pos):

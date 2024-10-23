@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+from re import I
 from src.train_and_evaluate import *
 from src.models import *
 import time
@@ -7,7 +8,7 @@ import torch.optim
 from src.expressions_transfer import *
 
 # batch_size = 64
-batch_size = 1 
+batch_size = 2 
 embedding_size = 128
 hidden_size = 512
 n_epochs = 80
@@ -17,8 +18,12 @@ beam_size = 5
 n_layers = 2
 
 os.makedirs("models", exist_ok=True)
-# data = load_MATH23k_data("data/Math_23K.json")
-data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
+setName = "DRAW"
+# setName = "MATH"
+if setName == "MATH":
+    data = load_MATH23k_data("data/Math_23K.json")
+else:
+    data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
 # MATH data format:
 # {
 # "id":"10431",
@@ -33,13 +38,12 @@ data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
 # "lEquations",
 # }
 
-setName = "DRAW"
 pairs, generate_nums, copy_nums = transfer_num(data, setName)
 pairs = pairs[0:30]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   [out_seq]: equation with in text numbers replaced with "N#", and other numbers left as is
-#   IF MATH: target equation answer
+#   target equation answer
 #   nums: list of numbers in the text
 #   num_pos: list of positions of the numbers in the text
 # generate_nums: list of common numbers not in input text (ex constants)
@@ -47,17 +51,16 @@ pairs = pairs[0:30]
 
 temp_pairs = []
 for p in pairs:
-    if setName == "MATH": 
-        # for MATH:
-        # input_seq, prefixed equation, nums, num_pos
-        temp_pairs.append((p[0], from_infix_to_prefix(p[1]), p[2], p[3]))
-    else:
-        # for DRAW:
-        # input_seq, prefixed equation, target equation output, nums, num_pos
-        temp_pairs.append((p[0], from_infix_to_prefix(p[1]), p[2], p[3], p[4]))
+    temp_pairs.append((p[0], from_infix_to_prefix(p[1]), p[3], p[4], p[2]))
 
 
 pairs = temp_pairs
+# pairs:
+#   input_seq: masked text
+#   [out_seq]: equation with in text numbers replaced with "N#", and other numbers left as is
+#   list of numbers in the text
+#   list of positions of the numbers in the text
+#   target equation answer
 
 # split data into groups of 20%
 fold_size = int(len(pairs) * 0.2)
@@ -80,8 +83,25 @@ for fold in range(5):
         else:
             pairs_trained += fold_pairs[fold_t]
 
-    input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 0, generate_nums,
+    if setName == "MATH":
+        input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums,
                                                                     copy_nums, tree=True)
+    else:
+        input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 0, generate_nums,
+                                                                    copy_nums, tree=True)
+    # pair:
+    #   input: sentence with all numbers masked as NUM
+    #   length of input
+    #   [outputs]: prefix equation. Numbers from input as N{i}, non input as constants
+    #   [length of outputs]
+    #   nums: numbers from the input text
+    #   loc nums: where nums are in the text
+    #   [[] of where each token in the equation is found in the nums array]
+    # use this
+    for input_seq, input_length, equations, equation_lengths, input_nums, input_nums_pos, num_stack in train_pairs:
+        print("input_seq", input_seq) 
+        print("equations", equations) 
+
     # confirm:
     print("for input:", temp_pairs[0])
     print("     problem", input_lang.ids_to_tokens(train_pairs[0][0]))
@@ -97,6 +117,8 @@ for fold in range(5):
     # Initialize models
     encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,
                          n_layers=n_layers)
+    # max of 5 possible trees generated 
+    num_equations_predict = PredictNumEquations(hidden_size=hidden_size, output_size=5)
     predict = Prediction(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums),
                          input_size=len(generate_nums))
     generate = GenerateNode(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums),
@@ -105,11 +127,13 @@ for fold in range(5):
     # the embedding layer is  only for generated number embeddings, operators, and paddings
 
     encoder_optimizer = torch.optim.Adam(encoder.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    num_equations_predict_optimizer = torch.optim.Adam(num_equations_predict.parameters(), lr=learning_rate, weight_decay=weight_decay)
     predict_optimizer = torch.optim.Adam(predict.parameters(), lr=learning_rate, weight_decay=weight_decay)
     generate_optimizer = torch.optim.Adam(generate.parameters(), lr=learning_rate, weight_decay=weight_decay)
     merge_optimizer = torch.optim.Adam(merge.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
     encoder_scheduler = torch.optim.lr_scheduler.StepLR(encoder_optimizer, step_size=20, gamma=0.5)
+    num_equations_predict_scheduler = torch.optim.lr_scheduler.StepLR(num_equations_predict_optimizer, step_size=20, gamma=0.5)
     predict_scheduler = torch.optim.lr_scheduler.StepLR(predict_optimizer, step_size=20, gamma=0.5)
     generate_scheduler = torch.optim.lr_scheduler.StepLR(generate_optimizer, step_size=20, gamma=0.5)
     merge_scheduler = torch.optim.lr_scheduler.StepLR(merge_optimizer, step_size=20, gamma=0.5)
@@ -139,15 +163,15 @@ for fold in range(5):
         # num_stack_batches: the corresponding nums lists
         # num_pos_batches: positions of the numbers lists
         # num_size_batches: number of numbers from the input text
-        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches = prepare_train_batch(train_pairs, batch_size)
+        input_batches, input_lengths, output_batches, output_batch_mask, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches = prepare_train_batch(train_pairs, batch_size)
         print("fold:", fold + 1)
         print("epoch:", epoch + 1)
         start = time.time()
         for idx in range(len(input_lengths)):
             loss = train_tree(
-                input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
-                num_stack_batches[idx], num_size_batches[idx], generate_num_ids, encoder, predict, generate, merge,
-                encoder_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos_batches[idx])
+                input_batches[idx], input_lengths[idx], output_batches[idx], output_batch_mask[idx], output_lengths[idx],
+                num_stack_batches[idx], num_size_batches[idx], generate_num_ids, encoder, num_equations_predict, predict, generate, merge,
+                encoder_optimizer, num_equations_predict_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos_batches[idx])
             loss_total += loss
 
         print("loss:", loss_total / len(input_lengths))

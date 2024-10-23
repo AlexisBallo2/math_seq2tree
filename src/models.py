@@ -478,3 +478,22 @@ class Merge(nn.Module):
         sub_tree_g = torch.sigmoid(self.merge_g(torch.cat((node_embedding, sub_tree_1, sub_tree_2), 1)))
         sub_tree = sub_tree * sub_tree_g
         return sub_tree
+
+
+class PredictNumEquations(nn.Module):
+    def __init__(self, hidden_size, output_size, dropout=0.5):
+        super(PredictNumEquations, self).__init__()
+
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+
+        self.em_dropout = nn.Dropout(dropout)
+        self.out = nn.Linear(hidden_size, output_size)
+    def forward(self, hidden):
+        # pade_outputs = 
+        #  forward GRU embeddings + backward GRU embeddings
+        # token embedding of each token in the problem
+
+        hidden = self.em_dropout(hidden)
+        output = self.out(hidden)
+        return output
