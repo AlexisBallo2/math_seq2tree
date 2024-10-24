@@ -381,7 +381,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
         # node just has embedding and a left flag? 
         tempSplit = problem_output.split(1, dim=0)
         # problem_output is q_0 for each token in equation, so use last one
-        node_stacks = [[TreeNode(_)] for _ in qs]
+        node_stacks = [[TreeNode(_)] for _ in qs.transpose(0,1)[equation_count]]
         
         for t in range(max_target_length):
 
