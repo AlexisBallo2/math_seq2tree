@@ -250,7 +250,7 @@ class TreeEmbedding:  # the class save the tree
 
 
 def train_tree(input_batch, input_length, target_batch, target_mask, target_length, nums_stack_batch, num_size_batch, generate_nums,
-               encoder, num_x_predict, predict, generate, merge, encoder_optimizer, num_x_predict_optimizer, predict_optimizer, generate_optimizer,
+               encoder, num_x_predict, x_generate, predict, generate, merge, encoder_optimizer, num_x_predict_optimizer, x_generate_optimizer, predict_optimizer, generate_optimizer,
                merge_optimizer, output_lang, num_pos, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
@@ -313,6 +313,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     generate.train()
     merge.train()
     num_x_predict.train()
+    x_generate.train()
 
     if USE_CUDA:
         input_var = input_var.cuda()
@@ -326,6 +327,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     generate_optimizer.zero_grad()
     merge_optimizer.zero_grad()
     num_x_predict.zero_grad()
+    x_generate.zero_grad()
     # Run words through encoder
 
     # embedding + dropout layer
@@ -352,7 +354,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     # all_leafs = []
 
     # array of len of numbers that must be copied from the input text
-    copy_num_len = [len(_) for _ in num_pos]
+    copy_num_len = [len(_) for _ in num_pos] 
     # max nums to copy
     num_size = max(copy_num_len)
 
@@ -360,7 +362,16 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_size,
                                                               encoder.hidden_size)
 
+    # get the number of x's to generate
     num_x = num_x_predict(encoder_outputs)
+    # generate the x vectors
+    # target_length is batch_size x num_equations x num_tokens
+    actual_x = torch.Tensor([max_num_equations for _ in target_length])
+    xs = x_generate(actual_x, encoder_outputs, problem_output)
+
+
+
+
 
 
     # index in the language where the special (operators) tokens end and input/output text begins

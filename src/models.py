@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from numpy import append
 import torch
 import torch.nn as nn
 
@@ -492,7 +493,6 @@ class PredictNumX(nn.Module):
         self.out = nn.Linear(hidden_size * 10, 1)
 
         self.lstm = nn.LSTM(hidden_size, hidden_size, 1, batch_first=True)
-        self.fc = nn.Linear(hidden_size, output_size)
         self.fc = nn.Linear(hidden_size, 1)
 
 
@@ -511,28 +511,106 @@ class PredictNumX(nn.Module):
 
 
         # pad this list to be 100 long
-        # hidden2 = hidden + tor
-        # hidden2 = hidden + [torch.zeros(512) * hidden[2]] * (100 - len(hidden[0]))
         # Initialize hidden and cell states with zeros
         h0 = torch.zeros(self.lstm.num_layers, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
         c0 = torch.zeros(self.lstm.num_layers, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
-        # h0 = torch.zeros(self.lstm.num_layers, hidden2T.size(1), self.lstm.hidden_size).to(hidden2T.device)
-        # c0 = torch.zeros(self.lstm.num_layers, hidden2T.size(1), self.lstm.hidden_size).to(hidden2T.device)
 
         # Forward propagate LSTM
         out, _ = self.lstm(hidden2T, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
-        out = self.fc(out[:, -1, :])  # out: tensor of shape (batch_size, output_size)
+        out = self.fc(out[:, -1, :]).squeeze(-1)  # out: tensor of shape (batch_size, output_size)
         return out
 
 
+class XToQ(nn.Module):
+    def __init__(self, hidden_size, output_size, batch_size, dropout=0.5):
+        super(XToQ, self).__init__()
+        self.K = nn.Linear(hidden_size, hidden_size)
+        self.V = nn.Linear(hidden_size, hidden_size)
+        self.lstm = nn.LSTM(hidden_size, hidden_size, 1, batch_first=True)
+        self.fc = nn.Linear(hidden_size, 1)
+    def forward(self, hidden, x):
 
+        finals = []
 
-        # pad = torch.zeros(512)
-        # flattened_hidden = torch.flatten(hidden)
-        # hidden2 = torch.nn.utils.rnn.pad_sequence(hidden, batch_first=True, padding_value=pad)
+        hidden2 = hidden.transpose(0,1)
+        for i in range(hidden.shape[1]):
+            xs = x[i]
+            qs = []
+            for j in range(len(xs)):
+                qkt = torch.matmul(xs[j], self.K(hidden2[i]).transpose(0,1))
+                smqkt = nn.functional.softmax(qkt)
+                output = torch.matmul(smqkt, self.V(hidden2[i]))
+                qs.append(output)
+            qs = torch.stack(qs)
+            # having more than 1 q means we need a q that covers all q/xs
+            if len(qs) > 1:
+                h0 = torch.zeros(self.lstm.num_layers, self.lstm.hidden_size).to(qs.device)
+                c0 = torch.zeros(self.lstm.num_layers, self.lstm.hidden_size).to(qs.device)
 
-
-
-        hidden = self.em_dropout(hidden)
-        output = self.out(hidden)
+                # Forward propagate LSTM
+                out1, _ = self.lstm(qs, (h0, c0))  # out: tensor of shape (seq_length, hidden_size)
+                qs = torch.cat((qs, out1[0].unsqueeze(0)), dim=0)
+            finals.append(qs)
+            
+        output = torch.stack(finals)
         return output
+
+
+class GenerateXs(nn.Module):
+    def __init__(self, hidden_size, output_size, batch_size, dropout=0.5):
+        super(GenerateXs, self).__init__()
+
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+        self.batch_size = batch_size
+
+        self.em_dropout = nn.Dropout(dropout)
+        self.out = nn.Linear(hidden_size * 10, 1)
+
+        self.new_old_final = nn.Linear(hidden_size * 2, hidden_size)
+
+        self.K = nn.Linear(hidden_size, hidden_size)
+        self.V = nn.Linear(hidden_size, hidden_size)
+
+        self.x_to_q = XToQ(hidden_size, output_size, batch_size, dropout=0.5)
+
+    def forward(self, num_xs, hidden, problem_q):
+        
+        # hidden2: batch_size x tokens x hidden_size
+
+        hidden2 = hidden.transpose(0,1)
+        output_xs = []
+
+        # for each in batch
+        for i in range(hidden.shape[1]):
+            xs = []
+            nums_to_gen = max(int(num_xs.tolist()[i]), 1)
+            goal_vect = problem_q[i]
+            kt = self.K(hidden2[i]).transpose(0,1)
+            v = self.V(hidden2[i])
+            # for each number to gen
+            for j in range(nums_to_gen):
+                # leave the first vector
+                if len(xs) == 0:
+                    xs.append(goal_vect)
+                else:
+                    # generate the next one from the attention of previous
+                    qkt = torch.matmul(xs[j-1], kt)
+                    smqkt = nn.functional.softmax(qkt)
+                    # output: hidden_size
+                    outAttention = torch.matmul(smqkt, v)
+                    xs.append(outAttention)
+            output_xs.append(torch.stack(xs))
+
+            print('here')
+
+
+
+
+        final_xs = torch.stack(output_xs)
+        final_qs = self.x_to_q(hidden, final_xs)
+        return final_qs 
+        # hidden will be a list of unknown length with embed dimension of 512. 
+
+
+

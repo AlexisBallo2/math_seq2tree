@@ -9,6 +9,7 @@ from src.expressions_transfer import *
 
 # batch_size = 64
 batch_size = 2 
+# batch_size = 2 
 embedding_size = 128
 hidden_size = 512
 n_epochs = 80
@@ -119,6 +120,7 @@ for fold in range(5):
                          n_layers=n_layers)
     # max of 5 possible trees generated 
     num_x_predict = PredictNumX(hidden_size=hidden_size, output_size=5, batch_size=batch_size)
+    x_generate = GenerateXs(hidden_size=hidden_size, output_size=5, batch_size=batch_size)
     predict = Prediction(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums),
                          input_size=len(generate_nums))
     generate = GenerateNode(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums),
@@ -128,12 +130,14 @@ for fold in range(5):
 
     encoder_optimizer = torch.optim.Adam(encoder.parameters(), lr=learning_rate, weight_decay=weight_decay)
     num_x_predict_optimizer = torch.optim.Adam(num_x_predict.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    x_generate_optimizer = torch.optim.Adam(x_generate.parameters(), lr=learning_rate, weight_decay=weight_decay)
     predict_optimizer = torch.optim.Adam(predict.parameters(), lr=learning_rate, weight_decay=weight_decay)
     generate_optimizer = torch.optim.Adam(generate.parameters(), lr=learning_rate, weight_decay=weight_decay)
     merge_optimizer = torch.optim.Adam(merge.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
     encoder_scheduler = torch.optim.lr_scheduler.StepLR(encoder_optimizer, step_size=20, gamma=0.5)
     num_x_predict_scheduler = torch.optim.lr_scheduler.StepLR(num_x_predict_optimizer, step_size=20, gamma=0.5)
+    x_generate_scheduler = torch.optim.lr_scheduler.StepLR(x_generate_optimizer, step_size=20, gamma=0.5)
     predict_scheduler = torch.optim.lr_scheduler.StepLR(predict_optimizer, step_size=20, gamma=0.5)
     generate_scheduler = torch.optim.lr_scheduler.StepLR(generate_optimizer, step_size=20, gamma=0.5)
     merge_scheduler = torch.optim.lr_scheduler.StepLR(merge_optimizer, step_size=20, gamma=0.5)
@@ -170,8 +174,8 @@ for fold in range(5):
         for idx in range(len(input_lengths)):
             loss = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_batch_mask[idx], output_lengths[idx],
-                num_stack_batches[idx], num_size_batches[idx], generate_num_ids, encoder, num_x_predict, predict, generate, merge,
-                encoder_optimizer, num_x_predict_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos_batches[idx])
+                num_stack_batches[idx], num_size_batches[idx], generate_num_ids, encoder, num_x_predict, x_generate, predict, generate, merge,
+                encoder_optimizer, num_x_predict_optimizer, x_generate_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos_batches[idx])
             loss_total += loss
 
         print("loss:", loss_total / len(input_lengths))
