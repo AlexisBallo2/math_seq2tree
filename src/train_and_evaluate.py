@@ -277,7 +277,6 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     # print('max tokens per equation: ', max_tokens_per_equation)
 
 
-
     # sequence mask for attention
     # 0s where in input, 1s where not in input
     seq_mask = []
@@ -286,14 +285,6 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
         seq_mask.append([0 for _ in range(i)] + [1 for _ in range(i, max_len)])
     seq_mask = torch.ByteTensor(seq_mask)
 
-    # number mask 
-    # 0s where the numbers are from input, 1s where not in input
-    num_mask = []
-    max_num_size = max(num_size_batch) + len(generate_nums)
-    for i in num_size_batch:
-        d = i + len(generate_nums)
-        num_mask.append([0] * d + [1] * (max_num_size - d))
-    num_mask = torch.ByteTensor(num_mask)
 
     unk = output_lang.word2index["UNK"]
 
@@ -319,7 +310,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
         input_var = input_var.cuda()
         seq_mask = seq_mask.cuda()
         padding_hidden = padding_hidden.cuda()
-        num_mask = num_mask.cuda()
+        # num_mask = num_mask.cuda()
 
     # Zero gradients of both optimizers
     encoder_optimizer.zero_grad()
@@ -363,6 +354,16 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     # target_length is batch_size x num_equations x num_tokens
     actual_x = torch.Tensor([max_num_equations for _ in target_length])
     qs, updated_encoder_outputs, updated_nums_encoder_outputs = xq_generate(actual_x, encoder_outputs, all_nums_encoder_outputs, problem_output)
+
+    # number mask 
+    # 0s where the numbers are from input, 1s where not in input
+    num_mask = []
+    max_num_size = max(num_size_batch) + len(generate_nums) + len(qs)
+    for i in num_size_batch:
+        d = i + len(generate_nums) + len(qs)
+        num_mask.append([0] * d + [1] * (max_num_size - d))
+    num_mask = torch.ByteTensor(num_mask)
+    
     addedQs = len(qs)
     # make sure to note that the updated encoder has the x vectors
 
@@ -381,7 +382,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
         # node just has embedding and a left flag? 
         tempSplit = problem_output.split(1, dim=0)
         # problem_output is q_0 for each token in equation, so use last one
-        node_stacks = [[TreeNode(_)] for _ in qs.transpose(0,1)[equation_count]]
+        node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in qs.transpose(0,1)[equation_count]]
         
         for t in range(max_target_length):
 
@@ -398,7 +399,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
             #       embeddings of the generate and copy numbers
 
             num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(
-                node_stacks, left_childs, updated_encoder_outputs, updated_nums_encoder_outputs, padding_hidden, seq_mask, num_mask)
+                node_stacks, left_childs, encoder_outputs, updated_nums_encoder_outputs, padding_hidden, seq_mask, num_mask)
 
 
             # this is mainly what we want to train
@@ -495,7 +496,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
                     left_childs.append(o[-1].embedding)
                 else:
                     left_childs.append(None)
-        all_outputs.append(torch.stack(current_equation_outputs), dim=1)
+        all_outputs.append(torch.stack(current_equation_outputs, dim = 1))
         print('o embeddings', len(embeddings_stacks))
 
     # all_leafs = torch.stack(all_leafs, dim=1)  # B x S x 2
