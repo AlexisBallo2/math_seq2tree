@@ -556,9 +556,9 @@ class XToQ(nn.Module):
         return output
 
 
-class GenerateXs(nn.Module):
+class GenerateXQs(nn.Module):
     def __init__(self, hidden_size, output_size, batch_size, dropout=0.5):
-        super(GenerateXs, self).__init__()
+        super(GenerateXQs, self).__init__()
 
         self.hidden_size = hidden_size
         self.output_size = output_size
@@ -574,7 +574,7 @@ class GenerateXs(nn.Module):
 
         self.x_to_q = XToQ(hidden_size, output_size, batch_size, dropout=0.5)
 
-    def forward(self, num_xs, hidden, problem_q):
+    def forward(self, num_xs, hidden, num_encoder_outputs, problem_q):
         
         # hidden2: batch_size x tokens x hidden_size
 
@@ -609,7 +609,13 @@ class GenerateXs(nn.Module):
 
         final_xs = torch.stack(output_xs)
         final_qs = self.x_to_q(hidden, final_xs)
-        return final_qs 
+
+        # add the xs to the hidden
+        # xs: batch_size x num_xs x hidden_size
+        # hidden2: batch_size x tokens x hidden_size
+        updated_hidden = torch.cat((hidden2, final_xs), dim=1)
+        updated_nums = torch.cat((num_encoder_outputs, final_xs), dim=1)
+        return final_qs, updated_hidden.transpose(0,1), updated_nums
         # hidden will be a list of unknown length with embed dimension of 512. 
 
 
