@@ -480,19 +480,58 @@ class Merge(nn.Module):
         return sub_tree
 
 
-class PredictNumEquations(nn.Module):
-    def __init__(self, hidden_size, output_size, dropout=0.5):
-        super(PredictNumEquations, self).__init__()
+class PredictNumX(nn.Module):
+    def __init__(self, hidden_size, output_size, batch_size, dropout=0.5):
+        super(PredictNumX, self).__init__()
 
         self.hidden_size = hidden_size
         self.output_size = output_size
+        self.batch_size = batch_size
 
         self.em_dropout = nn.Dropout(dropout)
-        self.out = nn.Linear(hidden_size, output_size)
+        self.out = nn.Linear(hidden_size * 10, 1)
+
+        self.lstm = nn.LSTM(hidden_size, hidden_size, 1, batch_first=True)
+        self.fc = nn.Linear(hidden_size, output_size)
+        self.fc = nn.Linear(hidden_size, 1)
+
+
     def forward(self, hidden):
-        # pade_outputs = 
-        #  forward GRU embeddings + backward GRU embeddings
-        # token embedding of each token in the problem
+        # hidden will be a list of unknown length with embed dimension of 512. 
+
+        zeroList = [[[0.0] * 512] for _ in range(self.batch_size)]
+        padding_tensor = torch.tensor(zeroList)  # or any other values you want to pad with
+        padding_tensor = padding_tensor.squeeze(1)
+        num_padding_needed = 100 - hidden.size(0)
+        padding = padding_tensor.unsqueeze(0).expand(num_padding_needed, -1, -1)
+        hidden2 = torch.cat((hidden, padding), dim=0)
+
+        hidden2T = hidden2.transpose(0, 1)
+
+
+
+        # pad this list to be 100 long
+        # hidden2 = hidden + tor
+        # hidden2 = hidden + [torch.zeros(512) * hidden[2]] * (100 - len(hidden[0]))
+        # Initialize hidden and cell states with zeros
+        h0 = torch.zeros(self.lstm.num_layers, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
+        c0 = torch.zeros(self.lstm.num_layers, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
+        # h0 = torch.zeros(self.lstm.num_layers, hidden2T.size(1), self.lstm.hidden_size).to(hidden2T.device)
+        # c0 = torch.zeros(self.lstm.num_layers, hidden2T.size(1), self.lstm.hidden_size).to(hidden2T.device)
+
+        # Forward propagate LSTM
+        out, _ = self.lstm(hidden2T, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
+        out = self.fc(out[:, -1, :])  # out: tensor of shape (batch_size, output_size)
+        return out
+
+
+
+
+        # pad = torch.zeros(512)
+        # flattened_hidden = torch.flatten(hidden)
+        # hidden2 = torch.nn.utils.rnn.pad_sequence(hidden, batch_first=True, padding_value=pad)
+
+
 
         hidden = self.em_dropout(hidden)
         output = self.out(hidden)

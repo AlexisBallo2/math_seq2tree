@@ -250,7 +250,7 @@ class TreeEmbedding:  # the class save the tree
 
 
 def train_tree(input_batch, input_length, target_batch, target_mask, target_length, nums_stack_batch, num_size_batch, generate_nums,
-               encoder, num_equations_predict, predict, generate, merge, encoder_optimizer, num_equations_predict_optimizer, predict_optimizer, generate_optimizer,
+               encoder, num_x_predict, predict, generate, merge, encoder_optimizer, num_x_predict_optimizer, predict_optimizer, generate_optimizer,
                merge_optimizer, output_lang, num_pos, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
@@ -297,8 +297,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
 
     unk = output_lang.word2index["UNK"]
 
-    # Turn padded arrays into (batch_size x max_len) tensors, 
-    # transpose into (max_len x batch_size)
+    # Turn padded arrays into (equation x max_len x batch_size ) tensors, 
     print("input batch", input_batch)
     input_var = torch.LongTensor(input_batch).transpose(0, 1)
     print("input var", input_var)
@@ -313,6 +312,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     predict.train()
     generate.train()
     merge.train()
+    num_x_predict.train()
 
     if USE_CUDA:
         input_var = input_var.cuda()
@@ -325,6 +325,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     predict_optimizer.zero_grad()
     generate_optimizer.zero_grad()
     merge_optimizer.zero_grad()
+    num_x_predict.zero_grad()
     # Run words through encoder
 
     # embedding + dropout layer
@@ -359,16 +360,17 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_size,
                                                               encoder.hidden_size)
 
-    num_equations = num_equations_predict(encoder_outputs)
+    num_x = num_x_predict(encoder_outputs)
 
 
     # index in the language where the special (operators) tokens end and input/output text begins
     num_start = output_lang.num_start
     # 
+    all_outputs = []
     for equation_count in range(max_num_equations):
         embeddings_stacks = [[] for _ in range(batch_size)]
         left_childs = [None for _ in range(batch_size)]
-        all_node_outputs = []
+        current_equation_outputs = []
         current_equation = target[equation_count]
         
         for t in range(max_target_length):
@@ -391,7 +393,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
 
             # this is mainly what we want to train
             outputs = torch.cat((op, num_score), 1)
-            all_node_outputs.append(outputs)
+            current_equation_outputs.append(outputs)
 
             # target[t] is the equation character at index t for each batch
             #    target[t] = 1 x num_batches
@@ -483,6 +485,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
                     left_childs.append(o[-1].embedding)
                 else:
                     left_childs.append(None)
+        all_outputs.append(current_equation_outputs)
         print('o embeddings', len(embeddings_stacks))
 
     # all_leafs = torch.stack(all_leafs, dim=1)  # B x S x 2
@@ -494,6 +497,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     # all_node_outputs2: for each batch:
     #   the current scoring of nums for each token in equation
     # = batch_size x max_len x num_nums
+    print('all', all_outputs)
     all_node_outputs2 = torch.stack(all_node_outputs, dim=1)  # B x S x N
 
     target = target.transpose(0, 1).contiguous()
