@@ -249,7 +249,7 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
 
 
-def train_tree(input_batch, input_length, target_batch, target_mask, target_length, nums_stack_batch, num_size_batch, generate_nums,
+def train_tree(input_batch, input_length, target_batch, target_mask, target_length, target_equation_sonls, nums_stack_batch, num_size_batch, generate_nums,
                encoder, num_x_predict, xq_generate, predict, generate, merge, encoder_optimizer, num_x_predict_optimizer, xq_generate_optimizer, predict_optimizer, generate_optimizer,
                merge_optimizer, output_lang, num_pos, english=False):
     # input_batch: padded inputs
@@ -496,20 +496,60 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
                     left_childs.append(o[-1].embedding)
                 else:
                     left_childs.append(None)
+        # tree has been built. now predict the = " " token
+        # num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(
+        #     node_stacks, left_childs, encoder_outputs, updated_nums_encoder_outputs, padding_hidden, seq_mask, num_mask)
+        # final_token = torch.cat((op, num_score), 1)
+        # current_equation_outputs.append(final_token)
+
         all_outputs.append(torch.stack(current_equation_outputs, dim = 1))
-        print('o embeddings', len(embeddings_stacks))
 
     # all_leafs = torch.stack(all_leafs, dim=1)  # B x S x 2
     
-    # all_node_outputs:  for each token in the equation:
-    #   the current scoring of nums for each batch
+    # all_node_outputs:  
+    #  for each equation 
+    #    for each token in equation: 
+    #      the current scoring of nums for each batch
     # 
     # transform to 
     # all_node_outputs2: for each batch:
     #   the current scoring of nums for each token in equation
     # = batch_size x max_len x num_nums
     print('all', all_outputs)
-    all_outputs = torch.cat(all_outputs, dim=1)  # B x S x N
+    # all_outputs = torch.stack(all_outputs, dim=1)  # B x S x N
+    # all_outputs = torch.cat(all_outputs, dim=1)  # B x S x N
+
+    # target analysis
+    # target: num_equations x num_tokens x batch_size
+    temp_target = target.transpose(1,2).transpose(0,1)
+    print("target")
+    for i in range(temp_target.size(0)):
+        print('batch', i)
+        for j in range(temp_target.size(1)):
+            # print(temp_target[i][j])
+            print('equation', j, ":", [output_lang.index2word[_] for _ in temp_target[i][j]])
+    # predictions
+    print("predictions")
+    all_outputs2 = [_.unsqueeze(0) for _ in all_outputs]
+    all_outputs_combined = torch.cat(all_outputs2, dim=0)
+    all_outputs_combined2 = all_outputs_combined.transpose(0,1)
+    for i in range(all_outputs_combined2.size(0)):
+        print('batch', i)
+        for j in range(all_outputs_combined2[i].size(0)):
+            print(all_outputs_combined2[i][j])
+            # print('equation', j, ":", [output_lang.index2word[_] for _ in all_outputs[i][j].max(1)[1]])
+
+    # for i in range(len(all_outputs)):
+        # print('batch', i)
+        # for j in range(all_outputs[i].size(0)):
+        #     print(all_outputs[i][j].max(1))
+            # print('equation', j, ":", [output_lang.index2word[_] for _ in all_outputs[i][j].max(1)[1]])
+    # for i in range(all_outputs.size(0)):
+    #     print('batch', i)
+    #     for j in range(all_outputs[i].size(0)):
+    #         print(all_outputs[i][j])
+    #         # print('equation', j, ":", [output_lang.index2word[_] for _ in all_outputs[i][j].max(1)[1]])
+
 
     target = target.transpose(0, 1).contiguous()
     if USE_CUDA:

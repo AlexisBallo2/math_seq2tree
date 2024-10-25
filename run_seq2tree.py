@@ -1,6 +1,8 @@
 # coding: utf-8
 import os
 from re import I
+
+from torch import eq
 from src.train_and_evaluate import *
 from src.models import *
 import time
@@ -8,7 +10,7 @@ import torch.optim
 from src.expressions_transfer import *
 
 # batch_size = 64
-batch_size = 2 
+batch_size = 3
 # batch_size = 2 
 embedding_size = 128
 hidden_size = 512
@@ -25,6 +27,7 @@ if setName == "MATH":
     data = load_MATH23k_data("data/Math_23K.json")
 else:
     data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
+    # data = load_DRAW_data("data/DRAW/single.json")
 # MATH data format:
 # {
 # "id":"10431",
@@ -49,10 +52,11 @@ pairs = pairs[0:30]
 #   num_pos: list of positions of the numbers in the text
 # generate_nums: list of common numbers not in input text (ex constants)
 # copy_nums:  max length of numbers
+# vars in equations
 
 temp_pairs = []
 for p in pairs:
-    temp_pairs.append((p[0], from_infix_to_prefix(p[1]), p[3], p[4], p[2]))
+    temp_pairs.append((p[0], from_infix_to_prefix(p[1]), p[3], p[4], p[2], p[5]))
 
 
 pairs = temp_pairs
@@ -99,14 +103,15 @@ for fold in range(5):
     #   loc nums: where nums are in the text
     #   [[] of where each token in the equation is found in the nums array]
     # use this
-    for input_seq, input_length, equations, equation_lengths, input_nums, input_nums_pos, num_stack in train_pairs:
-        print("input_seq", input_seq) 
-        print("equations", equations) 
+    for input_seq, input_length, equations, equation_lengths, input_nums, input_nums_pos, num_stack, eqn_solns in train_pairs:
+        print("     problem", input_lang.ids_to_tokens(input_seq))
+        print("     equations", [output_lang.ids_to_tokens(equations[i]) for i in range(len(equations))])
+        print("     soln", eqn_solns)
 
-    # confirm:
-    print("for input:", temp_pairs[0])
-    print("     problem", input_lang.ids_to_tokens(train_pairs[0][0]))
-    print("     equations", [output_lang.ids_to_tokens(train_pairs[0][2][i]) for i in range(len(train_pairs[0][2]))])
+    # # confirm:
+    # print("for input:", temp_pairs[0])
+    # print("     problem", input_lang.ids_to_tokens(train_pairs[0][0]))
+    # print("     equations", [output_lang.ids_to_tokens(train_pairs[0][2][i]) for i in range(len(train_pairs[0][2]))])
     # pair:
     #   input: sentence with all numbers masked as NUM
     #   length of input
@@ -167,13 +172,13 @@ for fold in range(5):
         # num_stack_batches: the corresponding nums lists
         # num_pos_batches: positions of the numbers lists
         # num_size_batches: number of numbers from the input text
-        input_batches, input_lengths, output_batches, output_batch_mask, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches = prepare_train_batch(train_pairs, batch_size)
+        input_batches, input_lengths, output_batches, output_batch_mask, output_lengths, output_tokens, nums_batches, num_stack_batches, num_pos_batches, num_size_batches = prepare_train_batch(train_pairs, batch_size)
         print("fold:", fold + 1)
         print("epoch:", epoch + 1)
         start = time.time()
         for idx in range(len(input_lengths)):
             loss = train_tree(
-                input_batches[idx], input_lengths[idx], output_batches[idx], output_batch_mask[idx], output_lengths[idx],
+                input_batches[idx], input_lengths[idx], output_batches[idx], output_batch_mask[idx], output_lengths[idx], output_tokens[idx],
                 num_stack_batches[idx], num_size_batches[idx], generate_num_ids, encoder, num_x_predict, xq_generate, predict, generate, merge,
                 encoder_optimizer, num_x_predict_optimizer, xq_generate_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos_batches[idx])
             loss_total += loss

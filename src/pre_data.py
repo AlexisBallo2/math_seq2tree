@@ -32,6 +32,15 @@ class Lang:
             else:
                 self.word2count[word] += 1
 
+    def remove_token_from_vocab(self, token):
+        if token in self.index2word:
+            index = self.index2word.index(token)
+            del self.index2word[index]
+            del self.word2count[token]
+            del self.word2index[token]
+            self.n_words -= 1
+
+
     def trim(self, min_count):  # trim words below a certain count threshold
         keep_words = []
 
@@ -299,12 +308,14 @@ def transfer_num(data, setName):  # transfer num into "NUM"
     # pattern = re.compile("\d*\(\d+/\d+\)\d*|\d+\.\d+%?|\d+%?")
     patternOLD = re.compile("\d*\(\d+/\d+\)\d*|\d+\.\d+%?|\d+%?")
     # CAPTURE NEGATIVE NUMBERS
-    pattern = re.compile("-?\d*\(\d+/\d+\)\d*|-?\d+\.\d+%?|-?\d+%?")
+    num_pattern = re.compile("-?\d*\(\d+/\d+\)\d*|-?\d+\.\d+%?|-?\d+%?")
+    var_pattern = re.compile("([xyz])(?:[\+\-\*/])([xyz])(?:\s*=\s*\d+)?")
     pairs = []
     generate_nums = []
     generate_nums_dict = {}
     copy_nums = 0
     for d in data:
+        vars = [item['coeff'] for item in d['Alignment']]
         # numbers in this problem's text
         nums = []
         # text after masking
@@ -313,7 +324,13 @@ def transfer_num(data, setName):  # transfer num into "NUM"
         if setName == "MATH":
             seg = d["segmented_text"].strip().split(" ")
         else: 
-            seg = d["sQuestion"].strip().split(" ")
+
+            seg = d["sQuestion"].strip()
+            replace = { "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10 }
+            seg = seg.lower()
+            for k,v in replace.items():
+                seg = seg.replace(k, str(v))
+            seg = seg.split(" ")
 
 
         # strip "x=" from the equation
@@ -324,7 +341,7 @@ def transfer_num(data, setName):  # transfer num into "NUM"
 
         for s in seg:
             # search if its a number
-            pos = re.search(pattern, s)
+            pos = re.search(num_pattern, s)
 
             # if its a number (pos is not None and the start of the number is at the start of the string)
             if pos and pos.start() == 0:
@@ -338,6 +355,7 @@ def transfer_num(data, setName):  # transfer num into "NUM"
             else:
                 # not number: just append word
                 input_seq.append(s)
+        
         if copy_nums < len(nums):
             copy_nums = len(nums)
 
@@ -404,9 +422,38 @@ def transfer_num(data, setName):  # transfer num into "NUM"
                     # seq and tag text after number
                     res += seg_and_tag(st[p_end:])
                 return res
+
+            # var_st = re.search(var_pattern, st)
+            # if var_st:
+            #     p_start = var_st.start()
+            #     p_end = var_st.end()
+            #     if p_start > 0:
+            #         # seq and tag text before number
+            #         res += seg_and_tag(st[:p_start])
+            #     # strip text around number
+            #     st_num = st[p_start:p_end]
+            #     # because MATH has ".0" in equations
+            #     if nums.count(st_num) == 1:
+            #         # same as fractions, append as "N#" if in the input text 
+            #         res.append("V"+str(nums.index(st_num)))
+            #     else:
+            #         # if 
+            #         res.append(st_num)
+            #     if p_end < len(st):
+            #         # seq and tag text after number
+            #         res += seg_and_tag(st[p_end:])
+            #     return res
+
             # if no number
             for ss in st:
-                # just keep text
+                # if ss == "x":
+                #     if nums.count
+                #     res.append("X")
+                # if ss == "y":
+                #     res.append("Y")
+                # if ss == "y":
+                #     res.append("Y")
+                # # just keep text
                 res.append(ss)
             return res
 
@@ -462,7 +509,7 @@ def transfer_num(data, setName):  # transfer num into "NUM"
                     final_out_seq_list.append(outputEquation[:-2])
             if len(equationTargetVars) != len(out_seq_list):
                 continue
-        pairs.append((input_seq, final_out_seq_list, equationTargetVars, nums, num_pos))
+        pairs.append((input_seq, final_out_seq_list, equationTargetVars, nums, num_pos, vars))
 
     temp_g = []
     for g in generate_nums:
@@ -762,6 +809,10 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             for eqs in pair[1]:
                 for equ in eqs:
                     output_lang.add_sen_to_vocab(equ)
+                # make the output tokens NOT in the vocab
+                for var in pair[5]:
+                    output_lang.remove_token_from_vocab(var)
+    
     # this is hard coded at 5
     # cuts off words that appear less than 5 times 
     input_lang.build_input_lang(trim_min_count)
@@ -819,7 +870,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         train_pairs.append(
             (input_cell, len(input_cell), 
              output_cells, [len(output_cell) for output_cell in output_cells],
-             pair[2], pair[3], num_stack))
+             pair[2], pair[3], num_stack, pair[4]))
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
     print('Number of training data %d' % (len(train_pairs)))
     for pair in pairs_tested:
@@ -844,7 +895,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         # train_pairs.append((input_cell, len(input_cell), output_cell, len(output_cell),
         #                     pair[2], pair[3], num_stack, pair[4]))
         test_pairs.append((input_cell, len(input_cell), output_cells, len(output_cells),
-                           pair[2], pair[3], num_stack))
+                           pair[2], pair[3], num_stack, pair[4]))
     print('Number of testind data %d' % (len(test_pairs)))
             # pair:
         #   input: sentence with all numbers masked as NUM
@@ -980,7 +1031,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
     max_equations_per_problem = 0
     max_tokens_per_equation = 0
     for batch in batches:
-        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack in batch:
+        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack, soln_tokens in batch:
         # for equation in output_length:
             max_equations_per_problem = max(max_equations_per_problem, len(equations))
             for equation in equations:
@@ -997,7 +1048,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
         output_length = []
         # for each item in a pair
         # for _, i, _, j, _, _, _ in batch:
-        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack in batch:
+        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack, soln_tokens in batch:
             # i = length if input in pair
             input_length.append(input_length_temp)
             # j = length of output in pair
@@ -1011,13 +1062,14 @@ def prepare_train_batch(pairs_to_batch, batch_size):
         # output_len_max = max(output_length)
         input_batch = []
         output_batch = []
+        output_tokens = []
         output_batch_mask = []
         num_batch = []
         num_stack_batch = []
         num_pos_batch = []
         num_size_batch = []
         # for i, li, j, lj, num, num_pos, num_stack in batch:
-        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack in batch:
+        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack, soln_tokens in batch:
             # pair:
             #   input: sentence with all numbers masked as NUM
             #   length of input
@@ -1026,7 +1078,9 @@ def prepare_train_batch(pairs_to_batch, batch_size):
             #   nums: numbers from the input text
             #   loc nums: where nums are in the text
             #   [[] of where each number in the equation (that is not in the output lang) is found in the nums array]
+            #   [] answer tokens
             num_batch.append(len(input_nums))
+            output_tokens.append(soln_tokens)
             # input batch: padded input text
             input_batch.append(pad_seq(input_seq, input_length_temp, input_len_max))
             # output batch: padded output text
@@ -1069,7 +1123,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
     # num_stack_batches: the corresponding nums lists
     # num_pos_batches: positions of the numbers lists
     # num_size_batches: number of numbers from the input text
-    return input_batches, input_lengths, output_batches, output_batch_mask, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches
+    return input_batches, input_lengths, output_batches, output_batch_mask, output_lengths, output_tokens, nums_batches, num_stack_batches, num_pos_batches, num_size_batches
 
 
 def get_num_stack(eq, output_lang, num_pos):
