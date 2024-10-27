@@ -20,11 +20,17 @@ class Lang:
         self.n_words = 0  # Count word tokens
         self.num_start = 0
 
-    def add_sen_to_vocab(self, sentence):  # add words of sentence to vocab
+    def add_sen_to_vocab(self, sentence, equationVars = None):  # add words of sentence to vocab
         for word in sentence:
             if re.search("N\d+|NUM|\d+", word):
                 continue
             if word not in self.index2word:
+                # not sure why we are getting here
+                if word == "N":
+                    continue
+                print('current word:', word, 'current equationvars', equationVars)
+                if equationVars is not None and word in equationVars:
+                    continue
                 self.word2index[word] = self.n_words
                 self.word2count[word] = 1
                 self.index2word.append(word)
@@ -81,10 +87,10 @@ class Lang:
         for i, j in enumerate(self.index2word):
             self.word2index[j] = i
 
-    def build_output_lang_for_tree(self, generate_num, copy_nums):  # build the output lang vocab and dict
+    def build_output_lang_for_tree(self, generate_num, vars, copy_nums):  # build the output lang vocab and dict
         self.num_start = len(self.index2word)
 
-        self.index2word = self.index2word + generate_num + ["N" + str(i) for i in range(copy_nums)] + ["UNK"]
+        self.index2word = self.index2word + vars + generate_num + ["N" + str(i) for i in range(copy_nums)] + ["UNK"]
         self.n_words = len(self.index2word)
 
         for i, j in enumerate(self.index2word):
@@ -315,7 +321,7 @@ def transfer_num(data, setName):  # transfer num into "NUM"
     generate_nums_dict = {}
     copy_nums = 0
     for d in data:
-        vars = [item['coeff'] for item in d['Alignment']]
+        # vars = [item['coeff'] for item in d['Alignment']]
         # numbers in this problem's text
         nums = []
         # text after masking
@@ -339,8 +345,9 @@ def transfer_num(data, setName):  # transfer num into "NUM"
         else:
             equations = d["lEquations"]
 
+        varPattern = r'((x)|(y)|(z)|(a)|(b)|(c)|(k)|(n)|(m))'
+
         for s in seg:
-            # search if its a number
             pos = re.search(num_pattern, s)
 
             # if its a number (pos is not None and the start of the number is at the start of the string)
@@ -373,9 +380,16 @@ def transfer_num(data, setName):  # transfer num into "NUM"
 
         # seg the equation and tag the num
         # ex st: '(11-1)*2'
+        allVars = []
         def seg_and_tag(st):  
             # will become: 
-
+            matches = re.findall(varPattern, st)
+            allVarsTemp = []
+            for match in matches:
+                unique = list(set(match))
+                allVarsTemp += unique
+            allVars.append(list(set(allVarsTemp)))
+            # search if its a number
             res = []
             # for largest to smallest fractions:
             for n in nums_fraction:
@@ -509,7 +523,8 @@ def transfer_num(data, setName):  # transfer num into "NUM"
                     final_out_seq_list.append(outputEquation[:-2])
             if len(equationTargetVars) != len(out_seq_list):
                 continue
-        pairs.append((input_seq, final_out_seq_list, equationTargetVars, nums, num_pos, vars))
+        allVarsParsed = list(set([var for vars in allVars for var in vars if var != ""]))
+        pairs.append((input_seq, final_out_seq_list, equationTargetVars, nums, num_pos, allVarsParsed))
 
     temp_g = []
     for g in generate_nums:
@@ -800,7 +815,9 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
     test_pairs = []
 
     print("Indexing words...")
+    allVars = []
     for pair in pairs_trained:
+        equationVars = pair[5]
         if not tree or pair[-1]:
             # add input sentence to vocab
             input_lang.add_sen_to_vocab(pair[0])
@@ -808,10 +825,18 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             # to the lang
             for eqs in pair[1]:
                 for equ in eqs:
-                    output_lang.add_sen_to_vocab(equ)
+                    output_lang.add_sen_to_vocab(equ, equationVars)
+                    # for token in equ:
+                    #     if token in equationVars :
+                    #         output_lang.remove_token_from_vocab(token)
                 # make the output tokens NOT in the vocab
+                allVars += pair[5]
                 for var in pair[5]:
                     output_lang.remove_token_from_vocab(var)
+
+    # # get all variables in the equations
+    uniqueVars = list(set(allVars))
+    # output_lang.add_sen_to_vocab(uniqueVars)
     
     # this is hard coded at 5
     # cuts off words that appear less than 5 times 
@@ -819,7 +844,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
     # hard coded to true
     if tree:
         # lang is the current lang + generate_nums array + N{i} (for each copy_num)
-        output_lang.build_output_lang_for_tree(generate_nums, copy_nums)
+        output_lang.build_output_lang_for_tree(generate_nums, uniqueVars, copy_nums)
     else:
         # same but has pad, eos, unk tokens
         output_lang.build_output_lang(generate_nums, copy_nums)
