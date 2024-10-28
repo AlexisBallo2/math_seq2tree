@@ -70,36 +70,39 @@ def from_infix_to_postfix(expression):
     return res
 
 
-def from_infix_to_prefix(expression):
-    st = list()
-    res = list()
-    priority = {"+": 0, "-": 0, "*": 1, "/": 1, "^": 2}
-    expression = deepcopy(expression)
-    expression.reverse()
-    # Shunting Yard Algorithm
-    for e in expression:
-        if e in [")", "]"]:
-            st.append(e)
-        elif e == "(":
-            c = st.pop()
-            while c != ")":
-                res.append(c)
+def from_infix_to_prefix(expressions):
+    outExpressions = []
+    for expression in expressions:
+        st = list()
+        res = list()
+        priority = {"+": 0, "-": 0, "*": 1, "/": 1, "^": 2}
+        expression = deepcopy(expression)
+        expression.reverse()
+        # Shunting Yard Algorithm
+        for e in expression:
+            if e in [")", "]"]:
+                st.append(e)
+            elif e == "(":
                 c = st.pop()
-        elif e == "[":
-            c = st.pop()
-            while c != "]":
-                res.append(c)
+                while c != ")":
+                    res.append(c)
+                    c = st.pop()
+            elif e == "[":
                 c = st.pop()
-        elif e in priority:
-            while len(st) > 0 and st[-1] not in [")", "]"] and priority[e] < priority[st[-1]]:
-                res.append(st.pop())
-            st.append(e)
-        else:
-            res.append(e)
-    while len(st) > 0:
-        res.append(st.pop())
-    res.reverse()
-    return res
+                while c != "]":
+                    res.append(c)
+                    c = st.pop()
+            elif e in priority:
+                while len(st) > 0 and st[-1] not in [")", "]"] and priority[e] < priority[st[-1]]:
+                    res.append(st.pop())
+                st.append(e)
+            else:
+                res.append(e)
+        while len(st) > 0:
+            res.append(st.pop())
+        res.reverse()
+        outExpressions.append(res)
+    return outExpressions 
 
 
 def out_expression_list(test, output_lang, num_list, num_stack=None):

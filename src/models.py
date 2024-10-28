@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from numpy import append
 import torch
 import torch.nn as nn
 
@@ -163,10 +164,10 @@ class TreeAttn(nn.Module):
 
         repeat_dims = [1] * hidden.dim()
         repeat_dims[0] = max_len
-        hidden = hidden.repeat(*repeat_dims)  # S x B x H
+        hidden2 = hidden.repeat(*repeat_dims)  # S x B x H
         this_batch_size = encoder_outputs.size(1)
 
-        energy_in = torch.cat((hidden, encoder_outputs), 2).view(-1, self.input_size + self.hidden_size)
+        energy_in = torch.cat((hidden2, encoder_outputs), 2).view(-1, self.input_size + self.hidden_size)
 
         score_feature = torch.tanh(self.attn(energy_in))
         attn_energies = self.score(score_feature)  # (S x B) x 1
@@ -478,3 +479,144 @@ class Merge(nn.Module):
         sub_tree_g = torch.sigmoid(self.merge_g(torch.cat((node_embedding, sub_tree_1, sub_tree_2), 1)))
         sub_tree = sub_tree * sub_tree_g
         return sub_tree
+
+
+class PredictNumX(nn.Module):
+    def __init__(self, hidden_size, output_size, batch_size, dropout=0.5):
+        super(PredictNumX, self).__init__()
+
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+        self.batch_size = batch_size
+
+        self.em_dropout = nn.Dropout(dropout)
+        self.out = nn.Linear(hidden_size * 10, 1)
+
+        self.lstm = nn.LSTM(hidden_size, hidden_size, 1, batch_first=True)
+        self.fc = nn.Linear(hidden_size, 1)
+
+
+    def forward(self, hidden):
+        # hidden will be a list of unknown length with embed dimension of 512. 
+
+        zeroList = [[[0.0] * 512] for _ in range(self.batch_size)]
+        padding_tensor = torch.tensor(zeroList)  # or any other values you want to pad with
+        padding_tensor = padding_tensor.squeeze(1)
+        num_padding_needed = 100 - hidden.size(0)
+        padding = padding_tensor.unsqueeze(0).expand(num_padding_needed, -1, -1)
+        hidden2 = torch.cat((hidden, padding), dim=0)
+
+        hidden2T = hidden2.transpose(0, 1)
+
+
+
+        # pad this list to be 100 long
+        # Initialize hidden and cell states with zeros
+        h0 = torch.zeros(self.lstm.num_layers, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
+        c0 = torch.zeros(self.lstm.num_layers, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
+
+        # Forward propagate LSTM
+        out, _ = self.lstm(hidden2T, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
+        out = self.fc(out[:, -1, :]).squeeze(-1)  # out: tensor of shape (batch_size, output_size)
+        return out
+
+
+class XToQ(nn.Module):
+    def __init__(self, hidden_size, output_size, batch_size, dropout=0.5):
+        super(XToQ, self).__init__()
+        self.K = nn.Linear(hidden_size, hidden_size)
+        self.V = nn.Linear(hidden_size, hidden_size)
+        self.lstm = nn.LSTM(hidden_size, hidden_size, 1, batch_first=True)
+        self.fc = nn.Linear(hidden_size, 1)
+    def forward(self, hidden, x):
+
+        finals = []
+
+        hidden2 = hidden.transpose(0,1)
+        for i in range(hidden.shape[1]):
+            xs = x[i]
+            qs = []
+            for j in range(len(xs)):
+                qkt = torch.matmul(xs[j], self.K(hidden2[i]).transpose(0,1))
+                smqkt = nn.functional.softmax(qkt)
+                output = torch.matmul(smqkt, self.V(hidden2[i]))
+                qs.append(output)
+            qs = torch.stack(qs)
+            # having more than 1 q means we need a q that covers all q/xs
+            if len(qs) > 1:
+                h0 = torch.zeros(self.lstm.num_layers, self.lstm.hidden_size).to(qs.device)
+                c0 = torch.zeros(self.lstm.num_layers, self.lstm.hidden_size).to(qs.device)
+
+                # Forward propagate LSTM
+                out1, _ = self.lstm(qs, (h0, c0))  # out: tensor of shape (seq_length, hidden_size)
+                qs = torch.cat((qs, out1[0].unsqueeze(0)), dim=0)
+            finals.append(qs)
+            
+        output = torch.stack(finals)
+        return output
+
+
+class GenerateXQs(nn.Module):
+    def __init__(self, hidden_size, output_size, batch_size, dropout=0.5):
+        super(GenerateXQs, self).__init__()
+
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+        self.batch_size = batch_size
+
+        self.em_dropout = nn.Dropout(dropout)
+        self.out = nn.Linear(hidden_size * 10, 1)
+
+        self.new_old_final = nn.Linear(hidden_size * 2, hidden_size)
+
+        self.K = nn.Linear(hidden_size, hidden_size)
+        self.V = nn.Linear(hidden_size, hidden_size)
+
+        self.x_to_q = XToQ(hidden_size, output_size, batch_size, dropout=0.5)
+
+    def forward(self, num_xs, hidden, num_encoder_outputs, problem_q):
+        
+        # hidden2: batch_size x tokens x hidden_size
+
+        hidden2 = hidden.transpose(0,1)
+        output_xs = []
+
+        # for each in batch
+        for i in range(hidden.shape[1]):
+            xs = []
+            nums_to_gen = max(int(num_xs.tolist()[i]), 1)
+            goal_vect = problem_q[i]
+            kt = self.K(hidden2[i]).transpose(0,1)
+            v = self.V(hidden2[i])
+            # for each number to gen
+            for j in range(nums_to_gen):
+                # leave the first vector
+                if len(xs) == 0:
+                    xs.append(goal_vect)
+                else:
+                    # generate the next one from the attention of previous
+                    qkt = torch.matmul(xs[j-1], kt)
+                    smqkt = nn.functional.softmax(qkt)
+                    # output: hidden_size
+                    outAttention = torch.matmul(smqkt, v)
+                    xs.append(outAttention)
+            output_xs.append(torch.stack(xs))
+
+            print('here')
+
+
+
+
+        final_xs = torch.stack(output_xs)
+        final_qs = self.x_to_q(hidden, final_xs)
+
+        # add the xs to the hidden
+        # xs: batch_size x num_xs x hidden_size
+        # hidden2: batch_size x tokens x hidden_size
+        updated_hidden = torch.cat((hidden2, final_xs), dim=1)
+        updated_nums = torch.cat((num_encoder_outputs, final_xs), dim=1)
+        return final_qs, updated_hidden.transpose(0,1), updated_nums
+        # hidden will be a list of unknown length with embed dimension of 512. 
+
+
+

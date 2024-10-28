@@ -1,0 +1,267 @@
+[
+    {
+        "sQuestion": "The sum of two numbers is 78 . The second is 8 more than 4 times the first . What are the two numbers ?", 
+        "lSolutions": [
+         64.0, 
+         14.0
+        ], 
+        "Template": [
+         "m - a * n = b", 
+         "m + n = c"
+        ], 
+        "lEquations": [
+         "a+b=78.0", 
+         "b=4.0*a+8.0"
+        ], 
+        "iIndex": 2001396, 
+        "Alignment": [
+         {
+          "coeff": "a", 
+          "SentenceId": 1, 
+          "Value": 4.0, 
+          "TokenId": 6
+         }, 
+         {
+          "coeff": "b", 
+          "SentenceId": 1, 
+          "Value": 8.0, 
+          "TokenId": 3
+         }, 
+         {
+          "coeff": "c", 
+          "SentenceId": 0, 
+          "Value": 78.0, 
+          "TokenId": 6
+         }
+        ], 
+        "Equiv": []
+       }, 
+    {
+        "sQuestion": "Find two consecutive odd integers such that 5 times the first integer is 12 more than 3 times the second .", 
+        "lSolutions": [
+         5.0
+        ], 
+        "Template": [
+         "a * b * m - c * b * m = a + c + d"
+        ], 
+        "lEquations": [
+         "5.0*(2.0*k-1.0)=3.0*(2.0*k+1.0)+12.0"
+        ], 
+        "iIndex": 2000061, 
+        "Alignment": [
+         {
+          "coeff": "d", 
+          "SentenceId": 0, 
+          "Value": 12.0, 
+          "TokenId": 13
+         }, 
+         {
+          "coeff": "b", 
+          "SentenceId": 0, 
+          "Value": 2.0, 
+          "TokenId": 3
+         }, 
+         {
+          "coeff": "c", 
+          "SentenceId": 0, 
+          "Value": 3.0, 
+          "TokenId": 16
+         }, 
+         {
+          "coeff": "a", 
+          "SentenceId": 0, 
+          "Value": 5.0, 
+          "TokenId": 7
+         }
+        ], 
+           "Equiv": [[[0,1,2.0],[0,3,2.0]]]
+       },
+       {
+        "sQuestion": "The sum of three numbers is 123 . The second number is 9 less than two times the first number . The third number is 6 more than three times the first number . Find the three numbers .", 
+        "lSolutions": [
+         21.0, 
+         69.0, 
+         33.0
+        ], 
+        "Template": [
+         "m - a * n = b", 
+         "c * n - o = d", 
+         "n + m + o = e"
+        ], 
+        "lEquations": [
+         "x+y+z=123.0", 
+         "y+9.0=2.0*x", 
+         "z=6.0+3.0*x"
+        ], 
+        "iIndex": 2001174, 
+        "Alignment": [
+         {
+          "coeff": "a", 
+          "SentenceId": 2, 
+          "Value": 3.0, 
+          "TokenId": 7
+         }, 
+         {
+          "coeff": "b", 
+          "SentenceId": 2, 
+          "Value": 6.0, 
+          "TokenId": 4
+         }, 
+         {
+          "coeff": "c", 
+          "SentenceId": 1, 
+          "Value": 2.0, 
+          "TokenId": 7
+         }, 
+         {
+          "coeff": "d", 
+          "SentenceId": 1, 
+          "Value": 9.0, 
+          "TokenId": 4
+         }, 
+         {
+          "coeff": "e", 
+          "SentenceId": 0, 
+          "Value": 123.0, 
+          "TokenId": 6
+         }
+        ], 
+        "Equiv": []
+       },
+       {
+        "sQuestion": "Three times the sum of five and a number is 48 . Find the number .", 
+        "lSolutions": [
+         11.0
+        ], 
+        "Template": [
+         "a * m = b - a * c"
+        ], 
+        "lEquations": [
+         "3.0*(5.0+x)=48.0"
+        ], 
+        "iIndex": 2000552, 
+        "Alignment": [
+         {
+          "coeff": "a", 
+          "SentenceId": 0, 
+          "Value": 3.0, 
+          "TokenId": 0
+         }, 
+         {
+          "coeff": "b", 
+          "SentenceId": 0, 
+          "Value": 48.0, 
+          "TokenId": 10
+         }, 
+         {
+          "coeff": "c", 
+          "SentenceId": 0, 
+          "Value": 5.0, 
+          "TokenId": 5
+         }
+        ], 
+        "Equiv": []
+       },
+       {
+        "sQuestion": "the sum of 3 times a number and 17 is 5 . what is the number ?", 
+        "lSolutions": [
+         -4.0
+        ], 
+        "Template": [
+         "a * m = b - c"
+        ], 
+        "lEquations": [
+         "3.0*x+17.0=5.0"
+        ], 
+        "iIndex": 2001746, 
+        "Alignment": [
+         {
+          "coeff": "a", 
+          "SentenceId": 0, 
+          "Value": 3.0, 
+          "TokenId": 3
+         }, 
+         {
+          "coeff": "b", 
+          "SentenceId": 0, 
+          "Value": 5.0, 
+          "TokenId": 10
+         }, 
+         {
+          "coeff": "c", 
+          "SentenceId": 0, 
+          "Value": 17.0, 
+          "TokenId": 8
+         }
+        ], 
+        "Equiv": []
+       }, 
+       {
+        "sQuestion": "If you double a number and then add 32 , the result is 80 . What is the number ?", 
+        "lSolutions": [
+         24.0
+        ], 
+        "Template": [
+         "a * m = b - c"
+        ], 
+        "lEquations": [
+         "2.0*n+32.0=80.0"
+        ], 
+        "iIndex": 2001537, 
+        "Alignment": [
+         {
+          "coeff": "a", 
+          "SentenceId": 0, 
+          "Value": 2.0, 
+          "TokenId": 2
+         }, 
+         {
+          "coeff": "b", 
+          "SentenceId": 0, 
+          "Value": 80.0, 
+          "TokenId": 13
+         }, 
+         {
+          "coeff": "c", 
+          "SentenceId": 0, 
+          "Value": 32.0, 
+          "TokenId": 8
+         }
+        ], 
+        "Equiv": []
+       }, 
+       {
+        "sQuestion": "Two less than the product of a number and -5 is -42 ? What is the number ?", 
+        "lSolutions": [
+         8.0
+        ], 
+        "Template": [
+         "a * m = b + c"
+        ], 
+        "lEquations": [
+         "-5.0*n-2.0=-42.0"
+        ], 
+        "iIndex": 2001639, 
+        "Alignment": [
+         {
+          "coeff": "a", 
+          "SentenceId": 0, 
+          "Value": -5.0, 
+          "TokenId": 9
+         }, 
+         {
+          "coeff": "b", 
+          "SentenceId": 0, 
+          "Value": 2.0, 
+          "TokenId": 0
+         }, 
+         {
+          "coeff": "c", 
+          "SentenceId": 0, 
+          "Value": -42.0, 
+          "TokenId": 11
+         }
+        ], 
+        "Equiv": []
+       }
+]
