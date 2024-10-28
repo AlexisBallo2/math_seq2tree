@@ -19,14 +19,16 @@ class Lang:
         self.index2word = []
         self.n_words = 0  # Count word tokens
         self.num_start = 0
+        self.variables = []
 
     def add_sen_to_vocab(self, sentence, equationVars = None):  # add words of sentence to vocab
         for word in sentence:
             if re.search("N\d+|NUM|\d+", word):
+                print('here with word', word)
                 continue
             if word not in self.index2word:
                 # not sure why we are getting here
-                if word == "N":
+                if word == "N" or word == "V":
                     continue
                 print('current word:', word, 'current equationvars', equationVars)
                 if equationVars is not None and word in equationVars:
@@ -89,8 +91,8 @@ class Lang:
 
     def build_output_lang_for_tree(self, generate_num, vars, copy_nums):  # build the output lang vocab and dict
         self.num_start = len(self.index2word)
-
-        self.index2word = self.index2word + vars + generate_num + ["N" + str(i) for i in range(copy_nums)] + ["UNK"]
+        self.variables = vars
+        self.index2word = self.index2word + generate_num + vars + ["N" + str(i) for i in range(copy_nums)] + ["UNK"]
         self.n_words = len(self.index2word)
 
         for i, j in enumerate(self.index2word):
@@ -308,6 +310,7 @@ def load_roth_data(filename):  # load the json data to dict(dict()) for roth dat
 #     return test_str
 
 
+variableHierarchy = ['X', 'Y', 'Z']
 def transfer_num(data, setName):  # transfer num into "NUM"
     print("Transfer numbers...")
     # number regex
@@ -320,6 +323,7 @@ def transfer_num(data, setName):  # transfer num into "NUM"
     generate_nums = []
     generate_nums_dict = {}
     copy_nums = 0
+    all_vars_total = []
     for d in data:
         # vars = [item['coeff'] for item in d['Alignment']]
         # numbers in this problem's text
@@ -384,11 +388,6 @@ def transfer_num(data, setName):  # transfer num into "NUM"
         def seg_and_tag(st):  
             # will become: 
             matches = re.findall(varPattern, st)
-            allVarsTemp = []
-            for match in matches:
-                unique = list(set(match))
-                allVarsTemp += unique
-            allVars.append(list(set(allVarsTemp)))
             # search if its a number
             res = []
             # for largest to smallest fractions:
@@ -471,12 +470,34 @@ def transfer_num(data, setName):  # transfer num into "NUM"
                 res.append(ss)
             return res
 
+        allVars = []
+        allVarsMappings = []
+        for eq in equations:
+            matches = re.findall(varPattern, eq)
+            allVarsTemp = []
+            for match in matches:
+                unique = list(set(match))
+                allVarsTemp += unique
+            allVars.append([item for item in list(set(allVarsTemp)) if item != "" ])
+        allVarsParsed = list(set([var for vars in allVars for var in vars if var != ""]))
+        allVarsTranslated = [variableHierarchy[i] for i in range(len(list(set([var for vars in allVars for var in vars if var != ""]))))]
+        allVarsMappings = [{"var": var, "mapping": variableHierarchy[i]} for i, var in enumerate(allVarsParsed)]
+
+        newEquations = []
+        for eq in equations:
+            for mapping in allVarsMappings:
+                eq = eq.replace(mapping["var"], mapping["mapping"])
+            newEquations.append(eq)
+            # for i, var in enumerate(allVarsSet):
+            #     st.replace(var, "V"+str(i))
+        # allVars.append(["V" + str(i) for i, item in enumerate(list(set(allVarsTemp))) if item != ""])
+
         # tag the equation (replace numbers (only ones that are in the input text), in the equation with "N#")
         # ex: ['(', 'N1', '-', '1', ')', '*', 'N0']
         if setName == "MATH":
             out_seq_list = [seg_and_tag(equations)]
         else:
-            out_seq_list = [seg_and_tag(i) for i in equations]
+            out_seq_list = [seg_and_tag(i) for i in newEquations]
 
 
         for out_seq in out_seq_list:
@@ -523,8 +544,9 @@ def transfer_num(data, setName):  # transfer num into "NUM"
                     final_out_seq_list.append(outputEquation[:-2])
             if len(equationTargetVars) != len(out_seq_list):
                 continue
-        allVarsParsed = list(set([var for vars in allVars for var in vars if var != ""]))
-        pairs.append((input_seq, final_out_seq_list, equationTargetVars, nums, num_pos, allVarsParsed))
+        # allVarsParsed = list(set([var for vars in allVars for var in vars if var != ""]))
+        all_vars_total += allVarsTranslated
+        pairs.append((input_seq, final_out_seq_list, equationTargetVars, nums, num_pos, allVarsTranslated))
 
     temp_g = []
     for g in generate_nums:
@@ -533,7 +555,7 @@ def transfer_num(data, setName):  # transfer num into "NUM"
             temp_g.append(g)
 
     # copy_nums: max length of numbers
-    return pairs, temp_g, copy_nums
+    return pairs, temp_g, copy_nums, list(set(all_vars_total))
 
 
 def transfer_english_num(data):  # transfer num into "NUM"
@@ -836,7 +858,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
 
     # # get all variables in the equations
     uniqueVars = list(set(allVars))
-    # output_lang.add_sen_to_vocab(uniqueVars)
+    output_lang.add_sen_to_vocab(uniqueVars)
     
     # this is hard coded at 5
     # cuts off words that appear less than 5 times 
@@ -895,7 +917,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         train_pairs.append(
             (input_cell, len(input_cell), 
              output_cells, [len(output_cell) for output_cell in output_cells],
-             pair[2], pair[3], num_stack, pair[4]))
+             pair[2], pair[3], num_stack, pair[5]))
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
     print('Number of training data %d' % (len(train_pairs)))
     for pair in pairs_tested:
@@ -1041,6 +1063,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
     output_lengths = []
     nums_batches = []
     batches = []
+    var_batches = []
     input_batches = []
     output_batches = []
     num_stack_batches = []  # save the num stack which
@@ -1073,7 +1096,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
         output_length = []
         # for each item in a pair
         # for _, i, _, j, _, _, _ in batch:
-        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack, soln_tokens in batch:
+        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack, var_tokens in batch:
             # i = length if input in pair
             input_length.append(input_length_temp)
             # j = length of output in pair
@@ -1093,8 +1116,9 @@ def prepare_train_batch(pairs_to_batch, batch_size):
         num_stack_batch = []
         num_pos_batch = []
         num_size_batch = []
+        var_tokens_batch = []
         # for i, li, j, lj, num, num_pos, num_stack in batch:
-        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack, soln_tokens in batch:
+        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack, var_tokens in batch:
             # pair:
             #   input: sentence with all numbers masked as NUM
             #   length of input
@@ -1106,6 +1130,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
             #   [] answer tokens
             num_batch.append(len(input_nums))
             output_tokens.append(soln_tokens)
+            var_tokens_batch.append(var_tokens)
             # input batch: padded input text
             input_batch.append(pad_seq(input_seq, input_length_temp, input_len_max))
             # output batch: padded output text
@@ -1136,6 +1161,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
         input_batches.append(input_batch)
         nums_batches.append(num_batch)
         output_batches.append(output_batch)
+        var_batches.append(var_tokens_batch)
         num_stack_batches.append(num_stack_batch)
         num_pos_batches.append(num_pos_batch)
         num_size_batches.append(num_size_batch)
@@ -1148,7 +1174,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
     # num_stack_batches: the corresponding nums lists
     # num_pos_batches: positions of the numbers lists
     # num_size_batches: number of numbers from the input text
-    return input_batches, input_lengths, output_batches, output_batch_mask, output_lengths, output_tokens, nums_batches, num_stack_batches, num_pos_batches, num_size_batches
+    return input_batches, input_lengths, output_batches, output_batch_mask, output_lengths, output_tokens, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, var_batches 
 
 
 def get_num_stack(eq, output_lang, num_pos):

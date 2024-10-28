@@ -42,7 +42,7 @@ else:
 # "lEquations",
 # }
 
-pairs, generate_nums, copy_nums = transfer_num(data, setName)
+pairs, generate_nums, copy_nums, vars = transfer_num(data, setName)
 pairs = pairs[0:30]
 # pairs: list of tuples:
 #   input_seq: masked text
@@ -103,10 +103,10 @@ for fold in range(5):
     #   loc nums: where nums are in the text
     #   [[] of where each token in the equation is found in the nums array]
     # use this
-    for input_seq, input_length, equations, equation_lengths, input_nums, input_nums_pos, num_stack, eqn_solns in train_pairs:
+    for input_seq, input_length, equations, equation_lengths, input_nums, input_nums_pos, num_stack, eqn_vars in train_pairs:
         print("     problem", input_lang.ids_to_tokens(input_seq))
         print("     equations", [output_lang.ids_to_tokens(equations[i]) for i in range(len(equations))])
-        print("     soln", eqn_solns)
+        print("     vars", eqn_vars)
 
     # # confirm:
     # print("for input:", temp_pairs[0])
@@ -125,24 +125,27 @@ for fold in range(5):
                          n_layers=n_layers)
     # max of 5 possible trees generated 
     num_x_predict = PredictNumX(hidden_size=hidden_size, output_size=5, batch_size=batch_size)
-    xq_generate = GenerateXQs(hidden_size=hidden_size, output_size=5, batch_size=batch_size)
-    predict = Prediction(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums),
+    x_generate = GenerateXs(hidden_size=hidden_size, output_size=5, batch_size=batch_size)
+    x_to_q = XToQ(hidden_size=hidden_size)
+    predict = Prediction(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars),
                          input_size=len(generate_nums))
-    generate = GenerateNode(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums),
+    generate = GenerateNode(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars),
                             embedding_size=embedding_size)
     merge = Merge(hidden_size=hidden_size, embedding_size=embedding_size)
     # the embedding layer is  only for generated number embeddings, operators, and paddings
 
     encoder_optimizer = torch.optim.Adam(encoder.parameters(), lr=learning_rate, weight_decay=weight_decay)
     num_x_predict_optimizer = torch.optim.Adam(num_x_predict.parameters(), lr=learning_rate, weight_decay=weight_decay)
-    xq_generate_optimizer = torch.optim.Adam(xq_generate.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    x_generate_optimizer = torch.optim.Adam(x_generate.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    x_to_q_optimizer = torch.optim.Adam(x_to_q.parameters(), lr=learning_rate, weight_decay=weight_decay)
     predict_optimizer = torch.optim.Adam(predict.parameters(), lr=learning_rate, weight_decay=weight_decay)
     generate_optimizer = torch.optim.Adam(generate.parameters(), lr=learning_rate, weight_decay=weight_decay)
     merge_optimizer = torch.optim.Adam(merge.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
     encoder_scheduler = torch.optim.lr_scheduler.StepLR(encoder_optimizer, step_size=20, gamma=0.5)
     num_x_predict_scheduler = torch.optim.lr_scheduler.StepLR(num_x_predict_optimizer, step_size=20, gamma=0.5)
-    xq_generate_scheduler = torch.optim.lr_scheduler.StepLR(xq_generate_optimizer, step_size=20, gamma=0.5)
+    x_generate_scheduler = torch.optim.lr_scheduler.StepLR(x_generate_optimizer, step_size=20, gamma=0.5)
+    x_to_q_scheduler = torch.optim.lr_scheduler.StepLR(x_to_q_optimizer, step_size=20, gamma=0.5)
     predict_scheduler = torch.optim.lr_scheduler.StepLR(predict_optimizer, step_size=20, gamma=0.5)
     generate_scheduler = torch.optim.lr_scheduler.StepLR(generate_optimizer, step_size=20, gamma=0.5)
     merge_scheduler = torch.optim.lr_scheduler.StepLR(merge_optimizer, step_size=20, gamma=0.5)
@@ -172,15 +175,15 @@ for fold in range(5):
         # num_stack_batches: the corresponding nums lists
         # num_pos_batches: positions of the numbers lists
         # num_size_batches: number of numbers from the input text
-        input_batches, input_lengths, output_batches, output_batch_mask, output_lengths, output_tokens, nums_batches, num_stack_batches, num_pos_batches, num_size_batches = prepare_train_batch(train_pairs, batch_size)
+        input_batches, input_lengths, output_batches, output_batch_mask, output_lengths, output_tokens, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, var_tokens_batches = prepare_train_batch(train_pairs, batch_size)
         print("fold:", fold + 1)
         print("epoch:", epoch + 1)
         start = time.time()
         for idx in range(len(input_lengths)):
             loss = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_batch_mask[idx], output_lengths[idx], output_tokens[idx],
-                num_stack_batches[idx], num_size_batches[idx], generate_num_ids, encoder, num_x_predict, xq_generate, predict, generate, merge,
-                encoder_optimizer, num_x_predict_optimizer, xq_generate_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos_batches[idx])
+                num_stack_batches[idx], num_size_batches[idx], var_tokens_batches[idx], generate_num_ids, encoder, num_x_predict, x_generate, x_to_q, predict, generate, merge,
+                encoder_optimizer, num_x_predict_optimizer, x_generate_optimizer, x_to_q_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos_batches[idx], output_lang.variables)
             loss_total += loss
 
         print("loss:", loss_total / len(input_lengths))

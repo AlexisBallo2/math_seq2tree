@@ -249,9 +249,9 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
 
 
-def train_tree(input_batch, input_length, target_batch, target_mask, target_length, target_equation_sonls, nums_stack_batch, num_size_batch, generate_nums,
-               encoder, num_x_predict, xq_generate, predict, generate, merge, encoder_optimizer, num_x_predict_optimizer, xq_generate_optimizer, predict_optimizer, generate_optimizer,
-               merge_optimizer, output_lang, num_pos, english=False):
+def train_tree(input_batch, input_length, target_batch, target_mask, target_length, target_equation_sonls, nums_stack_batch, num_size_batch, var_tokens_batch, generate_nums,
+               encoder, num_x_predict, x_generate, x_to_q, predict, generate, merge, encoder_optimizer, num_x_predict_optimizer, x_generate_optimizer, x_to_q_optimizer, predict_optimizer, generate_optimizer,
+               merge_optimizer, output_lang, num_pos, all_vars, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -304,7 +304,8 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     generate.train()
     merge.train()
     num_x_predict.train()
-    xq_generate.train()
+    x_generate.train()
+    x_to_q.train()
 
     if USE_CUDA:
         input_var = input_var.cuda()
@@ -317,8 +318,9 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     predict_optimizer.zero_grad()
     generate_optimizer.zero_grad()
     merge_optimizer.zero_grad()
-    num_x_predict.zero_grad()
-    xq_generate.zero_grad()
+    num_x_predict_optimizer.zero_grad()
+    x_generate_optimizer.zero_grad()
+    x_to_q_optimizer.zero_grad()
     # Run words through encoder
 
     # embedding + dropout layer
@@ -352,18 +354,67 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     num_x = num_x_predict(encoder_outputs)
     # generate the x vectors
     # target_length is batch_size x num_equations x num_tokens
-    actual_x = torch.Tensor([max_num_equations for _ in target_length])
-    qs, updated_encoder_outputs, updated_nums_encoder_outputs = xq_generate(actual_x, encoder_outputs, all_nums_encoder_outputs, problem_output)
+    # actual_x = torch.Tensor([max_num_equations for _ in target_length])
+
+    gen_xs = []
+
+    print()
+    # number of variables to generate
+    target_ordering_of_vars = all_vars
+    temp_encoder = encoder_outputs.transpose(0, 1)
+
+    batch_all_vars = []
+    empty = torch.zeros(encoder.hidden_size)
+    for batch_num, batch_vars in enumerate(var_tokens_batch):
+        cur_bach_vars = []
+        xs = x_generate(len(batch_vars), temp_encoder[batch_num], all_nums_encoder_outputs[batch_num], problem_output[batch_num])
+        # get the generated variables
+        for variable in target_ordering_of_vars:
+            match = False
+            for var, x in zip(batch_vars, xs):
+                if var == variable:
+                    cur_bach_vars.append(x)
+                    match = True
+            if not match:
+                cur_bach_vars.append(empty)
+        batch_all_vars.append(torch.stack(cur_bach_vars))
+    all_vars_embs = torch.stack(batch_all_vars)
+
+    qs = x_to_q(temp_encoder, all_vars_embs)
+            # for x_emb, x in zip(xs, vars):
+
+            # gen_xs.append(xs)
+
+    # these are the xs generated:
+    # num variables x hidden_size
+    # gen_xs = torch.cat(gen_xs)
+    # qs, updated_encoder_outputs, updated_nums_encoder_outputs = xq_generate(actual_x, encoder_outputs, all_nums_encoder_outputs, problem_output)
 
     # number mask 
     # 0s where the numbers are from input, 1s where not in input
     num_mask = []
-    max_num_size = max(num_size_batch) + len(generate_nums) + len(qs)
+    max_num_size = max(num_size_batch) + len(generate_nums) + len(gen_xs)
     for i in num_size_batch:
-        d = i + len(generate_nums) + len(qs)
+        d = i + len(generate_nums) + len(gen_xs)
         num_mask.append([0] * d + [1] * (max_num_size - d))
     num_mask = torch.ByteTensor(num_mask)
     
+    # for each batch, if there are variables in output lang [x,y,z] but group only has [x,y], mask would be [0,0,1]
+    var_mask = []
+    # first get variables in output lang 
+    # var_list = [output_lang.variables for _ in target_batch]
+    # for each equation group
+    for i, equ_group in enumerate(target_batch):
+        group_var_mask = []
+        unique_in_equation = [output_lang.index2word[i] for i in list(set([el for arr in equ_group for el in arr]))]
+        for var in output_lang.variables:
+            # decoded = output_lang.index2word[var]
+            if var in unique_in_equation:
+                group_var_mask.append(0)
+            else:
+                group_var_mask.append(1)
+        var_mask.append(group_var_mask)
+    var_mask = torch.ByteTensor(var_mask)
     addedQs = len(qs)
     # make sure to note that the updated encoder has the x vectors
 
@@ -399,7 +450,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
             #       embeddings of the generate and copy numbers
 
             num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(
-                node_stacks, left_childs, encoder_outputs, updated_nums_encoder_outputs, padding_hidden, seq_mask, num_mask)
+                node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, seq_mask, num_mask, var_mask, all_vars_embs)
 
 
             # this is mainly what we want to train

@@ -1,8 +1,11 @@
 # coding: utf-8
 
 from numpy import append
+from pyparsing import nums
+from sympy import N
 import torch
 import torch.nn as nn
+
 
 
 class EncoderRNN(nn.Module):
@@ -116,7 +119,7 @@ class Score(nn.Module):
         self.attn = nn.Linear(hidden_size + input_size, hidden_size)
         self.score = nn.Linear(hidden_size, 1, bias=False)
 
-    def forward(self, hidden1, num_embeddings, num_mask=None):
+    def forward(self, hidden1, num_embeddings, num_mask=None, var_mask = None):
         # hidden1 is the concatenation [q c]
         # num_embeddings is the embedding weights and number encodings
         #   batch_size x num_length x hidden_dim
@@ -146,7 +149,11 @@ class Score(nn.Module):
         score = self.score(torch.tanh(self.attn(energy_in)))  # (B x O) x 1
         score = score.squeeze(1)
         score = score.view(this_batch_size, -1)  # B x O
-        if num_mask is not None:
+        # need to add the variable masking here
+        if var_mask is not None and num_mask is not None:
+            num_mask_combined = torch.cat((num_mask, var_mask), 1)
+            score = score.masked_fill_(num_mask_combined.bool(), -1e12)
+        elif num_mask is not None:
             score = score.masked_fill_(num_mask.bool(), -1e12)
         return score
 
@@ -265,7 +272,7 @@ class Prediction(nn.Module):
         self.attn = TreeAttn(hidden_size, hidden_size)
         self.score = Score(hidden_size * 2, hidden_size)
 
-    def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, seq_mask, mask_nums):
+    def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, seq_mask, mask_nums, var_mask, xs):
         # node_stacks: [TreeNodes] for each node containing the hidden state for the node
         # left_childs: [] of 
         # encoder_outputs: token embeddings: max_len x num_batches x hidden state 
@@ -350,7 +357,7 @@ class Prediction(nn.Module):
         # batch_size x (2 + number of numbers we have encodings for) x hidden_dim
         # batch_size is the embeddings of the numbers
         #   batch_size x nums_count x hidden_dim
-        embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
+        embedding_weight = torch.cat((embedding_weight1, xs, num_pades), dim=1)  # B x O x N
 
 
         # get the embedding of a leaf
@@ -376,7 +383,7 @@ class Prediction(nn.Module):
         # equation (7) done here
         # this is the log likliehood of generating token y from the specified vocab
         #   doesnt seem like the full vocab is being used, only
-        num_score = self.score(leaf_input.unsqueeze(1), embedding_weight_, mask_nums)
+        num_score = self.score(leaf_input.unsqueeze(1), embedding_weight_, mask_nums, var_mask)
 
         # get the predicted operation (classification)
         # batch_size x num_ops 
@@ -522,7 +529,7 @@ class PredictNumX(nn.Module):
 
 
 class XToQ(nn.Module):
-    def __init__(self, hidden_size, output_size, batch_size, dropout=0.5):
+    def __init__(self, hidden_size, dropout=0.5):
         super(XToQ, self).__init__()
         self.K = nn.Linear(hidden_size, hidden_size)
         self.V = nn.Linear(hidden_size, hidden_size)
@@ -532,33 +539,35 @@ class XToQ(nn.Module):
 
         finals = []
 
-        hidden2 = hidden.transpose(0,1)
-        for i in range(hidden.shape[1]):
+        hidden2 = hidden#.transpose(0,1)
+        for i in range(hidden.shape[0]):
             xs = x[i]
             qs = []
             for j in range(len(xs)):
-                qkt = torch.matmul(xs[j], self.K(hidden2[i]).transpose(0,1))
+                qkt = torch.matmul(xs[j], self.K(hidden2[j]).transpose(0,1))
                 smqkt = nn.functional.softmax(qkt)
-                output = torch.matmul(smqkt, self.V(hidden2[i]))
+                output = torch.matmul(smqkt, self.V(hidden2[j]))
                 qs.append(output)
-            qs = torch.stack(qs)
-            # having more than 1 q means we need a q that covers all q/xs
-            if len(qs) > 1:
-                h0 = torch.zeros(self.lstm.num_layers, self.lstm.hidden_size).to(qs.device)
-                c0 = torch.zeros(self.lstm.num_layers, self.lstm.hidden_size).to(qs.device)
-
-                # Forward propagate LSTM
-                out1, _ = self.lstm(qs, (h0, c0))  # out: tensor of shape (seq_length, hidden_size)
-                qs = torch.cat((qs, out1[0].unsqueeze(0)), dim=0)
+            # need to change later
+            qs = torch.stack(qs)#.transpose(0,1)
             finals.append(qs)
-            
+            # having more than 1 q means we need a q that covers all q/xs
+            # if len(qs) > 1:
+            #     h0 = torch.zeros(1, self.lstm.num_layers, self.lstm.hidden_size).to(qs.device)
+            #     c0 = torch.zeros(1, self.lstm.num_layers, self.lstm.hidden_size).to(qs.device)
+
+            #     # Forward propagate LSTM
+            #     out1, _ = self.lstm(qs, (h0, c0))  # out: tensor of shape (seq_length, hidden_size)
+            #     qs = torch.cat((qs, out1[0].unsqueeze(0)), dim=0)
+            # finals.append(qs)
+                
         output = torch.stack(finals)
         return output
 
 
-class GenerateXQs(nn.Module):
+class GenerateXs(nn.Module):
     def __init__(self, hidden_size, output_size, batch_size, dropout=0.5):
-        super(GenerateXQs, self).__init__()
+        super(GenerateXs, self).__init__()
 
         self.hidden_size = hidden_size
         self.output_size = output_size
@@ -572,51 +581,53 @@ class GenerateXQs(nn.Module):
         self.K = nn.Linear(hidden_size, hidden_size)
         self.V = nn.Linear(hidden_size, hidden_size)
 
-        self.x_to_q = XToQ(hidden_size, output_size, batch_size, dropout=0.5)
 
     def forward(self, num_xs, hidden, num_encoder_outputs, problem_q):
         
         # hidden2: batch_size x tokens x hidden_size
 
-        hidden2 = hidden.transpose(0,1)
+        hidden2 = hidden#.transpose(0,1)
         output_xs = []
 
         # for each in batch
-        for i in range(hidden.shape[1]):
-            xs = []
-            nums_to_gen = max(int(num_xs.tolist()[i]), 1)
-            goal_vect = problem_q[i]
-            kt = self.K(hidden2[i]).transpose(0,1)
-            v = self.V(hidden2[i])
-            # for each number to gen
-            for j in range(nums_to_gen):
-                # leave the first vector
-                if len(xs) == 0:
-                    xs.append(goal_vect)
-                else:
-                    # generate the next one from the attention of previous
-                    qkt = torch.matmul(xs[j-1], kt)
-                    smqkt = nn.functional.softmax(qkt)
-                    # output: hidden_size
-                    outAttention = torch.matmul(smqkt, v)
-                    xs.append(outAttention)
-            output_xs.append(torch.stack(xs))
+        # for i in range(hidden.shape[1]):
+        xs = []
+        nums_to_gen = num_xs
+        # nums_to_gen = max(int(num_xs.tolist()), 1)
+        goal_vect = problem_q
+        kt = self.K(hidden2).transpose(0,1)
+        v = self.V(hidden2)
+        # for each number to gen
+        for j in range(nums_to_gen):
+            # leave the first vector
+            if len(xs) == 0:
+                xs.append(goal_vect)
+            else:
+                # generate the next one from the attention of previous
+                qkt = torch.matmul(xs[j-1], kt)
+                smqkt = nn.functional.softmax(qkt)
+                # output: hidden_size
+                outAttention = torch.matmul(smqkt, v)
+                xs.append(outAttention)
+        return xs
+        # output_xs.append(torch.stack(xs))
 
-            print('here')
+        print('here')
 
 
 
 
-        final_xs = torch.stack(output_xs)
-        final_qs = self.x_to_q(hidden, final_xs)
+        final_xs = output_xs # torch.stack(output_xs)
+        # final_qs = sgcelf.x_to_q(hidden, final_xs.squeeze(0))
 
         # add the xs to the hidden
         # xs: batch_size x num_xs x hidden_size
         # hidden2: batch_size x tokens x hidden_size
-        updated_hidden = torch.cat((hidden2, final_xs), dim=1)
-        updated_nums = torch.cat((num_encoder_outputs, final_xs), dim=1)
-        return final_qs, updated_hidden.transpose(0,1), updated_nums
-        # hidden will be a list of unknown length with embed dimension of 512. 
+        # updated_hidden = torch.cat((hidden2.unsqueeze(0), final_xs.squeeze(0)), dim=1)
+        # updated_nums = torch.cat((num_encoder_outputs, final_xs), dim=1)
+        # return final_qs, updated_hidden.transpose(0,1), updated_nums
+        # return final_qs, final_xs, updated_nums
+        return final_xs
 
 
 
