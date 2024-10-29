@@ -7,10 +7,12 @@ import torch.optim
 from src.expressions_transfer import *
 
 # batch_size = 64
-batch_size = 1 
+batch_size = 10
+# batch_size = 1 
 embedding_size = 128
 hidden_size = 512
-n_epochs = 80
+n_epochs = 2
+# n_epochs = 80
 learning_rate = 1e-3 
 weight_decay = 1e-5
 beam_size = 5
@@ -53,6 +55,12 @@ for split_fold in range(4):
 fold_pairs.append(pairs[(fold_size * 4):])
 
 best_acc_fold = []
+
+total_training_time = 0
+total_inference_time = 0
+
+train_time_array = []
+test_time_array = []
 
 for fold in range(5):
     pairs_tested = []
@@ -122,12 +130,15 @@ for fold in range(5):
         input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches = prepare_train_batch(train_pairs, batch_size)
         print("fold:", fold + 1)
         print("epoch:", epoch + 1)
-        start = time.time()
         for idx in range(len(input_lengths)):
+            input_batch_len = len(input_batches[idx])
+            start = time.perf_counter()
             loss = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], generate_num_ids, encoder, predict, generate, merge,
                 encoder_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos_batches[idx])
+            end = time.perf_counter()
+            train_time_array.append([input_batch_len,end - start])
             loss_total += loss
 
         print("loss:", loss_total / len(input_lengths))
@@ -141,8 +152,11 @@ for fold in range(5):
             start = time.time()
             # print('test pairs', test_pairs)
             for test_batch in test_pairs:
+                start = time.perf_counter()
                 test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, encoder, predict, generate,
                                          merge, output_lang, test_batch[5], beam_size=beam_size)
+                end = time.perf_counter()
+                test_time_array.append([1, end - start])
                 # print('test res', test_res)
                 # for i in test_res:
                 #     print('i', i)
@@ -150,6 +164,7 @@ for fold in range(5):
                 #     #     print('j', j)
                 #     print(output_lang.index2word(i))
                 # print('test result', [output_lang.index2word(i) for i in test_res ])
+                # test_time_array.append({"length": input_batch_len, "time": end - start})
                 val_ac, equ_ac, test, tar = compute_prefix_tree_result(test_res, test_batch[2], output_lang, test_batch[4], test_batch[6])
                 # print('test', test)
                 # print('tar', tar)
@@ -195,3 +210,18 @@ for bl in range(len(best_acc_fold)):
     c += best_acc_fold[bl][2]
     print(best_acc_fold[bl])
 print(a / float(c), b / float(c))
+
+
+train_time_per_all = []
+test_time_per_all = []
+for length, runtime in train_time_array:
+    time_per = runtime / length
+    train_time_per_all.append(time_per)
+
+for length, runtime in test_time_array:
+    time_per = runtime / length
+    test_time_per_all.append(time_per)
+
+print('train time per token', sum(train_time_per_all) / len(train_time_per_all))
+print('infrence time per token', sum(test_time_per_all) / len(test_time_per_all))
+
