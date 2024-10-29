@@ -1,0 +1,649 @@
+Job ID: 9040
+Node: node002 echo Starting: 10/03/24 14:48:12
+aballo
+Reading lines...
+Transfer numbers...
+Indexing words...
+keep_words 3671 / 9971 = 0.3682
+Indexed 3674 words in input language, 23 words in output
+Number of training data 18530
+Number of testind data 4632
+/home/lbiester/.conda/envs/CS457/lib/python3.10/site-packages/torch/optim/lr_scheduler.py:136: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn("Detected call of `lr_scheduler.step()` before `optimizer.step()`. "
+fold: 1
+epoch: 1
+loss: 1.3554628795590895
+training time 0h 2m 39s
+--------------------------------
+1150 1277 4632
+test_answer_acc 0.24827288428324698 0.2756908462867012
+testing time 0h 4m 32s
+------------------------------------------------------
+fold: 1
+epoch: 2
+loss: 0.891372647573208
+training time 0h 2m 27s
+--------------------------------
+fold: 1
+epoch: 3
+loss: 0.7293229830676111
+training time 0h 2m 28s
+--------------------------------
+fold: 1
+epoch: 4
+loss: 0.6446726396166045
+training time 0h 2m 38s
+--------------------------------
+fold: 1
+epoch: 5
+loss: 0.5865379359187751
+training time 0h 2m 43s
+--------------------------------
+fold: 1
+epoch: 6
+loss: 0.538758670153289
+training time 0h 2m 43s
+--------------------------------
+fold: 1
+epoch: 7
+loss: 0.5078281682113122
+training time 0h 2m 39s
+--------------------------------
+fold: 1
+epoch: 8
+loss: 0.47983016577260246
+training time 0h 2m 39s
+--------------------------------
+fold: 1
+epoch: 9
+loss: 0.4560876685997535
+training time 0h 2m 42s
+--------------------------------
+fold: 1
+epoch: 10
+loss: 0.437741816249387
+training time 0h 2m 39s
+--------------------------------
+fold: 1
+epoch: 11
+loss: 0.4204303417740197
+training time 0h 2m 41s
+--------------------------------
+2698 3105 4632
+test_answer_acc 0.5824697754749568 0.6703367875647669
+testing time 0h 20m 58s
+------------------------------------------------------
+fold: 1
+epoch: 12
+loss: 0.40578681872836475
+training time 0h 2m 44s
+--------------------------------
+fold: 1
+epoch: 13
+loss: 0.3927216663956642
+training time 0h 2m 41s
+--------------------------------
+fold: 1
+epoch: 14
+loss: 0.38378011743570195
+training time 0h 2m 41s
+--------------------------------
+fold: 1
+epoch: 15
+loss: 0.37511917121451477
+training time 0h 2m 41s
+--------------------------------
+fold: 1
+epoch: 16
+loss: 0.3601779743515212
+training time 0h 2m 38s
+--------------------------------
+fold: 1
+epoch: 17
+loss: 0.35480807428729944
+training time 0h 2m 42s
+--------------------------------
+fold: 1
+epoch: 18
+loss: 0.34826801696728016
+training time 0h 2m 41s
+--------------------------------
+fold: 1
+epoch: 19
+loss: 0.3441284037869552
+training time 0h 2m 41s
+--------------------------------
+fold: 1
+epoch: 20
+loss: 0.29963472691075554
+training time 0h 2m 41s
+--------------------------------
+fold: 1
+epoch: 21
+loss: 0.2763585968778051
+training time 0h 2m 43s
+--------------------------------
+2868 3309 4632
+test_answer_acc 0.6191709844559585 0.7143782383419689
+testing time 0h 19m 4s
+------------------------------------------------------
+fold: 1
+epoch: 22
+loss: 0.26212394216964985
+training time 0h 2m 40s
+--------------------------------
+fold: 1
+epoch: 23
+loss: 0.254039936487017
+training time 0h 2m 39s
+--------------------------------
+fold: 1
+epoch: 24
+loss: 0.2450608658893355
+training time 0h 2m 40s
+--------------------------------
+fold: 1
+epoch: 25
+loss: 0.2365352071564773
+training time 0h 2m 46s
+--------------------------------
+fold: 1
+epoch: 26
+loss: 0.2344361563694888
+training time 0h 2m 44s
+--------------------------------
+fold: 1
+epoch: 27
+loss: 0.22809855701594517
+training time 0h 2m 44s
+--------------------------------
+fold: 1
+epoch: 28
+loss: 0.22264698795203505
+training time 0h 2m 40s
+--------------------------------
+fold: 1
+epoch: 29
+loss: 0.21467931504393445
+training time 0h 2m 44s
+--------------------------------
+fold: 1
+epoch: 30
+loss: 0.20974796198565385
+training time 0h 2m 44s
+--------------------------------
+fold: 1
+epoch: 31
+loss: 0.20657796525749667
+training time 0h 2m 43s
+--------------------------------
+2884 3346 4632
+test_answer_acc 0.6226252158894646 0.7223661485319517
+testing time 0h 18m 57s
+------------------------------------------------------
+fold: 1
+epoch: 32
+loss: 0.20391832538719834
+training time 0h 2m 40s
+--------------------------------
+fold: 1
+epoch: 33
+loss: 0.20075810603026686
+training time 0h 2m 46s
+--------------------------------
+fold: 1
+epoch: 34
+loss: 0.19509739130735398
+training time 0h 2m 45s
+--------------------------------
+fold: 1
+epoch: 35
+loss: 0.19246624715883157
+training time 0h 2m 44s
+--------------------------------
+fold: 1
+epoch: 36
+loss: 0.19176822448598926
+training time 0h 2m 40s
+--------------------------------
+fold: 1
+epoch: 37
+loss: 0.18723217593184832
+training time 0h 2m 44s
+--------------------------------
+fold: 1
+epoch: 38
+loss: 0.18483625175110224
+training time 0h 2m 43s
+--------------------------------
+fold: 1
+epoch: 39
+loss: 0.17988439983335033
+training time 0h 2m 44s
+--------------------------------
+fold: 1
+epoch: 40
+loss: 0.15907402305767454
+training time 0h 2m 43s
+--------------------------------
+fold: 1
+epoch: 41
+loss: 0.15241905436690512
+training time 0h 2m 45s
+--------------------------------
+2920 3389 4632
+test_answer_acc 0.6303972366148531 0.7316493955094991
+testing time 0h 18m 20s
+------------------------------------------------------
+fold: 1
+epoch: 42
+loss: 0.1488886769475608
+training time 0h 2m 45s
+--------------------------------
+fold: 1
+epoch: 43
+loss: 0.14145864263690752
+training time 0h 2m 44s
+--------------------------------
+fold: 1
+epoch: 44
+loss: 0.13786373937438273
+training time 0h 2m 46s
+--------------------------------
+fold: 1
+epoch: 45
+loss: 0.13429772201283224
+training time 0h 2m 43s
+--------------------------------
+fold: 1
+epoch: 46
+loss: 0.13180257342755794
+training time 0h 2m 43s
+--------------------------------
+fold: 1
+epoch: 47
+loss: 0.13018606135557437
+training time 0h 2m 42s
+--------------------------------
+fold: 1
+epoch: 48
+loss: 0.12774505472645678
+training time 0h 2m 42s
+--------------------------------
+fold: 1
+epoch: 49
+loss: 0.12610405746462017
+training time 0h 2m 41s
+--------------------------------
+fold: 1
+epoch: 50
+loss: 0.12220226390094592
+training time 0h 2m 43s
+--------------------------------
+fold: 1
+epoch: 51
+loss: 0.11830162421382706
+training time 0h 2m 41s
+--------------------------------
+2924 3417 4632
+test_answer_acc 0.6312607944732297 0.7376943005181347
+testing time 0h 18m 17s
+------------------------------------------------------
+fold: 1
+epoch: 52
+loss: 0.11796055879315426
+training time 0h 2m 45s
+--------------------------------
+fold: 1
+epoch: 53
+loss: 0.11738301566962538
+training time 0h 2m 44s
+--------------------------------
+fold: 1
+epoch: 54
+loss: 0.11365650212713356
+training time 0h 2m 43s
+--------------------------------
+fold: 1
+epoch: 55
+loss: 0.1128861355498947
+training time 0h 2m 43s
+--------------------------------
+fold: 1
+epoch: 56
+loss: 0.11301473024590263
+training time 0h 2m 44s
+--------------------------------
+fold: 1
+epoch: 57
+loss: 0.11147042515462842
+training time 0h 2m 42s
+--------------------------------
+fold: 1
+epoch: 58
+loss: 0.11074367893923973
+training time 0h 2m 42s
+--------------------------------
+fold: 1
+epoch: 59
+loss: 0.1082410600678674
+training time 0h 2m 44s
+--------------------------------
+fold: 1
+epoch: 60
+loss: 0.09857243411242962
+training time 0h 2m 42s
+--------------------------------
+fold: 1
+epoch: 61
+loss: 0.0969065056792621
+training time 0h 2m 42s
+--------------------------------
+2930 3423 4632
+test_answer_acc 0.6325561312607945 0.7389896373056994
+testing time 0h 18m 46s
+------------------------------------------------------
+fold: 1
+epoch: 62
+loss: 0.09284513301119722
+training time 0h 2m 42s
+--------------------------------
+fold: 1
+epoch: 63
+loss: 0.09199437298651399
+training time 0h 2m 44s
+--------------------------------
+fold: 1
+epoch: 64
+loss: 0.09045622996215162
+training time 0h 2m 43s
+--------------------------------
+fold: 1
+epoch: 65
+loss: 0.08867542595955832
+training time 0h 2m 44s
+--------------------------------
+fold: 1
+epoch: 66
+loss: 0.08717591053452985
+training time 0h 2m 42s
+--------------------------------
+fold: 1
+epoch: 67
+loss: 0.0870801883139487
+training time 0h 2m 43s
+--------------------------------
+fold: 1
+epoch: 68
+loss: 0.084983097119578
+training time 0h 2m 43s
+--------------------------------
+fold: 1
+epoch: 69
+loss: 0.08430907094915366
+training time 0h 2m 42s
+--------------------------------
+fold: 1
+epoch: 70
+loss: 0.08274561591317942
+training time 0h 2m 41s
+--------------------------------
+fold: 1
+epoch: 71
+loss: 0.08171354022262425
+training time 0h 2m 43s
+--------------------------------
+2909 3442 4632
+test_answer_acc 0.6280224525043178 0.7430915371329879
+testing time 0h 18m 32s
+------------------------------------------------------
+fold: 1
+epoch: 72
+loss: 0.07864317190672816
+training time 0h 2m 41s
+--------------------------------
+fold: 1
+epoch: 73
+loss: 0.07925595420830209
+training time 0h 2m 41s
+--------------------------------
+fold: 1
+epoch: 74
+loss: 0.07893775253203408
+training time 0h 2m 41s
+--------------------------------
+fold: 1
+epoch: 75
+loss: 0.07632558927068422
+training time 0h 2m 44s
+--------------------------------
+fold: 1
+epoch: 76
+loss: 0.07691596749013868
+training time 0h 2m 42s
+--------------------------------
+fold: 1
+epoch: 77
+loss: 0.07523237528472111
+training time 0h 2m 41s
+--------------------------------
+2915 3446 4632
+test_answer_acc 0.6293177892918825 0.7439550949913645
+testing time 0h 18m 28s
+------------------------------------------------------
+fold: 1
+epoch: 78
+loss: 0.07299379813645421
+training time 0h 2m 42s
+--------------------------------
+2928 3443 4632
+test_answer_acc 0.6321243523316062 0.7433074265975821
+testing time 0h 18m 17s
+------------------------------------------------------
+fold: 1
+epoch: 79
+loss: 0.07531784444662004
+training time 0h 2m 42s
+--------------------------------
+2928 3445 4632
+test_answer_acc 0.6321243523316062 0.7437392055267703
+testing time 0h 18m 37s
+------------------------------------------------------
+fold: 1
+epoch: 80
+loss: 0.0705005335910567
+training time 0h 2m 41s
+--------------------------------
+2931 3443 4632
+test_answer_acc 0.6327720207253886 0.7433074265975821
+testing time 0h 18m 36s
+------------------------------------------------------
+Indexing words...
+keep_words 3687 / 10014 = 0.3682
+Indexed 3690 words in input language, 23 words in output
+Number of training data 18530
+Number of testind data 4632
+fold: 2
+epoch: 1
+loss: 1.3620932410503257
+training time 0h 2m 47s
+--------------------------------
+1192 1324 4632
+test_answer_acc 0.25734024179620035 0.2858376511226252
+testing time 0h 20m 36s
+------------------------------------------------------
+fold: 2
+epoch: 2
+loss: 0.9017452788764033
+training time 0h 2m 46s
+--------------------------------
+fold: 2
+epoch: 3
+loss: 0.7369622993058171
+training time 0h 2m 43s
+--------------------------------
+fold: 2
+epoch: 4
+loss: 0.6461777574029463
+training time 0h 2m 43s
+--------------------------------
+fold: 2
+epoch: 5
+loss: 0.5881231118892801
+training time 0h 2m 43s
+--------------------------------
+fold: 2
+epoch: 6
+loss: 0.5425548778525714
+training time 0h 2m 44s
+--------------------------------
+fold: 2
+epoch: 7
+loss: 0.5076199027998695
+training time 0h 2m 42s
+--------------------------------
+fold: 2
+epoch: 8
+loss: 0.4812821339944313
+training time 0h 2m 46s
+--------------------------------
+fold: 2
+epoch: 9
+loss: 0.45995221466853703
+training time 0h 2m 45s
+--------------------------------
+fold: 2
+epoch: 10
+loss: 0.43800323225300886
+training time 0h 2m 43s
+--------------------------------
+fold: 2
+epoch: 11
+loss: 0.4217023996443584
+training time 0h 2m 42s
+--------------------------------
+2723 3087 4632
+test_answer_acc 0.5878670120898101 0.6664507772020726
+testing time 0h 19m 56s
+------------------------------------------------------
+fold: 2
+epoch: 12
+loss: 0.4035613920668076
+training time 0h 2m 42s
+--------------------------------
+fold: 2
+epoch: 13
+loss: 0.39356174838954006
+training time 0h 2m 43s
+--------------------------------
+fold: 2
+epoch: 14
+loss: 0.3835234687246125
+training time 0h 2m 43s
+--------------------------------
+fold: 2
+epoch: 15
+loss: 0.3699375625314384
+training time 0h 2m 43s
+--------------------------------
+fold: 2
+epoch: 16
+loss: 0.3631097948242878
+training time 0h 2m 42s
+--------------------------------
+fold: 2
+epoch: 17
+loss: 0.3495820104562003
+training time 0h 2m 42s
+--------------------------------
+fold: 2
+epoch: 18
+loss: 0.3451543776639577
+training time 0h 2m 44s
+--------------------------------
+fold: 2
+epoch: 19
+loss: 0.3459135615106287
+training time 0h 2m 41s
+--------------------------------
+fold: 2
+epoch: 20
+loss: 0.2965563587073622
+training time 0h 2m 42s
+--------------------------------
+fold: 2
+epoch: 21
+loss: 0.2767917215310294
+training time 0h 2m 43s
+--------------------------------
+2925 3343 4632
+test_answer_acc 0.6314766839378239 0.7217184801381693
+testing time 0h 19m 11s
+------------------------------------------------------
+fold: 2
+epoch: 22
+loss: 0.2661138050001243
+training time 0h 2m 43s
+--------------------------------
+fold: 2
+epoch: 23
+loss: 0.25580557173696056
+training time 0h 2m 41s
+--------------------------------
+fold: 2
+epoch: 24
+loss: 0.24546127524869196
+training time 0h 2m 44s
+--------------------------------
+fold: 2
+epoch: 25
+loss: 0.2385038586269165
+training time 0h 2m 42s
+--------------------------------
+fold: 2
+epoch: 26
+loss: 0.22891113778640484
+training time 0h 2m 43s
+--------------------------------
+fold: 2
+epoch: 27
+loss: 0.2244232160264048
+training time 0h 2m 41s
+--------------------------------
+fold: 2
+epoch: 28
+loss: 0.2216173952509617
+training time 0h 2m 43s
+--------------------------------
+fold: 2
+epoch: 29
+loss: 0.21728314094502352
+training time 0h 2m 42s
+--------------------------------
+fold: 2
+epoch: 30
+loss: 0.21190833680588625
+training time 0h 2m 42s
+--------------------------------
+fold: 2
+epoch: 31
+loss: 0.20694458140381453
+training time 0h 2m 40s
+--------------------------------
+2954 3397 4632
+test_answer_acc 0.6377374784110535 0.7333765112262521
+testing time 0h 18m 46s
+------------------------------------------------------
+fold: 2
+epoch: 32
+loss: 0.20579004572897122
+training time 0h 2m 43s
+--------------------------------
+fold: 2
+epoch: 33
+loss: 0.19862805201575673
+training time 0h 2m 43s
+--------------------------------
+fold: 2
+epoch: 34
+slurmstepd: error: *** JOB 9040 ON node002 CANCELLED AT 2024-10-04T00:48:21 DUE TO TIME LIMIT ***
