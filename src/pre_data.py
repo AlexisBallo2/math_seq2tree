@@ -551,7 +551,10 @@ def transfer_num(data, setName):  # transfer num into "NUM"
     temp_g = []
     for g in generate_nums:
         # only keep generated numbers if they are common in the text
-        if generate_nums_dict[g] >= 5:
+        # if generate_nums_dict[g] >= 5:
+        #     temp_g.append(g)
+        # TODO - handle UNK
+        if generate_nums_dict[g] >= 0:
             temp_g.append(g)
 
     # copy_nums: max length of numbers
@@ -1066,6 +1069,8 @@ def prepare_train_batch(pairs_to_batch, batch_size):
     var_batches = []
     input_batches = []
     output_batches = []
+    output_tokens = []
+    output_batch_masks = []
     num_stack_batches = []  # save the num stack which
     num_pos_batches = []
     num_size_batches = []
@@ -1110,7 +1115,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
         # output_len_max = max(output_length)
         input_batch = []
         output_batch = []
-        output_tokens = []
+        output_tokens_per = []
         output_batch_mask = []
         num_batch = []
         num_stack_batch = []
@@ -1129,7 +1134,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
             #   [[] of where each number in the equation (that is not in the output lang) is found in the nums array]
             #   [] answer tokens
             num_batch.append(len(input_nums))
-            output_tokens.append(soln_tokens)
+            output_tokens_per.append(soln_tokens)
             var_tokens_batch.append(var_tokens)
             # input batch: padded input text
             input_batch.append(pad_seq(input_seq, input_length_temp, input_len_max))
@@ -1161,6 +1166,8 @@ def prepare_train_batch(pairs_to_batch, batch_size):
         input_batches.append(input_batch)
         nums_batches.append(num_batch)
         output_batches.append(output_batch)
+        output_batch_masks.append(output_batch_mask)
+        output_tokens.append(output_tokens_per)
         var_batches.append(var_tokens_batch)
         num_stack_batches.append(num_stack_batch)
         num_pos_batches.append(num_pos_batch)
@@ -1174,7 +1181,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
     # num_stack_batches: the corresponding nums lists
     # num_pos_batches: positions of the numbers lists
     # num_size_batches: number of numbers from the input text
-    return input_batches, input_lengths, output_batches, output_batch_mask, output_lengths, output_tokens, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, var_batches 
+    return input_batches, input_lengths, output_batches, output_batch_masks, output_lengths, output_tokens, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, var_batches 
 
 
 def get_num_stack(eq, output_lang, num_pos):

@@ -332,9 +332,12 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
 
     max_target_length = 0
     max_num_equations = 0
-    for pair_equations_lengths in target_length:
-        max_target_length = max(max_target_length, *pair_equations_lengths)
+    for pair_equations_lengths in target_batch:
+        max_target_length = max(max_target_length, *[len(equation) for equation in pair_equations_lengths])
         max_num_equations = max(max_num_equations, len(pair_equations_lengths))
+    # for pair_equations_lengths in target_length:
+    #     max_target_length = max(max_target_length, *pair_equations_lengths)
+    #     max_num_equations = max(max_num_equations, len(pair_equations_lengths))
     # max_target_length = max(target_length)
     # for equation in input_batch
     # max_num_equations = max()
@@ -567,28 +570,30 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     #   the current scoring of nums for each token in equation
     # = batch_size x max_len x num_nums
     print('all', all_outputs)
+    all_outputs_stacked = torch.stack(all_outputs, dim=-1)
+    
     # all_outputs = torch.stack(all_outputs, dim=1)  # B x S x N
     # all_outputs = torch.cat(all_outputs, dim=1)  # B x S x N
 
     # target analysis
     # target: num_equations x num_tokens x batch_size
     temp_target = target.transpose(1,2).transpose(0,1)
-    print("target")
-    for i in range(temp_target.size(0)):
-        print('batch', i)
-        for j in range(temp_target.size(1)):
-            # print(temp_target[i][j])
-            print('equation', j, ":", [output_lang.index2word[_] for _ in temp_target[i][j]])
-    # predictions
-    print("predictions")
-    all_outputs2 = [_.unsqueeze(0) for _ in all_outputs]
-    all_outputs_combined = torch.cat(all_outputs2, dim=0)
-    all_outputs_combined2 = all_outputs_combined.transpose(0,1)
-    for i in range(all_outputs_combined2.size(0)):
-        print('batch', i)
-        for j in range(all_outputs_combined2[i].size(0)):
-            print(all_outputs_combined2[i][j])
-            # print('equation', j, ":", [output_lang.index2word[_] for _ in all_outputs[i][j].max(1)[1]])
+    # print("target")
+    # for i in range(temp_target.size(0)):
+    #     print('batch', i)
+    #     for j in range(temp_target.size(1)):
+    #         # print(temp_target[i][j])
+    #         print('equation', j, ":", [output_lang.index2word[_] for _ in temp_target[i][j]])
+    # # predictions
+    # print("predictions")
+    # all_outputs2 = [_.unsqueeze(0) for _ in all_outputs]
+    # all_outputs_combined = torch.cat(all_outputs2, dim=0)
+    # all_outputs_combined2 = all_outputs_combined.transpose(0,1)
+    # for i in range(all_outputs_combined2.size(0)):
+    #     print('batch', i)
+    #     for j in range(all_outputs_combined2[i].size(0)):
+    #         print(all_outputs_combined2[i][j])
+    #         # print('equation', j, ":", [output_lang.index2word[_] for _ in all_outputs[i][j].max(1)[1]])
 
     # for i in range(len(all_outputs)):
         # print('batch', i)
@@ -602,14 +607,34 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     #         # print('equation', j, ":", [output_lang.index2word[_] for _ in all_outputs[i][j].max(1)[1]])
 
 
-    target = target.transpose(0, 1).contiguous()
+    target2 = target.transpose(0, 1).contiguous()
+    target3 = target2.transpose(1, 2).contiguous()
+    target4 = target3.transpose(0,1).contiguous()
+
     if USE_CUDA:
         # all_leafs = all_leafs.cuda()
         all_node_outputs2 = all_outputs.cuda()
         target = target.cuda()
 
     #print('done equation')
-    loss = masked_cross_entropy(all_node_outputs2, target, target_length)
+    target_length_filled = []
+    for problem in target_length:
+        current_num_equations = len(problem)
+        if current_num_equations < max_num_equations:
+            problem += [0 for _ in range(max_num_equations - current_num_equations)]
+        target_length_filled.append(problem)
+    target_length_filled = torch.Tensor(target_length_filled)
+    # loss = masked_cross_entropy(all_node_outputs2, target, target_length)
+    for i in range(max_num_equations):
+        equation_target = target4[..., i]
+        for actuals in equation_target:
+            print(actuals)
+            print([output_lang.index2word[_] for _ in actuals])
+        predictions = all_outputs_stacked[..., i]
+        length = target_length_filled[..., i]
+        loss = masked_cross_entropy(predictions, equation_target, length.tolist())
+        print()
+    # loss = masked_cross_entropy(all_outputs_stacked, target, target_length)
     loss.backward()
 
     # Update parameters with optimizers
@@ -620,12 +645,25 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     return loss.item() 
 
 
-def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, generate, merge, output_lang, num_pos,
+def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, generate, merge, output_lang, num_pos, x_generate, x_to_q, num_x_predict,
                   beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
 
-    seq_mask = torch.ByteTensor(1, input_length).fill_(0)
+    # seq_mask = torch.ByteTensor(1, input_length).fill_(0)
+    seq_mask = []
+    max_len = max(input_length)
+    for i in input_length:
+        seq_mask.append([0 for _ in range(i)] + [1 for _ in range(i, max_len)])
+    seq_mask = torch.ByteTensor(seq_mask)
+
+
+    input_var = torch.LongTensor(input_batch).transpose(0, 1)
+    target = torch.stack([torch.LongTensor(equation_set) for equation_set in target_batch], dim=-1)
+
+    padding_hidden = torch.FloatTensor([0.0 for _ in range(predict.hidden_size)]).unsqueeze(0)
+    batch_size = len(input_length)
+
     # Turn padded arrays into (batch_size x max_len) tensors, transpose into (max_len x batch_size)
-    input_var = torch.LongTensor(input_batch).unsqueeze(1)
+    # input_var = torch.LongTensor(input_batch).unsqueeze(1)
 
     num_mask = torch.ByteTensor(1, len(num_pos) + len(generate_nums)).fill_(0)
 
@@ -634,10 +672,14 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
     predict.eval()
     generate.eval()
     merge.eval()
+    num_x_predict.eval()
+    x_generate.eval()
+    x_to_q.eval()
+    
 
-    padding_hidden = torch.FloatTensor([0.0 for _ in range(predict.hidden_size)]).unsqueeze(0)
+    # padding_hidden = torch.FloatTensor([0.0 for _ in range(predict.hidden_size)]).unsqueeze(0)
 
-    batch_size = 1
+    # batch_size = 1
 
     if USE_CUDA:
         input_var = input_var.cuda()
@@ -646,18 +688,30 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
         num_mask = num_mask.cuda()
     # Run words through encoder
 
-    encoder_outputs, problem_output = encoder(input_var, [input_length])
+    # encoder_outputs, problem_output = encoder(input_var, [input_length])
+    encoder_outputs, problem_output = encoder(input_var, input_length)
+
+    max_target_length = 0
+    max_num_equations = 3
 
     # Prepare input and output variables
     node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
 
+    copy_num_len = [len(_) for _ in num_pos] 
     num_size = len(num_pos)
-    all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, [num_pos], batch_size, num_size,
+    all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_size,
                                                               encoder.hidden_size)
+    # all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, [num_pos], batch_size, num_size,
+    num_x = num_x_predict(encoder_outputs)
+
+    temp_encoder = encoder_outputs.transpose(0, 1)
+    #                                                           encoder.hidden_size)
     num_start = output_lang.num_start
     # B x P x N
     embeddings_stacks = [[] for _ in range(batch_size)]
     left_childs = [None for _ in range(batch_size)]
+
+    empty = torch.zeros(encoder.hidden_size)
 
     # evaulation uses beam search
     # key is how the beams are compared
