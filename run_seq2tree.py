@@ -7,8 +7,6 @@ import torch.optim
 from src.expressions_transfer import *
 
 batch_size = 64
-# batch_size = 10
-# batch_size = 1 
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 2
@@ -192,6 +190,19 @@ for fold in range(5):
                 if equ_ac:
                     equation_ac += 1
                 eval_total += 1
+
+            actual = [output_lang.index2word[i] for i in test_batch[2]]
+            predicted = [output_lang.index2word[i] for i in test_res]
+            same = 0
+            print(len(actual), len(predicted))
+            for i in range(min(len(actual), len(predicted))):
+                if actual[i] == predicted[i]:
+                    same += 1
+            print("actual     " , actual)
+            print("predicted  ", predicted)
+            print('same:', same, (2*same)/(len(actual) + len(predicted)))
+
+            print("\n")
             print(equation_ac, value_ac, eval_total)
             print("test_answer_acc", float(equation_ac) / eval_total, float(value_ac) / eval_total)
             # print("testing time", time_since(time.time() - start))
