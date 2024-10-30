@@ -6,13 +6,13 @@ import time
 import torch.optim
 from src.expressions_transfer import *
 
-# batch_size = 64
-batch_size = 10
+batch_size = 64
+# batch_size = 10
 # batch_size = 1 
 embedding_size = 128
 hidden_size = 512
-n_epochs = 2
-# n_epochs = 80
+# n_epochs = 2
+n_epochs = 80
 learning_rate = 1e-3 
 weight_decay = 1e-5
 beam_size = 5
@@ -30,7 +30,7 @@ data = load_raw_data("data/Math_23K.json")
 # }'
 
 pairs, generate_nums, copy_nums = transfer_num(data)
-pairs = pairs[0:30]
+# pairs = pairs[0:30]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
@@ -142,14 +142,14 @@ for fold in range(5):
             loss_total += loss
 
         print("loss:", loss_total / len(input_lengths))
-        print("training time", time_since(time.time() - start))
+        # print("training time", time_since(time.time() - start))
         print("--------------------------------")
         # if epoch % 10 == 0 or epoch > n_epochs - 5:
         if True:
             value_ac = 0
             equation_ac = 0
             eval_total = 0
-            start = time.time()
+            # start = time.time()
             # print('test pairs', test_pairs)
             for test_batch in test_pairs:
                 start = time.perf_counter()
@@ -194,7 +194,7 @@ for fold in range(5):
                 eval_total += 1
             print(equation_ac, value_ac, eval_total)
             print("test_answer_acc", float(equation_ac) / eval_total, float(value_ac) / eval_total)
-            print("testing time", time_since(time.time() - start))
+            # print("testing time", time_since(time.time() - start))
             print("------------------------------------------------------")
             torch.save(encoder.state_dict(), "models/encoder")
             torch.save(predict.state_dict(), "models/predict")
