@@ -820,16 +820,19 @@ def transfer_roth_num(data):  # transfer num into "NUM"
 
 # Return a list of indexes, one for each word in the sentence, plus EOS
 def indexes_from_sentence(lang, sentence, tree=False):
-    res = []
-    for word in sentence:
-        if len(word) == 0:
-            continue
-        if word in lang.word2index:
-            res.append(lang.word2index[word])
-        else:
-            res.append(lang.word2index["UNK"])
-    if "EOS" in lang.index2word and not tree:
-        res.append(lang.word2index["EOS"])
+    try:
+        res = []
+        for word in sentence:
+            if len(word) == 0:
+                continue
+            if word in lang.word2index:
+                res.append(lang.word2index[word])
+            else:
+                res.append(lang.word2index["UNK"])
+        if "EOS" in lang.index2word and not tree:
+            res.append(lang.word2index["EOS"])
+    except:
+        return False
     return res
 
 
@@ -841,23 +844,25 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
 
     print("Indexing words...")
     allVars = []
-    for pair in pairs_trained:
+    for pair in pairs_trained + pairs_tested:
         equationVars = pair[5]
-        if not tree or pair[-1]:
+        # if  "divided" in pair[0]:
+        #     print()
+        # if not tree or pair[-1]:
             # add input sentence to vocab
-            input_lang.add_sen_to_vocab(pair[0])
-            # vocab for the equations. note that this does not add numbers or num tokens
-            # to the lang
-            for eqs in pair[1]:
-                for equ in eqs:
-                    output_lang.add_sen_to_vocab(equ, equationVars)
-                    # for token in equ:
-                    #     if token in equationVars :
-                    #         output_lang.remove_token_from_vocab(token)
-                # make the output tokens NOT in the vocab
-                allVars += pair[5]
-                for var in pair[5]:
-                    output_lang.remove_token_from_vocab(var)
+        input_lang.add_sen_to_vocab(pair[0])
+        # vocab for the equations. note that this does not add numbers or num tokens
+        # to the lang
+        for eqs in pair[1]:
+            for equ in eqs:
+                output_lang.add_sen_to_vocab(equ, equationVars)
+                # for token in equ:
+                #     if token in equationVars :
+                #         output_lang.remove_token_from_vocab(token)
+            # make the output tokens NOT in the vocab
+            allVars += pair[5]
+            for var in pair[5]:
+                output_lang.remove_token_from_vocab(var)
 
     # # get all variables in the equations
     uniqueVars = list(set(allVars))
@@ -906,6 +911,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         # ???
         num_stack.reverse()
 
+        # input_lang.add_sen_to_vocab(['divided'])
         # convert input sentence and equation into the vocab tokens
         input_cell = indexes_from_sentence(input_lang, pair[0])
         output_cells = [indexes_from_sentence(output_lang, i, tree) for i in pair[1]]
@@ -917,35 +923,56 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         #   nums: numbers from the input text
         #   loc nums: where nums are in the text
         #   [[] of where each token in the equation is found in the nums array]
-        train_pairs.append(
-            (input_cell, len(input_cell), 
-             output_cells, [len(output_cell) for output_cell in output_cells],
-             pair[2], pair[3], num_stack, pair[5]))
+        # DRAW1k has some funky occurances of numbers. Need better tokenization. 
+        # for now, lets just drop those examples
+        if input_cell != False and False not in output_cells:
+            train_pairs.append(
+                (input_cell, len(input_cell), 
+                output_cells, [len(output_cell) for output_cell in output_cells],
+                pair[2], pair[3], num_stack, pair[5]))
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
     print('Number of training data %d' % (len(train_pairs)))
     for pair in pairs_tested:
         num_stack = []
-        for word in pair[1]:
-            temp_num = []
-            flag_not = True
-            if word not in output_lang.index2word:
-                flag_not = False
-                for i, j in enumerate(pair[2]):
-                    if j == word:
-                        temp_num.append(i)
+        for equation in pair[1]:
+            for word in equation:
+                temp_num = []
+                flag_not = True
+                # we already added equation to output lang, but numbers were not added
+                # so capture the indexs of the constants
+                if word not in output_lang.index2word:
+                    flag_not = False
+                    # for each in nums list
+                    for i, j in enumerate(pair[2]):
+                        if j == word:
+                            temp_num.append(i)
 
-            if not flag_not and len(temp_num) != 0:
-                num_stack.append(temp_num)
-            if not flag_not and len(temp_num) == 0:
-                num_stack.append([_ for _ in range(len(pair[2]))])
+                if not flag_not and len(temp_num) != 0:
+                    # num_stack has the locations in the list of nums of where there is a number
+                    # that is in the input text and the equation
+                    num_stack.append(temp_num)
+                if not flag_not and len(temp_num) == 0:
+                    # if no nums in both, let all numbers be in both??
+                    num_stack.append([_ for _ in range(len(pair[2]))])
 
-        num_stack.reverse()
-        input_cell = indexes_from_sentence(input_lang, pair[0])
-        output_cells = [indexes_from_sentence(output_lang, i, tree) for i in pair[1]]
-        # train_pairs.append((input_cell, len(input_cell), output_cell, len(output_cell),
-        #                     pair[2], pair[3], num_stack, pair[4]))
-        test_pairs.append((input_cell, len(input_cell), output_cells, len(output_cells),
-                           pair[2], pair[3], num_stack, pair[4]))
+            # ???
+            num_stack.reverse()
+
+            # convert input sentence and equation into the vocab tokens
+            input_cell = indexes_from_sentence(input_lang, pair[0])
+            output_cells = [indexes_from_sentence(output_lang, i, tree) for i in pair[1]]
+            # pair:
+            #   input: sentence with all numbers masked as NUM
+            #   length of input
+            #   output: prefix equation. Numbers from input as N{i}, non input as constants
+            #   length of output
+            #   nums: numbers from the input text
+            #   loc nums: where nums are in the text
+            #   [[] of where each token in the equation is found in the nums array]
+            test_pairs.append(
+                (input_cell, len(input_cell), 
+                output_cells, [len(output_cell) for output_cell in output_cells],
+                pair[2], pair[3], num_stack, pair[5]))
     print('Number of testind data %d' % (len(test_pairs)))
             # pair:
         #   input: sentence with all numbers masked as NUM

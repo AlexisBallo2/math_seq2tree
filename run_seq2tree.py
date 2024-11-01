@@ -10,7 +10,7 @@ import torch.optim
 from src.expressions_transfer import *
 
 # batch_size = 64
-batch_size = 3
+batch_size = 3 
 # batch_size = 2 
 embedding_size = 128
 hidden_size = 512
@@ -26,8 +26,8 @@ setName = "DRAW"
 if setName == "MATH":
     data = load_MATH23k_data("data/Math_23K.json")
 else:
-    # data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
-    data = load_DRAW_data("data/DRAW/single.json")
+    data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
+    # data = load_DRAW_data("data/DRAW/single.json")
 # MATH data format:
 # {
 # "id":"10431",
@@ -197,21 +197,28 @@ for fold in range(5):
             start = time.time()
             # print('test pairs', test_pairs)
             for test_batch in test_pairs:
-                test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, encoder, predict, generate, x_generate, x_to_q, num_x_predict,
-                                         merge, output_lang, test_batch[5], beam_size=beam_size)
-                # print('test res', test_res)
+                test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, encoder, predict, generate, x_generate, x_to_q, num_x_predict, merge, output_lang, test_batch[5], beam_size=beam_size)
+                print('test res', test_res)
                 # for i in test_res:
                 #     print('i', i)
                 #     # for j in i:
                 #     #     print('j', j)
                 #     print(output_lang.index2word(i))
-                # print('test result', [output_lang.index2word(i) for i in test_res ])
+                print('test result', [output_lang.index2word[i] for i in test_res[0] ])
                 val_ac, equ_ac, test, tar = compute_prefix_tree_result(test_res, test_batch[2], output_lang, test_batch[4], test_batch[6])
                 # print('test', test)
                 # print('tar', tar)
                 # print('actual', test_batch[2])
-                actual = [output_lang.index2word[i] for i in test_batch[2]]
-                predicted = [output_lang.index2word[i] for i in test_res]
+                actuals = []
+                for equation in test_batch[2]:
+                    actual = [output_lang.index2word[i] for i in equation]
+                    actuals.append(actual)
+                print('actuals', actuals)
+                preds = []
+                for equation in test_res:
+                    predicted = [output_lang.index2word[i] for i in equation]
+                    preds.append(predicted)
+                print('preds', preds)
                 same = 0
                 print(len(actual), len(predicted))
                 for i in range(min(len(actual), len(predicted))):

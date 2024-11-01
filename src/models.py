@@ -503,10 +503,13 @@ class PredictNumX(nn.Module):
         self.fc = nn.Linear(hidden_size, 1)
 
 
-    def forward(self, hidden):
+    def forward(self, hidden, eval = False):
         # hidden will be a list of unknown length with embed dimension of 512. 
 
-        zeroList = [[[0.0] * 512] for _ in range(self.batch_size)]
+        if eval == False:
+            zeroList = [[[0.0] * 512] for _ in range(self.batch_size)]
+        else:
+            zeroList = [[[0.0] * 512] for _ in range(1)]
         padding_tensor = torch.tensor(zeroList)  # or any other values you want to pad with
         padding_tensor = padding_tensor.squeeze(1)
         num_padding_needed = 100 - hidden.size(0)
@@ -525,7 +528,7 @@ class PredictNumX(nn.Module):
         # Forward propagate LSTM
         out, _ = self.lstm(hidden2T, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
         out = self.fc(out[:, -1, :]).squeeze(-1)  # out: tensor of shape (batch_size, output_size)
-        return out
+        return abs(out) * 10
 
 
 class XToQ(nn.Module):
