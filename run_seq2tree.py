@@ -81,6 +81,13 @@ fold_pairs.append(pairs[(fold_size * 4):])
 
 best_acc_fold = []
 
+
+total_training_time = 0
+total_inference_time = 0
+
+train_time_array = []
+test_time_array = []
+
 for fold in range(5):
     pairs_tested = []
     pairs_trained = []
@@ -182,10 +189,13 @@ for fold in range(5):
         print("epoch:", epoch + 1)
         start = time.time()
         for idx in range(len(input_lengths)):
+            start = time.perf_counter()
             loss = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_batch_mask[idx], output_lengths[idx], output_tokens[idx],
                 num_stack_batches[idx], num_size_batches[idx], var_tokens_batches[idx], generate_num_ids, encoder, num_x_predict, x_generate, x_to_q, predict, generate, merge,
                 encoder_optimizer, num_x_predict_optimizer, x_generate_optimizer, x_to_q_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos_batches[idx], output_lang.variables)
+            end = time.perf_counter()
+            test_time_array.append([1, end - start])
             loss_total += loss
 
         print("loss:", loss_total / len(input_lengths))
@@ -206,7 +216,10 @@ for fold in range(5):
             start = time.time()
             # print('test pairs', test_pairs)
             for test_batch in test_pairs:
+                start = time.perf_counter()
                 test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, encoder, predict, generate, x_generate, x_to_q, num_x_predict, merge, output_lang, test_batch[5], beam_size=beam_size)
+                end = time.perf_counter()
+                test_time_array.append([1, end - start])
                 print('test res', test_res)
                 # for i in test_res:
                 #     print('i', i)
@@ -259,6 +272,18 @@ for fold in range(5):
             torch.save(merge.state_dict(), "models/merge")
             if epoch == n_epochs - 1:
                 best_acc_fold.append((equation_ac, value_ac, eval_total))
+    train_time_per_all = []
+    test_time_per_all = []
+    for length, runtime in train_time_array:
+        time_per = runtime / length
+        train_time_per_all.append(time_per)
+
+    for length, runtime in test_time_array:
+        time_per = runtime / length
+        test_time_per_all.append(time_per)
+
+    print('epoch' , epoch, 'train time per token', sum(train_time_per_all) / len(train_time_per_all))
+    print('epoch', epoch, 'infrence time per token', sum(test_time_per_all) / len(test_time_per_all))
 
 a, b, c = 0, 0, 0
 for bl in range(len(best_acc_fold)):
@@ -267,3 +292,18 @@ for bl in range(len(best_acc_fold)):
     c += best_acc_fold[bl][2]
     print(best_acc_fold[bl])
 print(a / float(c), b / float(c))
+
+
+train_time_per_all = []
+test_time_per_all = []
+for length, runtime in train_time_array:
+    time_per = runtime / length
+    train_time_per_all.append(time_per)
+
+for length, runtime in test_time_array:
+    time_per = runtime / length
+    test_time_per_all.append(time_per)
+
+print('train time per token', sum(train_time_per_all) / len(train_time_per_all))
+print('infrence time per token', sum(test_time_per_all) / len(test_time_per_all))
+
