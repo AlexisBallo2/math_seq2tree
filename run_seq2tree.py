@@ -8,14 +8,17 @@ from src.models import *
 import time
 import torch.optim
 from src.expressions_transfer import *
+from torchviz import make_dot
 
 # batch_size = 64
-batch_size = 3 
-# batch_size = 2 
+# batch_size = 1 
+batch_size = 10 
 embedding_size = 128
 hidden_size = 512
-n_epochs = 80
-learning_rate = 1e-3 
+n_epochs = 20 
+# n_epochs = 80
+learning_rate = 1e-1 
+# learning_rate = 1e-5 
 weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
@@ -43,7 +46,7 @@ else:
 # }
 
 pairs, generate_nums, copy_nums, vars = transfer_num(data, setName)
-pairs = pairs[0:30]
+pairs = pairs[0:400]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   [out_seq]: equation with in text numbers replaced with "N#", and other numbers left as is
@@ -103,10 +106,10 @@ for fold in range(5):
     #   loc nums: where nums are in the text
     #   [[] of where each token in the equation is found in the nums array]
     # use this
-    for input_seq, input_length, equations, equation_lengths, input_nums, input_nums_pos, num_stack, eqn_vars in train_pairs:
-        print("     problem", input_lang.ids_to_tokens(input_seq))
-        print("     equations", [output_lang.ids_to_tokens(equations[i]) for i in range(len(equations))])
-        print("     vars", eqn_vars)
+    # for input_seq, input_length, equations, equation_lengths, input_nums, input_nums_pos, num_stack, eqn_vars in train_pairs:
+        # print("     problem", input_lang.ids_to_tokens(input_seq))
+        # print("     equations", [output_lang.ids_to_tokens(equations[i]) for i in range(len(equations))])
+        # print("     vars", eqn_vars)
 
     # # confirm:
     # print("for input:", temp_pairs[0])
@@ -121,8 +124,7 @@ for fold in range(5):
     #   loc nums: where nums are in the text
     #   [[] of where each number in the equation (that is not in the output lang) is found in the nums array]
     # Initialize models
-    encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,
-                         n_layers=n_layers)
+    encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size, n_layers=n_layers)
     # max of 5 possible trees generated 
     num_x_predict = PredictNumX(hidden_size=hidden_size, output_size=5, batch_size=batch_size)
     x_generate = GenerateXs(hidden_size=hidden_size, output_size=5, batch_size=batch_size)
@@ -189,6 +191,13 @@ for fold in range(5):
         print("loss:", loss_total / len(input_lengths))
         print("training time", time_since(time.time() - start))
         print("--------------------------------")
+        encoder_optimizer.step()
+        predict_optimizer.step()
+        generate_optimizer.step()
+        merge_optimizer.step()
+        x_to_q_optimizer.step()
+        x_generate_optimizer.step()
+        num_x_predict_optimizer.step()
         # if epoch % 10 == 0 or epoch > n_epochs - 5:
         if True:
             value_ac = 0

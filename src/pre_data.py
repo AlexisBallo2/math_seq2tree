@@ -1104,7 +1104,6 @@ def prepare_train_batch(pairs_to_batch, batch_size):
     while pos + batch_size < len(pairs):
         batches.append(pairs[pos:pos+batch_size])
         pos += batch_size
-    batches.append(pairs[pos:])
     
 
     # get max lengths of each equation and number of equations in the batch

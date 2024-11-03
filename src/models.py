@@ -528,7 +528,9 @@ class PredictNumX(nn.Module):
         # Forward propagate LSTM
         out, _ = self.lstm(hidden2T, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
         out = self.fc(out[:, -1, :]).squeeze(-1)  # out: tensor of shape (batch_size, output_size)
-        return abs(out) * 10
+        out = torch.sigmoid(out) * 10 + 1
+        return out
+        # return abs(out) 
 
 
 class XToQ(nn.Module):
@@ -539,17 +541,23 @@ class XToQ(nn.Module):
         self.lstm = nn.LSTM(hidden_size, hidden_size, 1, batch_first=True)
         self.fc = nn.Linear(hidden_size, 1)
     def forward(self, hidden, x):
+        # x = batch_size x num_xs x hidden_size
+        # hidden = batch_size x tokens x hidden_size
 
         finals = []
 
         hidden2 = hidden#.transpose(0,1)
+        # for each in batch
         for i in range(hidden.shape[0]):
+            # get the x's for this batch
             xs = x[i]
             qs = []
             for j in range(len(xs)):
-                qkt = torch.matmul(xs[j], self.K(hidden2[j]).transpose(0,1))
+                # for each x for the batch
+                # xk^T
+                qkt = torch.matmul(xs[j], self.K(hidden2[i]).transpose(0,1))
                 smqkt = nn.functional.softmax(qkt)
-                output = torch.matmul(smqkt, self.V(hidden2[j]))
+                output = torch.matmul(smqkt, self.V(hidden2[i]))
                 qs.append(output)
             # need to change later
             qs = torch.stack(qs)#.transpose(0,1)
