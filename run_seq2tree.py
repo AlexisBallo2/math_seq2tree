@@ -11,7 +11,7 @@ from src.expressions_transfer import *
 
 # batch_size = 64
 # batch_size = 1 
-batch_size = 20 
+batch_size = 20
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 2 
@@ -46,7 +46,7 @@ else:
 # }
 
 pairs, generate_nums, copy_nums, vars = transfer_num(data, setName)
-pairs = pairs[0:400]
+pairs = pairs[0:200]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   [out_seq]: equation with in text numbers replaced with "N#", and other numbers left as is
@@ -187,7 +187,7 @@ for fold in range(5):
         input_batches, input_lengths, output_batches, output_batch_mask, output_lengths, output_tokens, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, solution_batches, var_tokens_batches = prepare_train_batch(train_pairs, batch_size)
         print("fold:", fold + 1)
         print("epoch:", epoch + 1)
-        start = time.time()
+        # start = time.time()
         for idx in range(len(input_lengths)):
             start = time.perf_counter()
             loss = train_tree(
@@ -198,8 +198,8 @@ for fold in range(5):
             train_time_array.append([1, end - start])
             loss_total += loss
 
-        print("loss:", loss_total / len(input_lengths))
-        print("training time", time_since(time.time() - start))
+        print(f"epoch {epoch} fold {fold} loss:", loss_total / len(input_lengths))
+        # print("training time", time_since(time.time() - start))
         print("--------------------------------")
         encoder_optimizer.step()
         predict_optimizer.step()
@@ -213,7 +213,7 @@ for fold in range(5):
             value_ac = 0
             equation_ac = 0
             eval_total = 0
-            start = time.time()
+            # start = time.time()
             # print('test pairs', test_pairs)
             for test_batch in test_pairs:
                 start = time.perf_counter()
@@ -243,7 +243,7 @@ for fold in range(5):
                 print('preds', preds)
                 same = 0
                 print(len(actual), len(predicted))
-                for i in range(max(test_batch[3])):
+                for i in range(min(*test_batch[3], len(predicted), len(actual) )):
                     # print('checking', actual[i], predicted[i])
                     if actual[i] == predicted[i]:
                         same += 1
@@ -265,7 +265,7 @@ for fold in range(5):
                 eval_total += 1
             print(equation_ac, value_ac, eval_total)
             print("test_answer_acc", float(equation_ac) / eval_total, float(value_ac) / eval_total)
-            print("testing time", time_since(time.time() - start))
+            # print("testing time", time_since(time.time() - start))
             print("------------------------------------------------------")
             torch.save(encoder.state_dict(), "models/encoder")
             torch.save(predict.state_dict(), "models/predict")
@@ -283,8 +283,8 @@ for fold in range(5):
         time_per = runtime / length
         test_time_per_all.append(time_per)
 
-    print('epoch' , epoch, 'train time per token', sum(train_time_per_all) / len(train_time_per_all))
-    print('epoch', epoch, 'infrence time per token', sum(test_time_per_all) / len(test_time_per_all))
+    print('epoch' , epoch, 'fold', fold, 'train time per token', sum(train_time_per_all) / len(train_time_per_all))
+    print('epoch', epoch, 'fold', fold, 'infrence time per token', sum(test_time_per_all) / len(test_time_per_all))
 
 a, b, c = 0, 0, 0
 for bl in range(len(best_acc_fold)):
