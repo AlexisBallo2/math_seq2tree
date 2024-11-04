@@ -46,7 +46,7 @@ else:
 # }
 
 pairs, generate_nums, copy_nums, vars = transfer_num(data, setName)
-pairs = pairs[0:20]
+# pairs = pairs[0:20]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   [out_seq]: equation with in text numbers replaced with "N#", and other numbers left as is
