@@ -632,8 +632,8 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
             for token in batch:
                 eqn_preds.append(output_lang.index2word[torch.argmax(token).item()])
             print(f"    batch {j}, equation {i}" )
-            print(f"        prediction: {eqn_preds}")
-            print(f"        actual: {target_tokens[j]}")
+            print(f"        prediction: {eqn_preds[0:target_length[j][i]]}")
+            print(f"        actual: {target_tokens[j][0:target_length[j][i]]}")
         preds_flattened = predictions.view(-1, predictions.size(-1))
 
         tempLoss = torch.nn.CrossEntropyLoss(reduction='none')(preds_flattened, target_flattened)
