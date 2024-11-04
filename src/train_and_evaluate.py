@@ -609,12 +609,12 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
         target = target.cuda()
 
 
-    # target_length_filled = []
-    # for problem in target_length:
-    #     current_num_equations = len(problem)
-    #     if current_num_equations < max_num_equations:
-    #         problem += [0 for _ in range(max_num_equations - current_num_equations)]
-    #     target_length_filled.append(problem)
+    target_length_filled = []
+    for problem in target_length:
+        current_num_equations = len(problem)
+        if current_num_equations < max_num_equations:
+            problem += [0 for _ in range(max_num_equations - current_num_equations)]
+        target_length_filled.append(problem)
     # target_length_filled = torch.Tensor(target_length_filled)
     # loss = masked_cross_entropy(all_node_outputs2, target, target_length)
     # loss the number of equations
@@ -636,7 +636,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     # target_mask_stacked = torch.stack([torch.Tensor(i) for i in target_mask], dim=-1)
 
     print('token lists of')
-    equation_loss = None
+    equation_loss = solutions_loss_final
     for i in range(max_num_equations):
         # target4 = batch_size x max_len x num_equations
         # equation_target = batch_size x max_len 
@@ -672,7 +672,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
         equation_loss += tempLoss3.sum() 
 
     # full loss = equation loss + number of equations loss + solutions loss
-    loss = solutions_loss_final + equation_loss + num_x_loss
+    loss = equation_loss + num_x_loss
     print('total loss', loss)
     loss.backward()
 
