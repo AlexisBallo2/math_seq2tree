@@ -9,16 +9,16 @@ import time
 import torch.optim
 from src.expressions_transfer import *
 
-# batch_size = 64
+batch_size = 64
 # batch_size = 1 
-batch_size = 20
+# batch_size = 20
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 2 
-n_epochs = 20 
-# n_epochs = 80
-learning_rate = 1e-1 
-# learning_rate = 1e-5 
+# n_epochs = 20 
+n_epochs = 80
+# learning_rate = 1e-1 
+learning_rate = 1e-5 
 weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
@@ -46,7 +46,7 @@ else:
 # }
 
 pairs, generate_nums, copy_nums, vars = transfer_num(data, setName)
-pairs = pairs[0:200]
+# pairs = pairs[0:200]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   [out_seq]: equation with in text numbers replaced with "N#", and other numbers left as is
@@ -277,6 +277,7 @@ for fold in range(5):
             if epoch == n_epochs - 1:
                 best_acc_fold.append((equation_ac, value_ac, eval_total))
     all_losses.append(fold_loss)
+    print('FOLD OUTPUT', fold_loss)
     train_time_per_all = []
     test_time_per_all = []
     for length, runtime in train_time_array:
