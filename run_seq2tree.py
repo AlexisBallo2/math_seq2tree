@@ -14,7 +14,8 @@ from src.expressions_transfer import *
 batch_size = 10 
 embedding_size = 128
 hidden_size = 512
-n_epochs = 20 
+n_epochs = 2 
+# n_epochs = 20 
 # n_epochs = 80
 learning_rate = 1e-1 
 # learning_rate = 1e-5 
@@ -45,7 +46,7 @@ else:
 # }
 
 pairs, generate_nums, copy_nums, vars = transfer_num(data, setName)
-pairs = pairs[0:400]
+pairs = pairs[0:40]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   [out_seq]: equation with in text numbers replaced with "N#", and other numbers left as is
@@ -194,7 +195,7 @@ for fold in range(5):
                 num_stack_batches[idx], num_size_batches[idx], var_tokens_batches[idx], generate_num_ids, encoder, num_x_predict, x_generate, x_to_q, predict, generate, merge,
                 encoder_optimizer, num_x_predict_optimizer, x_generate_optimizer, x_to_q_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos_batches[idx], output_lang.variables)
             end = time.perf_counter()
-            test_time_array.append([1, end - start])
+            train_time_array.append([1, end - start])
             loss_total += loss
 
         print("loss:", loss_total / len(input_lengths))
@@ -242,12 +243,13 @@ for fold in range(5):
                 print('preds', preds)
                 same = 0
                 print(len(actual), len(predicted))
-                for i in range(min(len(actual), len(predicted))):
+                for i in range(max(test_batch[3])):
+                    # print('checking', actual[i], predicted[i])
                     if actual[i] == predicted[i]:
                         same += 1
                 print("actual     " , actual)
                 print("predicted  ", predicted)
-                print('same:', same, (2*same)/(len(actual) + len(predicted)))
+                print('same:', same, same/max(test_batch[3]))
 
                 print("\n")
                 # for i in test_res:
