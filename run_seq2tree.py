@@ -184,7 +184,7 @@ for fold in range(5):
         # num_stack_batches: the corresponding nums lists
         # num_pos_batches: positions of the numbers lists
         # num_size_batches: number of numbers from the input text
-        input_batches, input_lengths, output_batches, output_batch_mask, output_lengths, output_tokens, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, var_tokens_batches = prepare_train_batch(train_pairs, batch_size)
+        input_batches, input_lengths, output_batches, output_batch_mask, output_lengths, output_tokens, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, solution_batches, var_tokens_batches = prepare_train_batch(train_pairs, batch_size)
         print("fold:", fold + 1)
         print("epoch:", epoch + 1)
         start = time.time()
@@ -192,7 +192,7 @@ for fold in range(5):
             start = time.perf_counter()
             loss = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_batch_mask[idx], output_lengths[idx], output_tokens[idx],
-                num_stack_batches[idx], num_size_batches[idx], var_tokens_batches[idx], generate_num_ids, encoder, num_x_predict, x_generate, x_to_q, predict, generate, merge,
+                num_stack_batches[idx], num_size_batches[idx], var_tokens_batches[idx], solution_batches[idx], generate_num_ids, encoder, num_x_predict, x_generate, x_to_q, predict, generate, merge,
                 encoder_optimizer, num_x_predict_optimizer, x_generate_optimizer, x_to_q_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos_batches[idx], output_lang.variables)
             end = time.perf_counter()
             train_time_array.append([1, end - start])

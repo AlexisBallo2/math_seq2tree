@@ -250,7 +250,7 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
 
 
-def train_tree(input_batch, input_length, target_batch, target_mask, target_length, target_equation_sonls, nums_stack_batch, num_size_batch, var_tokens_batch, generate_nums, encoder, num_x_predict, x_generate, x_to_q, predict, generate, merge, encoder_optimizer, num_x_predict_optimizer, x_generate_optimizer, x_to_q_optimizer, predict_optimizer, generate_optimizer,
+def train_tree(input_batch, input_length, target_batch, target_mask, target_length, target_equation_sonls, nums_stack_batch, num_size_batch, var_tokens_batch, solution_batch, generate_nums, encoder, num_x_predict, x_generate, x_to_q, predict, generate, merge, encoder_optimizer, num_x_predict_optimizer, x_generate_optimizer, x_to_q_optimizer, predict_optimizer, generate_optimizer,
                merge_optimizer, output_lang, num_pos, all_vars, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
@@ -418,6 +418,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     num_start = output_lang.num_start
     # 
     all_outputs = []
+    final_tokens = []
     for equation_count in range(max_num_equations):
         embeddings_stacks = [[] for _ in range(batch_size)]
         left_childs = [None for _ in range(batch_size)]
@@ -542,15 +543,48 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
                 else:
                     left_childs.append(None)
         # tree has been built. now predict the = " " token
-        # num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(
-        #     node_stacks, left_childs, encoder_outputs, updated_nums_encoder_outputs, padding_hidden, seq_mask, num_mask)
-        # final_token = torch.cat((op, num_score), 1)
-        # current_equation_outputs.append(final_token)
-
+        num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(
+            node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, seq_mask, num_mask, var_mask, all_vars_embs)
+        final_token = torch.cat((op, num_score), 1)
+        final_tokens.append(final_token)
         all_outputs.append(torch.stack(current_equation_outputs, dim = 1))
 
-    # all_leafs = torch.stack(all_leafs, dim=1)  # B x S x 2
+    # final tokens:
+    preds_final_tokens_all = torch.stack(final_tokens, dim = 1)
+    preds_final_tokens_all_flattened = preds_final_tokens_all.view(-1, preds_final_tokens_all.size(-1))
+
+    # batch solutons: 
+    # mask for solutions
+    solution_batch_mask = []
+    final_solutions = []
+    for i, batch in enumerate(solution_batch):
+        if len(batch) < max_num_equations:
+            temp_batch = batch + [0 for _ in range(max_num_equations - len(batch))]
+            final_solutions.append(temp_batch)
+            solution_batch_mask.append([1 for _ in range(len(batch))] + [0 for _ in range(max_num_equations - len(batch))])
+        else:
+            final_solutions.append(batch)
+            solution_batch_mask.append([1 for _ in range(len(batch))])
+
+    print('equation output')
+    for i, batch in enumerate(preds_final_tokens_all):
+        for j, prediction in enumerate(batch):
+            if final_solutions[i][j] != 0:
+                print(f"    preds for batch {i}, equation {j}: {output_lang.index2word[torch.argmax(prediction).item()]}, actual: {output_lang.index2word[final_solutions[i][j]]}")
+
+
+    # loss the equation result
+    solution_batch_mask = torch.ByteTensor(solution_batch_mask)
+    final_solutions_flattened = torch.LongTensor(final_solutions).view(-1)
+
+    # solutions_all_loss
+    solutions_raw_loss = torch.nn.CrossEntropyLoss(reduction='none')(preds_final_tokens_all_flattened, final_solutions_flattened )
     
+    solutions_loss = solutions_raw_loss.view(preds_final_tokens_all.size(0), preds_final_tokens_all.size(1))
+        # apply mask to loss
+    solutions_loss_final = solutions_loss * solution_batch_mask.float()
+    solutions_loss_final = solutions_loss_final.sum()
+
     # all_node_outputs:  
     #  for each equation 
     #    for each token in equation: 
@@ -560,40 +594,32 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     # all_node_outputs2: for each batch:
     #   the current scoring of nums for each token in equation
     # = batch_size x max_len x num_nums
-    # print('all', all_outputs)
     all_outputs_stacked = torch.stack(all_outputs, dim=-1)
-    
-    # all_outputs = torch.stack(all_outputs, dim=1)  # B x S x N
-    # all_outputs = torch.cat(all_outputs, dim=1)  # B x S x N
 
     # target: num_equations x num_tokens x batch_size
     target2 = target.transpose(0, 1).contiguous()
     target3 = target2.transpose(1, 2).contiguous()
-
     # actual
     # target4: batch_size x max_len x num_equations
     target4 = target3.transpose(0,1).contiguous()
-
-    # predictions
-    # all_outputs_stacked = batch_size x max_len x vocab_len x num_equations 
-
 
     if USE_CUDA:
         # all_leafs = all_leafs.cuda()
         all_node_outputs2 = all_outputs.cuda()
         target = target.cuda()
 
-    #print('done equation')
-    target_length_filled = []
-    for problem in target_length:
-        current_num_equations = len(problem)
-        if current_num_equations < max_num_equations:
-            problem += [0 for _ in range(max_num_equations - current_num_equations)]
-        target_length_filled.append(problem)
-    target_length_filled = torch.Tensor(target_length_filled)
+
+    # target_length_filled = []
+    # for problem in target_length:
+    #     current_num_equations = len(problem)
+    #     if current_num_equations < max_num_equations:
+    #         problem += [0 for _ in range(max_num_equations - current_num_equations)]
+    #     target_length_filled.append(problem)
+    # target_length_filled = torch.Tensor(target_length_filled)
     # loss = masked_cross_entropy(all_node_outputs2, target, target_length)
+    # loss the number of equations
     actual_num_x = torch.Tensor([len(var_tokens_batch[i]) for i in range(len(var_tokens_batch))])
-    loss = torch.nn.MSELoss()(num_x, actual_num_x )
+    num_x_loss = torch.nn.MSELoss()(num_x, actual_num_x )
     print('number of equations/variables')
     for i, batch in enumerate(num_x):
         print(f"    preds for batch {i}: {batch} equations. Actual: {actual_num_x[i]}")
@@ -610,6 +636,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     # target_mask_stacked = torch.stack([torch.Tensor(i) for i in target_mask], dim=-1)
 
     print('token lists of')
+    equation_loss = None
     for i in range(max_num_equations):
         # target4 = batch_size x max_len x num_equations
         # equation_target = batch_size x max_len 
@@ -642,8 +669,10 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
         # apply mask to loss
         tempLoss3 = tempLoss2 * equation_mask.float()
 
-        loss += tempLoss3.sum() 
+        equation_loss += tempLoss3.sum() 
 
+    # full loss = equation loss + number of equations loss + solutions loss
+    loss = solutions_loss_final + equation_loss + num_x_loss
     print('total loss', loss)
     loss.backward()
 
@@ -760,9 +789,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
                 # left_childs = torch.stack(b.left_childs)
                 left_childs = b.left_childs
 
-                num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(
-                    b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden,
-                    seq_mask, None, None, all_vars_embs)
+                num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, seq_mask, None, None, all_vars_embs)
 
                 # leaf = p_leaf[:, 0].unsqueeze(1)
                 # repeat_dims = [1] * leaf.dim()
@@ -849,4 +876,5 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
                 break
         output.append(beams[0].out)
 
+        # num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, seq_mask, None, None, all_vars_embs)
     return output

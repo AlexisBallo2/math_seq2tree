@@ -915,6 +915,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         # convert input sentence and equation into the vocab tokens
         input_cell = indexes_from_sentence(input_lang, pair[0])
         output_cells = [indexes_from_sentence(output_lang, i, tree) for i in pair[1]]
+        equation_output = indexes_from_sentence(output_lang, pair[4], tree) 
         # pair:
         #   input: sentence with all numbers masked as NUM
         #   length of input
@@ -929,7 +930,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             train_pairs.append(
                 (input_cell, len(input_cell), 
                 output_cells, [len(output_cell) for output_cell in output_cells],
-                pair[2], pair[3], num_stack, pair[5]))
+                pair[2], pair[3], num_stack, equation_output, pair[5]))
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
     print('Number of training data %d' % (len(train_pairs)))
     for pair in pairs_tested:
@@ -961,6 +962,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             # convert input sentence and equation into the vocab tokens
             input_cell = indexes_from_sentence(input_lang, pair[0])
             output_cells = [indexes_from_sentence(output_lang, i, tree) for i in pair[1]]
+            equation_output = indexes_from_sentence(output_lang, pair[4], tree) 
             # pair:
             #   input: sentence with all numbers masked as NUM
             #   length of input
@@ -972,7 +974,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             test_pairs.append(
                 (input_cell, len(input_cell), 
                 output_cells, [len(output_cell) for output_cell in output_cells],
-                pair[2], pair[3], num_stack, pair[5]))
+                pair[2], pair[3], num_stack, equation_output, pair[5]))
     print('Number of testind data %d' % (len(test_pairs)))
             # pair:
         #   input: sentence with all numbers masked as NUM
@@ -1094,6 +1096,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
     nums_batches = []
     batches = []
     var_batches = []
+    solution_batches = []
     input_batches = []
     output_batches = []
     output_tokens = []
@@ -1110,7 +1113,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
     max_equations_per_problem = 0
     max_tokens_per_equation = 0
     for batch in batches:
-        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack, soln_tokens in batch:
+        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack, soln_tokens, var_tokens in batch:
         # for equation in output_length:
             max_equations_per_problem = max(max_equations_per_problem, len(equations))
             for equation in equations:
@@ -1127,7 +1130,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
         output_length = []
         # for each item in a pair
         # for _, i, _, j, _, _, _ in batch:
-        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack, var_tokens in batch:
+        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack, soln_tokens, var_tokens in batch:
             # i = length if input in pair
             input_length.append(input_length_temp)
             # j = length of output in pair
@@ -1146,10 +1149,11 @@ def prepare_train_batch(pairs_to_batch, batch_size):
         num_batch = []
         num_stack_batch = []
         num_pos_batch = []
+        solution_batch = []
         num_size_batch = []
         var_tokens_batch = []
         # for i, li, j, lj, num, num_pos, num_stack in batch:
-        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack, var_tokens in batch:
+        for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack, soln_tokens, var_tokens in batch:
             # pair:
             #   input: sentence with all numbers masked as NUM
             #   length of input
@@ -1162,6 +1166,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
             num_batch.append(len(input_nums))
             output_tokens_per.append(soln_tokens)
             var_tokens_batch.append(var_tokens)
+            solution_batch.append(soln_tokens)
             # input batch: padded input text
             input_batch.append(pad_seq(input_seq, input_length_temp, input_len_max))
             # output batch: padded output text
@@ -1195,6 +1200,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
         output_batch_masks.append(output_batch_mask)
         output_tokens.append(output_tokens_per)
         var_batches.append(var_tokens_batch)
+        solution_batches.append(solution_batch)
         num_stack_batches.append(num_stack_batch)
         num_pos_batches.append(num_pos_batch)
         num_size_batches.append(num_size_batch)
@@ -1207,7 +1213,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
     # num_stack_batches: the corresponding nums lists
     # num_pos_batches: positions of the numbers lists
     # num_size_batches: number of numbers from the input text
-    return input_batches, input_lengths, output_batches, output_batch_masks, output_lengths, output_tokens, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, var_batches 
+    return input_batches, input_lengths, output_batches, output_batch_masks, output_lengths, output_tokens, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, solution_batches, var_batches 
 
 
 def get_num_stack(eq, output_lang, num_pos):
