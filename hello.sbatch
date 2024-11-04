@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # slurm template for serial jobs
 # Set SLURM options
-#SBATCH --job-name=main # Job name
+#SBATCH --job-name=hey_suj # Job name
 #SBATCH --output=outputs/hello_world-%j.out
 # Standard output and error log
 #SBATCH --mail-user=aballo@middlebury.edu

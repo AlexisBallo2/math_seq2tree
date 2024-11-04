@@ -9,16 +9,16 @@ import time
 import torch.optim
 from src.expressions_transfer import *
 
-# batch_size = 64
+batch_size = 64
 # batch_size = 1 
-batch_size = 5 
+# batch_size = 20
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 2 
-n_epochs =  5
-# n_epochs = 80
-learning_rate = 1e-1 
-# learning_rate = 1e-5 
+# n_epochs = 20 
+n_epochs = 80
+# learning_rate = 1e-1 
+learning_rate = 1e-5 
 weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
@@ -177,6 +177,10 @@ for fold in range(5):
         predict_scheduler.step()
         generate_scheduler.step()
         merge_scheduler.step()
+        num_x_predict_scheduler.step()
+        x_generate_scheduler.step()
+        x_to_q_scheduler.step()
+
         loss_total = 0
         # input_batches: padded inputs
         # input_lengths: length of the inputs (without padding)
@@ -283,6 +287,7 @@ for fold in range(5):
             if epoch == n_epochs - 1:
                 best_acc_fold.append((equation_ac, value_ac, eval_total))
     all_losses.append(fold_loss)
+    print('FOLD OUTPUT', fold_loss)
     train_time_per_all = []
     test_time_per_all = []
     for length, runtime in train_time_array:
