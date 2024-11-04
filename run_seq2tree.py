@@ -88,7 +88,9 @@ total_inference_time = 0
 train_time_array = []
 test_time_array = []
 
+all_losses = []
 for fold in range(5):
+    fold_loss = []
     pairs_tested = []
     pairs_trained = []
     # train on current fold, test on other folds
@@ -199,6 +201,7 @@ for fold in range(5):
             loss_total += loss
 
         print(f"epoch {epoch} fold {fold} loss:", loss_total / len(input_lengths))
+        fold_loss.append(loss_total / len(input_lengths))
         # print("training time", time_since(time.time() - start))
         print("--------------------------------")
         encoder_optimizer.step()
@@ -273,6 +276,7 @@ for fold in range(5):
             torch.save(merge.state_dict(), "models/merge")
             if epoch == n_epochs - 1:
                 best_acc_fold.append((equation_ac, value_ac, eval_total))
+    all_losses.append(fold_loss)
     train_time_per_all = []
     test_time_per_all = []
     for length, runtime in train_time_array:
@@ -308,3 +312,4 @@ for length, runtime in test_time_array:
 print('train time per token', sum(train_time_per_all) / len(train_time_per_all))
 print('infrence time per token', sum(test_time_per_all) / len(test_time_per_all))
 
+print('all losses', all_losses)
