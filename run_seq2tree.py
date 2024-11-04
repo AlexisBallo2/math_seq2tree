@@ -11,11 +11,11 @@ from src.expressions_transfer import *
 
 # batch_size = 64
 # batch_size = 1 
-batch_size = 20
+batch_size = 5 
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 2 
-n_epochs = 20 
+n_epochs =  5
 # n_epochs = 80
 learning_rate = 1e-1 
 # learning_rate = 1e-5 
@@ -46,7 +46,7 @@ else:
 # }
 
 pairs, generate_nums, copy_nums, vars = transfer_num(data, setName)
-pairs = pairs[0:200]
+pairs = pairs[0:20]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   [out_seq]: equation with in text numbers replaced with "N#", and other numbers left as is
@@ -220,16 +220,17 @@ for fold in range(5):
             # print('test pairs', test_pairs)
             for test_batch in test_pairs:
                 start = time.perf_counter()
-                test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, encoder, predict, generate, x_generate, x_to_q, num_x_predict, merge, output_lang, test_batch[5], beam_size=beam_size)
+                test_res, pred_token = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, encoder, predict, generate, x_generate, x_to_q, num_x_predict, merge, output_lang, test_batch[5], beam_size=beam_size)
                 end = time.perf_counter()
                 test_time_array.append([1, end - start])
-                print('test res', test_res)
+                # print('test res', test_res)
+                # print('test token', pred_token)
                 # for i in test_res:
                 #     print('i', i)
                 #     # for j in i:
                 #     #     print('j', j)
                 #     print(output_lang.index2word(i))
-                print('test result', [output_lang.index2word[i] for i in test_res[0] ])
+                # print('test result', [output_lang.index2word[i] for i in test_res[0] ])
                 val_ac, equ_ac, test, tar = compute_prefix_tree_result(test_res, test_batch[2], output_lang, test_batch[4], test_batch[6])
                 # print('test', test)
                 # print('tar', tar)
@@ -239,20 +240,25 @@ for fold in range(5):
                     actual = [output_lang.index2word[i] for i in equation]
                     actuals.append(actual)
                 print('actuals', actuals)
+                print('actual_tokens', [output_lang.index2word[i] for i in test_batch[7]])
                 preds = []
                 for equation in test_res:
                     predicted = [output_lang.index2word[i] for i in equation]
                     preds.append(predicted)
                 print('preds', preds)
+                print('pred_tokens', pred_token)
                 same = 0
                 print(len(actual), len(predicted))
                 for i in range(min(*test_batch[3], len(predicted), len(actual) )):
                     # print('checking', actual[i], predicted[i])
                     if actual[i] == predicted[i]:
                         same += 1
+                for i in range(min(len(pred_token), len(test_batch[7]))):
+                    if pred_token[i] == test_batch[7][i]:
+                        same += 1
                 print("actual     " , actual)
                 print("predicted  ", predicted)
-                print('same:', same, same/max(test_batch[3]))
+                print('same:', same, same/(max(test_batch[3]) + max(len(pred_token), len(test_batch[7]))))
 
                 print("\n")
                 # for i in test_res:

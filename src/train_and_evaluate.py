@@ -776,6 +776,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
     # evaulation uses beam search
     # key is how the beams are compared
     output = []
+    output_tokens = []
 
     for num_x in range(num_to_gen):
         beams = [TreeBeam(0.0, node_stacks, embeddings_stacks, left_childs, [])]
@@ -874,7 +875,14 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
                     flag = False
             if flag:
                 break
+        top_beam = beams[0]
+        # predict equation = 
+        num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(top_beam.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, seq_mask, None, None, all_vars_embs)
+        token_options = torch.cat((op, num_score), dim=1)
+        pred_token = output_lang.index2word[int(torch.argmax(token_options).item())]
+
         output.append(beams[0].out)
+        output_tokens.append(pred_token)
 
         # num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, seq_mask, None, None, all_vars_embs)
-    return output
+    return output, output_tokens
