@@ -152,9 +152,11 @@ class Score(nn.Module):
         # need to add the variable masking here
         if var_mask is not None and num_mask is not None:
             num_mask_combined = torch.cat((num_mask, var_mask), 1)
-            score = score.masked_fill_(num_mask_combined.bool(), -1e12)
+            score = score.masked_fill_(num_mask_combined.bool(), 0)
+            # score = score.masked_fill_(num_mask_combined.bool(), -1e12)
         elif num_mask is not None:
-            score = score.masked_fill_(num_mask.bool(), -1e12)
+            score = score.masked_fill_(num_mask.bool(), 0)
+            # score = score.masked_fill_(num_mask.bool(), -1e12)
         return score
 
 

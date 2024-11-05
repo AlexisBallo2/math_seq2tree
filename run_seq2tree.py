@@ -9,14 +9,14 @@ import time
 import torch.optim
 from src.expressions_transfer import *
 
-batch_size = 64
+# batch_size = 64
 # batch_size = 1 
-# batch_size = 20
+batch_size = 40 
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 2 
-# n_epochs = 20 
-n_epochs = 80
+n_epochs = 40
+# n_epochs = 80
 # learning_rate = 1e-1 
 learning_rate = 1e-3
 weight_decay = 1e-5
@@ -46,7 +46,7 @@ else:
 # }
 
 pairs, generate_nums, copy_nums, vars = transfer_num(data, setName)
-# pairs = pairs[0:20]
+pairs = pairs[0:500]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   [out_seq]: equation with in text numbers replaced with "N#", and other numbers left as is
@@ -71,13 +71,14 @@ pairs = temp_pairs
 #   target equation answer
 
 # split data into groups of 20%
-fold_size = int(len(pairs) * 0.2)
+num_folds = 2
+fold_size = int(len(pairs) * 1/num_folds)
 fold_pairs = []
-for split_fold in range(4):
+for split_fold in range(num_folds - 1):
     fold_start = fold_size * split_fold
     fold_end = fold_size * (split_fold + 1)
     fold_pairs.append(pairs[fold_start:fold_end])
-fold_pairs.append(pairs[(fold_size * 4):])
+fold_pairs.append(pairs[(fold_size * (num_folds-1)):])
 
 best_acc_fold = []
 
@@ -89,12 +90,12 @@ train_time_array = []
 test_time_array = []
 
 all_losses = []
-for fold in range(5):
+for fold in range(num_folds):
     fold_loss = []
     pairs_tested = []
     pairs_trained = []
     # train on current fold, test on other folds
-    for fold_t in range(5):
+    for fold_t in range(num_folds):
         if fold_t == fold:
             pairs_tested += fold_pairs[fold_t]
         else:
@@ -222,9 +223,9 @@ for fold in range(5):
             eval_total = 0
             # start = time.time()
             # print('test pairs', test_pairs)
-            for test_batch in test_pairs:
+            for test_batch in test_pairs[0:5]:
                 start = time.perf_counter()
-                test_res, pred_token = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, encoder, predict, generate, x_generate, x_to_q, num_x_predict, merge, output_lang, test_batch[5], beam_size=beam_size)
+                test_res, pred_token = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, encoder, predict, generate, x_generate, x_to_q, num_x_predict, merge, output_lang, test_batch[5], beam_size=beam_size, max_length=max(test_batch[3]))
                 end = time.perf_counter()
                 test_time_array.append([1, end - start])
                 # print('test res', test_res)
@@ -300,6 +301,7 @@ for fold in range(5):
 
     print('epoch' , epoch, 'fold', fold, 'train time per token', sum(train_time_per_all) / len(train_time_per_all))
     print('epoch', epoch, 'fold', fold, 'infrence time per token', sum(test_time_per_all) / len(test_time_per_all))
+    break
 
 a, b, c = 0, 0, 0
 for bl in range(len(best_acc_fold)):

@@ -252,6 +252,7 @@ class TreeEmbedding:  # the class save the tree
 
 def train_tree(input_batch, input_length, target_batch, target_mask, target_length, target_equation_sonls, nums_stack_batch, num_size_batch, var_tokens_batch, solution_batch, generate_nums, encoder, num_x_predict, x_generate, x_to_q, predict, generate, merge, encoder_optimizer, num_x_predict_optimizer, x_generate_optimizer, x_to_q_optimizer, predict_optimizer, generate_optimizer,
                merge_optimizer, output_lang, num_pos, all_vars, english=False):
+
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -581,9 +582,10 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     solutions_raw_loss = torch.nn.CrossEntropyLoss(reduction='none')(preds_final_tokens_all_flattened, final_solutions_flattened )
     
     solutions_loss = solutions_raw_loss.view(preds_final_tokens_all.size(0), preds_final_tokens_all.size(1))
-        # apply mask to loss
+    # apply mask to loss
     solutions_loss_final = solutions_loss * solution_batch_mask.float()
     solutions_loss_final = solutions_loss_final.sum()
+    print('solution loss', solutions_loss_final)
 
     # all_node_outputs:  
     #  for each equation 
@@ -620,6 +622,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     # loss the number of equations
     actual_num_x = torch.Tensor([len(var_tokens_batch[i]) for i in range(len(var_tokens_batch))])
     num_x_loss = torch.nn.MSELoss()(num_x, actual_num_x )
+    print('num x loss', num_x_loss)
     print('number of equations/variables')
     for i, batch in enumerate(num_x):
         print(f"    preds for batch {i}: {batch} equations. Actual: {actual_num_x[i]}")
@@ -636,7 +639,8 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     # target_mask_stacked = torch.stack([torch.Tensor(i) for i in target_mask], dim=-1)
 
     print('token lists of')
-    equation_loss = solutions_loss_final
+    loss = None
+    # equation_loss = solutions_loss_final
     for i in range(max_num_equations):
         # target4 = batch_size x max_len x num_equations
         # equation_target = batch_size x max_len 
@@ -654,6 +658,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
         # all_outputs_stacked = batch_size x max_len x vocab_len x num_equations 
         # predictions = batch_size x max_len x vocab_len
         predictions = all_outputs_stacked[..., i]
+        pred_distribution = predictions.log_softmax(-1)
         for j, batch in enumerate(predictions):
             eqn_preds = []
             for token in batch:
@@ -661,18 +666,32 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
             print(f"    batch {j}, equation {i}" )
             print(f"        prediction: {eqn_preds[0:target_length[j][i]]}")
             print(f"        actual: {target_tokens[j][0:target_length[j][i]]}")
-        preds_flattened = predictions.view(-1, predictions.size(-1))
+        # preds_flattened = predictions.view(-1, predictions.size(-1))
+        preds_flattened = pred_distribution.view(-1, predictions.size(-1))
 
         tempLoss = torch.nn.CrossEntropyLoss(reduction='none')(preds_flattened, target_flattened)
+        # print('tempLoss', tempLoss)
         # reshape loss:
         tempLoss2 = tempLoss.view(equation_target.size(0), equation_target.size(1))
         # apply mask to loss
         tempLoss3 = tempLoss2 * equation_mask.float()
 
-        equation_loss += tempLoss3.sum() 
+        # equation_loss += tempLoss3.sum() 
+        print(f'equ {i} loss, {tempLoss3.sum()}')
+        # for lossT, token in zip(tempLoss3, target_flattened):
+        #     for i, l in enumerate(lossT):
+        #         print(f"batch: {i}")
+        #         print(f"    token {output_lang.index2word[token]} loss: {l}")
+        #         if l > 900000:
+        #             print("ANOMOLY")
+        #             print('prediction list', predictions[i])
+        if loss is None:
+            loss = tempLoss3.sum()
+        else:
+            loss += tempLoss3.sum()
 
     # full loss = equation loss + number of equations loss + solutions loss
-    loss = equation_loss + num_x_loss
+    # loss = equation_loss + num_x_loss
     print('total loss', loss)
     loss.backward()
 
