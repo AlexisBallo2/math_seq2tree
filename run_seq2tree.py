@@ -2,21 +2,20 @@
 import os
 from re import I
 
-from torch import eq
 from src.train_and_evaluate import *
 from src.models import *
 import time
 import torch.optim
 from src.expressions_transfer import *
 
-# batch_size = 64
-# batch_size = 1 
-# batch_size = 5
 batch_size = 64
+# batch_size = 1 
+# batch_size = 10 
+# batch_size = 64
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 2 
-# n_epochs = 10
+# n_epochs = 20
 n_epochs = 80
 # learning_rate = 1e-1 
 learning_rate = 1e-3
@@ -91,8 +90,10 @@ train_time_array = []
 test_time_array = []
 
 all_losses = []
+all_accuracys = []
 for fold in range(num_folds):
     fold_loss = []
+    fold_accuracy = []
     pairs_tested = []
     pairs_trained = []
     # train on current fold, test on other folds
@@ -222,6 +223,7 @@ for fold in range(num_folds):
             value_ac = 0
             equation_ac = 0
             eval_total = 0
+            eval_accuracys = []
             # start = time.time()
             # print('test pairs', test_pairs)
             for test_batch in test_pairs[0:5]:
@@ -237,49 +239,52 @@ for fold in range(num_folds):
                 #     #     print('j', j)
                 #     print(output_lang.index2word(i))
                 # print('test result', [output_lang.index2word[i] for i in test_res[0] ])
-                val_ac, equ_ac, test, tar = compute_prefix_tree_result(test_res, test_batch[2], output_lang, test_batch[4], test_batch[6])
+                # val_ac, equ_ac, test, tar = compute_prefix_tree_result(test_res, test_batch[2], output_lang, test_batch[4], test_batch[6])
                 # print('test', test)
                 # print('tar', tar)
                 # print('actual', test_batch[2])
                 actuals = []
                 for equation in test_batch[2]:
-                    actual = [output_lang.index2word[i] for i in equation]
-                    actuals.append(actual)
+                    actuals += equation 
                 print('actuals', actuals)
-                print('actual_tokens', [output_lang.index2word[i] for i in test_batch[7]])
                 preds = []
                 for equation in test_res:
-                    predicted = [output_lang.index2word[i] for i in equation]
-                    preds.append(predicted)
+                    preds += equation
                 print('preds', preds)
+                preds = preds + [-1 for i in range(len(actuals) - len(preds))]
+                print('actual_tokens', [output_lang.index2word[i] for i in test_batch[7]])
                 print('pred_tokens', pred_token)
+                if len(pred_token) < len(test_batch[7]):
+                    pred_token = pred_token + [-1 for _ in range(len(test_batch[7]) - len(pred_token))]
+                else:
+                    pred_token = pred_token[0:len(test_batch[7])]
                 same = 0
-                print(len(actual), len(predicted))
-                for i in range(min(*test_batch[3], len(predicted), len(actual) )):
+                for i in range(len(actuals)):
                     # print('checking', actual[i], predicted[i])
-                    if actual[i] == predicted[i]:
+                    if actuals[i] == preds[i]:
                         same += 1
-                for i in range(min(len(pred_token), len(test_batch[7]))):
+                for i in range(len(pred_token)):
                     if pred_token[i] == test_batch[7][i]:
                         same += 1
-                print("actual     " , actual)
-                print("predicted  ", predicted)
-                print('same:', same, same/(max(test_batch[3]) + max(len(pred_token), len(test_batch[7]))))
+                print('same:', same, same/(len(actuals) + len(pred_token)))
+                accuracy = same / len(actuals)
+                eval_accuracys.append(accuracy)
 
-                print("\n")
+                # print("\n")
                 # for i in test_res:
                 #     print(output_lang.index2word[i])
                 # for i in test_batch[2]:
                 #     print(output_lang.index2word[i])
                 # print('value accuracy', val_ac)
                 # print('equation accuracy', equation_ac)
-                if val_ac:
-                    value_ac += 1
-                if equ_ac:
-                    equation_ac += 1
-                eval_total += 1
-            print(equation_ac, value_ac, eval_total)
-            print("test_answer_acc", float(equation_ac) / eval_total, float(value_ac) / eval_total)
+                # if val_ac:
+                #     value_ac += 1
+                # if equ_ac:
+                #     equation_ac += 1
+                # eval_total += 1
+            print('eval accuracy', sum(eval_accuracys) / len(eval_accuracys))
+            fold_accuracy.append(sum(eval_accuracys) / len(eval_accuracys))
+            # print("test_answer_acc", float(equation_ac) / eval_total, float(value_ac) / eval_total)
             # print("testing time", time_since(time.time() - start))
             print("------------------------------------------------------")
             torch.save(encoder.state_dict(), "models/encoder")
@@ -289,7 +294,9 @@ for fold in range(num_folds):
             if epoch == n_epochs - 1:
                 best_acc_fold.append((equation_ac, value_ac, eval_total))
     all_losses.append(fold_loss)
+    all_accuracys.append(fold_accuracy)
     print('FOLD OUTPUT', fold_loss)
+    print('FOLD ACC', all_accuracys)
     train_time_per_all = []
     test_time_per_all = []
     for length, runtime in train_time_array:
@@ -304,13 +311,13 @@ for fold in range(num_folds):
     print('epoch', epoch, 'fold', fold, 'infrence time per token', sum(test_time_per_all) / len(test_time_per_all))
     break
 
-a, b, c = 0, 0, 0
-for bl in range(len(best_acc_fold)):
-    a += best_acc_fold[bl][0]
-    b += best_acc_fold[bl][1]
-    c += best_acc_fold[bl][2]
-    print(best_acc_fold[bl])
-print(a / float(c), b / float(c))
+# a, b, c = 0, 0, 0
+# for bl in range(len(best_acc_fold)):
+#     a += best_acc_fold[bl][0]
+#     b += best_acc_fold[bl][1]
+#     c += best_acc_fold[bl][2]
+#     print(best_acc_fold[bl])
+# print(a / float(c), b / float(c))
 
 
 train_time_per_all = []
