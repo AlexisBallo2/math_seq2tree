@@ -622,10 +622,10 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     # loss the number of equations
     actual_num_x = torch.Tensor([len(var_tokens_batch[i]) for i in range(len(var_tokens_batch))])
     num_x_loss = torch.nn.MSELoss()(num_x, actual_num_x )
-    print('num x loss', num_x_loss)
-    print('number of equations/variables')
-    for i, batch in enumerate(num_x):
-        print(f"    preds for batch {i}: {batch} equations. Actual: {actual_num_x[i]}")
+    # print('num x loss', num_x_loss)
+    # print('number of equations/variables')
+    # for i, batch in enumerate(num_x):
+    #     print(f"    preds for batch {i}: {batch} equations. Actual: {actual_num_x[i]}")
     # print('     mse loss', loss)
 
     target_mask1 = 1 - torch.ByteTensor(target_mask)
@@ -639,7 +639,12 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     # target_mask_stacked = torch.stack([torch.Tensor(i) for i in target_mask], dim=-1)
 
     print('token lists of')
-    loss = None
+    if solutions_loss_final > 100000:
+        print('solutions high')
+        raise Exception('high') 
+    if  num_x_loss > 100000:
+        raise Exception('num x high') 
+    loss = solutions_loss_final + num_x_loss
     # equation_loss = solutions_loss_final
     for i in range(max_num_equations):
         # target4 = batch_size x max_len x num_equations
@@ -663,9 +668,9 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
             eqn_preds = []
             for token in batch:
                 eqn_preds.append(output_lang.index2word[torch.argmax(token).item()])
-            print(f"    batch {j}, equation {i}" )
-            print(f"        prediction: {eqn_preds[0:target_length[j][i]]}")
-            print(f"        actual: {target_tokens[j][0:target_length[j][i]]}")
+            # print(f"    batch {j}, equation {i}" )
+            # print(f"        prediction: {eqn_preds[0:target_length[j][i]]}")
+            # print(f"        actual: {target_tokens[j][0:target_length[j][i]]}")
         # preds_flattened = predictions.view(-1, predictions.size(-1))
         preds_flattened = pred_distribution.view(-1, predictions.size(-1))
 
