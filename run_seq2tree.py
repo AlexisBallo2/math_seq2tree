@@ -11,11 +11,11 @@ from src.expressions_transfer import *
 
 # batch_size = 64
 # batch_size = 1 
-batch_size = 40 
+batch_size = 64
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 2 
-n_epochs = 40
+n_epochs = 80
 # n_epochs = 80
 # learning_rate = 1e-1 
 learning_rate = 1e-3
@@ -46,7 +46,7 @@ else:
 # }
 
 pairs, generate_nums, copy_nums, vars = transfer_num(data, setName)
-pairs = pairs[0:500]
+# pairs = pairs[0:500]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   [out_seq]: equation with in text numbers replaced with "N#", and other numbers left as is
