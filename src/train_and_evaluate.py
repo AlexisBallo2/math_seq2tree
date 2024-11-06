@@ -755,9 +755,6 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
     max_target_length = 0
     max_num_equations = 3
 
-    # Prepare input and output variables
-    node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
-
     copy_num_len = [len(num_pos)] 
     num_size = len(num_pos)
     # num_size = 1
@@ -771,9 +768,6 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
     temp_encoder = encoder_outputs.transpose(0, 1)
     num_start = output_lang.num_start
     # B x P x N
-    embeddings_stacks = [[] for _ in range(batch_size)]
-    left_childs = [None for _ in range(batch_size)]
-
 
 
     batch_all_vars = []
@@ -794,6 +788,8 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
     all_vars_embs = torch.stack(xs).unsqueeze(0)
 
     qs = x_to_q(temp_encoder, all_vars_embs)
+    # Prepare input and output variables
+
 
     # empty = torch.zeros(encoder.hidden_size)
 
@@ -802,7 +798,12 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
     output = []
     output_tokens = []
 
+    # equations to do
     for num_x in range(num_to_gen):
+        embeddings_stacks = [[] for _ in range(batch_size)]
+        left_childs = [None for _ in range(batch_size)]
+        node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in qs.transpose(0,1)[num_x]]
+        # beans for the equation
         beams = [TreeBeam(0.0, node_stacks, embeddings_stacks, left_childs, [])]
         for t in range(max_length):
             current_beams = []
