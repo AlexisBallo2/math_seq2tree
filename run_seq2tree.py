@@ -231,7 +231,7 @@ for fold in range(num_folds):
             eval_accuracys = []
             # start = time.time()
             # print('test pairs', test_pairs)
-            for test_batch in test_pairs[0:5]:
+            for test_batch in test_pairs:
                 start = time.perf_counter()
                 test_res, pred_token = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, encoder, predict, generate, x_generate, x_to_q, num_x_predict, merge, output_lang, test_batch[5], beam_size=beam_size, max_length=max(test_batch[3]))
                 end = time.perf_counter()
