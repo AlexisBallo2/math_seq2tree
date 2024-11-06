@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # slurm template for serial jobs
 # Set SLURM options
-#SBATCH --job-name=hey_suj # Job name
+#SBATCH --job-name=main # Job name
 #SBATCH --output=outputs/hello_world-%j.out
 # Standard output and error log
 #SBATCH --mail-user=aballo@middlebury.edu
@@ -10,8 +10,7 @@
 # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mem=100mb
 # Job memory request 
-#SBATCH --partition=long
-######SBATCH --partition=gpu-long
+#SBATCH --partition=gpu-long
 # Partition (queue) 
 #SBATCH --time=2-00:0:00
 # Time limit hrs:min:sec 

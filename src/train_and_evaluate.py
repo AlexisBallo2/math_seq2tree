@@ -363,7 +363,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
 
     batch_all_vars = []
 
-    empty = torch.zeros(encoder.hidden_size)
+    empty = torch.zeros(encoder.hidden_size).to(device)
     for batch_num, batch_vars in enumerate(var_tokens_batch):
         cur_bach_vars = []
         xs = x_generate(len(batch_vars), temp_encoder[batch_num], all_nums_encoder_outputs[batch_num], problem_output[batch_num])
@@ -579,11 +579,11 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     final_solutions_flattened = torch.LongTensor(final_solutions).view(-1)
 
     # solutions_all_loss
-    solutions_raw_loss = torch.nn.CrossEntropyLoss(reduction='none')(preds_final_tokens_all_flattened, final_solutions_flattened )
+    solutions_raw_loss = torch.nn.CrossEntropyLoss(reduction='none')(preds_final_tokens_all_flattened, final_solutions_flattened.to(device) )
     
     solutions_loss = solutions_raw_loss.view(preds_final_tokens_all.size(0), preds_final_tokens_all.size(1))
     # apply mask to loss
-    solutions_loss_final = solutions_loss * solution_batch_mask.float()
+    solutions_loss_final = solutions_loss * solution_batch_mask.float().to(device)
     solutions_loss_final = solutions_loss_final.sum()
     print('solution loss', solutions_loss_final)
 
@@ -607,7 +607,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
 
     if USE_CUDA:
         # all_leafs = all_leafs.cuda()
-        all_node_outputs2 = all_outputs.cuda()
+        all_node_outputs2 = all_outputs
         target = target.cuda()
 
 
@@ -621,7 +621,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     # loss = masked_cross_entropy(all_node_outputs2, target, target_length)
     # loss the number of equations
     actual_num_x = torch.Tensor([len(var_tokens_batch[i]) for i in range(len(var_tokens_batch))])
-    num_x_loss = torch.nn.MSELoss()(num_x, actual_num_x )
+    num_x_loss = torch.nn.MSELoss()(num_x, actual_num_x.to(device) )
     # print('num x loss', num_x_loss)
     # print('number of equations/variables')
     # for i, batch in enumerate(num_x):
@@ -674,12 +674,12 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
         # preds_flattened = predictions.view(-1, predictions.size(-1))
         preds_flattened = pred_distribution.view(-1, predictions.size(-1))
 
-        tempLoss = torch.nn.CrossEntropyLoss(reduction='none')(preds_flattened, target_flattened)
+        tempLoss = torch.nn.CrossEntropyLoss(reduction='none')(preds_flattened, target_flattened.to(device))
         # print('tempLoss', tempLoss)
         # reshape loss:
         tempLoss2 = tempLoss.view(equation_target.size(0), equation_target.size(1))
         # apply mask to loss
-        tempLoss3 = tempLoss2 * equation_mask.float()
+        tempLoss3 = tempLoss2 * equation_mask.float().to(device)
 
         # equation_loss += tempLoss3.sum() 
         print(f'equ {i} loss, {tempLoss3.sum()}')
@@ -745,7 +745,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
         input_var = input_var.cuda()
         seq_mask = seq_mask.cuda()
         padding_hidden = padding_hidden.cuda()
-        num_mask = num_mask.cuda()
+        # num_mask = num_mask.cuda()
     # Run words through encoder
 
     # encoder_outputs, problem_output = encoder(input_var, [input_length])

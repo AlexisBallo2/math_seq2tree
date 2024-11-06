@@ -6,6 +6,8 @@ from sympy import N
 import torch
 import torch.nn as nn
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 
 class EncoderRNN(nn.Module):
@@ -152,10 +154,10 @@ class Score(nn.Module):
         # need to add the variable masking here
         if var_mask is not None and num_mask is not None:
             num_mask_combined = torch.cat((num_mask, var_mask), 1)
-            score = score.masked_fill_(num_mask_combined.bool(), 0)
+            score = score.masked_fill_(num_mask_combined.bool().to(device), 0)
             # score = score.masked_fill_(num_mask_combined.bool(), -1e12)
         elif num_mask is not None:
-            score = score.masked_fill_(num_mask.bool(), 0)
+            score = score.masked_fill_(num_mask.bool().to(device), 0)
             # score = score.masked_fill_(num_mask.bool(), -1e12)
         return score
 
@@ -515,7 +517,7 @@ class PredictNumX(nn.Module):
         padding_tensor = torch.tensor(zeroList)  # or any other values you want to pad with
         padding_tensor = padding_tensor.squeeze(1)
         num_padding_needed = 100 - hidden.size(0)
-        padding = padding_tensor.unsqueeze(0).expand(num_padding_needed, -1, -1)
+        padding = padding_tensor.unsqueeze(0).expand(num_padding_needed, -1, -1).to(device)
         hidden2 = torch.cat((hidden, padding), dim=0)
 
         hidden2T = hidden2.transpose(0, 1)
