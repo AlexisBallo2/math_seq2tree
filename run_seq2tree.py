@@ -251,11 +251,11 @@ for fold in range(num_folds):
                 actuals = []
                 for equation in test_batch[2]:
                     actuals += equation 
-                print('actuals', actuals)
+                print('actuals', [output_lang.index2word[i] for i in actuals])
                 preds = []
                 for equation in test_res:
                     preds += equation
-                print('preds', preds)
+                print('preds', [output_lang.index2word[i] for i in preds])
                 preds = preds + [-1 for i in range(len(actuals) - len(preds))]
                 print('actual_tokens', [output_lang.index2word[i] for i in test_batch[7]])
                 print('pred_tokens', pred_token)
