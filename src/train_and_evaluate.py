@@ -646,6 +646,8 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
         raise Exception('num x high') 
     loss = solutions_loss_final + num_x_loss
     # equation_loss = solutions_loss_final
+    same = 0
+    lengths = 0 
     for i in range(max_num_equations):
         # target4 = batch_size x max_len x num_equations
         # equation_target = batch_size x max_len 
@@ -671,6 +673,11 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
             print(f"    batch {j}, equation {i}" )
             print(f"        prkediction: {eqn_preds[0:target_length[j][i]]}")
             print(f"        actual: {target_tokens[j][0:target_length[j][i]]}")
+            for k in range(len(eqn_preds[0:target_length[j][i]])):
+                if eqn_preds[0:target_length[j][i]][k] == target_tokens[j][0:target_length[j][i]][k]:
+                    same += 1
+                lengths += 1
+            # print(f'{same} so far')
         # preds_flattened = predictions.view(-1, predictions.size(-1))
         preds_flattened = pred_distribution.view(-1, predictions.size(-1))
 
@@ -703,7 +710,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     # make_dot(loss).render("loss")
 
 
-    return loss.item() 
+    return loss.item(), same/lengths
 
 
 def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, generate, x_generate, x_to_q, num_x_predict, merge, output_lang, num_pos, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):

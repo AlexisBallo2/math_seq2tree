@@ -8,15 +8,15 @@ import time
 import torch.optim
 from src.expressions_transfer import *
 
-batch_size = 64
+# batch_size = 64
 # batch_size = 1 
-# batch_size = 10 
+batch_size = 10 
 # batch_size = 64
 embedding_size = 128
 hidden_size = 512
-# n_epochs = 2 
+n_epochs = 2 
 # n_epochs = 20
-n_epochs = 80
+# n_epochs = 80
 # learning_rate = 1e-1 
 learning_rate = 1e-3
 weight_decay = 1e-5
@@ -48,7 +48,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # }
 
 pairs, generate_nums, copy_nums, vars = transfer_num(data, setName)
-# pairs = pairs[0:50]
+pairs = pairs[0:30]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   [out_seq]: equation with in text numbers replaced with "N#", and other numbers left as is
@@ -92,10 +92,12 @@ train_time_array = []
 test_time_array = []
 
 all_losses = []
-all_accuracys = []
+all_train_accuracys = []
+all_eval_accuracys = []
 for fold in range(num_folds):
     fold_loss = []
-    fold_accuracy = []
+    fold_eval_accuracy = []
+    fold_train_accuracy = []
     pairs_tested = []
     pairs_trained = []
     # train on current fold, test on other folds
@@ -202,18 +204,21 @@ for fold in range(num_folds):
         print("fold:", fold + 1)
         print("epoch:", epoch + 1)
         # start = time.time()
+        train_accuracys = []
         for idx in range(len(input_lengths)):
             start = time.perf_counter()
-            loss = train_tree(
+            loss, acc = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_batch_mask[idx], output_lengths[idx], output_tokens[idx],
                 num_stack_batches[idx], num_size_batches[idx], var_tokens_batches[idx], solution_batches[idx], generate_num_ids, encoder, num_x_predict, x_generate, x_to_q, predict, generate, merge,
                 encoder_optimizer, num_x_predict_optimizer, x_generate_optimizer, x_to_q_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos_batches[idx], output_lang.variables)
             end = time.perf_counter()
+            train_accuracys.append(acc)
             train_time_array.append([1, end - start])
             loss_total += loss
 
         print(f"epoch {epoch} fold {fold} loss:", loss_total / len(input_lengths))
         fold_loss.append(loss_total / len(input_lengths))
+        fold_train_accuracy.append(sum(train_accuracys) / len(train_accuracys))
         # print("training time", time_since(time.time() - start))
         print("--------------------------------")
         encoder_optimizer.step()
@@ -268,10 +273,11 @@ for fold in range(num_folds):
                     # print('checking', actual[i], predicted[i])
                     if actuals[i] == preds[i]:
                         same += 1
-                for i in range(len(pred_token)):
-                    if pred_token[i] == test_batch[7][i]:
-                        same += 1
-                print('same:', same, same/(len(actuals) + len(pred_token)))
+                # for i in range(len(pred_token)):
+                #     if pred_token[i] == test_batch[7][i]:
+                #         same += 1
+                print('same:', same, same/(len(actuals)))
+                # print('same:', same, same/(len(actuals) + len(pred_token)))
                 accuracy = same / len(actuals)
                 eval_accuracys.append(accuracy)
 
@@ -288,7 +294,7 @@ for fold in range(num_folds):
                 #     equation_ac += 1
                 # eval_total += 1
             print('eval accuracy', sum(eval_accuracys) / len(eval_accuracys))
-            fold_accuracy.append(sum(eval_accuracys) / len(eval_accuracys))
+            fold_eval_accuracy.append(sum(eval_accuracys) / len(eval_accuracys))
             # print("test_answer_acc", float(equation_ac) / eval_total, float(value_ac) / eval_total)
             # print("testing time", time_since(time.time() - start))
             print("------------------------------------------------------")
@@ -299,9 +305,11 @@ for fold in range(num_folds):
             if epoch == n_epochs - 1:
                 best_acc_fold.append((equation_ac, value_ac, eval_total))
     all_losses.append(fold_loss)
-    all_accuracys.append(fold_accuracy)
+    all_train_accuracys.append(fold_train_accuracy)
+    all_eval_accuracys.append(fold_eval_accuracy)
     print('FOLD OUTPUT', fold_loss)
-    print('FOLD ACC', all_accuracys)
+    print('FOLD TRAIN ACC', fold_train_accuracy)
+    print('FOLD EVAL ACC', fold_eval_accuracy)
     train_time_per_all = []
     test_time_per_all = []
     for length, runtime in train_time_array:
