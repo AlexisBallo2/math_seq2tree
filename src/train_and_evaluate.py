@@ -250,8 +250,7 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
 
 
-def train_tree(input_batch, input_length, target_batch, target_mask, target_length, target_equation_sonls, nums_stack_batch, num_size_batch, var_tokens_batch, solution_batch, generate_nums, encoder, num_x_predict, x_generate, x_to_q, predict, generate, merge, encoder_optimizer, num_x_predict_optimizer, x_generate_optimizer, x_to_q_optimizer, predict_optimizer, generate_optimizer,
-               merge_optimizer, output_lang, num_pos, all_vars, english=False):
+def train_tree(input_batch, input_length, target_batch, target_mask, target_length, target_equation_sonls, nums_stack_batch, num_size_batch, var_tokens_batch, solution_batch, generate_nums, encoder, num_x_predict, x_generate, x_to_q, predict, generate, merge, encoder_optimizer, num_x_predict_optimizer, x_generate_optimizer, x_to_q_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos, all_vars, english=False):
 
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
@@ -347,8 +346,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
 
     # for the numbers in the input text, get the embeddings
     # num_batches x num_size x hidden_size that correspond to the embeddings of the numbers
-    all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_size,
-                                                              encoder.hidden_size)
+    all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_size, encoder.hidden_size)
 
     # get the number of x's to generate
     num_x = num_x_predict(encoder_outputs)
@@ -713,7 +711,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     return loss.item(), same/lengths
 
 
-def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, generate, x_generate, x_to_q, num_x_predict, merge, output_lang, num_pos, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
+def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, generate, x_generate, x_to_q, num_x_predict, merge, output_lang, num_pos, actual_num_x, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
 
     # seq_mask = torch.ByteTensor(1, input_length).fill_(0)
     seq_mask = []
@@ -806,7 +804,8 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
     output_tokens = []
 
     # equations to do
-    for num_x in range(num_to_gen):
+    # for num_x in range(num_to_gen):
+    for num_x in range(actual_num_x):
         embeddings_stacks = [[] for _ in range(batch_size)]
         left_childs = [None for _ in range(batch_size)]
         node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in qs.transpose(0,1)[num_x]]

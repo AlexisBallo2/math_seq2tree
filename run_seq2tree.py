@@ -8,15 +8,19 @@ import time
 import torch.optim
 from src.expressions_transfer import *
 
+## ada
 batch_size = 64
-# batch_size = 1 
+n_epochs = 80
+
+## local
 # batch_size = 10 
+# n_epochs = 5 
+
+# batch_size = 1 
 # batch_size = 64
 embedding_size = 128
 hidden_size = 512
-# n_epochs = 2 
 # n_epochs = 20
-n_epochs = 80
 # learning_rate = 1e-1 
 learning_rate = 1e-3
 weight_decay = 1e-5
@@ -238,7 +242,7 @@ for fold in range(num_folds):
             # print('test pairs', test_pairs)
             for test_batch in test_pairs:
                 start = time.perf_counter()
-                test_res, pred_token = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, encoder, predict, generate, x_generate, x_to_q, num_x_predict, merge, output_lang, test_batch[5], beam_size=beam_size, max_length=max(test_batch[3]))
+                test_res, pred_token = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, encoder, predict, generate, x_generate, x_to_q, num_x_predict, merge, output_lang, test_batch[5], len(test_batch[3]), beam_size=beam_size, max_length=max(test_batch[3]))
                 end = time.perf_counter()
                 test_time_array.append([1, end - start])
                 # print('test res', test_res)
