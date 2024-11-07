@@ -618,8 +618,8 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     # target_length_filled = torch.Tensor(target_length_filled)
     # loss = masked_cross_entropy(all_node_outputs2, target, target_length)
     # loss the number of equations
-    actual_num_x = torch.Tensor([len(var_tokens_batch[i]) for i in range(len(var_tokens_batch))])
-    num_x_loss = torch.nn.MSELoss()(num_x, actual_num_x.to(device) )
+    actual_num_x = torch.LongTensor([len(var_tokens_batch[i]) - 1 for i in range(len(var_tokens_batch))])
+    num_x_loss = torch.nn.CrossEntropyLoss()(num_x, actual_num_x.to(device) )
     # print('num x loss', num_x_loss)
     # print('number of equations/variables')
     # for i, batch in enumerate(num_x):
@@ -768,7 +768,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
     # all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, [num_pos], batch_size, num_size,
     #                                                           encoder.hidden_size)
     num_x = num_x_predict(encoder_outputs, eval = True)
-    num_to_gen = math.ceil(num_x.item())
+    num_to_gen = num_x.argmax() + 1
 
     temp_encoder = encoder_outputs.transpose(0, 1)
     num_start = output_lang.num_start
@@ -804,8 +804,8 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
     output_tokens = []
 
     # equations to do
-    # for num_x in range(num_to_gen):
-    for num_x in range(actual_num_x):
+    for num_x in range(num_to_gen):
+    # for num_x in range(actual_num_x):
         embeddings_stacks = [[] for _ in range(batch_size)]
         left_childs = [None for _ in range(batch_size)]
         node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in qs.transpose(0,1)[num_x]]

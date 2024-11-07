@@ -11,10 +11,13 @@ from src.expressions_transfer import *
 ## ada
 batch_size = 64
 n_epochs = 80
+local = False
+
 
 ## local
 # batch_size = 10 
 # n_epochs = 5 
+# local = True
 
 # batch_size = 1 
 # batch_size = 64
@@ -52,7 +55,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # }
 
 pairs, generate_nums, copy_nums, vars = transfer_num(data, setName)
-# pairs = pairs[0:30]
+if local:
+    pairs = pairs[0:30]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   [out_seq]: equation with in text numbers replaced with "N#", and other numbers left as is

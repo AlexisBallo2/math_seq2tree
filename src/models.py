@@ -503,8 +503,8 @@ class PredictNumX(nn.Module):
         self.em_dropout = nn.Dropout(dropout)
         self.out = nn.Linear(hidden_size * 10, 1)
 
-        self.lstm = nn.LSTM(hidden_size, hidden_size, 1, batch_first=True)
-        self.fc = nn.Linear(hidden_size, 1)
+        self.lstm = nn.LSTM(hidden_size, hidden_size, 2, batch_first=True, bidirectional=True)
+        self.fc = nn.Linear(hidden_size * 2, 3)
 
 
     def forward(self, hidden, eval = False):
@@ -526,14 +526,21 @@ class PredictNumX(nn.Module):
 
         # pad this list to be 100 long
         # Initialize hidden and cell states with zeros
-        h0 = torch.zeros(self.lstm.num_layers, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
-        c0 = torch.zeros(self.lstm.num_layers, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
+        h0 = torch.zeros(self.lstm.num_layers * 2, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
+        c0 = torch.zeros(self.lstm.num_layers * 2, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
 
         # Forward propagate LSTM
+        # out: batch_size x max_tokens x hidden size
         out, _ = self.lstm(hidden2T, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
-        out = self.fc(out[:, -1, :]).squeeze(-1)  # out: tensor of shape (batch_size, output_size)
-        out = torch.sigmoid(out) * 10 + 1
-        return out
+        # pass last token through feedforward nn
+        print()
+        final_token_emb = out[:, -1, 512:] + out[:, -1, :512]
+        first_token_emb = out[:, 1, :512] + out[:, 1, 512:]
+        emb = torch.cat((final_token_emb.to(device), first_token_emb.to(device)), dim = -1)
+        print()
+        out = self.fc(emb).squeeze(-1)  # out: tensor of shape (batch_size, output_size)
+        softmax = torch.nn.Softmax(dim=-1)
+        return softmax(out)
         # return abs(out) 
 
 
