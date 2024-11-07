@@ -566,10 +566,15 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
             solution_batch_mask.append([1 for _ in range(len(batch))])
 
     print('equation output')
+    same = 0
+    lengths = 0 
     for i, batch in enumerate(preds_final_tokens_all):
         for j, prediction in enumerate(batch):
             if final_solutions[i][j] != 0:
+                lengths += 1
                 print(f"    preds for batch {i}, equation {j}: {output_lang.index2word[torch.argmax(prediction).item()]}, actual: {output_lang.index2word[final_solutions[i][j]]}")
+                if output_lang.index2word[torch.argmax(prediction).item()] == output_lang.index2word[final_solutions[i][j]]:
+                    same += 1
 
 
     # loss the equation result
@@ -644,8 +649,6 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
         raise Exception('num x high') 
     loss = solutions_loss_final + num_x_loss
     # equation_loss = solutions_loss_final
-    same = 0
-    lengths = 0 
     for i in range(max_num_equations):
         # target4 = batch_size x max_len x num_equations
         # equation_target = batch_size x max_len 
@@ -658,7 +661,6 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
         for actuals in equation_target:
             # print("target", actuals)
             target_tokens.append([output_lang.index2word[_] for _ in actuals])
-            # print("target", [output_lang.index2word[_] for _ in actuals])
         # print("target combined", target_tokens)
         # all_outputs_stacked = batch_size x max_len x vocab_len x num_equations 
         # predictions = batch_size x max_len x vocab_len

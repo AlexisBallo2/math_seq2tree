@@ -281,12 +281,12 @@ for fold in range(num_folds):
                     # print('checking', actual[i], predicted[i])
                     if actuals[i] == preds[i]:
                         same += 1
-                # for i in range(len(pred_token)):
-                #     if pred_token[i] == test_batch[7][i]:
-                #         same += 1
-                print('same:', same, same/(len(actuals)))
+                for i in range(len(pred_token)):
+                    if pred_token[i] == test_batch[7][i]:
+                        same += 1
+                # print('same:', same, same/(len(actuals)))
                 # print('same:', same, same/(len(actuals) + len(pred_token)))
-                accuracy = same / len(actuals)
+                accuracy = same / (len(actuals)  + len(pred_token))
                 eval_accuracys.append(accuracy)
 
                 # print("\n")
