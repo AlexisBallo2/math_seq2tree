@@ -618,7 +618,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     # target_length_filled = torch.Tensor(target_length_filled)
     # loss = masked_cross_entropy(all_node_outputs2, target, target_length)
     # loss the number of equations
-    actual_num_x = torch.LongTensor([(len(i) - 1) if i != [] else o for i in var_tokens_batch])
+    actual_num_x = torch.LongTensor([(len(i) - 1) if i != [] else 0 for i in var_tokens_batch])
     num_x_loss = torch.nn.CrossEntropyLoss()(num_x, actual_num_x.to(device) )
     # print('num x loss', num_x_loss)
     # print('number of equations/variables')
