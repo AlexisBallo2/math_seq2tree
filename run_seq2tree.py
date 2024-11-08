@@ -36,7 +36,7 @@ setName = "DRAW"
 if setName == "MATH":
     data = load_MATH23k_data("data/Math_23K.json")
 else:
-    data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
+    data = load_DRAW_data("data/DRAW/draw.json")
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # data = load_DRAW_data("data/DRAW/single.json")
