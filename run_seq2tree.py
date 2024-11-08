@@ -329,6 +329,8 @@ for fold in range(num_folds):
         test_time_per_all.append(time_per)
 
     print('epoch' , epoch, 'fold', fold, 'train time per token', sum(train_time_per_all) / len(train_time_per_all))
+    print("TRAIN TIMES", train_time_per_all)
+    print("TEST TIMES", test_time_per_all)
     print('epoch', epoch, 'fold', fold, 'infrence time per token', sum(test_time_per_all) / len(test_time_per_all))
     break
 
