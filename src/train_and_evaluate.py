@@ -782,7 +782,8 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
     batch_all_vars = []
     empty = torch.zeros(encoder.hidden_size)
     cur_bach_vars = []
-    xs = x_generate(num_to_gen, temp_encoder[0], all_nums_encoder_outputs[0], problem_output[0])
+    # xs = x_generate(num_to_gen, temp_encoder[0], all_nums_encoder_outputs[0], problem_output[0])
+    xs = x_generate(actual_num_x, temp_encoder[0], all_nums_encoder_outputs[0], problem_output[0])
 
     # get the generated variables
     # for variable in target_ordering_of_vars:
