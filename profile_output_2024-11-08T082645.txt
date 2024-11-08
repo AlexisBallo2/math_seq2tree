@@ -1,0 +1,687 @@
+Timer unit: 1e-09 s
+
+Total time: 4.99803 s
+File: /Users/home/school/thesis/math_seq2tree/src/train_and_evaluate.py
+Function: train_tree at line 254
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   254                                           @line_profiler.profile
+   255                                           def train_tree(input_batch, input_length, target_batch, target_mask, target_length, target_equation_sonls, nums_stack_batch, num_size_batch, var_tokens_batch, solution_batch, generate_nums, encoder, num_x_predict, x_generate, x_to_q, predict, generate, merge, encoder_optimizer, num_x_predict_optimizer, x_generate_optimizer, x_to_q_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos, all_vars, english=False):
+   256                                           
+   257                                               # input_batch: padded inputs
+   258                                               # input_length: length of the inputs (without padding)
+   259                                               # target_batch: padded outputs
+   260                                               # target_length: length of the outputs (without padding)
+   261                                               # num_stack_batch: the corresponding nums lists
+   262                                               # num_size_batch: number of numbers from the input text
+   263                                               # generate_nums: numbers to generate
+   264                                           
+   265                                               # num_pos: positions of the numbers lists
+   266                                           
+   267                                           
+   268                                               # # get max lengths of each equation and number of equations in the batch
+   269                                               # max_equations_per_problem = 0
+   270                                               # max_tokens_per_equation = 0
+   271                                               # for batch in input_batch:
+   272                                               #     for input_seq, input_length_temp, equations, equation_lengths, input_nums, input_nums_pos, num_stack in batch:
+   273                                               #     # for equation in output_length:
+   274                                               #         max_equations_per_problem = max(max_equations_per_problem, len(equations))
+   275                                               #         for equation in equations:
+   276                                               #             max_tokens_per_equation = max(max_tokens_per_equation, len(equation))
+   277                                               
+   278                                               # print("max equations per problem: ", max_equations_per_problem)
+   279                                               # print('max tokens per equation: ', max_tokens_per_equation)
+   280                                           
+   281                                           
+   282                                               # sequence mask for attention
+   283                                               # 0s where in input, 1s where not in input
+   284         5      15000.0   3000.0      0.0      seq_mask = []
+   285         5       7000.0   1400.0      0.0      max_len = max(input_length)
+   286        55      11000.0    200.0      0.0      for i in input_length:
+   287        50     161000.0   3220.0      0.0          seq_mask.append([0 for _ in range(i)] + [1 for _ in range(i, max_len)])
+   288         5     227000.0  45400.0      0.0      seq_mask = torch.ByteTensor(seq_mask)
+   289                                           
+   290                                           
+   291         5       5000.0   1000.0      0.0      unk = output_lang.word2index["UNK"]
+   292                                           
+   293                                               # Turn padded arrays into (equation x max_len x batch_size ) tensors, 
+   294                                               # print("input batch", input_batch)
+   295         5     149000.0  29800.0      0.0      input_var = torch.LongTensor(input_batch).transpose(0, 1)
+   296                                               # print("input var", input_var)
+   297                                               # print('target batch', target_batch)
+   298         5     396000.0  79200.0      0.0      target = torch.stack([torch.LongTensor(equation_set) for equation_set in target_batch], dim=-1)
+   299                                               # print('target', target)
+   300                                           
+   301         5     277000.0  55400.0      0.0      padding_hidden = torch.FloatTensor([0.0 for _ in range(predict.hidden_size)]).unsqueeze(0)
+   302         5       4000.0    800.0      0.0      batch_size = len(input_length)
+   303                                           
+   304         5     205000.0  41000.0      0.0      encoder.train()
+   305         5     273000.0  54600.0      0.0      predict.train()
+   306         5     111000.0  22200.0      0.0      generate.train()
+   307         5      64000.0  12800.0      0.0      merge.train()
+   308         5      93000.0  18600.0      0.0      num_x_predict.train()
+   309         5      98000.0  19600.0      0.0      x_generate.train()
+   310         5      84000.0  16800.0      0.0      x_to_q.train()
+   311                                           
+   312         5       2000.0    400.0      0.0      if USE_CUDA:
+   313                                                   input_var = input_var.cuda()
+   314                                                   seq_mask = seq_mask.cuda()
+   315                                                   padding_hidden = padding_hidden.cuda()
+   316                                                   # num_mask = num_mask.cuda()
+   317                                           
+   318                                               # Zero gradients of both optimizers
+   319         5    2054000.0 410800.0      0.0      encoder_optimizer.zero_grad()
+   320         5    2236000.0 447200.0      0.0      predict_optimizer.zero_grad()
+   321         5     624000.0 124800.0      0.0      generate_optimizer.zero_grad()
+   322         5     801000.0 160200.0      0.0      merge_optimizer.zero_grad()
+   323         5    3906000.0 781200.0      0.1      num_x_predict_optimizer.zero_grad()
+   324         5    1146000.0 229200.0      0.0      x_generate_optimizer.zero_grad()
+   325         5     923000.0 184600.0      0.0      x_to_q_optimizer.zero_grad()
+   326                                           
+   327                                           
+   328                                               # Run words through encoder
+   329                                               # embedding + dropout layer
+   330                                               # encoder_outputs: num_batches x 512 q_0 vector
+   331                                               # problem_output: max_length x num_batches x hidden_size
+   332         5  199542000.0    4e+07      4.0      encoder_outputs, problem_output = encoder(input_var, input_length)
+   333                                               
+   334                                           
+   335                                               # get the max length of the target equations and the number of equations in the batch
+   336         5       1000.0    200.0      0.0      max_target_length = 0
+   337         5       3000.0    600.0      0.0      max_num_equations = 0
+   338        55      11000.0    200.0      0.0      for pair_equations_lengths in target_batch:
+   339        50      59000.0   1180.0      0.0          max_target_length = max(max_target_length, *[len(equation) for equation in pair_equations_lengths])
+   340        50      17000.0    340.0      0.0          max_num_equations = max(max_num_equations, len(pair_equations_lengths))
+   341                                           
+   342                                               # all_leafs = []
+   343                                           
+   344                                               # array of len of numbers that must be copied from the input text
+   345         5      13000.0   2600.0      0.0      copy_num_len = [len(_) for _ in num_pos] 
+   346                                               # max nums to copy
+   347         5       4000.0    800.0      0.0      num_size = max(copy_num_len)
+   348                                           
+   349                                               # for the numbers in the input text, get the embeddings
+   350                                               # num_batches x num_size x hidden_size that correspond to the embeddings of the numbers
+   351         5    6210000.0    1e+06      0.1      all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_size, encoder.hidden_size)
+   352                                           
+   353                                               # get the number of x's to generate
+   354         5 1080117000.0    2e+08     21.6      num_x = num_x_predict(encoder_outputs)
+   355                                               # gen_xs = []
+   356                                           
+   357                                               # the lang has X,Y,Z
+   358                                           
+   359                                               # need the order of variables in the vocab, so we place the embeddings in the correct order
+   360         5       4000.0    800.0      0.0      target_ordering_of_vars = all_vars
+   361                                               # temp_encoder: num_batches x max_length x hidden_size
+   362         5      22000.0   4400.0      0.0      temp_encoder = encoder_outputs.transpose(0, 1)
+   363                                           
+   364         5       1000.0    200.0      0.0      batch_all_vars = []
+   365                                           
+   366         5      67000.0  13400.0      0.0      empty = torch.zeros(encoder.hidden_size).to(device)
+   367        55      29000.0    527.3      0.0      for batch_num, batch_vars in enumerate(var_tokens_batch):
+   368        50       9000.0    180.0      0.0          cur_bach_vars = []
+   369        50    7473000.0 149460.0      0.1          xs = x_generate(len(batch_vars), temp_encoder[batch_num], all_nums_encoder_outputs[batch_num], problem_output[batch_num])
+   370                                                   # get the generated variables
+   371       150      38000.0    253.3      0.0          for variable in target_ordering_of_vars:
+   372       100      19000.0    190.0      0.0              match = False
+   373       278     113000.0    406.5      0.0              for var, x in zip(batch_vars, xs):
+   374       178      43000.0    241.6      0.0                  if var == variable:
+   375        89      26000.0    292.1      0.0                      cur_bach_vars.append(x)
+   376        89       9000.0    101.1      0.0                      match = True
+   377       100      21000.0    210.0      0.0              if not match:
+   378        11       2000.0    181.8      0.0                  cur_bach_vars.append(empty)
+   379        50     239000.0   4780.0      0.0          batch_all_vars.append(torch.stack(cur_bach_vars))
+   380                                           
+   381                                               # all_vars_embs: num_batches x num_vars x hidden_size
+   382                                               # 0s if the var is not used in that observation
+   383         5      39000.0   7800.0      0.0      all_vars_embs = torch.stack(batch_all_vars)
+   384                                           
+   385                                               
+   386                                               # get the q vectors for each x
+   387         5   13325000.0    3e+06      0.3      qs = x_to_q(temp_encoder, all_vars_embs)
+   388                                           
+   389                                               # number mask 
+   390                                               # 0s where the numbers are from input, 1s where not in input
+   391         5       2000.0    400.0      0.0      num_mask = []
+   392         5      11000.0   2200.0      0.0      max_num_size = max(num_size_batch) + len(generate_nums) 
+   393        55       6000.0    109.1      0.0      for i in num_size_batch:
+   394        50       8000.0    160.0      0.0          d = i + len(generate_nums) 
+   395        50      50000.0   1000.0      0.0          num_mask.append([0] * d + [1] * (max_num_size - d))
+   396         5     205000.0  41000.0      0.0      num_mask = torch.ByteTensor(num_mask)
+   397                                               
+   398                                               # for each batch, if there are variables in output lang [x,y,z] but group only has [x,y], mask would be [0,0,1]
+   399         5       2000.0    400.0      0.0      var_mask = []
+   400                                               # first get variables in output lang 
+   401                                               # var_list = [output_lang.variables for _ in target_batch]
+   402                                               # for each equation group
+   403        55      14000.0    254.5      0.0      for i, equ_group in enumerate(target_batch):
+   404        50      10000.0    200.0      0.0          group_var_mask = []
+   405        50     152000.0   3040.0      0.0          unique_in_equation = [output_lang.index2word[i] for i in list(set([el for arr in equ_group for el in arr]))]
+   406       150      34000.0    226.7      0.0          for var in output_lang.variables:
+   407                                                       # decoded = output_lang.index2word[var]
+   408       100      22000.0    220.0      0.0              if var in unique_in_equation:
+   409        89      10000.0    112.4      0.0                  group_var_mask.append(0)
+   410                                                       else:
+   411        11       2000.0    181.8      0.0                  group_var_mask.append(1)
+   412        50      14000.0    280.0      0.0          var_mask.append(group_var_mask)
+   413         5      23000.0   4600.0      0.0      var_mask = torch.ByteTensor(var_mask)
+   414         5      12000.0   2400.0      0.0      addedQs = len(qs)
+   415                                               # make sure to note that the updated encoder has the x vectors
+   416                                           
+   417                                           
+   418                                               # index in the language where the special (operators) tokens end and input/output text begins
+   419         5       1000.0    200.0      0.0      num_start = output_lang.num_start
+   420                                               # 
+   421         5       2000.0    400.0      0.0      all_outputs = []
+   422         5       2000.0    400.0      0.0      final_tokens = []
+   423        15      12000.0    800.0      0.0      for equation_count in range(max_num_equations):
+   424        10     127000.0  12700.0      0.0          embeddings_stacks = [[] for _ in range(batch_size)]
+   425        10      31000.0   3100.0      0.0          left_childs = [None for _ in range(batch_size)]
+   426        10      43000.0   4300.0      0.0          current_equation_outputs = []
+   427        10      73000.0   7300.0      0.0          current_equation = target[equation_count]
+   428                                           
+   429                                                   # make a TreeNode for each token
+   430                                                   # node just has embedding and a left flag? 
+   431        10     360000.0  36000.0      0.0          tempSplit = problem_output.split(1, dim=0)
+   432                                                   # problem_output is q_0 for each token in equation, so use last one
+   433        10     545000.0  54500.0      0.0          node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in qs.transpose(0,1)[equation_count]]
+   434                                                   
+   435        80      44000.0    550.0      0.0          for t in range(max_target_length):
+   436                                           
+   437                                                       # predict gets the encodings and embeddings for the current node 
+   438                                                       #   num_score: batch_size x num_length
+   439                                                       #       likliehood prediction of each number
+   440                                                       #   op: batch_size x num_ops
+   441                                                       #       likliehood of the operator tokens
+   442                                                       #   current_embeddings: batch_size x 1 x hidden_size
+   443                                                       #       goal vector (q) for the current node 
+   444                                                       #   current_context: batch_size x 1 x hidden_size
+   445                                                       #       context vector (c) for the subtree
+   446                                                       #   embedding_weight: batch_size x num_length x hidden_size
+   447                                                       #       embeddings of the generate and copy numbers
+   448                                           
+   449       140  531198000.0    4e+06     10.6              num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(
+   450        70      47000.0    671.4      0.0                  node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, seq_mask, num_mask, var_mask, all_vars_embs)
+   451                                           
+   452                                           
+   453                                                       # this is mainly what we want to train
+   454        70     558000.0   7971.4      0.0              outputs = torch.cat((op, num_score), 1)
+   455        70      69000.0    985.7      0.0              current_equation_outputs.append(outputs)
+   456                                           
+   457                                                       # target[t] is the equation character at index t for each batch
+   458                                                       #    target[t] = 1 x num_batches
+   459                                                       # outputs is the strength of operators or a number token
+   460                                                       # num_stack_batch is the cooresponding num lists
+   461                                                       # num_start is where non-operators begin
+   462                                                       # unk is unknown token
+   463                                                       # returns
+   464                                                       #   for position t in each equation
+   465                                                       #       target_t: actual equation value
+   466                                                       #       generate_input: equation value if its an operator
+   467                                                       # target_t, generate_input = generate_tree_input(target[equation_count][t].tolist(), outputs, nums_stack_batch, num_start, unk)
+   468        70    4428000.0  63257.1      0.1              target_t, generate_input = generate_tree_input(current_equation[t].tolist(), outputs, nums_stack_batch, num_start, unk)
+   469                                                       # target[t] = target_t
+   470        70      38000.0    542.9      0.0              if USE_CUDA:
+   471                                                           generate_input = generate_input.cuda()
+   472                                           
+   473                                                       # takes:
+   474                                                       #     generate a left and right child node with a label
+   475                                                       #     current_embeddings: q : batch_size x 1 x hidden_dim
+   476                                                       #     generate_input: [operator tokens at position t]
+   477                                                       #     current_context: c : batch_size x 1 x hidden_dim
+   478                                                       # returns
+   479                                                       #     l_child: batch_size x hidden_dim
+   480                                                       #          hidden state h_l:
+   481                                                       #     r_child: batch_size x hidden_dim
+   482                                                       #          hidden state h_r:
+   483                                                       #     node_label_ : batch_size x embedding_size 
+   484                                                       #          basically the context vector (c)
+   485                                                       # the node generation takes the first half of equations (10) and (11) 
+   486        70   88249000.0    1e+06      1.8              left_child, right_child, node_label = generate(current_embeddings, generate_input, current_context)
+   487        70      41000.0    585.7      0.0              left_childs = []
+   488       840    5865000.0   6982.1      0.1              for idx, l, r, node_stack, i, o in zip(range(batch_size), left_child.split(1), right_child.split(1),
+   489        70      11000.0    157.1      0.0                                                  node_stacks, target_t, embeddings_stacks):
+   490                                                           # current_token = output_lang.ids_to_tokens([i])
+   491                                                           # current_equation = output_lang.ids_to_tokens(target.transpose(0,1)[idx])
+   492                                                           #print("at token", current_token, "in", current_equation)
+   493                                                           #print("current node_stack length", len(node_stack))
+   494                                                           # for 
+   495                                                           #   batch_num
+   496                                                           #   the left child: h_l 
+   497                                                           #   the right child: h_r
+   498       700     206000.0    294.3      0.0                  if len(node_stack) != 0:
+   499       396     458000.0   1156.6      0.0                      node = node_stack.pop()
+   500                                                               #print("removed last from node_stack, now", len(node_stack), "elems")
+   501                                                           else:
+   502       304      76000.0    250.0      0.0                      left_childs.append(None)
+   503       304      24000.0     78.9      0.0                      continue
+   504                                           
+   505                                                           # i is the num in language of where that specific language token is
+   506                                                           # if i is an operator
+   507       396    1875000.0   4734.8      0.0                  if i < num_start:
+   508                                                               #print(current_token, "is an operator, making a left and right node")
+   509                                                               # make a left and right tree node
+   510       191     189000.0    989.5      0.0                      node_stack.append(TreeNode(r))
+   511       191     183000.0    958.1      0.0                      node_stack.append(TreeNode(l, left_flag=True))
+   512                                                               # save the embedding of the operator 
+   513                                                               # terminal means a leaf node
+   514       191     880000.0   4607.3      0.0                      o.append(TreeEmbedding(node_label[idx].unsqueeze(0), False))
+   515                                                               #print("saving node embedding to o (non terminal node), and r, and l to node_stack. o now of size", len(o), "node_stack of size", len(node_stack))
+   516                                                           else:
+   517                                                               # otherwise its either a number from the input equation or a copy number
+   518                                                               # we have a list (o) of the current nodes in the tree
+   519                                                               # if we have a leaf node at the top of the stack, get it.
+   520                                                               # next element in the stack must be an operator, so get it 
+   521                                                               # and combine the new node, operator, and other element
+   522                                           
+   523                                                               # current_nums_embedding: batch_size x num_length x hidden_size
+   524                                                               # current_num = num_embedding of the number selected
+   525       205    2135000.0  10414.6      0.0                      current_num = current_nums_embeddings[idx, i - num_start].unsqueeze(0)
+   526                                                               # while there are tokens in the embedding stack and the last element IS a leaf node
+   527       321     209000.0    651.1      0.0                      while len(o) > 0 and o[-1].terminal:
+   528                                                                   #print("terminal element in o, getting terminal element and operator, and merging")
+   529                                                                   # get the two elements from it
+   530       116     180000.0   1551.7      0.0                          sub_stree = o.pop()
+   531       116      88000.0    758.6      0.0                          op = o.pop()
+   532                                                                   # contains equation (13)
+   533                                                                   # this combines a left and right tree along with a node
+   534       116   19426000.0 167465.5      0.4                          current_num = merge(op.embedding, sub_stree.embedding, current_num)
+   535                                                                   #print('merged. o now of size', len(o))
+   536                                                               # then re-add the node back to the stack
+   537                                                               #print("adding current_num to o (terminal node)")
+   538       205     245000.0   1195.1      0.0                      o.append(TreeEmbedding(current_num, True))
+   539       396     155000.0    391.4      0.0                  if len(o) > 0 and o[-1].terminal:
+   540                                                               #print("terminal element in o, adding to left child")
+   541                                                               # left_childs is a running vector of the sub tree embeddings "t" 
+   542                                                               # need this for generation of the right q
+   543       205      65000.0    317.1      0.0                      left_childs.append(o[-1].embedding)
+   544                                                           else:
+   545       191      55000.0    288.0      0.0                      left_childs.append(None)
+   546                                                   # tree has been built. now predict the = " " token
+   547        20   74825000.0    4e+06      1.5          num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(
+   548        10       1000.0    100.0      0.0              node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, seq_mask, num_mask, var_mask, all_vars_embs)
+   549        10      96000.0   9600.0      0.0          final_token = torch.cat((op, num_score), 1)
+   550        10      12000.0   1200.0      0.0          final_tokens.append(final_token)
+   551        10     221000.0  22100.0      0.0          all_outputs.append(torch.stack(current_equation_outputs, dim = 1))
+   552                                           
+   553                                               # final tokens:
+   554         5      25000.0   5000.0      0.0      preds_final_tokens_all = torch.stack(final_tokens, dim = 1)
+   555         5      18000.0   3600.0      0.0      preds_final_tokens_all_flattened = preds_final_tokens_all.view(-1, preds_final_tokens_all.size(-1))
+   556                                           
+   557                                               # batch solutons: 
+   558                                               # mask for solutions
+   559         5          0.0      0.0      0.0      solution_batch_mask = []
+   560         5          0.0      0.0      0.0      final_solutions = []
+   561        55      25000.0    454.5      0.0      for i, batch in enumerate(solution_batch):
+   562        50      10000.0    200.0      0.0          if len(batch) < max_num_equations:
+   563        11      16000.0   1454.5      0.0              temp_batch = batch + [0 for _ in range(max_num_equations - len(batch))]
+   564        11       3000.0    272.7      0.0              final_solutions.append(temp_batch)
+   565        11      13000.0   1181.8      0.0              solution_batch_mask.append([1 for _ in range(len(batch))] + [0 for _ in range(max_num_equations - len(batch))])
+   566                                                   else:
+   567        39      11000.0    282.1      0.0              final_solutions.append(batch)
+   568        39      36000.0    923.1      0.0              solution_batch_mask.append([1 for _ in range(len(batch))])
+   569                                           
+   570         5     105000.0  21000.0      0.0      print('equation output')
+   571         5       3000.0    600.0      0.0      same = 0
+   572         5          0.0      0.0      0.0      lengths = 0 
+   573        55      98000.0   1781.8      0.0      for i, batch in enumerate(preds_final_tokens_all):
+   574       150     224000.0   1493.3      0.0          for j, prediction in enumerate(batch):
+   575       100      25000.0    250.0      0.0              if final_solutions[i][j] != 0:
+   576        89      13000.0    146.1      0.0                  lengths += 1
+   577        89    2832000.0  31820.2      0.1                  print(f"    preds for batch {i}, equation {j}: {output_lang.index2word[torch.argmax(prediction).item()]}, actual: {output_lang.index2word[final_solutions[i][j]]}")
+   578        89     218000.0   2449.4      0.0                  if output_lang.index2word[torch.argmax(prediction).item()] == output_lang.index2word[final_solutions[i][j]]:
+   579         1       1000.0   1000.0      0.0                      same += 1
+   580                                           
+   581                                           
+   582                                               # loss the equation result
+   583         5      68000.0  13600.0      0.0      solution_batch_mask = torch.ByteTensor(solution_batch_mask)
+   584         5      27000.0   5400.0      0.0      final_solutions_flattened = torch.LongTensor(final_solutions).view(-1)
+   585                                           
+   586                                               # solutions_all_loss
+   587         5    4138000.0 827600.0      0.1      solutions_raw_loss = torch.nn.CrossEntropyLoss(reduction='none')(preds_final_tokens_all_flattened, final_solutions_flattened.to(device) )
+   588                                               
+   589         5      19000.0   3800.0      0.0      solutions_loss = solutions_raw_loss.view(preds_final_tokens_all.size(0), preds_final_tokens_all.size(1))
+   590                                               # apply mask to loss
+   591         5      58000.0  11600.0      0.0      solutions_loss_final = solutions_loss * solution_batch_mask.float().to(device)
+   592         5     540000.0 108000.0      0.0      solutions_loss_final = solutions_loss_final.sum()
+   593         5    8284000.0    2e+06      0.2      print('solution loss', solutions_loss_final)
+   594                                           
+   595                                               # all_node_outputs:  
+   596                                               #  for each equation 
+   597                                               #    for each token in equation: 
+   598                                               #      the current scoring of nums for each batch
+   599                                               # 
+   600                                               # transform to 
+   601                                               # all_node_outputs2: for each batch:
+   602                                               #   the current scoring of nums for each token in equation
+   603                                               # = batch_size x max_len x num_nums
+   604         5     147000.0  29400.0      0.0      all_outputs_stacked = torch.stack(all_outputs, dim=-1)
+   605                                           
+   606                                               # target: num_equations x num_tokens x batch_size
+   607         5      56000.0  11200.0      0.0      target2 = target.transpose(0, 1).contiguous()
+   608         5      16000.0   3200.0      0.0      target3 = target2.transpose(1, 2).contiguous()
+   609                                               # actual
+   610                                               # target4: batch_size x max_len x num_equations
+   611         5      17000.0   3400.0      0.0      target4 = target3.transpose(0,1).contiguous()
+   612                                           
+   613         5       2000.0    400.0      0.0      if USE_CUDA:
+   614                                                   # all_leafs = all_leafs.cuda()
+   615                                                   all_node_outputs2 = all_outputs
+   616                                                   target = target.cuda()
+   617                                           
+   618                                           
+   619         5       1000.0    200.0      0.0      target_length_filled = []
+   620        55       9000.0    163.6      0.0      for problem in target_length:
+   621        50       4000.0     80.0      0.0          current_num_equations = len(problem)
+   622        50       7000.0    140.0      0.0          if current_num_equations < max_num_equations:
+   623        11      17000.0   1545.5      0.0              problem += [0 for _ in range(max_num_equations - current_num_equations)]
+   624        50       9000.0    180.0      0.0          target_length_filled.append(problem)
+   625                                               # target_length_filled = torch.Tensor(target_length_filled)
+   626                                               # loss = masked_cross_entropy(all_node_outputs2, target, target_length)
+   627                                               # loss the number of equations
+   628         5      39000.0   7800.0      0.0      actual_num_x = torch.LongTensor([(len(i) - 1) if i != [] else 0 for i in var_tokens_batch])
+   629         5     242000.0  48400.0      0.0      num_x_loss = torch.nn.CrossEntropyLoss()(num_x, actual_num_x.to(device) )
+   630                                               # print('num x loss', num_x_loss)
+   631                                               # print('number of equations/variables')
+   632                                               # for i, batch in enumerate(num_x):
+   633                                               #     print(f"    preds for batch {i}: {batch} equations. Actual: {actual_num_x[i]}")
+   634                                               # print('     mse loss', loss)
+   635                                           
+   636         5     536000.0 107200.0      0.0      target_mask1 = 1 - torch.ByteTensor(target_mask)
+   637         5       9000.0   1800.0      0.0      target_mask_tensor = target_mask1.transpose(1,2)
+   638                                               # for batch in target_mask:   
+   639                                               #     batch_equs = []
+   640                                               #     for equation in batch:
+   641                                               #         batch_equs.append(torch.Tensor(equation))
+   642                                               #     batch_stack = torch.stack(batch_equs, dim=0)
+   643                                           
+   644                                               # target_mask_stacked = torch.stack([torch.Tensor(i) for i in target_mask], dim=-1)
+   645                                           
+   646         5      26000.0   5200.0      0.0      print('token lists of')
+   647         5      27000.0   5400.0      0.0      if solutions_loss_final > 100000:
+   648                                                   print('solutions high')
+   649                                                   raise Exception('high') 
+   650         5      16000.0   3200.0      0.0      if  num_x_loss > 100000:
+   651                                                   raise Exception('num x high') 
+   652         5      33000.0   6600.0      0.0      loss = solutions_loss_final + num_x_loss
+   653                                               # equation_loss = solutions_loss_final
+   654        15      11000.0    733.3      0.0      for i in range(max_num_equations):
+   655                                                   # target4 = batch_size x max_len x num_equations
+   656                                                   # equation_target = batch_size x max_len 
+   657        10      50000.0   5000.0      0.0          equation_target = target4[..., i]
+   658        10      17000.0   1700.0      0.0          equation_mask = target_mask_tensor[..., i]
+   659        10      20000.0   2000.0      0.0          target_flattened = equation_target.view(-1)
+   660                                                   # equation_mask_flattened = equation_mask.view(-1)
+   661                                                   # for each batch 
+   662        10       6000.0    600.0      0.0          target_tokens = []
+   663       110     109000.0    990.9      0.0          for actuals in equation_target:
+   664                                                       # print("target", actuals)
+   665       100     751000.0   7510.0      0.0              target_tokens.append([output_lang.index2word[_] for _ in actuals])
+   666                                                   # print("target combined", target_tokens)
+   667                                                   # all_outputs_stacked = batch_size x max_len x vocab_len x num_equations 
+   668                                                   # predictions = batch_size x max_len x vocab_len
+   669        10      26000.0   2600.0      0.0          predictions = all_outputs_stacked[..., i]
+   670        10     343000.0  34300.0      0.0          pred_distribution = predictions.log_softmax(-1)
+   671       110     164000.0   1490.9      0.0          for j, batch in enumerate(predictions):
+   672       100      13000.0    130.0      0.0              eqn_preds = []
+   673       800     866000.0   1082.5      0.0              for token in batch:
+   674       700    1759000.0   2512.9      0.0                  eqn_preds.append(output_lang.index2word[torch.argmax(token).item()])
+   675       100     307000.0   3070.0      0.0              print(f"    batch {j}, equation {i}" )
+   676       100     239000.0   2390.0      0.0              print(f"        prkediction: {eqn_preds[0:target_length[j][i]]}")
+   677       100     182000.0   1820.0      0.0              print(f"        actual: {target_tokens[j][0:target_length[j][i]]}")
+   678       421     108000.0    256.5      0.0              for k in range(len(eqn_preds[0:target_length[j][i]])):
+   679       321     143000.0    445.5      0.0                  if eqn_preds[0:target_length[j][i]][k] == target_tokens[j][0:target_length[j][i]][k]:
+   680        63      10000.0    158.7      0.0                      same += 1
+   681       321      66000.0    205.6      0.0                  lengths += 1
+   682                                                       # print(f'{same} so far')
+   683                                                   # preds_flattened = predictions.view(-1, predictions.size(-1))
+   684        10      31000.0   3100.0      0.0          preds_flattened = pred_distribution.view(-1, predictions.size(-1))
+   685                                           
+   686        10    1168000.0 116800.0      0.0          tempLoss = torch.nn.CrossEntropyLoss(reduction='none')(preds_flattened, target_flattened.to(device))
+   687                                                   # print('tempLoss', tempLoss)
+   688                                                   # reshape loss:
+   689        10      95000.0   9500.0      0.0          tempLoss2 = tempLoss.view(equation_target.size(0), equation_target.size(1))
+   690                                                   # apply mask to loss
+   691        10     450000.0  45000.0      0.0          tempLoss3 = tempLoss2 * equation_mask.float().to(device)
+   692                                           
+   693                                                   # equation_loss += tempLoss3.sum() 
+   694        10     259000.0  25900.0      0.0          print(f'equ {i} loss, {tempLoss3.sum()}')
+   695                                                   # for lossT, token in zip(tempLoss3, target_flattened):
+   696                                                   #     for i, l in enumerate(lossT):
+   697                                                   #         print(f"batch: {i}")
+   698                                                   #         print(f"    token {output_lang.index2word[token]} loss: {l}")
+   699                                                   #         if l > 900000:
+   700                                                   #             print("ANOMOLY")
+   701                                                   #             print('prediction list', predictions[i])
+   702        10       8000.0    800.0      0.0          if loss is None:
+   703                                                       loss = tempLoss3.sum()
+   704                                                   else:
+   705        10     170000.0  17000.0      0.0              loss += tempLoss3.sum()
+   706                                           
+   707                                               # full loss = equation loss + number of equations loss + solutions loss
+   708                                               # loss = equation_loss + num_x_loss
+   709         5     629000.0 125800.0      0.0      print('total loss', loss)
+   710         5 2916709000.0    6e+08     58.4      loss.backward()
+   711                                           
+   712                                               # make_dot(loss).render("loss")
+   713                                           
+   714                                           
+   715         5      42000.0   8400.0      0.0      return loss.item(), same/lengths
+
+Total time: 13.6789 s
+File: /Users/home/school/thesis/math_seq2tree/src/train_and_evaluate.py
+Function: evaluate_tree at line 717
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   717                                           @line_profiler.profile
+   718                                           def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, generate, x_generate, x_to_q, num_x_predict, merge, output_lang, num_pos, actual_num_x, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
+   719                                           
+   720                                               # seq_mask = torch.ByteTensor(1, input_length).fill_(0)
+   721       150      80000.0    533.3      0.0      seq_mask = []
+   722       150      75000.0    500.0      0.0      max_len = input_length
+   723                                               # for i in input_length:
+   724       150     537000.0   3580.0      0.0      seq_mask = [0 for _ in range(max_len)]
+   725       150    2279000.0  15193.3      0.0      seq_mask = torch.ByteTensor(seq_mask)
+   726                                           
+   727                                           
+   728       150    1278000.0   8520.0      0.0      input_var = torch.LongTensor(input_batch).transpose(-1, 0)
+   729                                               # target = torch.stack([torch.LongTensor(equation_set) for equation_set in target_batch], dim=-1)
+   730                                           
+   731       150    8726000.0  58173.3      0.1      padding_hidden = torch.FloatTensor([0.0 for _ in range(predict.hidden_size)]).unsqueeze(0)
+   732       150      45000.0    300.0      0.0      batch_size = 1
+   733                                           
+   734                                               # Turn padded arrays into (batch_size x max_len) tensors, transpose into (max_len x batch_size)
+   735                                               # input_var = torch.LongTensor(input_batch).unsqueeze(1)
+   736                                           
+   737                                               # num_mask = torch.ByteTensor(1, len(num_pos) + len(generate_nums)).fill_(0)
+   738                                           
+   739                                               # Set to not-training mode to disable dropout
+   740       150    6459000.0  43060.0      0.0      encoder.eval()
+   741       150    7441000.0  49606.7      0.1      predict.eval()
+   742       150    3899000.0  25993.3      0.0      generate.eval()
+   743       150    2257000.0  15046.7      0.0      merge.eval()
+   744       150    2952000.0  19680.0      0.0      num_x_predict.eval()
+   745       150    3013000.0  20086.7      0.0      x_generate.eval()
+   746       150    2629000.0  17526.7      0.0      x_to_q.eval()
+   747                                               
+   748                                           
+   749                                               # padding_hidden = torch.FloatTensor([0.0 for _ in range(predict.hidden_size)]).unsqueeze(0)
+   750                                           
+   751                                               # batch_size = 1
+   752                                           
+   753       150      60000.0    400.0      0.0      if USE_CUDA:
+   754                                                   input_var = input_var.cuda()
+   755                                                   seq_mask = seq_mask.cuda()
+   756                                                   padding_hidden = padding_hidden.cuda()
+   757                                                   # num_mask = num_mask.cuda()
+   758                                               # Run words through encoder
+   759                                           
+   760                                               # encoder_outputs, problem_output = encoder(input_var, [input_length])
+   761                                               # TODO: make sure input var moves correctly
+   762       150  943466000.0    6e+06      6.9      encoder_outputs, problem_output = encoder(input_var.unsqueeze(0).transpose(0,1), [input_length])
+   763                                           
+   764       150      39000.0    260.0      0.0      max_target_length = 0
+   765       150      16000.0    106.7      0.0      max_num_equations = 3
+   766                                           
+   767       150     180000.0   1200.0      0.0      copy_num_len = [len(num_pos)] 
+   768       150      42000.0    280.0      0.0      num_size = len(num_pos)
+   769                                               # num_size = 1
+   770       300   33553000.0 111843.3      0.2      all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, [num_pos], batch_size, num_size,
+   771       150      26000.0    173.3      0.0                                                                encoder.hidden_size)
+   772                                               # all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, [num_pos], batch_size, num_size,
+   773                                               #                                                           encoder.hidden_size)
+   774       150 4501278000.0    3e+07     32.9      num_x = num_x_predict(encoder_outputs, eval = True)
+   775       150    3145000.0  20966.7      0.0      num_to_gen = num_x.argmax() + 1
+   776                                           
+   777       150     533000.0   3553.3      0.0      temp_encoder = encoder_outputs.transpose(0, 1)
+   778       150     118000.0    786.7      0.0      num_start = output_lang.num_start
+   779                                               # B x P x N
+   780                                           
+   781                                           
+   782       150      40000.0    266.7      0.0      batch_all_vars = []
+   783       150    1485000.0   9900.0      0.0      empty = torch.zeros(encoder.hidden_size)
+   784       150      13000.0     86.7      0.0      cur_bach_vars = []
+   785       150   43270000.0 288466.7      0.3      xs = x_generate(num_to_gen, temp_encoder[0], all_nums_encoder_outputs[0], problem_output[0])
+   786                                           
+   787                                               # get the generated variables
+   788                                               # for variable in target_ordering_of_vars:
+   789                                               #     match = False
+   790                                               #     for var, x in zip(batch_vars, xs):
+   791                                               #         if var == variable:
+   792                                               #             cur_bach_vars.append(x)
+   793                                               #             match = True
+   794                                               #     if not match:
+   795                                               #         cur_bach_vars.append(empty)
+   796                                               # batch_all_vars.append(torch.stack(cur_bach_vars))
+   797       150    1300000.0   8666.7      0.0      all_vars_embs = torch.stack(xs).unsqueeze(0)
+   798                                           
+   799       150   56816000.0 378773.3      0.4      qs = x_to_q(temp_encoder, all_vars_embs)
+   800                                               # Prepare input and output variables
+   801                                           
+   802                                           
+   803                                               # empty = torch.zeros(encoder.hidden_size)
+   804                                           
+   805                                               # evaulation uses beam search
+   806                                               # key is how the beams are compared
+   807       150      69000.0    460.0      0.0      output = []
+   808       150      45000.0    300.0      0.0      output_tokens = []
+   809                                           
+   810                                               # equations to do
+   811       450  312875000.0 695277.8      2.3      for num_x in range(num_to_gen):
+   812                                               # for num_x in range(actual_num_x):
+   813       300    1190000.0   3966.7      0.0          embeddings_stacks = [[] for _ in range(batch_size)]
+   814       300     277000.0    923.3      0.0          left_childs = [None for _ in range(batch_size)]
+   815       300    8887000.0  29623.3      0.1          node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in qs.transpose(0,1)[num_x]]
+   816                                                   # beans for the equation
+   817       300    4760000.0  15866.7      0.0          beams = [TreeBeam(0.0, node_stacks, embeddings_stacks, left_childs, [])]
+   818      1020     569000.0    557.8      0.0          for t in range(max_length):
+   819       900   98466000.0 109406.7      0.7              current_beams = []
+   820      4200    2333000.0    555.5      0.0              while len(beams) > 0:
+   821      3300    7475000.0   2265.2      0.1                  b = beams.pop()
+   822      3300    1942000.0    588.5      0.0                  if len(b.node_stack[0]) == 0:
+   823       524     133000.0    253.8      0.0                      current_beams.append(b)
+   824       524      56000.0    106.9      0.0                      continue
+   825                                                           # left_childs = torch.stack(b.left_childs)
+   826      2776     534000.0    192.4      0.0                  left_childs = b.left_childs
+   827                                           
+   828      2776 3810399000.0    1e+06     27.9                  num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, seq_mask, None, None, all_vars_embs)
+   829                                           
+   830                                                           # leaf = p_leaf[:, 0].unsqueeze(1)
+   831                                                           # repeat_dims = [1] * leaf.dim()
+   832                                                           # repeat_dims[1] = op.size(1)
+   833                                                           # leaf = leaf.repeat(*repeat_dims)
+   834                                                           #
+   835                                                           # non_leaf = p_leaf[:, 1].unsqueeze(1)
+   836                                                           # repeat_dims = [1] * non_leaf.dim()
+   837                                                           # repeat_dims[1] = num_score.size(1)
+   838                                                           # non_leaf = non_leaf.repeat(*repeat_dims)
+   839                                                           #
+   840                                                           # p_leaf = torch.cat((leaf, non_leaf), dim=1)
+   841      2776   47962000.0  17277.4      0.4                  out_score = nn.functional.log_softmax(torch.cat((op, num_score), dim=1), dim=1)
+   842                                           
+   843                                                           # out_score = p_leaf * out_score
+   844                                           
+   845                                                           # topv:
+   846                                                           #   largest elements in the out_score
+   847                                                           # topi:
+   848                                                           #   indexes of the largest elements 
+   849      2776   30933000.0  11143.0      0.2                  topv, topi = out_score.topk(beam_size)
+   850                                           
+   851                                                           # is_leaf = int(topi[0])
+   852                                                           # if is_leaf:
+   853                                                           #     topv, topi = op.topk(1)
+   854                                                           #     out_token = int(topi[0])
+   855                                                           # else:
+   856                                                           #     topv, topi = num_score.topk(1)
+   857                                                           #     out_token = int(topi[0]) + num_start
+   858                                           
+   859                                                           # for the largest element, and its index
+   860     16656  168070000.0  10090.7      1.2                  for tv, ti in zip(topv.split(1, dim=1), topi.split(1, dim=1)):
+   861     13880   30411000.0   2191.0      0.2                      current_node_stack = copy_list(b.node_stack)
+   862     13880    2721000.0    196.0      0.0                      current_left_childs = []
+   863     13880   21488000.0   1548.1      0.2                      current_embeddings_stacks = copy_list(b.embedding_stack)
+   864     13880   72326000.0   5210.8      0.5                      current_out = copy.deepcopy(b.out)
+   865                                           
+   866                                                               # the predicted token is that of the highest score relation
+   867     13880   20189000.0   1454.5      0.1                      out_token = int(ti)
+   868                                                               # save token 
+   869     13880    3418000.0    246.3      0.0                      current_out.append(out_token)
+   870                                           
+   871     13880   12139000.0    874.6      0.1                      node = current_node_stack[0].pop()
+   872                                           
+   873                                                               # if the predicted token is an operator
+   874     13880    2589000.0    186.5      0.0                      if out_token < num_start:
+   875                                                                   # this is the token to generate l and r from
+   876      7096   37153000.0   5235.8      0.3                          generate_input = torch.LongTensor([out_token])
+   877      7096    1402000.0    197.6      0.0                          if USE_CUDA:
+   878                                                                       generate_input = generate_input.cuda()
+   879                                                                   # get the left and right children and current label
+   880      7096 2163121000.0 304836.7     15.8                          left_child, right_child, node_label = generate(current_embeddings, generate_input, current_context)
+   881                                           
+   882      7096   13290000.0   1872.9      0.1                          current_node_stack[0].append(TreeNode(right_child))
+   883      7096    6634000.0    934.9      0.0                          current_node_stack[0].append(TreeNode(left_child, left_flag=True))
+   884                                           
+   885      7096   51493000.0   7256.6      0.4                          current_embeddings_stacks[0].append(TreeEmbedding(node_label[0].unsqueeze(0), False))
+   886                                                               else:
+   887                                                                   # predicted token is a number
+   888                                                                   # get the token embedding - embedding of either the generate num or copy num
+   889      6784   48044000.0   7082.0      0.4                          current_num = current_nums_embeddings[0, out_token - num_start].unsqueeze(0)
+   890                                                                   
+   891                                                                   # if we are a right node (there is a left node and operator)
+   892     10084    5232000.0    518.8      0.0                          while len(current_embeddings_stacks[0]) > 0 and current_embeddings_stacks[0][-1].terminal:
+   893      3300    1773000.0    537.3      0.0                              sub_stree = current_embeddings_stacks[0].pop()
+   894      3300    1218000.0    369.1      0.0                              op = current_embeddings_stacks[0].pop()
+   895      3300  414481000.0 125600.3      3.0                              current_num = merge(op.embedding, sub_stree.embedding, current_num)
+   896                                                                   # save node (or subtree) to the embeddings list
+   897      6784    7375000.0   1087.1      0.1                          current_embeddings_stacks[0].append(TreeEmbedding(current_num, True))
+   898     13880    7232000.0    521.0      0.1                      if len(current_embeddings_stacks[0]) > 0 and current_embeddings_stacks[0][-1].terminal:
+   899      6784   10838000.0   1597.6      0.1                          current_left_childs.append(current_embeddings_stacks[0][-1].embedding)
+   900                                                               else:
+   901      7096    2261000.0    318.6      0.0                          current_left_childs.append(None)
+   902                                                               # the beam "score" is the sum of the associations 
+   903     13880  180287000.0  12989.0      1.3                      current_beams.append(TreeBeam(b.score+float(tv), current_node_stack, current_embeddings_stacks,current_left_childs, current_out))
+   904                                                       # order beam by highest to lowest
+   905       900    6772000.0   7524.4      0.0              beams = sorted(current_beams, key=lambda x: x.score, reverse=True)
+   906       900     986000.0   1095.6      0.0              beams = beams[:beam_size]
+   907       900     145000.0    161.1      0.0              flag = True
+   908      5400    1565000.0    289.8      0.0              for b in beams:
+   909      4500    1381000.0    306.9      0.0                  if len(b.node_stack[0]) != 0:
+   910      3076     349000.0    113.5      0.0                      flag = False
+   911       900     380000.0    422.2      0.0              if flag:
+   912       180      51000.0    283.3      0.0                  break
+   913       300    3670000.0  12233.3      0.0          top_beam = beams[0]
+   914                                                   # predict equation = 
+   915       300  402818000.0    1e+06      2.9          num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(top_beam.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, seq_mask, None, None, all_vars_embs)
+   916       300   14539000.0  48463.3      0.1          token_options = torch.cat((op, num_score), dim=1)
+   917       300    4495000.0  14983.3      0.0          pred_token = output_lang.index2word[int(torch.argmax(token_options).item())]
+   918                                           
+   919       300     283000.0    943.3      0.0          output.append(beams[0].out)
+   920       300     245000.0    816.7      0.0          output_tokens.append(pred_token)
+   921                                           
+   922                                                   # num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, seq_mask, None, None, all_vars_embs)
+   923       150      38000.0    253.3      0.0      return output, output_tokens
+
+  5.00 seconds - /Users/home/school/thesis/math_seq2tree/src/train_and_evaluate.py:254 - train_tree
+ 13.68 seconds - /Users/home/school/thesis/math_seq2tree/src/train_and_evaluate.py:717 - evaluate_tree

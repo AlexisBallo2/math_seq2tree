@@ -1,5 +1,6 @@
 # coding: utf-8
 
+# import line_profiler
 from src.masked_cross_entropy import *
 from src.pre_data import *
 from src.expressions_transfer import *
@@ -250,6 +251,7 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
 
 
+# @line_profiler.profile
 def train_tree(input_batch, input_length, target_batch, target_mask, target_length, target_equation_sonls, nums_stack_batch, num_size_batch, var_tokens_batch, solution_batch, generate_nums, encoder, num_x_predict, x_generate, x_to_q, predict, generate, merge, encoder_optimizer, num_x_predict_optimizer, x_generate_optimizer, x_to_q_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos, all_vars, english=False):
 
     # input_batch: padded inputs
@@ -712,7 +714,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
 
     return loss.item(), same/lengths
 
-
+# @line_profiler.profile
 def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, generate, x_generate, x_to_q, num_x_predict, merge, output_lang, num_pos, actual_num_x, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
 
     # seq_mask = torch.ByteTensor(1, input_length).fill_(0)
@@ -806,8 +808,8 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
     output_tokens = []
 
     # equations to do
-    for num_x in range(num_to_gen):
-    # for num_x in range(actual_num_x):
+    # for num_x in range(num_to_gen):
+    for num_x in range(actual_num_x):
         embeddings_stacks = [[] for _ in range(batch_size)]
         left_childs = [None for _ in range(batch_size)]
         node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in qs.transpose(0,1)[num_x]]

@@ -8,17 +8,15 @@ import time
 import torch.optim
 from src.expressions_transfer import *
 
-## ada
-batch_size = 64
-n_epochs = 80
-local = False
+# local = False
+local = True 
 
-
-## local
-# batch_size = 10 
-# n_epochs = 5 
-# local = True
-
+if local:
+    batch_size = 10 
+    n_epochs = 5 
+else:
+    batch_size = 64
+    n_epochs = 80
 # batch_size = 1 
 # batch_size = 64
 embedding_size = 128
@@ -36,7 +34,7 @@ setName = "DRAW"
 if setName == "MATH":
     data = load_MATH23k_data("data/Math_23K.json")
 else:
-    data = load_DRAW_data("data/DRAW/draw.json")
+    data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # data = load_DRAW_data("data/DRAW/single.json")
