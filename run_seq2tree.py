@@ -17,7 +17,7 @@ if local:
     n_epochs = 20
 else:
     batch_size = 64
-    n_epochs = 20
+    n_epochs = 40
 # batch_size = 1 
 # batch_size = 64
 embedding_size = 128
