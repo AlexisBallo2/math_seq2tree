@@ -9,14 +9,14 @@ import torch.optim
 from src.expressions_transfer import *
 
 # local = False
-local = True 
+local = False 
 
 if local:
     batch_size = 10 
     n_epochs = 5 
 else:
     batch_size = 64
-    n_epochs = 80
+    n_epochs = 20
 # batch_size = 1 
 # batch_size = 64
 embedding_size = 128
@@ -327,8 +327,8 @@ for fold in range(num_folds):
         test_time_per_all.append(time_per)
 
     print('epoch' , epoch, 'fold', fold, 'train time per token', sum(train_time_per_all) / len(train_time_per_all))
-    print("TRAIN TIMES", train_time_per_all)
-    print("TEST TIMES", test_time_per_all)
+    # print("TRAIN TIMES", train_time_per_all)
+    # print("TEST TIMES", test_time_per_all)
     print('epoch', epoch, 'fold', fold, 'infrence time per token', sum(test_time_per_all) / len(test_time_per_all))
     break
 

@@ -430,7 +430,15 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
         # node just has embedding and a left flag? 
         tempSplit = problem_output.split(1, dim=0)
         # problem_output is q_0 for each token in equation, so use last one
-        node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in qs.transpose(0,1)[equation_count]]
+        # qs = batch_size x equation_count x hidden_dim
+        # transpost to: first equation: batch_size x hidden_dim
+        # the section off each batch's hidden vector
+        # for now only replace the first one
+        if equation_count == 0:
+            node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in problem_output]
+        else:
+            node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in qs.transpose(0,1)[equation_count]]
+
         
         for t in range(max_target_length):
 
