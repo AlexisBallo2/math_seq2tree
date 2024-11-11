@@ -821,7 +821,11 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
     for num_x in range(actual_num_x):
         embeddings_stacks = [[] for _ in range(batch_size)]
         left_childs = [None for _ in range(batch_size)]
-        node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in qs.transpose(0,1)[num_x]]
+
+        if num_x == 0:
+            node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in problem_output]
+        else:
+            node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in qs.transpose(0,1)[num_x]]
         # beans for the equation
         beams = [TreeBeam(0.0, node_stacks, embeddings_stacks, left_childs, [])]
         for t in range(max_length):
