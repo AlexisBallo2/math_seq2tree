@@ -1,6 +1,4 @@
 # coding: utf-8
-import line_profiler
-
 from numpy import append
 from pyparsing import nums
 from sympy import N
@@ -277,7 +275,7 @@ class Prediction(nn.Module):
         self.attn = TreeAttn(hidden_size, hidden_size)
         self.score = Score(hidden_size * 2, hidden_size)
 
-    @line_profiler.profile  
+    # @line_profiler.profile  
     def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, seq_mask, mask_nums, var_mask, xs):
         # node_stacks: [TreeNodes] for each node containing the hidden state for the node
         # left_childs: [] of 
