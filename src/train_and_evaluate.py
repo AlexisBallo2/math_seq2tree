@@ -434,10 +434,10 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
         # transpost to: first equation: batch_size x hidden_dim
         # the section off each batch's hidden vector
         # for now only replace the first one
-        if equation_count == 0:
-            node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in problem_output]
-        else:
-            node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in qs.transpose(0,1)[equation_count]]
+        # if equation_count == 0:
+        #     node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in problem_output]
+        # else:
+        node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in qs.transpose(0,1)[equation_count]]
 
         
         for t in range(max_target_length):
@@ -822,10 +822,10 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
         embeddings_stacks = [[] for _ in range(batch_size)]
         left_childs = [None for _ in range(batch_size)]
 
-        if num_x == 0:
-            node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in problem_output]
-        else:
-            node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in qs.transpose(0,1)[num_x]]
+        # if num_x == 0:
+        #     node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in problem_output]
+        # else:
+        node_stacks = [[TreeNode(_.unsqueeze(0))] for _ in qs.transpose(0,1)[num_x]]
         # beans for the equation
         beams = [TreeBeam(0.0, node_stacks, embeddings_stacks, left_childs, [])]
         for t in range(max_length):

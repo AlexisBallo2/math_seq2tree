@@ -107,6 +107,10 @@ def load_DRAW_data(filename):  # load the json data to list(dict()) for MATH 23K
     print("Reading file...")
     f = open(filename, encoding="utf-8")
     data = json.loads(f.read())
+    finalData = []
+    for ele in data:
+        if len(ele['lEquations']) == 1:
+            finalData.append(ele)
     return data
 
 def load_MATH23k_data(filename):  # load the json data to list(dict()) for MATH 23K

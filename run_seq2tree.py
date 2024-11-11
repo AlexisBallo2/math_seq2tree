@@ -2,18 +2,19 @@
 import os
 from re import I
 
+from src.post.loss_graph import make_loss_graph
 from src.train_and_evaluate import *
 from src.models import *
 import time
 import torch.optim
 from src.expressions_transfer import *
 
-# local = False
+# local = True 
 local = False 
 
 if local:
     batch_size = 10 
-    n_epochs = 5 
+    n_epochs = 20
 else:
     batch_size = 64
     n_epochs = 20
@@ -33,6 +34,7 @@ setName = "DRAW"
 # setName = "MATH"
 if setName == "MATH":
     data = load_MATH23k_data("data/Math_23K.json")
+    data = data[0:1000]
 else:
     data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
 
@@ -316,6 +318,12 @@ for fold in range(num_folds):
     print('FOLD OUTPUT', fold_loss)
     print('FOLD TRAIN ACC', fold_train_accuracy)
     print('FOLD EVAL ACC', fold_eval_accuracy)
+    make_loss_graph(
+        [fold_train_accuracy, fold_eval_accuracy], 
+        ['Train', "Eval"],
+        f"src/post/accuracy-{time.time()}-{fold}.png", "Accuracy",
+        "Epoch", "Accuracy By Epoch"
+        )
     train_time_per_all = []
     test_time_per_all = []
     for length, runtime in train_time_array:
