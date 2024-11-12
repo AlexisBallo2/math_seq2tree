@@ -22,6 +22,8 @@ class Lang:
 
     def add_sen_to_vocab(self, sentence):  # add words of sentence to vocab
         for word in sentence:
+            if word == "^":
+                print()
             if re.search("N\d+|NUM|\d+", word):
                 continue
             if word not in self.index2word:
@@ -692,6 +694,8 @@ def transfer_roth_num(data):  # transfer num into "NUM"
 def indexes_from_sentence(lang, sentence, tree=False):
     res = []
     for word in sentence:
+        if word == "UNK":
+            print()
         if len(word) == 0:
             continue
         if word in lang.word2index:

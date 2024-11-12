@@ -1,4 +1,5 @@
 # coding: utf-8
+import line_profiler
 
 from src.masked_cross_entropy import *
 from src.pre_data import *
@@ -43,11 +44,16 @@ def generate_tree_input(target, decoder_output, nums_stack_batch, num_start, unk
     target_input = copy.deepcopy(target)
     # for the token at that position in each batch
     for i in range(len(target)):
+        # if not sure what token it is
         if target[i] == unk:
+            # get the numbers that coorespond to the token
             num_stack = nums_stack_batch[i].pop()
             max_score = -float("1e12")
+            # for each cooresponding number
             for num in num_stack:
+                # if the score of the number is higher than the max score
                 if decoder_output[i, num_start + num] > max_score:
+                    # set the target to the number
                     target[i] = num + num_start
                     max_score = decoder_output[i, num_start + num]
         # if the token is NOT an operator, hide it 
@@ -248,7 +254,7 @@ class TreeEmbedding:  # the class save the tree
         self.embedding = embedding
         self.terminal = terminal
 
-
+@line_profiler.profile
 def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, generate_nums,
                encoder, predict, generate, merge, encoder_optimizer, predict_optimizer, generate_optimizer,
                merge_optimizer, output_lang, num_pos, english=False):
@@ -469,8 +475,18 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         all_node_outputs2 = all_node_outputs2.cuda()
         target = target.cuda()
 
+    # for batch in target:
+    #     print([output_lang.index2word[_] for _ in batch])
     #print('done equation')
     loss = masked_cross_entropy(all_node_outputs2, target, target_length)
+    same = 0
+    lengths = 0
+    for i, batch in enumerate(all_node_outputs2):
+        for j, probs in enumerate(batch):
+            max_val = torch.argmax(probs)
+            lengths += 1
+            if max_val == target[i][j]:
+                same += 1
     loss.backward()
 
     # Update parameters with optimizers
@@ -478,9 +494,9 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     predict_optimizer.step()
     generate_optimizer.step()
     merge_optimizer.step()
-    return loss.item() 
+    return loss.item(), same/lengths 
 
-
+@line_profiler.profile
 def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, generate, merge, output_lang, num_pos,
                   beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
 

@@ -1,4 +1,5 @@
 # coding: utf-8
+import line_profiler
 
 import torch
 import torch.nn as nn
@@ -163,10 +164,10 @@ class TreeAttn(nn.Module):
 
         repeat_dims = [1] * hidden.dim()
         repeat_dims[0] = max_len
-        hidden = hidden.repeat(*repeat_dims)  # S x B x H
+        hidden2 = hidden.repeat(*repeat_dims)  # S x B x H
         this_batch_size = encoder_outputs.size(1)
 
-        energy_in = torch.cat((hidden, encoder_outputs), 2).view(-1, self.input_size + self.hidden_size)
+        energy_in = torch.cat((hidden2, encoder_outputs), 2).view(-1, self.input_size + self.hidden_size)
 
         score_feature = torch.tanh(self.attn(energy_in))
         attn_energies = self.score(score_feature)  # (S x B) x 1
@@ -264,6 +265,7 @@ class Prediction(nn.Module):
         self.attn = TreeAttn(hidden_size, hidden_size)
         self.score = Score(hidden_size * 2, hidden_size)
 
+    @line_profiler.profile  
     def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, seq_mask, mask_nums):
         # node_stacks: [TreeNodes] for each node containing the hidden state for the node
         # left_childs: [] of 
