@@ -9,15 +9,15 @@ import time
 import torch.optim
 from src.expressions_transfer import *
 
-local = True 
-# local = False 
+# local = True 
+local = False 
 
 if local:
     batch_size = 10 
     n_epochs = 20
 else:
     batch_size = 64
-    n_epochs = 40
+    n_epochs = 20
 # batch_size = 1 
 # batch_size = 64
 embedding_size = 128
