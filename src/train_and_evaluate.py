@@ -1,6 +1,7 @@
 # coding: utf-8
 
 # import line_profiler
+from typing import final
 from src.masked_cross_entropy import *
 from src.pre_data import *
 from src.expressions_transfer import *
@@ -389,11 +390,13 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     # number mask 
     # 0s where the numbers are from input, 1s where not in input
     num_mask = []
-    max_num_size = max(num_size_batch) + len(generate_nums) 
+    max_num_size = max(num_size_batch) + len(generate_nums) + len(all_vars)
+    # max_num_size = max(num_size_batch) + len(generate_nums) 
     for i in num_size_batch:
         d = i + len(generate_nums) 
         num_mask.append([0] * d + [1] * (max_num_size - d))
-    num_mask = torch.ByteTensor(num_mask)
+    # num_mask = torch.ByteTensor(num_mask)
+    num_mask = None
     
     # for each batch, if there are variables in output lang [x,y,z] but group only has [x,y], mask would be [0,0,1]
     var_mask = []
@@ -401,16 +404,26 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
     # var_list = [output_lang.variables for _ in target_batch]
     # for each equation group
     for i, equ_group in enumerate(target_batch):
-        group_var_mask = []
+        # group_var_mask = []
+        # mask the gen nums first
+        d = len(generate_nums) 
+        group_mask = [0] * d 
         unique_in_equation = [output_lang.index2word[i] for i in list(set([el for arr in equ_group for el in arr]))]
         for var in output_lang.variables:
             # decoded = output_lang.index2word[var]
             if var in unique_in_equation:
-                group_var_mask.append(0)
+                # then the variables 
+                group_mask += [0]
+                # group_var_mask.append(0)
             else:
-                group_var_mask.append(1)
-        var_mask.append(group_var_mask)
-    var_mask = torch.ByteTensor(var_mask)
+                group_mask += [1]
+                # group_var_mask.append(1)
+        # then the numbers
+        group_mask += [0] * num_size_batch[i]
+        group_mask += [1] * (max_num_size - len(group_mask))
+
+        # var_mask.append(group_var_mask)
+    var_mask = torch.ByteTensor(group_mask)
     addedQs = len(qs)
     # make sure to note that the updated encoder has the x vectors
 
@@ -681,7 +694,7 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
             for token in batch:
                 eqn_preds.append(output_lang.index2word[torch.argmax(token).item()])
             print(f"    batch {j}, equation {i}" )
-            print(f"        prkediction: {eqn_preds[0:target_length[j][i]]}")
+            print(f"        prediction: {eqn_preds[0:target_length[j][i]]}")
             print(f"        actual: {target_tokens[j][0:target_length[j][i]]}")
             for k in range(len(eqn_preds[0:target_length[j][i]])):
                 if eqn_preds[0:target_length[j][i]][k] == target_tokens[j][0:target_length[j][i]][k]:
@@ -690,9 +703,17 @@ def train_tree(input_batch, input_length, target_batch, target_mask, target_leng
             # print(f'{same} so far')
         # preds_flattened = predictions.view(-1, predictions.size(-1))
         preds_flattened = pred_distribution.view(-1, predictions.size(-1))
+        locs = target_flattened == unk
+        final_targets = []
+        for i in target_flattened:
+            if i == unk:
+                final_targets.append(0)
+            else: 
+                final_targets.append(i)
+        final_targets = torch.LongTensor(final_targets)
+        # target_flattened.masked_fill_(locs, 0)
 
-        tempLoss = torch.nn.CrossEntropyLoss(reduction='none')(preds_flattened, target_flattened.to(device))
-        # print('tempLoss', tempLoss)
+        tempLoss = torch.nn.CrossEntropyLoss(reduction='none')(preds_flattened, final_targets.to(device))#.masked_fill_(locs, 0)
         # reshape loss:
         tempLoss2 = tempLoss.view(equation_target.size(0), equation_target.size(1))
         # apply mask to loss

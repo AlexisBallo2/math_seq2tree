@@ -23,8 +23,9 @@ class Lang:
 
     def add_sen_to_vocab(self, sentence, equationVars = None):  # add words of sentence to vocab
         for word in sentence:
+            if word == "X":
+                print()
             if re.search("N\d+|NUM|\d+", word):
-                print('here with word', word)
                 continue
             if word not in self.index2word:
                 # not sure why we are getting here
@@ -107,10 +108,10 @@ def load_DRAW_data(filename):  # load the json data to list(dict()) for MATH 23K
     print("Reading file...")
     f = open(filename, encoding="utf-8")
     data = json.loads(f.read())
-    finalData = []
-    for ele in data:
-        if len(ele['lEquations']) == 1:
-            finalData.append(ele)
+    # finalData = []
+    # for ele in data:
+    #     if len(ele['lEquations']) == 1:
+    #         finalData.append(ele)
     return data
 
 def load_MATH23k_data(filename):  # load the json data to list(dict()) for MATH 23K
@@ -474,7 +475,11 @@ def transfer_num(data, setName):  # transfer num into "NUM"
                 res.append(ss)
             return res
 
-        allVars = []
+        if setName == "MATH":
+            allVars = ["X"]
+            # allVars = []
+        else:
+            allVars = []
         allVarsMappings = []
         for eq in equations:
             matches = re.findall(varPattern, eq)
@@ -535,7 +540,7 @@ def transfer_num(data, setName):  # transfer num into "NUM"
         final_out_seq_list = []
         equationTargetVars = []
         if setName == "MATH":
-            equationTargetVars = ['x']
+            equationTargetVars = ['X']
             final_out_seq_list = out_seq_list
         else:
             for outputEquation in out_seq_list:
@@ -555,11 +560,13 @@ def transfer_num(data, setName):  # transfer num into "NUM"
     temp_g = []
     for g in generate_nums:
         # only keep generated numbers if they are common in the text
-        # if generate_nums_dict[g] >= 5:
-        #     temp_g.append(g)
-        # TODO - handle UNK
-        if generate_nums_dict[g] >= 0:
+        # if setName == "MATH":
+        if generate_nums_dict[g] >= 5:
             temp_g.append(g)
+        # else:
+        #     # TODO - handle UNK
+        #     if generate_nums_dict[g] >= 0:
+        #         temp_g.append(g)
 
     # copy_nums: max length of numbers
     return pairs, temp_g, copy_nums, list(set(all_vars_total))
@@ -870,7 +877,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
 
     # # get all variables in the equations
     uniqueVars = list(set(allVars))
-    output_lang.add_sen_to_vocab(uniqueVars)
+    # output_lang.add_sen_to_vocab(uniqueVars)
     
     # this is hard coded at 5
     # cuts off words that appear less than 5 times 
@@ -928,6 +935,8 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         #   nums: numbers from the input text
         #   loc nums: where nums are in the text
         #   [[] of where each token in the equation is found in the nums array]
+        #   result of the equation
+        #   list of variables in the equation
         # DRAW1k has some funky occurances of numbers. Need better tokenization. 
         # for now, lets just drop those examples
         if input_cell != False and False not in output_cells:

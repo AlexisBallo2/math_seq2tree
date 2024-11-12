@@ -9,8 +9,8 @@ import time
 import torch.optim
 from src.expressions_transfer import *
 
-# local = True 
-local = False 
+local = True 
+# local = False 
 
 if local:
     batch_size = 10 

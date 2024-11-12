@@ -151,9 +151,9 @@ class Score(nn.Module):
         score = score.squeeze(1)
         score = score.view(this_batch_size, -1)  # B x O
         # need to add the variable masking here
-        if var_mask is not None and num_mask is not None:
-            num_mask_combined = torch.cat((num_mask, var_mask), 1)
-            score = score.masked_fill_(num_mask_combined.bool().to(device), 0)
+        if var_mask is not None:
+            # num_mask_combined = torch.cat((num_mask, var_mask), 1)
+            score = score.masked_fill_(var_mask.bool().to(device), 0)
             # score = score.masked_fill_(num_mask_combined.bool(), -1e12)
         elif num_mask is not None:
             score = score.masked_fill_(num_mask.bool().to(device), 0)
