@@ -32,7 +32,6 @@ data = load_raw_data("data/Math_23K.json")
 # }'
 
 pairs, generate_nums, copy_nums = transfer_num(data)
-# pairs, generate_nums, copy_nums = transfer_english_num(data)
 pairs = pairs[0:1000]
 # pairs: list of tuples:
 #   input_seq: masked text
@@ -62,6 +61,12 @@ best_acc_fold = []
 
 all_train_accuracys = []
 all_eval_accuracys = []
+
+total_training_time = 0
+total_inference_time = 0
+
+train_time_array = []
+test_time_array = []
 
 for fold in range(num_folds):
     pairs_tested = []
@@ -136,15 +141,19 @@ for fold in range(num_folds):
         train_accuracys = []
         start = time.time()
         for idx in range(len(input_lengths)):
+            input_batch_len = len(input_batches[idx])
+            start = time.perf_counter()
             loss, acc = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], generate_num_ids, encoder, predict, generate, merge,
                 encoder_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos_batches[idx])
+            end = time.perf_counter()
+            train_time_array.append([input_batch_len,end - start])
             loss_total += loss
             train_accuracys.append(acc)
 
         print("loss:", loss_total / len(input_lengths))
-        print("training time", time_since(time.time() - start))
+        # print("training time", time_since(time.time() - start))
         print("--------------------------------")
         fold_train_accuracy.append(sum(train_accuracys) / len(train_accuracys))
         # if epoch % 10 == 0 or epoch > n_epochs - 5:
@@ -156,8 +165,11 @@ for fold in range(num_folds):
             start = time.time()
             # print('test pairs', test_pairs)
             for test_batch in test_pairs:
+                start = time.perf_counter()
                 test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, encoder, predict, generate,
                                          merge, output_lang, test_batch[5], beam_size=beam_size)
+                end = time.perf_counter()
+                test_time_array.append([1, end - start])
                 # print('test res', test_res)
                 # for i in test_res:
                 #     print('i', i)
@@ -165,6 +177,7 @@ for fold in range(num_folds):
                 #     #     print('j', j)
                 #     print(output_lang.index2word(i))
                 # print('test result', [output_lang.index2word(i) for i in test_res ])
+                # test_time_array.append({"length": input_batch_len, "time": end - start})
                 val_ac, equ_ac, test, tar = compute_prefix_tree_result(test_res, test_batch[2], output_lang, test_batch[4], test_batch[6])
                 # print('test', test)
                 # print('tar', tar)
@@ -193,10 +206,23 @@ for fold in range(num_folds):
                 if equ_ac:
                     equation_ac += 1
                 eval_total += 1
+
+            actual = [output_lang.index2word[i] for i in test_batch[2]]
+            predicted = [output_lang.index2word[i] for i in test_res]
+            same = 0
+            print(len(actual), len(predicted))
+            for i in range(min(len(actual), len(predicted))):
+                if actual[i] == predicted[i]:
+                    same += 1
+            print("actual     " , actual)
+            print("predicted  ", predicted)
+            print('same:', same, (2*same)/(len(actual) + len(predicted)))
+
+            print("\n")
             print(equation_ac, value_ac, eval_total)
             fold_eval_accuracy.append(sum(eval_accuracys) / len(eval_accuracys))
             print("test_answer_acc", float(equation_ac) / eval_total, float(value_ac) / eval_total)
-            print("testing time", time_since(time.time() - start))
+            # print("testing time", time_since(time.time() - start))
             print("------------------------------------------------------")
             torch.save(encoder.state_dict(), "models/encoder")
             torch.save(predict.state_dict(), "models/predict")
@@ -216,4 +242,19 @@ for bl in range(len(best_acc_fold)):
     b += best_acc_fold[bl][1]
     c += best_acc_fold[bl][2]
     print(best_acc_fold[bl])
-# print(a / float(c), b / float(c))
+print(a / float(c), b / float(c))
+
+
+train_time_per_all = []
+test_time_per_all = []
+for length, runtime in train_time_array:
+    time_per = runtime / length
+    train_time_per_all.append(time_per)
+
+for length, runtime in test_time_array:
+    time_per = runtime / length
+    test_time_per_all.append(time_per)
+
+print('train time per token', sum(train_time_per_all) / len(train_time_per_all))
+print('infrence time per token', sum(test_time_per_all) / len(test_time_per_all))
+
