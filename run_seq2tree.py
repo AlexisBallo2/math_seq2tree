@@ -30,8 +30,8 @@ beam_size = 5
 n_layers = 2
 
 os.makedirs("models", exist_ok=True)
-setName = "DRAW"
-# setName = "MATH"
+# setName = "DRAW"
+setName = "MATH"
 if setName == "MATH":
     data = load_MATH23k_data("data/Math_23K.json")
     data = data[0:1000]
