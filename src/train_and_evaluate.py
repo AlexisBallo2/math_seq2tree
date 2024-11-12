@@ -1,5 +1,5 @@
 # coding: utf-8
-import line_profiler
+# import line_profiler
 
 from src.masked_cross_entropy import *
 from src.pre_data import *
@@ -254,7 +254,7 @@ class TreeEmbedding:  # the class save the tree
         self.embedding = embedding
         self.terminal = terminal
 
-@line_profiler.profile
+# @line_profiler.profile
 def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, generate_nums,
                encoder, predict, generate, merge, encoder_optimizer, predict_optimizer, generate_optimizer,
                merge_optimizer, output_lang, num_pos, english=False):
@@ -496,7 +496,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     merge_optimizer.step()
     return loss.item(), same/lengths 
 
-@line_profiler.profile
+# @line_profiler.profile
 def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, generate, merge, output_lang, num_pos,
                   beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
 
