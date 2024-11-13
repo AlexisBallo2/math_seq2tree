@@ -320,6 +320,9 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         # select the first equations in each obs
         ith_equation_target = target[:, i, :].transpose(0,1)
         ith_equation_target_lengths = torch.Tensor(target_length)[:, i]
+        ith_equation_num_stacks = []
+        for stack in nums_stack_batch:
+            ith_equation_num_stacks.append(stack[i])
         # print()
 
 
@@ -389,7 +392,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             #   for position t in each equation
             #       target_t: actual equation value
             #       generate_input: equation value if its an operator
-            target_t, generate_input = generate_tree_input(ith_equation_target[t].tolist(), outputs, nums_stack_batch, num_start, unk)
+            target_t, generate_input = generate_tree_input(ith_equation_target[t].tolist(), outputs, ith_equation_num_stacks, num_start, unk)
             ith_equation_target[t] = target_t
             if USE_CUDA:
                 generate_input = generate_input.cuda()
