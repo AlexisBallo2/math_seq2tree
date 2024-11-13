@@ -273,6 +273,45 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     input_var = torch.LongTensor(input_batch).transpose(0, 1)
     target = torch.LongTensor(target_batch)#.transpose(0, 1)
 
+    # sequence mask for attention
+    # 0s where in input, 1s where not in input
+    seq_mask = []
+    max_len = max(input_length)
+    for i in input_length:
+        seq_mask.append([0 for _ in range(i)] + [1 for _ in range(i, max_len)])
+    seq_mask = torch.ByteTensor(seq_mask)
+
+    # number mask 
+    # 0s where the numbers are from input, 1s where not in input
+    num_mask = []
+    max_num_size = max(num_size_batch) + len(generate_nums)
+    for i in num_size_batch:
+        d = i + len(generate_nums)
+        num_mask.append([0] * d + [1] * (max_num_size - d))
+    num_mask = torch.ByteTensor(num_mask)
+
+    unk = output_lang.word2index["UNK"]
+
+    # Zero gradients of both optimizers
+    encoder_optimizer.zero_grad()
+    predict_optimizer.zero_grad()
+    generate_optimizer.zero_grad()
+    merge_optimizer.zero_grad()
+
+    encoder.train()
+    predict.train()
+    generate.train()
+    merge.train()
+
+    if USE_CUDA:
+        input_var = input_var.cuda()
+        seq_mask = seq_mask.cuda()
+        padding_hidden = padding_hidden.cuda()
+        num_mask = num_mask.cuda()
+
+    padding_hidden = torch.FloatTensor([0.0 for _ in range(predict.hidden_size)]).unsqueeze(0)
+    batch_size = len(input_length)
+
     total_loss = None
     total_acc = None
     num_equations_per_obs = len(target_batch[0])
@@ -280,62 +319,24 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     for i in range(num_equations_per_obs):
         # select the first equations in each obs
         ith_equation_target = target[:, i, :].transpose(0,1)
+        ith_equation_target_lengths = torch.Tensor(target_length)[:, i]
         # print()
 
-        # sequence mask for attention
-        # 0s where in input, 1s where not in input
-        seq_mask = []
-        max_len = max(input_length)
-        for i in input_length:
-            seq_mask.append([0 for _ in range(i)] + [1 for _ in range(i, max_len)])
-        seq_mask = torch.ByteTensor(seq_mask)
 
-        # number mask 
-        # 0s where the numbers are from input, 1s where not in input
-        num_mask = []
-        max_num_size = max(num_size_batch) + len(generate_nums)
-        for i in num_size_batch:
-            d = i + len(generate_nums)
-            num_mask.append([0] * d + [1] * (max_num_size - d))
-        num_mask = torch.ByteTensor(num_mask)
-
-        unk = output_lang.word2index["UNK"]
-
-
-        padding_hidden = torch.FloatTensor([0.0 for _ in range(predict.hidden_size)]).unsqueeze(0)
-        batch_size = len(input_length)
-
-        encoder.train()
-        predict.train()
-        generate.train()
-        merge.train()
-
-        if USE_CUDA:
-            input_var = input_var.cuda()
-            seq_mask = seq_mask.cuda()
-            padding_hidden = padding_hidden.cuda()
-            num_mask = num_mask.cuda()
-
-        # Zero gradients of both optimizers
-        encoder_optimizer.zero_grad()
-        predict_optimizer.zero_grad()
-        generate_optimizer.zero_grad()
-        merge_optimizer.zero_grad()
         # Run words through encoder
-
         # embedding + dropout layer
         # encoder_outputs: num_batches x 512 q_0 vector
         # problem_output: max_length x num_batches x hidden_size
         encoder_outputs, problem_output = encoder(input_var, input_length)
         # Prepare input and output variables
+
         
         # make a TreeNode for each token
-        # node just has embedding and a left flag? 
-        tempSplit = problem_output.split(1, dim=0)
         # problem_output is q_0 for each token in equation, so use last one
         node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
 
-        max_target_length = max(target_length)
+
+        max_target_length = int(max(ith_equation_target_lengths).item())
 
         all_node_outputs = []
         # all_leafs = []

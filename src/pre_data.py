@@ -937,16 +937,18 @@ def prepare_train_batch(pairs_to_batch, batch_size):
         batch = sorted(batch, key=lambda tp: tp[1], reverse=True)
         input_length = []
         output_length = []
+        max_equ_length = 0
         # for each item in a pair
         for _, i, _, j, _, _, _ in batch:
             # i = length if input in pair
             input_length.append(i)
             # j = length of output in pair
-            output_length.append(max(j))
+            output_length.append(j)
+            max_equ_length = max(max_equ_length, max(j))
         input_lengths.append(input_length)
         output_lengths.append(output_length)
         input_len_max = input_length[0]
-        output_len_max = max(output_length)
+        output_len_max = max_equ_length
         input_batch = []
         output_batch = []
         num_batch = []
