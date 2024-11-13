@@ -2,6 +2,7 @@
 import os
 from src.train_and_evaluate import *
 from src.models import *
+from src.post.loss_graph import *
 import time
 import torch.optim
 from src.expressions_transfer import *
@@ -16,11 +17,11 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-torch.manual_seed(1234)
-random.seed(1234)
+torch.manual_seed(1)
+random.seed(1)
 os.makedirs("models", exist_ok=True)
 data = load_raw_data("data/Math_23K.json")
-data = data[0:10]
+data = data[0:100]
 # data = load_raw_data("data/DRAW/draw.json")
 # data = None
 # with open("data/DRAW/draw.json", "r") as f:
@@ -35,7 +36,7 @@ data = data[0:10]
 # }'
 
 pairs, generate_nums, copy_nums = transfer_num(data)
-pairs = pairs[0:10]
+pairs = pairs[0:100]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
@@ -235,6 +236,12 @@ for fold in range(num_folds):
                 best_acc_fold.append((equation_ac, value_ac, eval_total))
     all_train_accuracys.append(fold_train_accuracy)
     all_eval_accuracys.append(fold_eval_accuracy)
+    make_loss_graph(
+        [fold_train_accuracy, fold_eval_accuracy], 
+        ['Train', "Eval"],
+        f"src/post/accuracy-{time.time()}-{fold}.png", "Accuracy",
+        "Epoch", "Accuracy By Epoch"
+        )
     print('All TRAIN ACC', all_train_accuracys)
     print('ALL EVAL ACC', all_eval_accuracys)
     break 
