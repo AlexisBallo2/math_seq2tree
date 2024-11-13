@@ -2,17 +2,18 @@
 import os
 from src.train_and_evaluate import *
 from src.models import *
+from src.post.loss_graph import *
 import time
 import torch.optim
 from src.expressions_transfer import *
 
 # batch_size = 64
-torch.manual_seed(1234)
-random.seed(1234)
-batch_size = 5
+torch.manual_seed(1)
+random.seed(1)
+batch_size = 10
 embedding_size = 128
 hidden_size = 512
-n_epochs = 20 
+n_epochs = 10 
 learning_rate = 1e-3 
 weight_decay = 1e-5
 beam_size = 5
@@ -20,7 +21,7 @@ n_layers = 2
 
 os.makedirs("models", exist_ok=True)
 data = load_raw_data("data/Math_23K.json")
-data = data[0:50]
+data = data[0:100]
 # data = load_raw_data("data/DRAW/draw.json")
 # data = None
 # with open("data/DRAW/draw.json", "r") as f:
@@ -34,8 +35,8 @@ data = data[0:50]
 # "ans":"80"
 # }'
 
-pairs, generate_nums, copy_nums = transfer_num(data)
-pairs = pairs[0:50]
+pairs, generate_nums, copy_nums, vars = transfer_num(data)
+pairs = pairs[0:100]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
@@ -48,7 +49,7 @@ temp_pairs = []
 for p in pairs:
     # input_seq, prefixed equation, nums, num_pos
     equations = [from_infix_to_prefix(equ) for equ in p[1]]
-    temp_pairs.append((p[0], equations, p[2], p[3]))
+    temp_pairs.append((p[0], equations, p[2], p[3], p[4]))
 pairs = temp_pairs
 
 
@@ -85,7 +86,7 @@ for fold in range(num_folds):
             pairs_trained += fold_pairs[fold_t]
 
     input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums,
-                                                                    copy_nums, tree=True)
+                                                                    copy_nums, vars, tree=True)
     # pair:
     #   input: sentence with all numbers masked as NUM
     #   length of input
@@ -95,12 +96,9 @@ for fold in range(num_folds):
     #   loc nums: where nums are in the text
     #   [[] of where each number in the equation (that is not in the output lang) is found in the nums array]
     # Initialize models
-    encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,
-                         n_layers=n_layers)
-    predict = Prediction(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums),
-                         input_size=len(generate_nums))
-    generate = GenerateNode(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums),
-                            embedding_size=embedding_size)
+    encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,n_layers=n_layers)
+    predict = Prediction(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars), input_size=len(generate_nums))
+    generate = GenerateNode(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars), embedding_size=embedding_size)
     merge = Merge(hidden_size=hidden_size, embedding_size=embedding_size)
     # the embedding layer is  only for generated number embeddings, operators, and paddings
 
@@ -139,7 +137,7 @@ for fold in range(num_folds):
         # num_stack_batches: the corresponding nums lists
         # num_pos_batches: positions of the numbers lists
         # num_size_batches: number of numbers from the input text
-        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches = prepare_train_batch(train_pairs, batch_size)
+        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches = prepare_train_batch(train_pairs, batch_size, vars)
         print("fold:", fold + 1)
         print("epoch:", epoch + 1)
         train_accuracys = []
@@ -149,7 +147,7 @@ for fold in range(num_folds):
             start = time.perf_counter()
             loss, acc = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
-                num_stack_batches[idx], num_size_batches[idx], generate_num_ids, encoder, predict, generate, merge,
+                num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, encoder, predict, generate, merge,
                 encoder_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos_batches[idx])
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
@@ -171,7 +169,7 @@ for fold in range(num_folds):
             for test_batch in test_pairs:
                 start = time.perf_counter()
                 test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, encoder, predict, generate,
-                                         merge, output_lang, test_batch[5], beam_size=beam_size)
+                                         merge, output_lang, test_batch[5], vars, beam_size=beam_size)
                 end = time.perf_counter()
                 test_time_array.append([1, end - start])
                 # print('test res', test_res)
@@ -189,10 +187,11 @@ for fold in range(num_folds):
                 lengths = 0
                 same = 0
                 for equ_count in range(len(test_batch[2])):
+                    equ_length = test_batch[3][equ_count]
                     actual = [output_lang.index2word[i] for i in test_batch[2][equ_count]]
-                    print('actual', actual)
-                    print('preds', [output_lang.index2word[i] for i in test_res[equ_count]])
-                    for token in range(len(actual)):
+                    print('actual', actual[0:equ_length])
+                    print('preds', [output_lang.index2word[i] for i in test_res[equ_count][0:min(equ_length, len(test_res[equ_count]))]])
+                    for token in range(equ_length):
                         lengths += 1
                         token_actual = actual[token]
                         try:
@@ -251,6 +250,12 @@ for fold in range(num_folds):
                 best_acc_fold.append((equation_ac, value_ac, eval_total))
     all_train_accuracys.append(fold_train_accuracy)
     all_eval_accuracys.append(fold_eval_accuracy)
+    make_loss_graph(
+        [fold_train_accuracy, fold_eval_accuracy], 
+        ['Train', "Eval"],
+        f"src/post/accuracy-{time.time()}-{fold}.png", "Accuracy",
+        "Epoch", "Accuracy By Epoch"
+        )
     print('All TRAIN ACC', all_train_accuracys)
     print('ALL EVAL ACC', all_eval_accuracys)
     break 

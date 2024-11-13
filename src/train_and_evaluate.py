@@ -255,9 +255,7 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
 
 # @line_profiler.profile
-def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, generate_nums,
-               encoder, predict, generate, merge, encoder_optimizer, predict_optimizer, generate_optimizer,
-               merge_optimizer, output_lang, num_pos, english=False):
+def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, encoder, predict, generate, merge, encoder_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -268,10 +266,18 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
     # num_pos: positions of the numbers lists
 
-
     # Turn padded arrays into (batch_size x max_len) tensors, transpose into (max_len x batch_size)
     input_var = torch.LongTensor(input_batch).transpose(0, 1)
+    problem_vars = torch.LongTensor(output_var_batches)
     target = torch.LongTensor(target_batch)#.transpose(0, 1)
+
+    num_total_vars = len(problem_vars[0])
+    # generate temp x vectors
+    x_list = []
+    for i in range(len(input_length)):
+        x_list.append(torch.rand(2, 512))
+
+    x_list = torch.stack(x_list)
 
     # sequence mask for attention
     # 0s where in input, 1s where not in input
@@ -284,13 +290,16 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # number mask 
     # 0s where the numbers are from input, 1s where not in input
     num_mask = []
-    max_num_size = max(num_size_batch) + len(generate_nums)
-    for i in num_size_batch:
-        d = i + len(generate_nums)
-        num_mask.append([0] * d + [1] * (max_num_size - d))
+    max_num_size = max(num_size_batch) + len(generate_nums) + num_total_vars
+    # in language its 
+    # operators + gen numbers + vars + copy numbers
+    for i, num_size in enumerate(num_size_batch):
+        d = num_size + num_total_vars + len(generate_nums)
+        num_mask.append([0] * num_size + problem_vars[i].tolist() + [0] * len(generate_nums) + [1] * (max_num_size - d))
     num_mask = torch.ByteTensor(num_mask)
 
     unk = output_lang.word2index["UNK"]
+    padding_hidden = torch.FloatTensor([0.0 for _ in range(predict.hidden_size)]).unsqueeze(0)
 
     # Zero gradients of both optimizers
     encoder_optimizer.zero_grad()
@@ -308,8 +317,6 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         seq_mask = seq_mask.cuda()
         padding_hidden = padding_hidden.cuda()
         num_mask = num_mask.cuda()
-
-    padding_hidden = torch.FloatTensor([0.0 for _ in range(predict.hidden_size)]).unsqueeze(0)
     batch_size = len(input_length)
 
     total_loss = None
@@ -339,7 +346,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
 
 
-        max_target_length = int(max(ith_equation_target_lengths).item())
+        max_target_length = int(max(ith_equation_target_lengths.tolist()))
 
         all_node_outputs = []
         # all_leafs = []
@@ -375,7 +382,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             #       embeddings of the generate and copy numbers
 
             num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(
-                node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, seq_mask, num_mask)
+                node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, x_list, seq_mask, num_mask)
 
 
             # this is mainly what we want to train
@@ -498,21 +505,25 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         lengths = 0
         for i, batch in enumerate(all_node_outputs2):
             vals = []
+            equ_length = int(ith_equation_target_lengths[i].item())
             for j, probs in enumerate(batch):
                 max_val = torch.argmax(probs)
                 vals.append(max_val)
                 lengths += 1
+                if j > equ_length:
+                    break
                 if max_val == ith_equation_target[i][j]:
                     same += 1
-            print(f"        prediction: {[output_lang.index2word[_] for _ in vals]}")
-            print(f"        actual: {[output_lang.index2word[_] for _ in ith_equation_target[i]]}")
+            print(f"        prediction: {[output_lang.index2word[_] for _ in vals[0:equ_length]]}")
+            print(f"        actual: {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
         if total_loss:
             total_loss+=loss
         else:
             total_loss = loss
         if total_acc:
             total_acc+=same/lengths
-        else:total_acc = same/lengths
+        else:
+            total_acc = same/lengths
             
     total_loss.backward()
 
@@ -525,13 +536,12 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
 # @line_profiler.profile
 def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, generate, merge, output_lang, num_pos,
-                  beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
+                  vars, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
 
     seq_mask = torch.ByteTensor(1, input_length).fill_(0)
     # Turn padded arrays into (batch_size x max_len) tensors, transpose into (max_len x batch_size)
     input_var = torch.LongTensor(input_batch).unsqueeze(1)
 
-    num_mask = torch.ByteTensor(1, len(num_pos) + len(generate_nums)).fill_(0)
 
     # Set to not-training mode to disable dropout
     encoder.eval()
@@ -542,13 +552,6 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
     padding_hidden = torch.FloatTensor([0.0 for _ in range(predict.hidden_size)]).unsqueeze(0)
 
     batch_size = 1
-
-    if USE_CUDA:
-        input_var = input_var.cuda()
-        seq_mask = seq_mask.cuda()
-        padding_hidden = padding_hidden.cuda()
-        num_mask = num_mask.cuda()
-    # Run words through encoder
 
     encoder_outputs, problem_output = encoder(input_var, [input_length])
 
@@ -567,6 +570,30 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
     # key is how the beams are compared
     beams = [TreeBeam(0.0, node_stacks, embeddings_stacks, left_childs, [])]
 
+    # predict number of xs
+    num_x = 1
+    # make random x vectors
+    x_list = []
+    x_list.append(torch.rand(2, 512))
+    # # fill other as zero
+    # x_list.append(torch.zeros(512))
+    x_list = torch.stack(x_list)
+
+    # num_mask = torch.ByteTensor(1, len(num_pos) + len(generate_nums)).fill_(0)
+    num_mask = []
+    # max_num_size = num_pos + len(generate_nums) + len(vars) 
+    # in language its 
+    # operators + gen numbers + vars + copy numbers
+    num_mask.append([0] * num_size + [0] * num_x + [1] * (len(vars) - num_x) + [0] * len(generate_nums))
+    num_mask = torch.ByteTensor(num_mask)
+
+    if USE_CUDA:
+        input_var = input_var.cuda()
+        seq_mask = seq_mask.cuda()
+        padding_hidden = padding_hidden.cuda()
+        num_mask = num_mask.cuda()
+    # Run words through encoder
+
     for t in range(max_length):
         current_beams = []
         while len(beams) > 0:
@@ -577,9 +604,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
             # left_childs = torch.stack(b.left_childs)
             left_childs = b.left_childs
 
-            num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(
-                b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden,
-                seq_mask, num_mask)
+            num_score, op, current_embeddings, current_context, current_nums_embeddings = predict( b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, x_list, seq_mask, num_mask)
 
             # leaf = p_leaf[:, 0].unsqueeze(1)
             # repeat_dims = [1] * leaf.dim()

@@ -266,7 +266,7 @@ class Prediction(nn.Module):
         self.score = Score(hidden_size * 2, hidden_size)
 
     # @line_profiler.profile  
-    def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, seq_mask, mask_nums):
+    def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, xs, seq_mask, mask_nums):
         # node_stacks: [TreeNodes] for each node containing the hidden state for the node
         # left_childs: [] of 
         # encoder_outputs: token embeddings: max_len x num_batches x hidden state 
@@ -351,7 +351,7 @@ class Prediction(nn.Module):
         # batch_size x (2 + number of numbers we have encodings for) x hidden_dim
         # batch_size is the embeddings of the numbers
         #   batch_size x nums_count x hidden_dim
-        embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
+        embedding_weight = torch.cat((embedding_weight1, xs, num_pades), dim=1)  # B x O x N
 
 
         # get the embedding of a leaf
