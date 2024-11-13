@@ -10,14 +10,17 @@ from src.expressions_transfer import *
 batch_size = 10 
 embedding_size = 128
 hidden_size = 512
-n_epochs = 20 
+n_epochs = 10 
 learning_rate = 1e-3 
 weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
+torch.manual_seed(1234)
+random.seed(1234)
 os.makedirs("models", exist_ok=True)
 data = load_raw_data("data/Math_23K.json")
+data = data[0:10]
 # data = load_raw_data("data/DRAW/draw.json")
 # data = None
 # with open("data/DRAW/draw.json", "r") as f:
@@ -32,7 +35,7 @@ data = load_raw_data("data/Math_23K.json")
 # }'
 
 pairs, generate_nums, copy_nums = transfer_num(data)
-pairs = pairs[0:1000]
+pairs = pairs[0:10]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
