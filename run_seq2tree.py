@@ -9,10 +9,10 @@ from src.expressions_transfer import *
 # batch_size = 64
 torch.manual_seed(1234)
 random.seed(1234)
-batch_size = 2 
+batch_size = 5
 embedding_size = 128
 hidden_size = 512
-n_epochs = 10 
+n_epochs = 20 
 learning_rate = 1e-3 
 weight_decay = 1e-5
 beam_size = 5
@@ -20,7 +20,7 @@ n_layers = 2
 
 os.makedirs("models", exist_ok=True)
 data = load_raw_data("data/Math_23K.json")
-data = data[0:10]
+data = data[0:50]
 # data = load_raw_data("data/DRAW/draw.json")
 # data = None
 # with open("data/DRAW/draw.json", "r") as f:
@@ -35,7 +35,7 @@ data = data[0:10]
 # }'
 
 pairs, generate_nums, copy_nums = transfer_num(data)
-pairs = pairs[0:10]
+pairs = pairs[0:50]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
