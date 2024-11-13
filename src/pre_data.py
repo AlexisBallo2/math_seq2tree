@@ -421,7 +421,7 @@ def transfer_num(data):  # transfer num into "NUM"
         # out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
         # nums: list of numbers in the text
         # num_pos: list of positions of the numbers in the text
-        pairs.append((input_seq, out_seq, nums, num_pos))
+        pairs.append((input_seq, [out_seq], nums, num_pos))
 
     temp_g = []
     for g in generate_nums:
@@ -720,7 +720,11 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             input_lang.add_sen_to_vocab(pair[0])
             # vocab for the equations. note that this does not add numbers or num tokens
             # to the lang
-            output_lang.add_sen_to_vocab(pair[1])
+            for equ in pair[1]:
+                output_lang.add_sen_to_vocab(equ)
+            # for equ in pair[1]:
+            #     if equ == "+":
+            #         print()
     # this is hard coded at 5
     # cuts off words that appear less than 5 times 
     input_lang.build_input_lang(trim_min_count)
@@ -733,39 +737,42 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         output_lang.build_output_lang(generate_nums, copy_nums)
 
     for pair in pairs_trained:
-        num_stack = []
+        num_stacks = []
         # for word in the (masked) prefixed equation, if it's a number (so a constant), 
         # and not in the output lang, and in the list of numbers that are in the input text,
         # then store the locations of where in the nums list that number is
 
         # if its not in the nums list, then have that val in equation come from ALL
         # the numbers
-        for word in pair[1]:
-            temp_num = []
-            flag_not = True
-            # we already added equation to output lang, but numbers were not added
-            # so capture the indexs of the constants
-            if word not in output_lang.index2word:
-                flag_not = False
-                # for each in nums list
-                for i, j in enumerate(pair[2]):
-                    if j == word:
-                        temp_num.append(i)
+        for equ in pair[1]:
+            num_stack = []
+            for word in pair[1]:
+                temp_num = []
+                flag_not = True
+                # we already added equation to output lang, but numbers were not added
+                # so capture the indexs of the constants
+                if word not in output_lang.index2word:
+                    flag_not = False
+                    # for each in nums list
+                    for i, j in enumerate(pair[2]):
+                        if j == word:
+                            temp_num.append(i)
 
-            if not flag_not and len(temp_num) != 0:
-                # num_stack has the locations in the list of nums of where there is a number
-                # that is in the input text and the equation
-                num_stack.append(temp_num)
-            if not flag_not and len(temp_num) == 0:
-                # if no nums in both, let all numbers be in both??
-                num_stack.append([_ for _ in range(len(pair[2]))])
+                if not flag_not and len(temp_num) != 0:
+                    # num_stack has the locations in the list of nums of where there is a number
+                    # that is in the input text and the equation
+                    num_stack.append(temp_num)
+                if not flag_not and len(temp_num) == 0:
+                    # if no nums in both, let all numbers be in both??
+                    num_stack.append([_ for _ in range(len(pair[2]))])
 
-        # ???
-        num_stack.reverse()
+            # ???
+            num_stack.reverse()
+            num_stacks.append(num_stack)
 
         # convert input sentence and equation into the vocab tokens
         input_cell = indexes_from_sentence(input_lang, pair[0])
-        output_cell = indexes_from_sentence(output_lang, pair[1], tree)
+        output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair[1]]
         # pair:
         #   input: sentence with all numbers masked as NUM
         #   length of input
@@ -774,33 +781,36 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         #   nums: numbers from the input text
         #   loc nums: where nums are in the text
         #   [[] of where each token in the equation is found in the nums array]
-        train_pairs.append((input_cell, len(input_cell), output_cell, len(output_cell),
-                            pair[2], pair[3], num_stack))
+        train_pairs.append((input_cell, len(input_cell), output_cell, [len(equ) for equ in output_cell],
+                            pair[2], pair[3], num_stacks))
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
     print('Number of training data %d' % (len(train_pairs)))
     for pair in pairs_tested:
-        num_stack = []
-        for word in pair[1]:
-            temp_num = []
-            flag_not = True
-            if word not in output_lang.index2word:
-                flag_not = False
-                for i, j in enumerate(pair[2]):
-                    if j == word:
-                        temp_num.append(i)
+        num_stacks = []
+        for equ in pair[1]:
+            num_stack = []
+            for word in equ: 
+                temp_num = []
+                flag_not = True
+                if word not in output_lang.index2word:
+                    flag_not = False
+                    for i, j in enumerate(pair[2]):
+                        if j == word:
+                            temp_num.append(i)
 
-            if not flag_not and len(temp_num) != 0:
-                num_stack.append(temp_num)
-            if not flag_not and len(temp_num) == 0:
-                num_stack.append([_ for _ in range(len(pair[2]))])
+                if not flag_not and len(temp_num) != 0:
+                    num_stack.append(temp_num)
+                if not flag_not and len(temp_num) == 0:
+                    num_stack.append([_ for _ in range(len(pair[2]))])
 
-        num_stack.reverse()
+            num_stack.reverse()
+            num_stacks.append(num_stack)
         input_cell = indexes_from_sentence(input_lang, pair[0])
-        output_cell = indexes_from_sentence(output_lang, pair[1], tree)
+        output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair[1]]
         # train_pairs.append((input_cell, len(input_cell), output_cell, len(output_cell),
         #                     pair[2], pair[3], num_stack, pair[4]))
-        test_pairs.append((input_cell, len(input_cell), output_cell, len(output_cell),
-                           pair[2], pair[3], num_stack))
+        test_pairs.append((input_cell, len(input_cell), output_cell, [len(equ) for equ in output_cell],
+                           pair[2], pair[3], num_stacks))
     print('Number of testind data %d' % (len(test_pairs)))
     return input_lang, output_lang, train_pairs, test_pairs
 
@@ -932,7 +942,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
             # i = length if input in pair
             input_length.append(i)
             # j = length of output in pair
-            output_length.append(j)
+            output_length.append(max(j))
         input_lengths.append(input_length)
         output_lengths.append(output_length)
         input_len_max = input_length[0]
@@ -956,7 +966,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
             # input batch: padded input text
             input_batch.append(pad_seq(i, li, input_len_max))
             # output batch: padded output text
-            output_batch.append(pad_seq(j, lj, output_len_max))
+            output_batch.append([pad_seq(equ, le, output_len_max) for equ, le in zip(j, lj)])
             # the corresponding arrays
             num_stack_batch.append(num_stack)
             # positions of numbers

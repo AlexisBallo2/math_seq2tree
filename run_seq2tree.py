@@ -7,10 +7,12 @@ import torch.optim
 from src.expressions_transfer import *
 
 # batch_size = 64
-batch_size = 10 
+torch.manual_seed(1234)
+random.seed(1234)
+batch_size = 2 
 embedding_size = 128
 hidden_size = 512
-n_epochs = 20 
+n_epochs = 10 
 learning_rate = 1e-3 
 weight_decay = 1e-5
 beam_size = 5
@@ -18,6 +20,7 @@ n_layers = 2
 
 os.makedirs("models", exist_ok=True)
 data = load_raw_data("data/Math_23K.json")
+data = data[0:10]
 # data = load_raw_data("data/DRAW/draw.json")
 # data = None
 # with open("data/DRAW/draw.json", "r") as f:
@@ -32,7 +35,7 @@ data = load_raw_data("data/Math_23K.json")
 # }'
 
 pairs, generate_nums, copy_nums = transfer_num(data)
-pairs = pairs[0:1000]
+pairs = pairs[0:10]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
@@ -44,7 +47,8 @@ pairs = pairs[0:1000]
 temp_pairs = []
 for p in pairs:
     # input_seq, prefixed equation, nums, num_pos
-    temp_pairs.append((p[0], from_infix_to_prefix(p[1]), p[2], p[3]))
+    equations = [from_infix_to_prefix(equ) for equ in p[1]]
+    temp_pairs.append((p[0], equations, p[2], p[3]))
 pairs = temp_pairs
 
 
@@ -178,50 +182,65 @@ for fold in range(num_folds):
                 #     print(output_lang.index2word(i))
                 # print('test result', [output_lang.index2word(i) for i in test_res ])
                 # test_time_array.append({"length": input_batch_len, "time": end - start})
-                val_ac, equ_ac, test, tar = compute_prefix_tree_result(test_res, test_batch[2], output_lang, test_batch[4], test_batch[6])
+                # val_ac, equ_ac, test, tar = compute_prefix_tree_result(test_res, test_batch[2], output_lang, test_batch[4], test_batch[6])
                 # print('test', test)
                 # print('tar', tar)
                 # print('actual', test_batch[2])
-                actual = [output_lang.index2word[i] for i in test_batch[2]]
-                predicted = [output_lang.index2word[i] for i in test_res]
+                lengths = 0
                 same = 0
-                print(len(actual), len(predicted))
-                for i in range(min(len(actual), len(predicted))):
-                    if actual[i] == predicted[i]:
-                        same += 1
-                print("actual     " , actual)
-                print("predicted  ", predicted)
-                print('same:', same, (2*same)/(len(actual) + len(predicted)))
-                accuracy = (2*same)/(len(actual) + len(predicted))
+                for equ_count in range(len(test_batch[2])):
+                    actual = [output_lang.index2word[i] for i in test_batch[2][equ_count]]
+                    print('actual', actual)
+                    print('preds', [output_lang.index2word[i] for i in test_res[equ_count]])
+                    for token in range(len(actual)):
+                        lengths += 1
+                        token_actual = actual[token]
+                        try:
+                            token_pred = output_lang.index2word[test_res[equ_count][token]]
+                        except:
+                            token_pred = None
+                        if token_actual == token_pred:
+                            same += 1
+
+                    # predicted = [output_lang.index2word[i] for i in test_res]
+                # print(len(actual), len(predicted))
+                # for i in range(min(len(actual), len(predicted))):
+                #     if actual[i] == predicted[i]:
+                #         same += 1
+                # print("actual     " , actual)
+                # print("predicted  ", predicted)
+                # print('same:', same, (2*same)/(len(actual) + len(predicted)))
+                # accuracy = (2*same)/(len(actual) + len(predicted))
+                accuracy = same / lengths
                 eval_accuracys.append(accuracy)
-                print("\n")
+                # print("\n")
                 # for i in test_res:
                 #     print(output_lang.index2word[i])
                 # for i in test_batch[2]:
                 #     print(output_lang.index2word[i])
                 # print('value accuracy', val_ac)
                 # print('equation accuracy', equation_ac)
-                if val_ac:
-                    value_ac += 1
-                if equ_ac:
-                    equation_ac += 1
-                eval_total += 1
+                # if val_ac:
+                #     value_ac += 1
+                # if equ_ac:
+                #     equation_ac += 1
+                # eval_total += 1
 
-            actual = [output_lang.index2word[i] for i in test_batch[2]]
-            predicted = [output_lang.index2word[i] for i in test_res]
-            same = 0
-            print(len(actual), len(predicted))
-            for i in range(min(len(actual), len(predicted))):
-                if actual[i] == predicted[i]:
-                    same += 1
-            print("actual     " , actual)
-            print("predicted  ", predicted)
-            print('same:', same, (2*same)/(len(actual) + len(predicted)))
+            # actual = [output_lang.index2word[i] for i in test_batch[2]]
+            # predicted = [output_lang.index2word[i] for i in test_res]
+            # same = 0
+            # print(len(actual), len(predicted))
+            # for i in range(min(len(actual), len(predicted))):
+            #     if actual[i] == predicted[i]:
+            #         same += 1
+            # print("actual     " , actual)
+            # print("predicted  ", predicted)
+            # print('same:', same, (2*same)/(len(actual) + len(predicted)))
 
-            print("\n")
-            print(equation_ac, value_ac, eval_total)
+            # print("\n")
+            # print(equation_ac, value_ac, eval_total)
             fold_eval_accuracy.append(sum(eval_accuracys) / len(eval_accuracys))
-            print("test_answer_acc", float(equation_ac) / eval_total, float(value_ac) / eval_total)
+            # print("test_answer_acc", float(equation_ac) / eval_total, float(value_ac) / eval_total)
             # print("testing time", time_since(time.time() - start))
             print("------------------------------------------------------")
             torch.save(encoder.state_dict(), "models/encoder")
@@ -236,13 +255,13 @@ for fold in range(num_folds):
     print('ALL EVAL ACC', all_eval_accuracys)
     break 
 
-a, b, c = 0, 0, 0
-for bl in range(len(best_acc_fold)):
-    a += best_acc_fold[bl][0]
-    b += best_acc_fold[bl][1]
-    c += best_acc_fold[bl][2]
-    print(best_acc_fold[bl])
-print(a / float(c), b / float(c))
+# a, b, c = 0, 0, 0
+# for bl in range(len(best_acc_fold)):
+#     a += best_acc_fold[bl][0]
+#     b += best_acc_fold[bl][1]
+#     c += best_acc_fold[bl][2]
+#     print(best_acc_fold[bl])
+# print(a / float(c), b / float(c))
 
 
 train_time_per_all = []

@@ -199,7 +199,7 @@ class EncoderSeq(nn.Module):
         # max_len comes from longest in the batch
         # embedded = max_len x num_batches x embedding_dim
         embedded = self.embedding(input_seqs)  # S x B x E
-        embedded = self.em_dropout(embedded)
+        # embedded = self.em_dropout(embedded)
         # packed = lengths x embedding
         # with multiple batches it seems to concatenate the padded 
         # sequences of variable length

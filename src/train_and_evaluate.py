@@ -269,232 +269,255 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # num_pos: positions of the numbers lists
 
 
-    # sequence mask for attention
-    # 0s where in input, 1s where not in input
-    seq_mask = []
-    max_len = max(input_length)
-    for i in input_length:
-        seq_mask.append([0 for _ in range(i)] + [1 for _ in range(i, max_len)])
-    seq_mask = torch.ByteTensor(seq_mask)
-
-    # number mask 
-    # 0s where the numbers are from input, 1s where not in input
-    num_mask = []
-    max_num_size = max(num_size_batch) + len(generate_nums)
-    for i in num_size_batch:
-        d = i + len(generate_nums)
-        num_mask.append([0] * d + [1] * (max_num_size - d))
-    num_mask = torch.ByteTensor(num_mask)
-
-    unk = output_lang.word2index["UNK"]
-
     # Turn padded arrays into (batch_size x max_len) tensors, transpose into (max_len x batch_size)
     input_var = torch.LongTensor(input_batch).transpose(0, 1)
-    target = torch.LongTensor(target_batch).transpose(0, 1)
+    target = torch.LongTensor(target_batch)#.transpose(0, 1)
 
-    padding_hidden = torch.FloatTensor([0.0 for _ in range(predict.hidden_size)]).unsqueeze(0)
-    batch_size = len(input_length)
+    total_loss = None
+    total_acc = None
+    num_equations_per_obs = len(target_batch[0])
+    # do equations one at a time
+    for i in range(num_equations_per_obs):
+        # select the first equations in each obs
+        ith_equation_target = target[:, i, :].transpose(0,1)
+        # print()
 
-    encoder.train()
-    predict.train()
-    generate.train()
-    merge.train()
+        # sequence mask for attention
+        # 0s where in input, 1s where not in input
+        seq_mask = []
+        max_len = max(input_length)
+        for i in input_length:
+            seq_mask.append([0 for _ in range(i)] + [1 for _ in range(i, max_len)])
+        seq_mask = torch.ByteTensor(seq_mask)
 
-    if USE_CUDA:
-        input_var = input_var.cuda()
-        seq_mask = seq_mask.cuda()
-        padding_hidden = padding_hidden.cuda()
-        num_mask = num_mask.cuda()
+        # number mask 
+        # 0s where the numbers are from input, 1s where not in input
+        num_mask = []
+        max_num_size = max(num_size_batch) + len(generate_nums)
+        for i in num_size_batch:
+            d = i + len(generate_nums)
+            num_mask.append([0] * d + [1] * (max_num_size - d))
+        num_mask = torch.ByteTensor(num_mask)
 
-    # Zero gradients of both optimizers
-    encoder_optimizer.zero_grad()
-    predict_optimizer.zero_grad()
-    generate_optimizer.zero_grad()
-    merge_optimizer.zero_grad()
-    # Run words through encoder
-
-    # embedding + dropout layer
-    # encoder_outputs: num_batches x 512 q_0 vector
-    # problem_output: max_length x num_batches x hidden_size
-    encoder_outputs, problem_output = encoder(input_var, input_length)
-    # Prepare input and output variables
-    
-    # make a TreeNode for each token
-    # node just has embedding and a left flag? 
-    tempSplit = problem_output.split(1, dim=0)
-    # problem_output is q_0 for each token in equation, so use last one
-    node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
-
-    max_target_length = max(target_length)
-
-    all_node_outputs = []
-    # all_leafs = []
-
-    # array of len of numbers that must be copied from the input text
-    copy_num_len = [len(_) for _ in num_pos]
-    # max nums to copy
-    num_size = max(copy_num_len)
-
-    # num_batches x num_size x hidden_size that correspond to the embeddings of the numbers
-    all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_size,
-                                                              encoder.hidden_size)
+        unk = output_lang.word2index["UNK"]
 
 
-    # index in the language where the special (operators) tokens end and input/output text begins
-    num_start = output_lang.num_start
-    # 
-    embeddings_stacks = [[] for _ in range(batch_size)]
-    # 
-    left_childs = [None for _ in range(batch_size)]
-    for t in range(max_target_length):
+        padding_hidden = torch.FloatTensor([0.0 for _ in range(predict.hidden_size)]).unsqueeze(0)
+        batch_size = len(input_length)
 
-        # predict gets the encodings and embeddings for the current node 
-        #   num_score: batch_size x num_length
-        #       likliehood prediction of each number
-        #   op: batch_size x num_ops
-        #       likliehood of the operator tokens
-        #   current_embeddings: batch_size x 1 x hidden_size
-        #       goal vector (q) for the current node 
-        #   current_context: batch_size x 1 x hidden_size
-        #       context vector (c) for the subtree
-        #   embedding_weight: batch_size x num_length x hidden_size
-        #       embeddings of the generate and copy numbers
+        encoder.train()
+        predict.train()
+        generate.train()
+        merge.train()
 
-        num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(
-            node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, seq_mask, num_mask)
-
-
-        # this is mainly what we want to train
-        outputs = torch.cat((op, num_score), 1)
-        all_node_outputs.append(outputs)
-
-        # target[t] is the equation character at index t for each batch
-        #    target[t] = 1 x num_batches
-        # outputs is the strength of operators or a number token
-        # num_stack_batch is the cooresponding num lists
-        # num_start is where non-operators begin
-        # unk is unknown token
-        # returns
-        #   for position t in each equation
-        #       target_t: actual equation value
-        #       generate_input: equation value if its an operator
-        target_t, generate_input = generate_tree_input(target[t].tolist(), outputs, nums_stack_batch, num_start, unk)
-        target[t] = target_t
         if USE_CUDA:
-            generate_input = generate_input.cuda()
+            input_var = input_var.cuda()
+            seq_mask = seq_mask.cuda()
+            padding_hidden = padding_hidden.cuda()
+            num_mask = num_mask.cuda()
 
-        # takes:
-        #     generate a left and right child node with a label
-        #     current_embeddings: q : batch_size x 1 x hidden_dim
-        #     generate_input: [operator tokens at position t]
-        #     current_context: c : batch_size x 1 x hidden_dim
-        # returns
-        #     l_child: batch_size x hidden_dim
-        #          hidden state h_l:
-        #     r_child: batch_size x hidden_dim
-        #          hidden state h_r:
-        #     node_label_ : batch_size x embedding_size 
-        #          basically the context vector (c)
-        # the node generation takes the first half of equations (10) and (11) 
-        left_child, right_child, node_label = generate(current_embeddings, generate_input, current_context)
-        left_childs = []
-        for idx, l, r, node_stack, i, o in zip(range(batch_size), left_child.split(1), right_child.split(1),
-                                               node_stacks, target[t].tolist(), embeddings_stacks):
-            current_token = output_lang.ids_to_tokens([i])
-            current_equation = output_lang.ids_to_tokens(target.transpose(0,1)[idx])
-            #print("at token", current_token, "in", current_equation)
-            #print("current node_stack length", len(node_stack))
-            # for 
-            #   batch_num
-            #   the left child: h_l 
-            #   the right child: h_r
-            if len(node_stack) != 0:
-                node = node_stack.pop()
-                #print("removed last from node_stack, now", len(node_stack), "elems")
-            else:
-                left_childs.append(None)
-                continue
+        # Zero gradients of both optimizers
+        encoder_optimizer.zero_grad()
+        predict_optimizer.zero_grad()
+        generate_optimizer.zero_grad()
+        merge_optimizer.zero_grad()
+        # Run words through encoder
 
-            # i is the num in language of where that specific language token is
-            # if i is an operator
-            if i < num_start:
-                #print(current_token, "is an operator, making a left and right node")
-                # make a left and right tree node
-                node_stack.append(TreeNode(r))
-                node_stack.append(TreeNode(l, left_flag=True))
-                # save the embedding of the operator 
-                # terminal means a leaf node
-                o.append(TreeEmbedding(node_label[idx].unsqueeze(0), False))
-                #print("saving node embedding to o (non terminal node), and r, and l to node_stack. o now of size", len(o), "node_stack of size", len(node_stack))
-            else:
-                #print(current_token, "is not an operator")
-                # otherwise its either a number from the input equation or a copy number
-                # we have a list (o) of the current nodes in the tree
-                # if we have a leaf node at the top of the stack, get it.
-                # next element in the stack must be an operator, so get it 
-                # and combine the new node, operator, and other element
+        # embedding + dropout layer
+        # encoder_outputs: num_batches x 512 q_0 vector
+        # problem_output: max_length x num_batches x hidden_size
+        encoder_outputs, problem_output = encoder(input_var, input_length)
+        # Prepare input and output variables
+        
+        # make a TreeNode for each token
+        # node just has embedding and a left flag? 
+        tempSplit = problem_output.split(1, dim=0)
+        # problem_output is q_0 for each token in equation, so use last one
+        node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
 
-                # current_nums_embedding: batch_size x num_length x hidden_size
-                # current_num = num_embedding of the number selected
-                current_num = current_nums_embeddings[idx, i - num_start].unsqueeze(0)
-                # while there are tokens in the embedding stack and the last element IS a leaf node
-                while len(o) > 0 and o[-1].terminal:
-                    #print("terminal element in o, getting terminal element and operator, and merging")
-                    # get the two elements from it
-                    sub_stree = o.pop()
-                    op = o.pop()
-                    # contains equation (13)
-                    # this combines a left and right tree along with a node
-                    current_num = merge(op.embedding, sub_stree.embedding, current_num)
-                    #print('merged. o now of size', len(o))
-                # then re-add the node back to the stack
-                #print("adding current_num to o (terminal node)")
-                o.append(TreeEmbedding(current_num, True))
-            if len(o) > 0 and o[-1].terminal:
-                #print("terminal element in o, adding to left child")
-                # left_childs is a running vector of the sub tree embeddings "t" 
-                # need this for generation of the right q
-                left_childs.append(o[-1].embedding)
-            else:
-                left_childs.append(None)
+        max_target_length = max(target_length)
 
-    # all_leafs = torch.stack(all_leafs, dim=1)  # B x S x 2
-    
-    # all_node_outputs:  for each token in the equation:
-    #   the current scoring of nums for each batch
-    # 
-    # transform to 
-    # all_node_outputs2: for each batch:
-    #   the current scoring of nums for each token in equation
-    # = batch_size x max_len x num_nums
-    all_node_outputs2 = torch.stack(all_node_outputs, dim=1)  # B x S x N
+        all_node_outputs = []
+        # all_leafs = []
 
-    target = target.transpose(0, 1).contiguous()
-    if USE_CUDA:
-        # all_leafs = all_leafs.cuda()
-        all_node_outputs2 = all_node_outputs2.cuda()
-        target = target.cuda()
+        # array of len of numbers that must be copied from the input text
+        copy_num_len = [len(_) for _ in num_pos]
+        # max nums to copy
+        num_size = max(copy_num_len)
 
-    # for batch in target:
-    #     print([output_lang.index2word[_] for _ in batch])
-    #print('done equation')
-    loss = masked_cross_entropy(all_node_outputs2, target, target_length)
-    same = 0
-    lengths = 0
-    for i, batch in enumerate(all_node_outputs2):
-        for j, probs in enumerate(batch):
-            max_val = torch.argmax(probs)
-            lengths += 1
-            if max_val == target[i][j]:
-                same += 1
-    loss.backward()
+        # num_batches x num_size x hidden_size that correspond to the embeddings of the numbers
+        all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_size,
+                                                                encoder.hidden_size)
+
+
+        # index in the language where the special (operators) tokens end and input/output text begins
+        num_start = output_lang.num_start
+        # 
+        embeddings_stacks = [[] for _ in range(batch_size)]
+        # 
+        left_childs = [None for _ in range(batch_size)]
+        for t in range(max_target_length):
+
+            # predict gets the encodings and embeddings for the current node 
+            #   num_score: batch_size x num_length
+            #       likliehood prediction of each number
+            #   op: batch_size x num_ops
+            #       likliehood of the operator tokens
+            #   current_embeddings: batch_size x 1 x hidden_size
+            #       goal vector (q) for the current node 
+            #   current_context: batch_size x 1 x hidden_size
+            #       context vector (c) for the subtree
+            #   embedding_weight: batch_size x num_length x hidden_size
+            #       embeddings of the generate and copy numbers
+
+            num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(
+                node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, seq_mask, num_mask)
+
+
+            # this is mainly what we want to train
+            outputs = torch.cat((op, num_score), 1)
+            all_node_outputs.append(outputs)
+
+            # target[t] is the equation character at index t for each batch
+            #    target[t] = 1 x num_batches
+            # outputs is the strength of operators or a number token
+            # num_stack_batch is the cooresponding num lists
+            # num_start is where non-operators begin
+            # unk is unknown token
+            # returns
+            #   for position t in each equation
+            #       target_t: actual equation value
+            #       generate_input: equation value if its an operator
+            target_t, generate_input = generate_tree_input(ith_equation_target[t].tolist(), outputs, nums_stack_batch, num_start, unk)
+            ith_equation_target[t] = target_t
+            if USE_CUDA:
+                generate_input = generate_input.cuda()
+
+            # takes:
+            #     generate a left and right child node with a label
+            #     current_embeddings: q : batch_size x 1 x hidden_dim
+            #     generate_input: [operator tokens at position t]
+            #     current_context: c : batch_size x 1 x hidden_dim
+            # returns
+            #     l_child: batch_size x hidden_dim
+            #          hidden state h_l:
+            #     r_child: batch_size x hidden_dim
+            #          hidden state h_r:
+            #     node_label_ : batch_size x embedding_size 
+            #          basically the context vector (c)
+            # the node generation takes the first half of equations (10) and (11) 
+            left_child, right_child, node_label = generate(current_embeddings, generate_input, current_context)
+            left_childs = []
+            for idx, l, r, node_stack, i, o in zip(range(batch_size), left_child.split(1), right_child.split(1),
+                                                node_stacks, ith_equation_target[t].tolist(), embeddings_stacks):
+                # current_token = output_lang.ids_to_tokens([i])
+                # current_equation = output_lang.ids_to_tokens(target.transpose(0,1)[idx])
+                #print("at token", current_token, "in", current_equation)
+                #print("current node_stack length", len(node_stack))
+                # for 
+                #   batch_num
+                #   the left child: h_l 
+                #   the right child: h_r
+                if len(node_stack) != 0:
+                    node = node_stack.pop()
+                    #print("removed last from node_stack, now", len(node_stack), "elems")
+                else:
+                    left_childs.append(None)
+                    continue
+
+                # i is the num in language of where that specific language token is
+                # if i is an operator
+                if i < num_start:
+                    #print(current_token, "is an operator, making a left and right node")
+                    # make a left and right tree node
+                    node_stack.append(TreeNode(r))
+                    node_stack.append(TreeNode(l, left_flag=True))
+                    # save the embedding of the operator 
+                    # terminal means a leaf node
+                    o.append(TreeEmbedding(node_label[idx].unsqueeze(0), False))
+                    #print("saving node embedding to o (non terminal node), and r, and l to node_stack. o now of size", len(o), "node_stack of size", len(node_stack))
+                else:
+                    #print(current_token, "is not an operator")
+                    # otherwise its either a number from the input equation or a copy number
+                    # we have a list (o) of the current nodes in the tree
+                    # if we have a leaf node at the top of the stack, get it.
+                    # next element in the stack must be an operator, so get it 
+                    # and combine the new node, operator, and other element
+
+                    # current_nums_embedding: batch_size x num_length x hidden_size
+                    # current_num = num_embedding of the number selected
+                    current_num = current_nums_embeddings[idx, i - num_start].unsqueeze(0)
+                    # while there are tokens in the embedding stack and the last element IS a leaf node
+                    while len(o) > 0 and o[-1].terminal:
+                        #print("terminal element in o, getting terminal element and operator, and merging")
+                        # get the two elements from it
+                        sub_stree = o.pop()
+                        op = o.pop()
+                        # contains equation (13)
+                        # this combines a left and right tree along with a node
+                        current_num = merge(op.embedding, sub_stree.embedding, current_num)
+                        #print('merged. o now of size', len(o))
+                    # then re-add the node back to the stack
+                    #print("adding current_num to o (terminal node)")
+                    o.append(TreeEmbedding(current_num, True))
+                if len(o) > 0 and o[-1].terminal:
+                    #print("terminal element in o, adding to left child")
+                    # left_childs is a running vector of the sub tree embeddings "t" 
+                    # need this for generation of the right q
+                    left_childs.append(o[-1].embedding)
+                else:
+                    left_childs.append(None)
+
+        # all_leafs = torch.stack(all_leafs, dim=1)  # B x S x 2
+        
+        # all_node_outputs:  for each token in the equation:
+        #   the current scoring of nums for each batch
+        # 
+        # transform to 
+        # all_node_outputs2: for each batch:
+        #   the current scoring of nums for each token in equation
+        # = batch_size x max_len x num_nums
+        all_node_outputs2 = torch.stack(all_node_outputs, dim=1)  # B x S x N
+
+        ith_equation_target = ith_equation_target.transpose(0, 1).contiguous()
+        if USE_CUDA:
+            # all_leafs = all_leafs.cuda()
+            all_node_outputs2 = all_node_outputs2.cuda()
+            ith_equation_target = ith_equation_target.cuda()
+
+        # for batch in target:
+        #     print([output_lang.index2word[_] for _ in batch])
+        #print('done equation')
+        # loss = masked_cross_entropy(all_node_outputs2, target, target_length)
+        loss = torch.nn.CrossEntropyLoss()(all_node_outputs2.view(-1, all_node_outputs2.size(2)), ith_equation_target.view(-1))
+        same = 0
+        lengths = 0
+        for i, batch in enumerate(all_node_outputs2):
+            vals = []
+            for j, probs in enumerate(batch):
+                max_val = torch.argmax(probs)
+                vals.append(max_val)
+                lengths += 1
+                if max_val == ith_equation_target[i][j]:
+                    same += 1
+            print(f"        prediction: {[output_lang.index2word[_] for _ in vals]}")
+            print(f"        actual: {[output_lang.index2word[_] for _ in ith_equation_target[i]]}")
+        if total_loss:
+            total_loss+=loss
+        else:
+            total_loss = loss
+        if total_acc:
+            total_acc+=same/lengths
+        else:total_acc = same/lengths
+            
+    total_loss.backward()
 
     # Update parameters with optimizers
     encoder_optimizer.step()
     predict_optimizer.step()
     generate_optimizer.step()
     merge_optimizer.step()
-    return loss.item(), same/lengths 
+    return total_loss.item(), total_acc 
 
 # @line_profiler.profile
 def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, generate, merge, output_lang, num_pos,
@@ -639,4 +662,4 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
         if flag:
             break
 
-    return beams[0].out
+    return [beams[0].out]
