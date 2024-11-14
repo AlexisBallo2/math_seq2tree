@@ -263,14 +263,16 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # num_stack_batch: the corresponding nums lists
     # num_size_batch: number of numbers from the input text
     # generate_nums: numbers to generate
-
     # num_pos: positions of the numbers lists
+
+
 
     # Turn padded arrays into (batch_size x max_len) tensors, transpose into (max_len x batch_size)
     input_var = torch.LongTensor(input_batch).transpose(0, 1)
     problem_vars = torch.LongTensor(output_var_batches)
     target = torch.LongTensor(target_batch)#.transpose(0, 1)
 
+    # num vars total in the output lang. will need to mask ones not in the current equation
     num_total_vars = len(problem_vars[0])
     # sequence mask for attention
     # 0s where in input, 1s where not in input
@@ -320,9 +322,6 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # Prepare input and output variables
 
     
-    # make a TreeNode for each token
-    # problem_output is q_0 for each token in equation, so use last one
-    node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
     # array of len of numbers that must be copied from the input text
     copy_num_len = [len(_) for _ in num_pos]
     # max nums to copy
@@ -335,10 +334,6 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
     # index in the language where the special (operators) tokens end and input/output text begins
     num_start = output_lang.num_start
-    # 
-    embeddings_stacks = [[] for _ in range(batch_size)]
-    # 
-    left_childs = [None for _ in range(batch_size)]
 
     pred_num_equations = models['num_x_predict'](encoder_outputs)
     num_equations_per_obs = torch.LongTensor([len(equ_set) for equ_set in target_batch])
@@ -348,22 +343,33 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         xs = models['x_generate'](num_total_vars, encoder_outputs, problem_output)
     else: 
         xs = None 
+
+    if useCustom:
+        qs = models['x_to_q'](encoder_outputs, xs)
+    else:
+        qs = problem_output
+
     # do equations one at a time
-    for i in range(max(num_equations_per_obs)):
+    for cur_equation in range(max(num_equations_per_obs)):
         # select the ith equation in each obs
-        ith_equation_target = deepcopy(target[:, i, :].transpose(0,1))
-        ith_equation_target_lengths = torch.Tensor(target_length)[:, i]
+        ith_equation_target = deepcopy(target[:, cur_equation, :].transpose(0,1))
+        if useCustom:
+            ith_equation_goal = qs[:, cur_equation, :]
+            node_stacks = [[TreeNode(_)] for _ in ith_equation_goal.split(1, dim=0)]
+        else:
+            ith_equation_goal = problem_output
+            node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
+
+        ith_equation_target_lengths = torch.Tensor(target_length)[:, cur_equation]
         ith_equation_num_stacks = []
         for stack in nums_stack_batch:
-            ith_equation_num_stacks.append(stack[i])
-        # print()
-
-
+            ith_equation_num_stacks.append(stack[cur_equation])
 
         max_target_length = int(max(ith_equation_target_lengths.tolist()))
 
         all_node_outputs = []
-        # all_leafs = []
+        embeddings_stacks = [[] for _ in range(batch_size)]
+        left_childs = [None for _ in range(batch_size)]
 
         for t in range(max_target_length):
 
@@ -501,6 +507,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         current_equation_loss = torch.nn.CrossEntropyLoss(reduction="none")(all_node_outputs2.view(-1, all_node_outputs2.size(2)), ith_equation_target.view(-1)).mean()
         same = 0
         lengths = 0
+        print(f'Equation {cur_equation}')
         for i, batch in enumerate(all_node_outputs2):
             vals = []
             equ_length = int(ith_equation_target_lengths[i].item())
@@ -530,7 +537,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     return total_loss.item(), sum(total_acc)/len(total_acc)
 
 # @line_profiler.profile
-def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, generate, merge, output_lang, num_pos,
+def evaluate_tree(input_batch, input_length, generate_nums, models, output_lang, num_pos,
                   vars, useCustom, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
 
     seq_mask = torch.ByteTensor(1, input_length).fill_(0)
@@ -539,44 +546,47 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
 
 
     # Set to not-training mode to disable dropout
-    encoder.eval()
-    predict.eval()
-    generate.eval()
-    merge.eval()
 
-    padding_hidden = torch.FloatTensor([0.0 for _ in range(predict.hidden_size)]).unsqueeze(0)
+    padding_hidden = torch.FloatTensor([0.0 for _ in range(models['predict'].hidden_size)]).unsqueeze(0)
 
     batch_size = 1
 
-    encoder_outputs, problem_output = encoder(input_var, [input_length])
+    encoder_outputs, problem_output = models['encoder'](input_var, [input_length])
 
     # Prepare input and output variables
     node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
 
     num_size = len(num_pos)
     all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, [num_pos], batch_size, num_size,
-                                                              encoder.hidden_size)
+                                                              models['encoder'].hidden_size)
     num_start = output_lang.num_start
     # B x P x N
-    embeddings_stacks = [[] for _ in range(batch_size)]
-    left_childs = [None for _ in range(batch_size)]
-
-    # evaulation uses beam search
-    # key is how the beams are compared
-    beams = [TreeBeam(0.0, node_stacks, embeddings_stacks, left_childs, [])]
 
     # predict number of xs
-    num_x = 1
+    num_x = models['num_x_predict'](encoder_outputs, eval=True).argmax().item()
 
+    # if useCustom:
+    #     # make random x vectors
+    #     x_list = []
+    #     x_list.append(torch.rand(2, 512))
+    #     # # fill other as zero
+    #     # x_list.append(torch.zeros(512))
+    #     x_list = torch.stack(x_list)
+    # else:
+    #     x_list = None
+
+    # get xs
     if useCustom:
-        # make random x vectors
-        x_list = []
-        x_list.append(torch.rand(2, 512))
-        # # fill other as zero
-        # x_list.append(torch.zeros(512))
-        x_list = torch.stack(x_list)
+        xs = models['x_generate'](num_x, encoder_outputs, problem_output)
+    else: 
+        xs = None
+
+    # get qs
+    if useCustom:
+        qs = models['x_to_q'](encoder_outputs, xs)
     else:
-        x_list = None
+        qs = problem_output
+
 
     # num_mask = torch.ByteTensor(1, len(num_pos) + len(generate_nums)).fill_(0)
     num_mask = []
@@ -596,101 +606,120 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
         num_mask = num_mask.cuda()
     # Run words through encoder
 
-    for t in range(max_length):
-        current_beams = []
-        while len(beams) > 0:
-            b = beams.pop()
-            if len(b.node_stack[0]) == 0:
-                current_beams.append(b)
-                continue
-            # left_childs = torch.stack(b.left_childs)
-            left_childs = b.left_childs
+    final_beams = []
 
-            num_score, op, current_embeddings, current_context, current_nums_embeddings = predict( b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, x_list, seq_mask, num_mask, useCustom)
+    for i in range(max(num_x, 1)):
+        # get the node stacks
+        if useCustom:
+            ith_equation_goal = qs[:, i, :]
+            node_stacks = [[TreeNode(_)] for _ in ith_equation_goal.split(1, dim=0)]
+        else:
+            ith_equation_goal = problem_output
+            node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
 
-            # leaf = p_leaf[:, 0].unsqueeze(1)
-            # repeat_dims = [1] * leaf.dim()
-            # repeat_dims[1] = op.size(1)
-            # leaf = leaf.repeat(*repeat_dims)
-            #
-            # non_leaf = p_leaf[:, 1].unsqueeze(1)
-            # repeat_dims = [1] * non_leaf.dim()
-            # repeat_dims[1] = num_score.size(1)
-            # non_leaf = non_leaf.repeat(*repeat_dims)
-            #
-            # p_leaf = torch.cat((leaf, non_leaf), dim=1)
-            out_score = nn.functional.log_softmax(torch.cat((op, num_score), dim=1), dim=1)
+        embeddings_stacks = [[] for _ in range(batch_size)]
+        left_childs = [None for _ in range(batch_size)]
 
-            # out_score = p_leaf * out_score
+        # evaulation uses beam search
+        # key is how the beams are compared
+        beams = [TreeBeam(0.0, node_stacks, embeddings_stacks, left_childs, [])]
 
-            # topv:
-            #   largest elements in the out_score
-            # topi:
-            #   indexes of the largest elements 
-            topv, topi = out_score.topk(beam_size)
+        for t in range(max_length):
+            current_beams = []
+            while len(beams) > 0:
+                b = beams.pop()
+                if len(b.node_stack[0]) == 0:
+                    current_beams.append(b)
+                    continue
+                # left_childs = torch.stack(b.left_childs)
+                left_childs = b.left_childs
 
-            # is_leaf = int(topi[0])
-            # if is_leaf:
-            #     topv, topi = op.topk(1)
-            #     out_token = int(topi[0])
-            # else:
-            #     topv, topi = num_score.topk(1)
-            #     out_token = int(topi[0]) + num_start
+                num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict']( b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom)
 
-            # for the largest element, and its index
-            for tv, ti in zip(topv.split(1, dim=1), topi.split(1, dim=1)):
-                current_node_stack = copy_list(b.node_stack)
-                current_left_childs = []
-                current_embeddings_stacks = copy_list(b.embedding_stack)
-                current_out = copy.deepcopy(b.out)
+                # leaf = p_leaf[:, 0].unsqueeze(1)
+                # repeat_dims = [1] * leaf.dim()
+                # repeat_dims[1] = op.size(1)
+                # leaf = leaf.repeat(*repeat_dims)
+                #
+                # non_leaf = p_leaf[:, 1].unsqueeze(1)
+                # repeat_dims = [1] * non_leaf.dim()
+                # repeat_dims[1] = num_score.size(1)
+                # non_leaf = non_leaf.repeat(*repeat_dims)
+                #
+                # p_leaf = torch.cat((leaf, non_leaf), dim=1)
+                out_score = nn.functional.log_softmax(torch.cat((op, num_score), dim=1), dim=1)
 
-                # the predicted token is that of the highest score relation
-                out_token = int(ti)
-                # save token 
-                current_out.append(out_token)
+                # out_score = p_leaf * out_score
 
-                node = current_node_stack[0].pop()
+                # topv:
+                #   largest elements in the out_score
+                # topi:
+                #   indexes of the largest elements 
+                topv, topi = out_score.topk(beam_size)
 
-                # if the predicted token is an operator
-                if out_token < num_start:
-                    # this is the token to generate l and r from
-                    generate_input = torch.LongTensor([out_token])
-                    if USE_CUDA:
-                        generate_input = generate_input.cuda()
-                    # get the left and right children and current label
-                    left_child, right_child, node_label = generate(current_embeddings, generate_input, current_context)
+                # is_leaf = int(topi[0])
+                # if is_leaf:
+                #     topv, topi = op.topk(1)
+                #     out_token = int(topi[0])
+                # else:
+                #     topv, topi = num_score.topk(1)
+                #     out_token = int(topi[0]) + num_start
 
-                    current_node_stack[0].append(TreeNode(right_child))
-                    current_node_stack[0].append(TreeNode(left_child, left_flag=True))
+                # for the largest element, and its index
+                for tv, ti in zip(topv.split(1, dim=1), topi.split(1, dim=1)):
+                    current_node_stack = copy_list(b.node_stack)
+                    current_left_childs = []
+                    current_embeddings_stacks = copy_list(b.embedding_stack)
+                    current_out = copy.deepcopy(b.out)
 
-                    current_embeddings_stacks[0].append(TreeEmbedding(node_label[0].unsqueeze(0), False))
-                else:
-                    # predicted token is a number
-                    # get the token embedding - embedding of either the generate num or copy num
-                    current_num = current_nums_embeddings[0, out_token - num_start].unsqueeze(0)
-                    
-                    # if we are a right node (there is a left node and operator)
-                    while len(current_embeddings_stacks[0]) > 0 and current_embeddings_stacks[0][-1].terminal:
-                        sub_stree = current_embeddings_stacks[0].pop()
-                        op = current_embeddings_stacks[0].pop()
-                        current_num = merge(op.embedding, sub_stree.embedding, current_num)
-                    # save node (or subtree) to the embeddings list
-                    current_embeddings_stacks[0].append(TreeEmbedding(current_num, True))
-                if len(current_embeddings_stacks[0]) > 0 and current_embeddings_stacks[0][-1].terminal:
-                    current_left_childs.append(current_embeddings_stacks[0][-1].embedding)
-                else:
-                    current_left_childs.append(None)
-                # the beam "score" is the sum of the associations 
-                current_beams.append(TreeBeam(b.score+float(tv), current_node_stack, current_embeddings_stacks,
-                                              current_left_childs, current_out))
-        # order beam by highest to lowest
-        beams = sorted(current_beams, key=lambda x: x.score, reverse=True)
-        beams = beams[:beam_size]
-        flag = True
-        for b in beams:
-            if len(b.node_stack[0]) != 0:
-                flag = False
-        if flag:
-            break
+                    # the predicted token is that of the highest score relation
+                    out_token = int(ti)
+                    # save token 
+                    current_out.append(out_token)
 
-    return [beams[0].out]
+                    node = current_node_stack[0].pop()
+
+                    # if the predicted token is an operator
+                    if out_token < num_start:
+                        # this is the token to generate l and r from
+                        generate_input = torch.LongTensor([out_token])
+                        if USE_CUDA:
+                            generate_input = generate_input.cuda()
+                        # get the left and right children and current label
+                        left_child, right_child, node_label = models['generate'](current_embeddings, generate_input, current_context)
+
+                        current_node_stack[0].append(TreeNode(right_child))
+                        current_node_stack[0].append(TreeNode(left_child, left_flag=True))
+
+                        current_embeddings_stacks[0].append(TreeEmbedding(node_label[0].unsqueeze(0), False))
+                    else:
+                        # predicted token is a number
+                        # get the token embedding - embedding of either the generate num or copy num
+                        current_num = current_nums_embeddings[0, out_token - num_start].unsqueeze(0)
+                        
+                        # if we are a right node (there is a left node and operator)
+                        while len(current_embeddings_stacks[0]) > 0 and current_embeddings_stacks[0][-1].terminal:
+                            sub_stree = current_embeddings_stacks[0].pop()
+                            op = current_embeddings_stacks[0].pop()
+                            current_num = models['merge'](op.embedding, sub_stree.embedding, current_num)
+                        # save node (or subtree) to the embeddings list
+                        current_embeddings_stacks[0].append(TreeEmbedding(current_num, True))
+                    if len(current_embeddings_stacks[0]) > 0 and current_embeddings_stacks[0][-1].terminal:
+                        current_left_childs.append(current_embeddings_stacks[0][-1].embedding)
+                    else:
+                        current_left_childs.append(None)
+                    # the beam "score" is the sum of the associations 
+                    current_beams.append(TreeBeam(b.score+float(tv), current_node_stack, current_embeddings_stacks,
+                                                current_left_childs, current_out))
+            # order beam by highest to lowest
+            beams = sorted(current_beams, key=lambda x: x.score, reverse=True)
+            beams = beams[:beam_size]
+            flag = True
+            for b in beams:
+                if len(b.node_stack[0]) != 0:
+                    flag = False
+            if flag:
+                break
+
+        final_beams.append(beams[0].out)
+    return final_beams

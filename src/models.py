@@ -586,3 +586,45 @@ class GenerateXs(nn.Module):
         return torch.stack(out)
         # return xs
 
+
+class XToQ(nn.Module):
+    def __init__(self, hidden_size, dropout=0.5):
+        super(XToQ, self).__init__()
+        self.K = nn.Linear(hidden_size, hidden_size)
+        self.V = nn.Linear(hidden_size, hidden_size)
+        self.lstm = nn.LSTM(hidden_size, hidden_size, 1, batch_first=True)
+        self.fc = nn.Linear(hidden_size, 1)
+    def forward(self, hidden, x):
+        # x = batch_size x num_xs x hidden_size
+        # hidden = batch_size x tokens x hidden_size
+
+        finals = []
+
+        hidden2 = hidden.transpose(0,1)
+        # for each in batch
+        for i in range(hidden2.shape[0]):
+            # get the x's for this batch
+            xs = x[i]
+            qs = []
+            for j in range(len(xs)):
+                # for each x for the batch
+                # xk^T
+                qkt = torch.matmul(xs[j], self.K(hidden2[i]).transpose(0,1))
+                smqkt = nn.functional.softmax(qkt)
+                output = torch.matmul(smqkt, self.V(hidden2[i]))
+                qs.append(output)
+            # need to change later
+            qs = torch.stack(qs)#.transpose(0,1)
+            finals.append(qs)
+            # having more than 1 q means we need a q that covers all q/xs
+            # if len(qs) > 1:
+            #     h0 = torch.zeros(1, self.lstm.num_layers, self.lstm.hidden_size).to(qs.device)
+            #     c0 = torch.zeros(1, self.lstm.num_layers, self.lstm.hidden_size).to(qs.device)
+
+            #     # Forward propagate LSTM
+            #     out1, _ = self.lstm(qs, (h0, c0))  # out: tensor of shape (seq_length, hidden_size)
+            #     qs = torch.cat((qs, out1[0].unsqueeze(0)), dim=0)
+            # finals.append(qs)
+                
+        output = torch.stack(finals)
+        return output

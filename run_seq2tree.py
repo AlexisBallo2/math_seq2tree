@@ -21,10 +21,10 @@ n_layers = 2
 
 # torch.autograd.set_detect_anomaly(True)
 
-# useCustom = True
-useCustom = False 
-setName = "MATH"
-# setName = "DRAW"
+useCustom = True
+# useCustom = False 
+# setName = "MATH"
+setName = "DRAW"
 os.makedirs("models", exist_ok=True)
 if setName == "DRAW":
     data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
@@ -112,6 +112,7 @@ for fold in range(num_folds):
 
     num_x_predict = PredictNumX(hidden_size=hidden_size, output_size=3, batch_size=batch_size)
     x_generate = GenerateXs(hidden_size=hidden_size, output_size=5, batch_size=batch_size)
+    x_to_q = XToQ(hidden_size=hidden_size)
 
 
     models = {
@@ -120,7 +121,8 @@ for fold in range(num_folds):
         "generate": generate,
         "merge": merge,
         "num_x_predict": num_x_predict,
-        "x_generate": x_generate
+        "x_generate": x_generate,
+        "x_to_q": x_to_q
     }
     # the embedding layer is  only for generated number embeddings, operators, and paddings
 
@@ -130,6 +132,7 @@ for fold in range(num_folds):
     merge_optimizer = torch.optim.Adam(merge.parameters(), lr=learning_rate, weight_decay=weight_decay)
     num_x_predict_optimizer = torch.optim.Adam(num_x_predict.parameters(), lr=learning_rate, weight_decay=weight_decay)
     x_generate_optimizer = torch.optim.Adam(x_generate.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    x_to_q_optimizer = torch.optim.Adam(x_to_q.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
     optimizers = [
         encoder_optimizer,
@@ -137,7 +140,8 @@ for fold in range(num_folds):
         generate_optimizer,
         merge_optimizer,
         num_x_predict_optimizer,
-        x_generate_optimizer
+        x_generate_optimizer,
+        x_to_q_optimizer
     ]
 
     encoder_scheduler = torch.optim.lr_scheduler.StepLR(encoder_optimizer, step_size=20, gamma=0.5)
@@ -146,6 +150,7 @@ for fold in range(num_folds):
     merge_scheduler = torch.optim.lr_scheduler.StepLR(merge_optimizer, step_size=20, gamma=0.5)
     num_x_predict_scheduler = torch.optim.lr_scheduler.StepLR(num_x_predict_optimizer, step_size=20, gamma=0.5)
     x_generate_scheduler = torch.optim.lr_scheduler.StepLR(x_generate_optimizer, step_size=20, gamma=0.5)
+    x_to_q_scheduler = torch.optim.lr_scheduler.StepLR(x_to_q_optimizer, step_size=20, gamma=0.5)
 
     schedulers = [
         encoder_scheduler,
@@ -153,7 +158,8 @@ for fold in range(num_folds):
         generate_scheduler,
         merge_scheduler,
         num_x_predict_scheduler,
-        x_generate_scheduler
+        x_generate_scheduler,
+        x_to_q_scheduler
     ]
 
     # Move models to GPU
@@ -214,30 +220,15 @@ for fold in range(num_folds):
         fold_train_accuracy.append(sum(train_accuracys) / len(train_accuracys))
         # if epoch % 10 == 0 or epoch > n_epochs - 5:
         if True:
-            value_ac = 0
-            equation_ac = 0
-            eval_total = 0
+            for k, v in models.items():
+                v.eval()
             eval_accuracys = []
             start = time.time()
-            # print('test pairs', test_pairs)
             for test_batch in test_pairs:
                 start = time.perf_counter()
-                test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, encoder, predict, generate,
-                                         merge, output_lang, test_batch[5], vars, useCustom, beam_size=beam_size)
+                test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, models, output_lang, test_batch[5], vars, useCustom, beam_size=beam_size)
                 end = time.perf_counter()
                 test_time_array.append([1, end - start])
-                # print('test res', test_res)
-                # for i in test_res:
-                #     print('i', i)
-                #     # for j in i:
-                #     #     print('j', j)
-                #     print(output_lang.index2word(i))
-                # print('test result', [output_lang.index2word(i) for i in test_res ])
-                # test_time_array.append({"length": input_batch_len, "time": end - start})
-                # val_ac, equ_ac, test, tar = compute_prefix_tree_result(test_res, test_batch[2], output_lang, test_batch[4], test_batch[6])
-                # print('test', test)
-                # print('tar', tar)
-                # print('actual', test_batch[2])
                 lengths = 0
                 same = 0
                 for equ_count in range(len(test_batch[2])):
@@ -258,53 +249,16 @@ for fold in range(num_folds):
                         if token_actual == token_pred:
                             same += 1
 
-                    # predicted = [output_lang.index2word[i] for i in test_res]
-                # print(len(actual), len(predicted))
-                # for i in range(min(len(actual), len(predicted))):
-                #     if actual[i] == predicted[i]:
-                #         same += 1
-                # print("actual     " , actual)
-                # print("predicted  ", predicted)
-                # print('same:', same, (2*same)/(len(actual) + len(predicted)))
-                # accuracy = (2*same)/(len(actual) + len(predicted))
                 accuracy = same / lengths
                 eval_accuracys.append(accuracy)
-                # print("\n")
-                # for i in test_res:
-                #     print(output_lang.index2word[i])
-                # for i in test_batch[2]:
-                #     print(output_lang.index2word[i])
-                # print('value accuracy', val_ac)
-                # print('equation accuracy', equation_ac)
-                # if val_ac:
-                #     value_ac += 1
-                # if equ_ac:
-                #     equation_ac += 1
-                # eval_total += 1
 
-            # actual = [output_lang.index2word[i] for i in test_batch[2]]
-            # predicted = [output_lang.index2word[i] for i in test_res]
-            # same = 0
-            # print(len(actual), len(predicted))
-            # for i in range(min(len(actual), len(predicted))):
-            #     if actual[i] == predicted[i]:
-            #         same += 1
-            # print("actual     " , actual)
-            # print("predicted  ", predicted)
-            # print('same:', same, (2*same)/(len(actual) + len(predicted)))
-
-            # print("\n")
-            # print(equation_ac, value_ac, eval_total)
             fold_eval_accuracy.append(sum(eval_accuracys) / len(eval_accuracys))
-            # print("test_answer_acc", float(equation_ac) / eval_total, float(value_ac) / eval_total)
-            # print("testing time", time_since(time.time() - start))
+
             print("------------------------------------------------------")
-            torch.save(encoder.state_dict(), "models/encoder")
-            torch.save(predict.state_dict(), "models/predict")
-            torch.save(generate.state_dict(), "models/generate")
-            torch.save(merge.state_dict(), "models/merge")
-            if epoch == n_epochs - 1:
-                best_acc_fold.append((equation_ac, value_ac, eval_total))
+            # torch.save(encoder.state_dict(), "models/encoder")
+            # torch.save(predict.state_dict(), "models/predict")
+            # torch.save(generate.state_dict(), "models/generate")
+            # torch.save(merge.state_dict(), "models/merge")
     all_train_accuracys.append(fold_train_accuracy)
     all_eval_accuracys.append(fold_eval_accuracy)
     make_loss_graph(
