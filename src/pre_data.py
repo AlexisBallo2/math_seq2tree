@@ -82,10 +82,14 @@ class Lang:
         for i, j in enumerate(self.index2word):
             self.word2index[j] = i
 
-    def build_output_lang_for_tree(self, generate_num, copy_nums, vars):  # build the output lang vocab and dict
+    def build_output_lang_for_tree(self, generate_num, copy_nums, vars, useCustom):  # build the output lang vocab and dict
         self.num_start = len(self.index2word)
 
-        self.index2word = self.index2word + generate_num + vars + ["N" + str(i) for i in range(copy_nums)] + ["UNK"]
+        if useCustom:
+            self.index2word = self.index2word + generate_num + vars + ["N" + str(i) for i in range(copy_nums)] + ["UNK"]
+        else:
+            self.index2word = self.index2word + generate_num + ["N" + str(i) for i in range(copy_nums)] + ["UNK"]
+
         self.n_words = len(self.index2word)
 
         for i, j in enumerate(self.index2word):
@@ -307,7 +311,7 @@ def load_roth_data(filename):  # load the json data to dict(dict()) for roth dat
 #     return test_str
 
 variableHierarchy = ['X', 'Y', 'Z']
-def transfer_num(data, setName):  # transfer num into "NUM"
+def transfer_num(data, setName, useCustom):  # transfer num into "NUM"
     print("Transfer numbers...")
     # number regex
     # pattern = re.compile("\d*\(\d+/\d+\)\d*|\d+\.\d+%?|\d+%?")
@@ -513,7 +517,10 @@ def transfer_num(data, setName):  # transfer num into "NUM"
             temp_g.append(g)
 
     # copy_nums: max length of numbers
-    return pairs, temp_g, copy_nums, vars
+    if useCustom:
+        return pairs, temp_g, copy_nums, allVars
+    else:
+        return pairs, temp_g, copy_nums, [] 
 
 
 def transfer_english_num(data):  # transfer num into "NUM"
@@ -790,7 +797,7 @@ def indexes_from_sentence(lang, sentence, tree=False):
     return res
 
 
-def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, copy_nums, vars, tree=False):
+def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, copy_nums, vars, useCustom, tree=False):
     input_lang = Lang()
     output_lang = Lang()
     train_pairs = []
@@ -818,7 +825,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
     # hard coded to true
     if tree:
         # lang is the current lang + generate_nums array + N{i} (for each copy_num)
-        output_lang.build_output_lang_for_tree(generate_nums, copy_nums, vars)
+        output_lang.build_output_lang_for_tree(generate_nums, copy_nums, vars, useCustom)
     else:
         # same but has pad, eos, unk tokens
         output_lang.build_output_lang(generate_nums, copy_nums)

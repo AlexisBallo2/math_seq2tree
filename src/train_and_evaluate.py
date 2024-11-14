@@ -255,7 +255,7 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
 
 # @line_profiler.profile
-def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, english=False):
+def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, useCustom, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -272,13 +272,6 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     target = torch.LongTensor(target_batch)#.transpose(0, 1)
 
     num_total_vars = len(problem_vars[0])
-    # generate temp x vectors
-    x_list = []
-    for i in range(len(input_length)):
-        x_list.append(torch.rand(2, 512))
-
-    x_list = torch.stack(x_list)
-
     # sequence mask for attention
     # 0s where in input, 1s where not in input
     seq_mask = []
@@ -290,12 +283,19 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # number mask 
     # 0s where the numbers are from input, 1s where not in input
     num_mask = []
-    max_num_size = max(num_size_batch) + len(generate_nums) + num_total_vars
+    if useCustom:
+        max_num_size = max(num_size_batch) + len(generate_nums) + num_total_vars
+    else:
+        max_num_size = max(num_size_batch) + len(generate_nums) 
     # in language its 
     # operators + gen numbers + vars + copy numbers
     for i, num_size in enumerate(num_size_batch):
-        d = num_size + num_total_vars + len(generate_nums)
-        num_mask.append([0] * num_size + problem_vars[i].tolist() + [0] * len(generate_nums) + [1] * (max_num_size - d))
+        if useCustom:
+            d = num_size + num_total_vars + len(generate_nums)
+            num_mask.append([0] * num_size + problem_vars[i].tolist() + [0] * len(generate_nums) + [1] * (max_num_size - d))
+        else:
+            d = num_size + len(generate_nums)
+            num_mask.append([0] * num_size + [0] * len(generate_nums) + [1] * (max_num_size - d))
     num_mask = torch.ByteTensor(num_mask)
 
     unk = output_lang.word2index["UNK"]
@@ -310,7 +310,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     batch_size = len(input_length)
 
     total_loss = None
-    total_acc = None
+    total_acc = [] 
 
     # Run words through encoder
     # embedding + dropout layer
@@ -341,11 +341,16 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     left_childs = [None for _ in range(batch_size)]
 
     pred_num_equations = models['num_x_predict'](encoder_outputs)
-    num_equations_per_obs = len(target_batch[0])
+    num_equations_per_obs = torch.LongTensor([len(equ_set) for equ_set in target_batch])
 
+    if useCustom:
+        # node that max(num_equations_per_obs) should be the same as the lenth of vars
+        xs = models['x_generate'](num_total_vars, encoder_outputs, problem_output)
+    else: 
+        xs = None 
     # do equations one at a time
-    for i in range(num_equations_per_obs):
-        # select the first equations in each obs
+    for i in range(max(num_equations_per_obs)):
+        # select the ith equation in each obs
         ith_equation_target = deepcopy(target[:, i, :].transpose(0,1))
         ith_equation_target_lengths = torch.Tensor(target_length)[:, i]
         ith_equation_num_stacks = []
@@ -375,7 +380,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             #       embeddings of the generate and copy numbers
 
             num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict'](
-                node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, x_list, seq_mask, num_mask)
+                node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom)
 
 
             # this is mainly what we want to train
@@ -513,24 +518,20 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             total_loss += current_equation_loss
         else:
             total_loss = current_equation_loss
-        if total_acc:
-            total_acc+=same/lengths
-        else:
-            total_acc = same/lengths
+        total_acc += [same/lengths]
     
     # add the loss of number equations
-    num_equations = torch.LongTensor([len(equ_set) for equ_set in target_batch])
-    num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations)
+    num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs)
             
     total_loss += num_x_loss
     total_loss.backward()
 
     # Update parameters with optimizers
-    return total_loss.item(), total_acc 
+    return total_loss.item(), sum(total_acc)/len(total_acc)
 
 # @line_profiler.profile
 def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, generate, merge, output_lang, num_pos,
-                  vars, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
+                  vars, useCustom, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
 
     seq_mask = torch.ByteTensor(1, input_length).fill_(0)
     # Turn padded arrays into (batch_size x max_len) tensors, transpose into (max_len x batch_size)
@@ -566,19 +567,26 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
 
     # predict number of xs
     num_x = 1
-    # make random x vectors
-    x_list = []
-    x_list.append(torch.rand(2, 512))
-    # # fill other as zero
-    # x_list.append(torch.zeros(512))
-    x_list = torch.stack(x_list)
+
+    if useCustom:
+        # make random x vectors
+        x_list = []
+        x_list.append(torch.rand(2, 512))
+        # # fill other as zero
+        # x_list.append(torch.zeros(512))
+        x_list = torch.stack(x_list)
+    else:
+        x_list = None
 
     # num_mask = torch.ByteTensor(1, len(num_pos) + len(generate_nums)).fill_(0)
     num_mask = []
     # max_num_size = num_pos + len(generate_nums) + len(vars) 
     # in language its 
     # operators + gen numbers + vars + copy numbers
-    num_mask.append([0] * num_size + [0] * num_x + [1] * (len(vars) - num_x) + [0] * len(generate_nums))
+    if useCustom:
+        num_mask.append([0] * num_size + [0] * num_x + [1] * (len(vars) - num_x) + [0] * len(generate_nums))
+    else:
+        num_mask.append([0] * num_size +  [0] * len(generate_nums))
     num_mask = torch.ByteTensor(num_mask)
 
     if USE_CUDA:
@@ -598,7 +606,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, encoder, predict, ge
             # left_childs = torch.stack(b.left_childs)
             left_childs = b.left_childs
 
-            num_score, op, current_embeddings, current_context, current_nums_embeddings = predict( b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, x_list, seq_mask, num_mask)
+            num_score, op, current_embeddings, current_context, current_nums_embeddings = predict( b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, x_list, seq_mask, num_mask, useCustom)
 
             # leaf = p_leaf[:, 0].unsqueeze(1)
             # repeat_dims = [1] * leaf.dim()

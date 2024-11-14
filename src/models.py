@@ -268,7 +268,7 @@ class Prediction(nn.Module):
         self.score = Score(hidden_size * 2, hidden_size)
 
     # @line_profiler.profile  
-    def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, xs, seq_mask, mask_nums):
+    def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, xs, seq_mask, mask_nums, useCustom):
         # node_stacks: [TreeNodes] for each node containing the hidden state for the node
         # left_childs: [] of 
         # encoder_outputs: token embeddings: max_len x num_batches x hidden state 
@@ -353,7 +353,10 @@ class Prediction(nn.Module):
         # batch_size x (2 + number of numbers we have encodings for) x hidden_dim
         # batch_size is the embeddings of the numbers
         #   batch_size x nums_count x hidden_dim
-        embedding_weight = torch.cat((embedding_weight1, xs, num_pades), dim=1)  # B x O x N
+        if useCustom:
+            embedding_weight = torch.cat((embedding_weight1, xs, num_pades), dim=1)  # B x O x N
+        else:
+            embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
 
 
         # get the embedding of a leaf
@@ -534,3 +537,52 @@ class PredictNumX(nn.Module):
         softmax = torch.nn.Softmax(dim=-1)
         return softmax(out)
         # return abs(out) 
+
+class GenerateXs(nn.Module):
+    def __init__(self, hidden_size, output_size, batch_size, dropout=0.5):
+        super(GenerateXs, self).__init__()
+
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+        self.batch_size = batch_size
+
+        self.em_dropout = nn.Dropout(dropout)
+        self.out = nn.Linear(hidden_size * 10, 1)
+
+        self.new_old_final = nn.Linear(hidden_size * 2, hidden_size)
+
+        self.K = nn.Linear(hidden_size, hidden_size)
+        self.V = nn.Linear(hidden_size, hidden_size)
+
+
+    def forward(self, num_xs, hidden, problem_q):
+        
+        # hidden2: batch_size x tokens x hidden_size
+
+        hidden2 = hidden.transpose(0,1)
+
+        # for each in batch
+        out = []
+        for i in range(hidden2.shape[0]):
+            xs = []
+            nums_to_gen = num_xs
+            # nums_to_gen = max(int(num_xs.tolist()), 1)
+            goal_vect = problem_q[i]
+            kt = self.K(hidden2[i]).transpose(0,1)
+            v = self.V(hidden2[i])
+            # for each number to gen
+            for j in range(nums_to_gen):
+                # leave the first vector
+                if len(xs) == 0:
+                    xs.append(goal_vect)
+                else:
+                    # generate the next one from the attention of previous
+                    qkt = torch.matmul(xs[j-1], kt)
+                    smqkt = nn.functional.softmax(qkt)
+                    # output: hidden_size
+                    outAttention = torch.matmul(smqkt, v)
+                    xs.append(outAttention)
+            out.append(torch.stack(xs))
+        return torch.stack(out)
+        # return xs
+

@@ -21,8 +21,10 @@ n_layers = 2
 
 # torch.autograd.set_detect_anomaly(True)
 
-# setName = "MATH"
-setName = "DRAW"
+# useCustom = True
+useCustom = False 
+setName = "MATH"
+# setName = "DRAW"
 os.makedirs("models", exist_ok=True)
 if setName == "DRAW":
     data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
@@ -42,7 +44,7 @@ data = data[0:10]
 # "ans":"80"
 # }'
 
-pairs, generate_nums, copy_nums, vars = transfer_num(data, setName)
+pairs, generate_nums, copy_nums, vars = transfer_num(data, setName, useCustom)
 pairs = pairs[0:10]
 # pairs: list of tuples:
 #   input_seq: masked text
@@ -93,7 +95,7 @@ for fold in range(num_folds):
             pairs_trained += fold_pairs[fold_t]
 
     input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums,
-                                                                    copy_nums, vars, tree=True)
+                                                                    copy_nums, vars, useCustom, tree=True)
     # pair:
     #   input: sentence with all numbers masked as NUM
     #   length of input
@@ -109,6 +111,7 @@ for fold in range(num_folds):
     merge = Merge(hidden_size=hidden_size, embedding_size=embedding_size)
 
     num_x_predict = PredictNumX(hidden_size=hidden_size, output_size=3, batch_size=batch_size)
+    x_generate = GenerateXs(hidden_size=hidden_size, output_size=5, batch_size=batch_size)
 
 
     models = {
@@ -116,7 +119,8 @@ for fold in range(num_folds):
         "predict": predict,
         "generate": generate,
         "merge": merge,
-        "num_x_predict": num_x_predict
+        "num_x_predict": num_x_predict,
+        "x_generate": x_generate
     }
     # the embedding layer is  only for generated number embeddings, operators, and paddings
 
@@ -125,13 +129,15 @@ for fold in range(num_folds):
     generate_optimizer = torch.optim.Adam(generate.parameters(), lr=learning_rate, weight_decay=weight_decay)
     merge_optimizer = torch.optim.Adam(merge.parameters(), lr=learning_rate, weight_decay=weight_decay)
     num_x_predict_optimizer = torch.optim.Adam(num_x_predict.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    x_generate_optimizer = torch.optim.Adam(x_generate.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
     optimizers = [
         encoder_optimizer,
         predict_optimizer,
         generate_optimizer,
         merge_optimizer,
-        num_x_predict_optimizer
+        num_x_predict_optimizer,
+        x_generate_optimizer
     ]
 
     encoder_scheduler = torch.optim.lr_scheduler.StepLR(encoder_optimizer, step_size=20, gamma=0.5)
@@ -139,13 +145,15 @@ for fold in range(num_folds):
     generate_scheduler = torch.optim.lr_scheduler.StepLR(generate_optimizer, step_size=20, gamma=0.5)
     merge_scheduler = torch.optim.lr_scheduler.StepLR(merge_optimizer, step_size=20, gamma=0.5)
     num_x_predict_scheduler = torch.optim.lr_scheduler.StepLR(num_x_predict_optimizer, step_size=20, gamma=0.5)
+    x_generate_scheduler = torch.optim.lr_scheduler.StepLR(x_generate_optimizer, step_size=20, gamma=0.5)
 
     schedulers = [
         encoder_scheduler,
         predict_scheduler,
         generate_scheduler,
         merge_scheduler,
-        num_x_predict_scheduler
+        num_x_predict_scheduler,
+        x_generate_scheduler
     ]
 
     # Move models to GPU
@@ -170,6 +178,8 @@ for fold in range(num_folds):
         # num_pos_batches: positions of the numbers lists
         # num_size_batches: number of numbers from the input text
         input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches = prepare_train_batch(train_pairs, batch_size, vars)
+        # generate temp x vectors
+
         print("fold:", fold + 1)
         print("epoch:", epoch + 1)
         train_accuracys = []
@@ -188,7 +198,7 @@ for fold in range(num_folds):
             loss, acc = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
-                output_lang, num_pos_batches[idx])
+                output_lang, num_pos_batches[idx], useCustom)
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             loss_total += loss
@@ -213,7 +223,7 @@ for fold in range(num_folds):
             for test_batch in test_pairs:
                 start = time.perf_counter()
                 test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, encoder, predict, generate,
-                                         merge, output_lang, test_batch[5], vars, beam_size=beam_size)
+                                         merge, output_lang, test_batch[5], vars, useCustom, beam_size=beam_size)
                 end = time.perf_counter()
                 test_time_array.append([1, end - start])
                 # print('test res', test_res)
