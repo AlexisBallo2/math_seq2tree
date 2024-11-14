@@ -1,0 +1,57 @@
+Job ID: 9833
+Node: node002 echo Starting: 11/14/24 14:22:32
+aballo
+Reading file...
+Transfer numbers...
+Indexing words...
+keep_words 5 / 21 = 0.2381
+Indexed 8 words in input language, 9 words in output
+Number of training data 5
+Number of testind data 4
+/home/lbiester/.conda/envs/CS457/lib/python3.10/site-packages/torch/optim/lr_scheduler.py:136: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn("Detected call of `lr_scheduler.step()` before `optimizer.step()`. "
+fold: 1
+epoch: 1
+
+
+/home/aballo/math_seq2tree/src/models.py:581: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  smqkt = nn.functional.softmax(qkt)
+/home/aballo/math_seq2tree/src/models.py:613: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  smqkt = nn.functional.softmax(qkt)
+Equation 0
+        prediction: ['-', '+', '-']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', '-']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', '-', '+']
+        actual: ['+', 'Y', 'X']
+        prediction: ['X', '+', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'N0', '-']
+        actual: ['+', 'Y', 'X']
+Equation 1
+        prediction: ['-', '-', '+']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'X', '+']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', '-', '-']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', '+', 'N0']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', '-', '+']
+        actual: ['-', 'Y', 'X']
+Traceback (most recent call last):
+  File "/home/aballo/math_seq2tree/run_seq2tree.py", line 204, in <module>
+    loss, acc = train_tree(
+  File "/home/aballo/math_seq2tree/src/train_and_evaluate.py", line 531, in train_tree
+    num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs)
+  File "/home/lbiester/.conda/envs/CS457/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/lbiester/.conda/envs/CS457/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/lbiester/.conda/envs/CS457/lib/python3.10/site-packages/torch/nn/modules/loss.py", line 1179, in forward
+    return F.cross_entropy(input, target, weight=self.weight,
+  File "/home/lbiester/.conda/envs/CS457/lib/python3.10/site-packages/torch/nn/functional.py", line 3053, in cross_entropy
+    return torch._C._nn.cross_entropy_loss(input, target, weight, _Reduction.get_enum(reduction), ignore_index, label_smoothing)
+RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu! (when checking argument for argument target in method wrapper_CUDA_nll_loss_forward)
+Ending: 11/14/24 14:22:38

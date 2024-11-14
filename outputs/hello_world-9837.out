@@ -1,0 +1,51 @@
+Job ID: 9837
+Node: node002 echo Starting: 11/14/24 14:27:45
+aballo
+Reading file...
+Transfer numbers...
+Indexing words...
+keep_words 5 / 21 = 0.2381
+Indexed 8 words in input language, 9 words in output
+Number of training data 5
+Number of testind data 4
+/home/lbiester/.conda/envs/CS457/lib/python3.10/site-packages/torch/optim/lr_scheduler.py:136: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn("Detected call of `lr_scheduler.step()` before `optimizer.step()`. "
+fold: 1
+epoch: 1
+
+
+/home/aballo/math_seq2tree/src/models.py:581: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  smqkt = nn.functional.softmax(qkt)
+/home/aballo/math_seq2tree/src/models.py:613: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  smqkt = nn.functional.softmax(qkt)
+Equation 0
+        prediction: ['-', '+', '-']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', '-']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', '-', '-']
+        actual: ['+', 'X', 'Y']
+        prediction: ['X', '+', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'N0', '-']
+        actual: ['+', 'Y', 'X']
+Equation 1
+        prediction: ['-', '-', '+']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'X', '+']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', '-', '-']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '+', 'N0']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '-', '+']
+        actual: ['-', 'Y', 'X']
+loss: 4.4477763175964355
+--------------------------------
+Traceback (most recent call last):
+  File "/home/aballo/math_seq2tree/run_seq2tree.py", line 229, in <module>
+    test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, models, output_lang, test_batch[5], vars, useCustom, beam_size=beam_size)
+  File "/home/aballo/math_seq2tree/src/train_and_evaluate.py", line 560, in evaluate_tree
+    num_mask = num_mask.cuda()
+UnboundLocalError: local variable 'num_mask' referenced before assignment
+Ending: 11/14/24 14:27:52

@@ -10,7 +10,7 @@ from src.expressions_transfer import *
 # batch_size = 64
 torch.manual_seed(1)
 random.seed(1)
-batch_size = 5 
+batch_size = 10 
 embedding_size = 128
 hidden_size = 512
 n_epochs = 10 
@@ -19,9 +19,25 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
+useCustom = True
+num_obs = 200
+
+config = {
+    "batch_size": batch_size,
+    "embedding_size": embedding_size,
+    "hidden_size": hidden_size,
+    "n_epochs": n_epochs,
+    "learning_rate": learning_rate,
+    "weight_decay": weight_decay,
+    "beam_size": beam_size,
+    "n_layers": n_layers,
+    "useCustom": useCustom,
+    "num_obs": num_obs,
+}
+print("CONFIG \n", config)
+
 # torch.autograd.set_detect_anomaly(True)
 
-useCustom = True
 # useCustom = False 
 # setName = "MATH"
 setName = "DRAW"
@@ -30,11 +46,8 @@ if setName == "DRAW":
     data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
 else:
     data = load_raw_data("data/Math_23K.json")
-data = data[0:10]
-# data = load_raw_data("data/DRAW/draw.json")
-# data = None
-# with open("data/DRAW/draw.json", "r") as f:
-#     data = json.loads(f.read())
+data = data[0:num_obs]
+
 # data format:
 # {
 # "id":"10431",
@@ -45,7 +58,7 @@ data = data[0:10]
 # }'
 
 pairs, generate_nums, copy_nums, vars = transfer_num(data, setName, useCustom)
-pairs = pairs[0:10]
+pairs = pairs[0:num_obs]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
@@ -164,7 +177,7 @@ for fold in range(num_folds):
 
     # Move models to GPU
     if USE_CUDA:
-        for k,v in models():
+        for k,v in models.items():
             v.cuda()
 
     generate_num_ids = []

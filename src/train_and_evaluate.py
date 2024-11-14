@@ -14,6 +14,8 @@ MAX_OUTPUT_LENGTH = 45
 MAX_INPUT_LENGTH = 120
 USE_CUDA = torch.cuda.is_available()
 
+device = torch.device("cuda" if USE_CUDA else "cpu")
+
 
 class Beam:  # the class save the beam node
     def __init__(self, score, input_var, hidden, all_output):
@@ -504,7 +506,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         #     print([output_lang.index2word[_] for _ in batch])
         #print('done equation')
         # loss = masked_cross_entropy(all_node_outputs2, target, target_length)
-        current_equation_loss = torch.nn.CrossEntropyLoss(reduction="none")(all_node_outputs2.view(-1, all_node_outputs2.size(2)), ith_equation_target.view(-1)).mean()
+        current_equation_loss = torch.nn.CrossEntropyLoss(reduction="none")(all_node_outputs2.view(-1, all_node_outputs2.size(2)), ith_equation_target.view(-1).to(device)).mean()
         same = 0
         lengths = 0
         print(f'Equation {cur_equation}')
@@ -528,7 +530,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         total_acc += [same/lengths]
     
     # add the loss of number equations
-    num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs)
+    num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs.to(device))
             
     total_loss += num_x_loss
     total_loss.backward()
@@ -551,6 +553,13 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, output_lang,
 
     batch_size = 1
 
+    if USE_CUDA:
+        input_var = input_var.cuda()
+        seq_mask = seq_mask.cuda()
+        padding_hidden = padding_hidden.cuda()
+        # num_mask = num_mask.cuda()
+
+    # Run words through encoder
     encoder_outputs, problem_output = models['encoder'](input_var, [input_length])
 
     # Prepare input and output variables
@@ -597,14 +606,8 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, output_lang,
         num_mask.append([0] * num_size + [0] * num_x + [1] * (len(vars) - num_x) + [0] * len(generate_nums))
     else:
         num_mask.append([0] * num_size +  [0] * len(generate_nums))
-    num_mask = torch.ByteTensor(num_mask)
+    num_mask = torch.ByteTensor(num_mask).to(device)
 
-    if USE_CUDA:
-        input_var = input_var.cuda()
-        seq_mask = seq_mask.cuda()
-        padding_hidden = padding_hidden.cuda()
-        num_mask = num_mask.cuda()
-    # Run words through encoder
 
     final_beams = []
 

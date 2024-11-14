@@ -1,0 +1,146 @@
+Job ID: 9839
+Node: node002 echo Starting: 11/14/24 14:32:23
+aballo
+CONFIG 
+ {'batch_size': 10, 'embedding_size': 128, 'hidden_size': 512, 'n_epochs': 10, 'learning_rate': 0.001, 'weight_decay': 1e-05, 'beam_size': 5, 'n_layers': 2, 'useCustom': True, 'num_obs': 200}
+Reading file...
+Transfer numbers...
+Indexing words...
+keep_words 20 / 55 = 0.3636
+Indexed 23 words in input language, 15 words in output
+Number of training data 52
+Number of testind data 52
+/home/lbiester/.conda/envs/CS457/lib/python3.10/site-packages/torch/optim/lr_scheduler.py:136: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn("Detected call of `lr_scheduler.step()` before `optimizer.step()`. "
+fold: 1
+epoch: 1
+
+
+/home/aballo/math_seq2tree/src/models.py:613: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  smqkt = nn.functional.softmax(qkt)
+Equation 0
+        prediction: ['*', '3', '3', '3', '3', '3', '3', '*', '3']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+        prediction: ['3', '3', '3', '3', '3', '-', '2', '3', '3']
+        actual: ['+', '*', 'N0', 'X', '*', 'N1', '+', 'X', '1']
+        prediction: ['3', '3', '1', '3', '3', '3', '3', '3', '3']
+        actual: ['+', '*', 'N1', 'X', '*', 'N2', '+', 'X', '1']
+        prediction: ['N0', 'N0', '1', 'N0', '1', 'N0', '*', '-', 'N0', 'N0', '1', '2', 'N0', '*', '*', '1', 'N0']
+        actual: ['+', '+', '+', '+', '-', '*', '2', 'X', '1', '*', '2', 'X', '1', '*', '2', 'X', 'N0']
+        prediction: ['N0', '+', '2', '2', '1', 'N0', 'N1', 'N0', 'N0', '-', '*']
+        actual: ['+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1']
+        prediction: ['*', '*', '1', 'N0', '+', '1', '1', '+', '*']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+        prediction: ['2', '*', '1', '-', '2', '2', '-', '1', '+', '1', '1', '-', '-', '-', '1', '2', '2', '+', '1', 'N1', '+', '*', '*']
+        actual: ['+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3']
+        prediction: ['N0', '*', 'N1', '-', '1', '-', '*', '-', '-', '+', 'N0']
+        actual: ['+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1']
+        prediction: ['-', 'N1', '-', 'N0', '2', '-', '-', '-', '1', '-', '-', '1', '2']
+        actual: ['+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2']
+        prediction: ['2', '+', 'N0', '*', 'N0', '*', '*', 'N0', '2', '+', '-', '-', '1', 'N0', 'N1', 'N0', 'N0', '2', '-', '2', '*', '+', '1']
+        actual: ['+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3']
+
+
+Equation 0
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', '+', '+']
+        actual: ['-', '*', 'N1', 'X', '*', 'N0', 'X']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2']
+
+
+Equation 0
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '*', 'N0', 'X', '*', 'N1', '+', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', '+', 'X', '+', '+', '+', '+', 'X', '+', '+', '+', '+', '1', '+', '+', '+', '+', 'X', '+']
+        actual: ['+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3']
+        prediction: ['+', '+', '+', '+', '+', '+', 'N2', '+', '+', '+', '+', '1', '+', '+', '+', '+', '1', '+', '+', '+', '+', '1', '+']
+        actual: ['+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', 'X', '+', '+', '+', 'X', '+', '+', '+', 'X', '+']
+        actual: ['+', '+', '+', '+', '-', '*', '2', 'X', '1', '*', '2', 'X', '1', '*', '2', 'X', 'N0']
+        prediction: ['+', '+', '+', '+', '+', '+', 'X', '+', '+', '+', '+', 'X', '+', '+', '+', '+', 'X', '+', '+', '+', '+', 'X', '+']
+        actual: ['+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+
+
+Equation 0
+        prediction: ['+', '+', '+', '+', '+', '+', '+']
+        actual: ['-', '*', 'N1', 'X', '*', 'N0', 'X']
+        prediction: ['+', '+', '+', '+', '1', '1', '+', '+', '+', '1', '+']
+        actual: ['+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', 'X', '1', '1', '+', '1', '1', '1', '+', '+', '+', '1', '1']
+        actual: ['+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0']
+        prediction: ['+', '+', '+', '+', '1', '+', '+', '+', '+', '1', '+']
+        actual: ['+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', '1', '1', '+', '+', '+', '1', '1', '+', '+', '+', '1', '1']
+        actual: ['+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+        prediction: ['+', '+', '+', '+', '1', '+', '+', '+', '+']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+
+
+Equation 0
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '*', 'N1', 'X', '*', 'N2', '+', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+        prediction: ['+', '+', '+', '*', '1', '1', '+', '+', '1']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', '1', '1', '1', '+', '+', '+', '2', '2', '+', '+', '+', '1', '1', '+', '+', '+', '1', '1']
+        actual: ['+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3']
+        prediction: ['+', '+', '+', '+', 'X', 'X', '+', '+', '+']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+        prediction: ['+', '+', '+', '1', 'X', '2', '+', '+', '+', 'X', '+']
+        actual: ['+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1']
+        prediction: ['+', '+', '+', '+', '1', '+', '+', '+', '1']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '-', 'X', '1', 'X', '+', 'X', '1']
+        prediction: ['+', '+', '+', '+', '+', 'X', '1', '+', '+', '+', 'X', '1', '+', '+', '+', '1', 'X']
+        actual: ['+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual: ['+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2']
+Traceback (most recent call last):
+  File "/home/aballo/math_seq2tree/run_seq2tree.py", line 217, in <module>
+    loss, acc = train_tree(
+  File "/home/aballo/math_seq2tree/src/train_and_evaluate.py", line 340, in train_tree
+    pred_num_equations = models['num_x_predict'](encoder_outputs)
+  File "/home/lbiester/.conda/envs/CS457/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/lbiester/.conda/envs/CS457/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/aballo/math_seq2tree/src/models.py", line 516, in forward
+    hidden2 = torch.cat((hidden, padding), dim=0)
+RuntimeError: Sizes of tensors must match except in dimension 0. Expected size 2 but got size 10 for tensor number 1 in the list.
+Ending: 11/14/24 14:32:31

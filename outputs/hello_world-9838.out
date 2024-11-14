@@ -1,0 +1,551 @@
+Job ID: 9838
+Node: node002 echo Starting: 11/14/24 14:28:32
+aballo
+Reading file...
+Transfer numbers...
+Indexing words...
+keep_words 5 / 21 = 0.2381
+Indexed 8 words in input language, 9 words in output
+Number of training data 5
+Number of testind data 4
+/home/lbiester/.conda/envs/CS457/lib/python3.10/site-packages/torch/optim/lr_scheduler.py:136: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn("Detected call of `lr_scheduler.step()` before `optimizer.step()`. "
+fold: 1
+epoch: 1
+
+
+/home/aballo/math_seq2tree/src/models.py:581: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  smqkt = nn.functional.softmax(qkt)
+/home/aballo/math_seq2tree/src/models.py:613: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  smqkt = nn.functional.softmax(qkt)
+Equation 0
+        prediction: ['-', '+', '-']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', '-']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', '-', '+']
+        actual: ['+', 'Y', 'X']
+        prediction: ['X', '+', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'N0', '-']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['-', '-', '+']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'X', '+']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', '-', '-']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', '+', 'N0']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', '-', '+']
+        actual: ['-', 'X', 'Y']
+loss: 4.463076591491699
+--------------------------------
+
+
+actual ['+', 'Y', 'X']
+preds ['Y']
+actual ['-', 'Y', 'X']
+preds ['Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['Y']
+actual ['-', 'Y', 'X']
+preds ['Y']
+
+
+actual ['-', 'Y', 'X']
+preds ['Y']
+actual ['+', 'Y', 'X']
+preds ['Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['Y']
+actual ['-', 'Y', 'X']
+preds ['Y']
+------------------------------------------------------
+fold: 1
+epoch: 2
+
+
+Equation 0
+        prediction: ['Y', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['Y', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['Y', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['Y', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['Y', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['Y', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['Y', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['Y', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['Y', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['Y', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+loss: 3.8384721279144287
+--------------------------------
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+
+
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+------------------------------------------------------
+fold: 1
+epoch: 3
+
+
+Equation 0
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', '+', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+loss: 3.108058452606201
+--------------------------------
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'X', 'X']
+actual ['-', 'Y', 'X']
+preds ['-', 'X', 'X']
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+
+
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'X', 'X']
+actual ['-', 'Y', 'X']
+preds ['-', 'X', 'X']
+------------------------------------------------------
+fold: 1
+epoch: 4
+
+
+Equation 0
+        prediction: ['+', 'X', 'X']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', 'X', 'X']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', 'X', 'X']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['-', 'X', 'X']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'X', 'X']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'Y', 'X']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+loss: 2.241802453994751
+--------------------------------
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+
+
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+------------------------------------------------------
+fold: 1
+epoch: 5
+
+
+Equation 0
+        prediction: ['-', 'X', 'X']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['-', 'X', 'X']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'X', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'X', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+loss: 2.169484853744507
+--------------------------------
+
+
+actual ['+', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+
+
+actual ['-', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+actual ['+', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+------------------------------------------------------
+fold: 1
+epoch: 6
+
+
+Equation 0
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'X']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'X']
+        actual: ['-', 'X', 'Y']
+loss: 2.03932523727417
+--------------------------------
+
+
+actual ['+', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+
+
+actual ['-', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+actual ['+', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+------------------------------------------------------
+fold: 1
+epoch: 7
+
+
+Equation 0
+        prediction: ['-', 'X', 'X']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'X', 'X']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', 'X', 'X']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'X', 'X']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['+', 'X', 'X']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'X', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'X']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'Y', 'X']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'X', 'X']
+        actual: ['-', 'X', 'Y']
+loss: 1.950227975845337
+--------------------------------
+
+
+actual ['+', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+
+
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+------------------------------------------------------
+fold: 1
+epoch: 8
+
+
+Equation 0
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'X', 'X']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', 'X', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', 'X', 'X']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'X', 'X']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'X', 'X']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', 'X', 'Y']
+        actual: ['-', 'X', 'Y']
+loss: 1.8707618713378906
+--------------------------------
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+
+
+actual ['-', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+actual ['+', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+------------------------------------------------------
+fold: 1
+epoch: 9
+
+
+Equation 0
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', 'Y', 'X']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'Y', 'X']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['+', 'Y', 'X']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'X', 'X']
+        actual: ['-', 'X', 'Y']
+loss: 1.8823742866516113
+--------------------------------
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+
+
+actual ['-', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+actual ['+', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+------------------------------------------------------
+fold: 1
+epoch: 10
+
+
+Equation 0
+        prediction: ['-', 'Y', 'X']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'X', 'X']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['+', 'Y', 'X']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', 'X', 'Y']
+        actual: ['-', 'X', 'Y']
+loss: 1.8458458185195923
+--------------------------------
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+
+
+actual ['-', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+actual ['+', 'Y', 'X']
+preds ['+', 'Y', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'Y', 'Y']
+------------------------------------------------------
+All TRAIN ACC [[0.2, 0.3333333333333333, 0.3666666666666667, 0.5333333333333333, 0.3666666666666667, 0.5666666666666667, 0.5333333333333333, 0.5666666666666667, 0.5, 0.5666666666666667]]
+ALL EVAL ACC [[0.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]]
+train time per token 0.0297878334671259
+infrence time per token 0.0705617391038686
+Ending: 11/14/24 14:28:42

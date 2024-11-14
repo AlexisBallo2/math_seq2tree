@@ -1,0 +1,15 @@
+Job ID: 9832
+Node: node002 echo Starting: 11/14/24 14:21:54
+aballo
+Reading file...
+Transfer numbers...
+Indexing words...
+keep_words 5 / 21 = 0.2381
+Indexed 8 words in input language, 9 words in output
+Number of training data 5
+Number of testind data 4
+Traceback (most recent call last):
+  File "/home/aballo/math_seq2tree/run_seq2tree.py", line 167, in <module>
+    for k,v in models():
+TypeError: 'dict' object is not callable
+Ending: 11/14/24 14:21:59
