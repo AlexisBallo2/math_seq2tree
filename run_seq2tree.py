@@ -185,8 +185,6 @@ for fold in range(num_folds):
         generate_num_ids.append(output_lang.word2index[num])
 
     for epoch in range(n_epochs):
-        for scheduler in schedulers:
-            scheduler.step()
         loss_total = 0
         # input_batches: padded inputs
         # input_lengths: length of the inputs (without padding)
@@ -226,6 +224,9 @@ for fold in range(num_folds):
             # Step the optimizers
             for optimizer in optimizers:
                 optimizer.step()
+
+            for scheduler in schedulers:
+                scheduler.step()
 
         print("loss:", loss_total / len(input_lengths))
         # print("training time", time_since(time.time() - start))
