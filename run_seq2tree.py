@@ -10,7 +10,7 @@ from src.expressions_transfer import *
 # batch_size = 64
 torch.manual_seed(1)
 random.seed(1)
-batch_size = 3 
+batch_size = 10 
 embedding_size = 128
 hidden_size = 512
 n_epochs = 10 

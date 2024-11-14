@@ -506,7 +506,7 @@ class PredictNumX(nn.Module):
         # hidden will be a list of unknown length with embed dimension of 512. 
 
         if eval == False:
-            zeroList = [[[0.0] * 512] for _ in range(self.batch_size)]
+            zeroList = [[[0.0] * 512] for _ in range(hidden.size(1))]
         else:
             zeroList = [[[0.0] * 512] for _ in range(1)]
         padding_tensor = torch.tensor(zeroList)  # or any other values you want to pad with

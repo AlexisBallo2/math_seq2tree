@@ -4,9 +4,10 @@ import random
 import json
 import copy
 import re
+from src.expressions_transfer import *
 
 
-PAD_token = 0
+PAD_token = 0 
 
 
 class Lang:
@@ -497,12 +498,15 @@ def transfer_num(data, setName, useCustom):  # transfer num into "NUM"
         else:
             for outputEquation in out_seq:
                 # only want equations in this form
-                if outputEquation[-1][0] != "N" or outputEquation[-2] != "=":
-                    continue
-                else:
-                    # remove = N{i} 
+                if outputEquation[-2] == "=":
                     equationTargetVars.append(outputEquation[-1])
                     final_out_seq_list.append(outputEquation[:-2])
+                elif outputEquation[1] == "=":
+                    equationTargetVars.append(outputEquation[0])
+                    final_out_seq_list.append(outputEquation[2:])
+
+                else:
+                    continue
             if len(equationTargetVars) != len(out_seq):
                 continue
         # input_seq: masked text
@@ -1036,38 +1040,36 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars):
         output_vars = []
         max_equ_length = 0
         # for each item in a pair
-        for _, i, _, j, _, _, _, _, in batch:
-            # i = length if input in pair
-            input_length.append(i)
-            # j = length of output in pair
-            output_length.append(j)
-            max_equ_length = max(max_equ_length, max(j))
-        input_lengths.append(input_length)
-        output_lengths.append(output_length)
-        input_len_max = input_length[0]
-        output_len_max = max_equ_length
+        input_len_max = 0
         input_batch = []
         output_batch = []
         num_batch = []
         num_stack_batch = []
         num_pos_batch = []
         num_size_batch = []
+        # get max number of eqautions in the batch:
+        max_num_equ = 0
         for i, li, j, lj, num, num_pos, num_stack, var_list in batch:
-            # pair:
-            #   input: sentence with all numbers masked as NUM
-            #   length of input
-            #   output: prefix equation. Numbers from input as N{i}, non input as constants
-            #   length of output
-            #   nums: numbers from the input text
-            #   loc nums: where nums are in the text
-            #   [[] of where each number in the equation (that is not in the output lang) is found in the nums array]
+            max_num_equ = max(max_num_equ, len(j))
+            max_equ_length = max(max_equ_length, max(lj))
+
+        for i, li, j, lj, num, num_pos, num_stack, var_list in batch:
+            # i = length if input in pair
+            input_length.append(li)
+            input_len_max = max(input_len_max, li)
+            # j = length of output in pair
+            output_length.append(lj + [0] * (max_num_equ - len(lj)))
+            
+            max_equ_length = max(max_equ_length, max(lj))
+
             num_batch.append(len(num))
             # input batch: padded input text
             input_batch.append(pad_seq(i, li, input_len_max))
             # output batch: padded output text
-            output_batch.append([pad_seq(equ, le, output_len_max) for equ, le in zip(j, lj)])
+            output_temp = [pad_seq(equ, le, max_equ_length) for equ, le in zip(j, lj)]
+            output_batch.append(output_temp + [pad_seq([], 0, max_equ_length) for _ in range(max_num_equ - len(j))])
             # the corresponding arrays
-            num_stack_batch.append(num_stack)
+            num_stack_batch.append(num_stack + [[] for _ in range(max_num_equ - len(num_stack))])
             # positions of numbers
             num_pos_batch.append(num_pos)
             # size of numbers from input
@@ -1083,6 +1085,8 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars):
 
         input_batches.append(input_batch)
         nums_batches.append(num_batch)
+        input_lengths.append(input_length)
+        output_lengths.append(output_length)
         output_batches.append(output_batch)
         output_vars_batches.append(output_vars)
         num_stack_batches.append(num_stack_batch)
