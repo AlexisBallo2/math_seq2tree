@@ -96,6 +96,15 @@ class Lang:
             output.append(self.index2word[i])
         return output
 
+def load_DRAW_data(filename):  # load the json data to list(dict()) for MATH 23K
+    print("Reading file...")
+    f = open(filename, encoding="utf-8")
+    data = json.loads(f.read())
+    # finalData = []
+    # for ele in data:
+    #     if len(ele['lEquations']) == 1:
+    #         finalData.append(ele)
+    return data
 
 def load_raw_data(filename):  # load the json data to list(dict()) for MATH 23K
     print("Reading lines...")
@@ -297,27 +306,42 @@ def load_roth_data(filename):  # load the json data to dict(dict()) for roth dat
 #             test_str += c
 #     return test_str
 
-
-def transfer_num(data):  # transfer num into "NUM"
+variableHierarchy = ['X', 'Y', 'Z']
+def transfer_num(data, setName):  # transfer num into "NUM"
     print("Transfer numbers...")
     # number regex
-    pattern = re.compile("\d*\(\d+/\d+\)\d*|\d+\.\d+%?|\d+%?")
+    # pattern = re.compile("\d*\(\d+/\d+\)\d*|\d+\.\d+%?|\d+%?")
+    pattern = re.compile("-?\d*\(\d+/\d+\)\d*|-?\d+\.\d+%?|-?\d+%?")
+    var_pattern = re.compile("([xyz])(?:[\+\-\*/])([xyz])(?:\s*=\s*\d+)?")
     pairs = []
     generate_nums = []
     generate_nums_dict = {}
     vars = ['X', 'Y']
     copy_nums = 0
     for d in data:
-        current_equation_vars = ['X']
+        # current_equation_vars = ['X']
         # numbers in this problem's text
         nums = []
         # text after masking
         input_seq = []
         # break up segmented text into each word
-        seg = d["segmented_text"].strip().split(" ")
+        if setName == "MATH":
+            seg = d["segmented_text"].strip().split(" ")
+        else: 
+
+            seg = d["sQuestion"].strip()
+            replace = { "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10 }
+            seg = seg.lower()
+            for k,v in replace.items():
+                seg = seg.replace(k, str(v))
+            seg = seg.split(" ")
 
         # strip "x=" from the equation
-        equations = d["equation"][2:]
+        if setName == "MATH":
+            equations = [d["equation"][2:]]
+        else:
+            equations = d["lEquations"]
+
 
         for s in seg:
             # search if its a number
@@ -388,6 +412,8 @@ def transfer_num(data):  # transfer num into "NUM"
                     res += seg_and_tag(st[:p_start])
                 # strip text around number
                 st_num = st[p_start:p_end]
+                if st_num[-2:] == ".0":
+                    st_num = st_num[:-2]
                 if nums.count(st_num) == 1:
                     # same as fractions, append as "N#" if in the input text 
                     res.append("N"+str(nums.index(st_num)))
@@ -404,34 +430,81 @@ def transfer_num(data):  # transfer num into "NUM"
                 res.append(ss)
             return res
 
+        # replace variables with X, Y, Z to be consistent
+        varPattern = r'((x)|(y)|(z)|(a)|(b)|(c)|(k)|(n)|(m))'
+        if setName == "MATH":
+            allVars = ["X"]
+        else:
+            allVars = []
+        allVarsMappings = []
+        for eq in equations:
+            matches = re.findall(varPattern, eq)
+            allVarsTemp = []
+            for match in matches:
+                unique = list(set(match))
+                allVarsTemp += unique
+            allVars.append([item for item in list(set(allVarsTemp)) if item != "" ])
+        allVarsParsed = list(set([var for vars in allVars for var in vars if var != ""]))
+        allVarsTranslated = [variableHierarchy[i] for i in range(len(list(set([var for vars in allVars for var in vars if var != ""]))))]
+        allVarsMappings = [{"var": var, "mapping": variableHierarchy[i]} for i, var in enumerate(allVarsParsed)]
+
+        newEquations = []
+        for eq in equations:
+            for mapping in allVarsMappings:
+                eq = eq.replace(mapping["var"], mapping["mapping"])
+            newEquations.append(eq)
+
+        if setName == "MATH":
+            allVars = ["X"]
+        else:
+            allVars = list([item['mapping'] for item in allVarsMappings])
+
         # tag the equation (replace numbers (only ones that are in the input text), in the equation with "N#")
         # ex: ['(', 'N1', '-', '1', ')', '*', 'N0']
-        out_seq = seg_and_tag(equations)
-
+        # out_seq = [seg_and_tag(equ) for equ in newEquations]
+        out_seq = [seg_and_tag(equ) for equ in newEquations]
 
         # for each elem in equation sequence 
-        for s in out_seq:  
-            # if the first char is a digit and it's not in the input text 
-            # this happens if we have a number in the equation that is not in the input text
-            # store 
-            #   list of numbers in the equation that are not in the input text
-            #   dict of the number and the number of times it appears in the equation
-            if s[0].isdigit() and s not in generate_nums and s not in nums:
-                generate_nums.append(s)
-                generate_nums_dict[s] = 0
-            if s in generate_nums and s not in nums:
-                generate_nums_dict[s] = generate_nums_dict[s] + 1
+        for equ in out_seq:  
+            for s in equ:
+                # if the first char is a digit and it's not in the input text 
+                # this happens if we have a number in the equation that is not in the input text
+                # store 
+                #   list of numbers in the equation that are not in the input text
+                #   dict of the number and the number of times it appears in the equation
+                if s[0].isdigit() and s not in generate_nums and s not in nums:
+                    generate_nums.append(s)
+                    generate_nums_dict[s] = 0
+                if s in generate_nums and s not in nums:
+                    generate_nums_dict[s] = generate_nums_dict[s] + 1
 
         num_pos = []
         for i, j in enumerate(input_seq):
             if j == "NUM":
                 num_pos.append(i)
         assert len(nums) == len(num_pos)
+
+        final_out_seq_list = []
+        equationTargetVars = []
+        if setName == "MATH":
+            equationTargetVars = ['X']
+            final_out_seq_list = out_seq
+        else:
+            for outputEquation in out_seq:
+                # only want equations in this form
+                if outputEquation[-1][0] != "N" or outputEquation[-2] != "=":
+                    continue
+                else:
+                    # remove = N{i} 
+                    equationTargetVars.append(outputEquation[-1])
+                    final_out_seq_list.append(outputEquation[:-2])
+            if len(equationTargetVars) != len(out_seq):
+                continue
         # input_seq: masked text
         # out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
         # nums: list of numbers in the text
         # num_pos: list of positions of the numbers in the text
-        pairs.append((input_seq, [out_seq], nums, num_pos, current_equation_vars))
+        pairs.append((input_seq, final_out_seq_list, nums, num_pos, allVars))
 
     temp_g = []
     for g in generate_nums:

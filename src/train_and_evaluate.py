@@ -255,7 +255,7 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
 
 # @line_profiler.profile
-def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, encoder, predict, generate, merge, encoder_optimizer, predict_optimizer, generate_optimizer, merge_optimizer, output_lang, num_pos, english=False):
+def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -299,18 +299,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     num_mask = torch.ByteTensor(num_mask)
 
     unk = output_lang.word2index["UNK"]
-    padding_hidden = torch.FloatTensor([0.0 for _ in range(predict.hidden_size)]).unsqueeze(0)
+    padding_hidden = torch.FloatTensor([0.0 for _ in range(models['predict'].hidden_size)]).unsqueeze(0)
 
-    # Zero gradients of both optimizers
-    encoder_optimizer.zero_grad()
-    predict_optimizer.zero_grad()
-    generate_optimizer.zero_grad()
-    merge_optimizer.zero_grad()
-
-    encoder.train()
-    predict.train()
-    generate.train()
-    merge.train()
 
     if USE_CUDA:
         input_var = input_var.cuda()
@@ -325,7 +315,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # do equations one at a time
     for i in range(num_equations_per_obs):
         # select the first equations in each obs
-        ith_equation_target = target[:, i, :].transpose(0,1)
+        ith_equation_target = deepcopy(target[:, i, :].transpose(0,1))
         ith_equation_target_lengths = torch.Tensor(target_length)[:, i]
         ith_equation_num_stacks = []
         for stack in nums_stack_batch:
@@ -337,7 +327,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         # embedding + dropout layer
         # encoder_outputs: num_batches x 512 q_0 vector
         # problem_output: max_length x num_batches x hidden_size
-        encoder_outputs, problem_output = encoder(input_var, input_length)
+        encoder_outputs, problem_output = models['encoder'](input_var, input_length)
         # Prepare input and output variables
 
         
@@ -358,7 +348,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
         # num_batches x num_size x hidden_size that correspond to the embeddings of the numbers
         all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_size,
-                                                                encoder.hidden_size)
+                                                                models['encoder'].hidden_size)
 
 
         # index in the language where the special (operators) tokens end and input/output text begins
@@ -381,7 +371,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             #   embedding_weight: batch_size x num_length x hidden_size
             #       embeddings of the generate and copy numbers
 
-            num_score, op, current_embeddings, current_context, current_nums_embeddings = predict(
+            num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict'](
                 node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, x_list, seq_mask, num_mask)
 
 
@@ -417,7 +407,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             #     node_label_ : batch_size x embedding_size 
             #          basically the context vector (c)
             # the node generation takes the first half of equations (10) and (11) 
-            left_child, right_child, node_label = generate(current_embeddings, generate_input, current_context)
+            left_child, right_child, node_label = models['generate'](current_embeddings, generate_input, current_context)
             left_childs = []
             for idx, l, r, node_stack, i, o in zip(range(batch_size), left_child.split(1), right_child.split(1),
                                                 node_stacks, ith_equation_target[t].tolist(), embeddings_stacks):
@@ -466,7 +456,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                         op = o.pop()
                         # contains equation (13)
                         # this combines a left and right tree along with a node
-                        current_num = merge(op.embedding, sub_stree.embedding, current_num)
+                        current_num = models['merge'](op.embedding, sub_stree.embedding, current_num)
                         #print('merged. o now of size', len(o))
                     # then re-add the node back to the stack
                     #print("adding current_num to o (terminal node)")
@@ -500,7 +490,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         #     print([output_lang.index2word[_] for _ in batch])
         #print('done equation')
         # loss = masked_cross_entropy(all_node_outputs2, target, target_length)
-        loss = torch.nn.CrossEntropyLoss()(all_node_outputs2.view(-1, all_node_outputs2.size(2)), ith_equation_target.view(-1))
+        loss = torch.nn.CrossEntropyLoss(reduction="none")(all_node_outputs2.view(-1, all_node_outputs2.size(2)), ith_equation_target.view(-1)).mean()
         same = 0
         lengths = 0
         for i, batch in enumerate(all_node_outputs2):
@@ -516,7 +506,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                     same += 1
             print(f"        prediction: {[output_lang.index2word[_] for _ in vals[0:equ_length]]}")
             print(f"        actual: {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
-        if total_loss:
+        if total_loss != None:
             total_loss+=loss
         else:
             total_loss = loss
@@ -528,10 +518,6 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     total_loss.backward()
 
     # Update parameters with optimizers
-    encoder_optimizer.step()
-    predict_optimizer.step()
-    generate_optimizer.step()
-    merge_optimizer.step()
     return total_loss.item(), total_acc 
 
 # @line_profiler.profile

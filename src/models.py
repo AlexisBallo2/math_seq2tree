@@ -4,6 +4,8 @@
 import torch
 import torch.nn as nn
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 class EncoderRNN(nn.Module):
     def __init__(self, input_size, embedding_size, hidden_size, n_layers=2, dropout=0.5):
@@ -480,3 +482,55 @@ class Merge(nn.Module):
         sub_tree_g = torch.sigmoid(self.merge_g(torch.cat((node_embedding, sub_tree_1, sub_tree_2), 1)))
         sub_tree = sub_tree * sub_tree_g
         return sub_tree
+
+
+class PredictNumX(nn.Module):
+    def __init__(self, hidden_size, output_size, batch_size, dropout=0.5):
+        super(PredictNumX, self).__init__()
+
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+        self.batch_size = batch_size
+
+        self.em_dropout = nn.Dropout(dropout)
+        self.out = nn.Linear(hidden_size * 10, 1)
+
+        self.lstm = nn.LSTM(hidden_size, hidden_size, 2, batch_first=True, bidirectional=True)
+        self.fc = nn.Linear(hidden_size * 2, 3)
+
+
+    def forward(self, hidden, eval = False):
+        # hidden will be a list of unknown length with embed dimension of 512. 
+
+        if eval == False:
+            zeroList = [[[0.0] * 512] for _ in range(self.batch_size)]
+        else:
+            zeroList = [[[0.0] * 512] for _ in range(1)]
+        padding_tensor = torch.tensor(zeroList)  # or any other values you want to pad with
+        padding_tensor = padding_tensor.squeeze(1)
+        num_padding_needed = 100 - hidden.size(0)
+        padding = padding_tensor.unsqueeze(0).expand(num_padding_needed, -1, -1).to(device)
+        hidden2 = torch.cat((hidden, padding), dim=0)
+
+        hidden2T = hidden2.transpose(0, 1)
+
+
+
+        # pad this list to be 100 long
+        # Initialize hidden and cell states with zeros
+        h0 = torch.zeros(self.lstm.num_layers * 2, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
+        c0 = torch.zeros(self.lstm.num_layers * 2, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
+
+        # Forward propagate LSTM
+        # out: batch_size x max_tokens x hidden size
+        out, _ = self.lstm(hidden2T, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
+        # pass last token through feedforward nn
+        print()
+        final_token_emb = out[:, -1, 512:] + out[:, -1, :512]
+        first_token_emb = out[:, 1, :512] + out[:, 1, 512:]
+        emb = torch.cat((final_token_emb.to(device), first_token_emb.to(device)), dim = -1)
+        print()
+        out = self.fc(emb).squeeze(-1)  # out: tensor of shape (batch_size, output_size)
+        softmax = torch.nn.Softmax(dim=-1)
+        return softmax(out)
+        # return abs(out) 
