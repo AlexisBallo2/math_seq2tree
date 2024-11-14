@@ -320,7 +320,7 @@ def transfer_num(data, setName, useCustom):  # transfer num into "NUM"
     pairs = []
     generate_nums = []
     generate_nums_dict = {}
-    vars = ['X', 'Y']
+    vars = []
     copy_nums = 0
     for d in data:
         # current_equation_vars = ['X']
@@ -451,6 +451,7 @@ def transfer_num(data, setName, useCustom):  # transfer num into "NUM"
         allVarsParsed = list(set([var for vars in allVars for var in vars if var != ""]))
         allVarsTranslated = [variableHierarchy[i] for i in range(len(list(set([var for vars in allVars for var in vars if var != ""]))))]
         allVarsMappings = [{"var": var, "mapping": variableHierarchy[i]} for i, var in enumerate(allVarsParsed)]
+        vars += allVarsTranslated
 
         newEquations = []
         for eq in equations:
@@ -518,7 +519,7 @@ def transfer_num(data, setName, useCustom):  # transfer num into "NUM"
 
     # copy_nums: max length of numbers
     if useCustom:
-        return pairs, temp_g, copy_nums, allVars
+        return pairs, temp_g, copy_nums, list(set(vars)) 
     else:
         return pairs, temp_g, copy_nums, [] 
 

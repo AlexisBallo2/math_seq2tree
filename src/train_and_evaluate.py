@@ -275,7 +275,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     target = torch.LongTensor(target_batch)#.transpose(0, 1)
 
     # num vars total in the output lang. will need to mask ones not in the current equation
-    num_total_vars = len(problem_vars[0])
+   # num_total_vars = len(problem_vars[0])
+    num_equations_per_obs = torch.LongTensor([len(equ_set) for equ_set in target_batch])
+    num_total_vars = max(num_equations_per_obs)
+
     # sequence mask for attention
     # 0s where in input, 1s where not in input
     seq_mask = []
@@ -338,7 +341,6 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     num_start = output_lang.num_start
 
     pred_num_equations = models['num_x_predict'](encoder_outputs)
-    num_equations_per_obs = torch.LongTensor([len(equ_set) for equ_set in target_batch])
 
     if useCustom:
         # node that max(num_equations_per_obs) should be the same as the lenth of vars
@@ -367,7 +369,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         for stack in nums_stack_batch:
             ith_equation_num_stacks.append(stack[cur_equation])
 
-        max_target_length = int(max(ith_equation_target_lengths.tolist()))
+        # max_target_length = int(max(ith_equation_target_lengths.tolist()))
+        max_target_length = len(ith_equation_target)
 
         all_node_outputs = []
         embeddings_stacks = [[] for _ in range(batch_size)]
