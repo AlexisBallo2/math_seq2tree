@@ -311,7 +311,38 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
     total_loss = None
     total_acc = None
+
+    # Run words through encoder
+    # embedding + dropout layer
+    # encoder_outputs: num_batches x 512 q_0 vector
+    # problem_output: max_length x num_batches x hidden_size
+    encoder_outputs, problem_output = models['encoder'](input_var, input_length)
+    # Prepare input and output variables
+
+    
+    # make a TreeNode for each token
+    # problem_output is q_0 for each token in equation, so use last one
+    node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
+    # array of len of numbers that must be copied from the input text
+    copy_num_len = [len(_) for _ in num_pos]
+    # max nums to copy
+    num_size = max(copy_num_len)
+
+    # num_batches x num_size x hidden_size that correspond to the embeddings of the numbers
+    all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_size,
+                                                            models['encoder'].hidden_size)
+
+
+    # index in the language where the special (operators) tokens end and input/output text begins
+    num_start = output_lang.num_start
+    # 
+    embeddings_stacks = [[] for _ in range(batch_size)]
+    # 
+    left_childs = [None for _ in range(batch_size)]
+
+    pred_num_equations = models['num_x_predict'](encoder_outputs)
     num_equations_per_obs = len(target_batch[0])
+
     # do equations one at a time
     for i in range(num_equations_per_obs):
         # select the first equations in each obs
@@ -323,40 +354,12 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         # print()
 
 
-        # Run words through encoder
-        # embedding + dropout layer
-        # encoder_outputs: num_batches x 512 q_0 vector
-        # problem_output: max_length x num_batches x hidden_size
-        encoder_outputs, problem_output = models['encoder'](input_var, input_length)
-        # Prepare input and output variables
-
-        
-        # make a TreeNode for each token
-        # problem_output is q_0 for each token in equation, so use last one
-        node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
-
 
         max_target_length = int(max(ith_equation_target_lengths.tolist()))
 
         all_node_outputs = []
         # all_leafs = []
 
-        # array of len of numbers that must be copied from the input text
-        copy_num_len = [len(_) for _ in num_pos]
-        # max nums to copy
-        num_size = max(copy_num_len)
-
-        # num_batches x num_size x hidden_size that correspond to the embeddings of the numbers
-        all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_size,
-                                                                models['encoder'].hidden_size)
-
-
-        # index in the language where the special (operators) tokens end and input/output text begins
-        num_start = output_lang.num_start
-        # 
-        embeddings_stacks = [[] for _ in range(batch_size)]
-        # 
-        left_childs = [None for _ in range(batch_size)]
         for t in range(max_target_length):
 
             # predict gets the encodings and embeddings for the current node 
@@ -490,7 +493,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         #     print([output_lang.index2word[_] for _ in batch])
         #print('done equation')
         # loss = masked_cross_entropy(all_node_outputs2, target, target_length)
-        loss = torch.nn.CrossEntropyLoss(reduction="none")(all_node_outputs2.view(-1, all_node_outputs2.size(2)), ith_equation_target.view(-1)).mean()
+        current_equation_loss = torch.nn.CrossEntropyLoss(reduction="none")(all_node_outputs2.view(-1, all_node_outputs2.size(2)), ith_equation_target.view(-1)).mean()
         same = 0
         lengths = 0
         for i, batch in enumerate(all_node_outputs2):
@@ -507,14 +510,19 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             print(f"        prediction: {[output_lang.index2word[_] for _ in vals[0:equ_length]]}")
             print(f"        actual: {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
         if total_loss != None:
-            total_loss+=loss
+            total_loss += current_equation_loss
         else:
-            total_loss = loss
+            total_loss = current_equation_loss
         if total_acc:
             total_acc+=same/lengths
         else:
             total_acc = same/lengths
+    
+    # add the loss of number equations
+    num_equations = torch.LongTensor([len(equ_set) for equ_set in target_batch])
+    num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations)
             
+    total_loss += num_x_loss
     total_loss.backward()
 
     # Update parameters with optimizers

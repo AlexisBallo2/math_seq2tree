@@ -5,9 +5,12 @@
             "name": "Debug seq2tree",
             "type": "debugpy",
             "request": "launch",
-            "program": "/Users/home/school/thesis/TESTING/math_seq2tree/run_seq2tree.py",
+            "program": "/Users/home/school/thesis/math_seq2tree/run_seq2tree.py",
+            "env": {
+                "PYTHONPATH": "/Users/home/school/thesis/venv/bin/python"
+            },
             "console": "integratedTerminal",
-            "cwd" : "/Users/home/school/thesis/TESTING/math_seq2tree"
+            "cwd" : "/Users/home/school/thesis/math_seq2tree"
 
         }
     ]

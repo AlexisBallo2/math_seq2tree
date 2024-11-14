@@ -10,7 +10,7 @@ from src.expressions_transfer import *
 # batch_size = 64
 torch.manual_seed(1)
 random.seed(1)
-batch_size = 1
+batch_size = 5 
 embedding_size = 128
 hidden_size = 512
 n_epochs = 10 
@@ -21,8 +21,8 @@ n_layers = 2
 
 # torch.autograd.set_detect_anomaly(True)
 
-setName = "MATH"
-# setName = "DRAW"
+# setName = "MATH"
+setName = "DRAW"
 os.makedirs("models", exist_ok=True)
 if setName == "DRAW":
     data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
