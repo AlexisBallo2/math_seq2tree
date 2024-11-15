@@ -595,7 +595,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, output_lang,
 
     # padd the xs in the first dim to match the length of variables
     padding = torch.zeros(1, len(vars) - num_x, 512)
-    xs = torch.cat((xs, padding), dim=1)
+    xs = torch.cat((xs, padding.to(device)), dim=1).to(device)
     # get qs
     if useCustom:
         qs = models['x_to_q'](encoder_outputs, xs)
