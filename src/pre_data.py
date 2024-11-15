@@ -788,6 +788,7 @@ def transfer_roth_num(data):  # transfer num into "NUM"
 # Return a list of indexes, one for each word in the sentence, plus EOS
 def indexes_from_sentence(lang, sentence, tree=False):
     res = []
+    
     for word in sentence:
         # if word == "UNK":
         #     print()

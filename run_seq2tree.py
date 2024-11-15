@@ -19,8 +19,8 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-# useCustom = True
-useCustom = False 
+useCustom = True
+# useCustom = False 
 num_obs = 50 
 
 config = {
@@ -59,7 +59,7 @@ else:
 # }'
 
 pairs, generate_nums, copy_nums, vars = transfer_num(data, setName, useCustom)
-# pairs = pairs[0:num_obs]
+pairs = pairs[0:num_obs]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   out_seq: equation with in text numbers replaced with "N#", and other numbers left as is

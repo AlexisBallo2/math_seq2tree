@@ -333,8 +333,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     num_size = max(copy_num_len)
 
     # num_batches x num_size x hidden_size that correspond to the embeddings of the numbers
-    all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_size,
-                                                            models['encoder'].hidden_size)
+    all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_size, models['encoder'].hidden_size)
 
 
     # index in the language where the special (operators) tokens end and input/output text begins
@@ -512,7 +511,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         current_equation_loss = torch.nn.CrossEntropyLoss(reduction="none")(all_node_outputs2.view(-1, all_node_outputs2.size(2)), ith_equation_target.view(-1).to(device)).mean()
         same = 0
         lengths = 0
-        print(f'Equation {cur_equation}')
+        # print(f'Equation {cur_equation}')
         for i, batch in enumerate(all_node_outputs2):
             vals = []
             equ_length = int(ith_equation_target_lengths[i].item())

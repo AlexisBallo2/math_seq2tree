@@ -534,11 +534,9 @@ class PredictNumX(nn.Module):
         # out: batch_size x max_tokens x hidden size
         out, _ = self.lstm(hidden2T, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
         # pass last token through feedforward nn
-        print()
         final_token_emb = out[:, -1, 512:] + out[:, -1, :512]
         first_token_emb = out[:, 1, :512] + out[:, 1, 512:]
         emb = torch.cat((final_token_emb.to(device), first_token_emb.to(device)), dim = -1)
-        print()
         out = self.fc(emb).squeeze(-1)  # out: tensor of shape (batch_size, output_size)
         softmax = torch.nn.Softmax(dim=-1)
         return softmax(out)
