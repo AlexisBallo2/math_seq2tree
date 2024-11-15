@@ -257,7 +257,7 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
 
 # @line_profiler.profile
-def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, useCustom, english=False):
+def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, useCustom, all_vars, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -291,18 +291,18 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # 0s where the numbers are from input, 1s where not in input
     num_mask = []
     if useCustom:
-        max_num_size = max(num_size_batch) + len(generate_nums) + num_total_vars
+        max_num_size = max(num_size_batch) + len(generate_nums) + len(all_vars) 
     else:
         max_num_size = max(num_size_batch) + len(generate_nums) 
     # in language its 
     # operators + gen numbers + vars + copy numbers
     for i, num_size in enumerate(num_size_batch):
         if useCustom:
-            d = num_size + num_total_vars + len(generate_nums)
-            num_mask.append([0] * num_size + problem_vars[i].tolist() + [0] * len(generate_nums) + [1] * (max_num_size - d))
+            d = num_size + len(problem_vars[i].tolist()) + len(generate_nums)
+            num_mask.append([0] * len(generate_nums) + problem_vars[i].tolist() + [0] * num_size + [1] * (max_num_size - d))
         else:
             d = num_size + len(generate_nums)
-            num_mask.append([0] * num_size + [0] * len(generate_nums) + [1] * (max_num_size - d))
+            num_mask.append([0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
     num_mask = torch.ByteTensor(num_mask)
 
     unk = output_lang.word2index["UNK"]
@@ -344,7 +344,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
     if useCustom:
         # node that max(num_equations_per_obs) should be the same as the lenth of vars
-        xs = models['x_generate'](num_total_vars, encoder_outputs, problem_output)
+        xs = models['x_generate'](len(all_vars), encoder_outputs, problem_output)
     else: 
         xs = None 
 
@@ -593,6 +593,9 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, output_lang,
     else: 
         xs = None
 
+    # padd the xs in the first dim to match the length of variables
+    padding = torch.zeros(1, len(vars) - num_x, 512)
+    xs = torch.cat((xs, padding), dim=1)
     # get qs
     if useCustom:
         qs = models['x_to_q'](encoder_outputs, xs)

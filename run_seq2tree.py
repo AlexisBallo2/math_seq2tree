@@ -20,7 +20,7 @@ beam_size = 5
 n_layers = 2
 
 useCustom = True
-num_obs = 50 
+# num_obs = 50 
 
 config = {
     "batch_size": batch_size,
@@ -32,7 +32,7 @@ config = {
     "beam_size": beam_size,
     "n_layers": n_layers,
     "useCustom": useCustom,
-    "num_obs": num_obs,
+    # "num_obs": num_obs,
 }
 print("CONFIG \n", config)
 
@@ -46,7 +46,7 @@ if setName == "DRAW":
     data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
 else:
     data = load_raw_data("data/Math_23K.json")
-data = data[0:num_obs]
+# data = data[0:num_obs]
 
 # data format:
 # {
@@ -58,7 +58,7 @@ data = data[0:num_obs]
 # }'
 
 pairs, generate_nums, copy_nums, vars = transfer_num(data, setName, useCustom)
-pairs = pairs[0:num_obs]
+# pairs = pairs[0:num_obs]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
@@ -123,7 +123,7 @@ for fold in range(num_folds):
     generate = GenerateNode(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars), embedding_size=embedding_size)
     merge = Merge(hidden_size=hidden_size, embedding_size=embedding_size)
 
-    num_x_predict = PredictNumX(hidden_size=hidden_size, output_size=3, batch_size=batch_size)
+    num_x_predict = PredictNumX(hidden_size=hidden_size, output_size=4, batch_size=batch_size)
     x_generate = GenerateXs(hidden_size=hidden_size, output_size=5, batch_size=batch_size)
     x_to_q = XToQ(hidden_size=hidden_size)
 
@@ -215,7 +215,7 @@ for fold in range(num_folds):
             loss, acc = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
-                output_lang, num_pos_batches[idx], useCustom)
+                output_lang, num_pos_batches[idx], useCustom, vars)
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             loss_total += loss

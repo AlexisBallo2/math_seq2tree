@@ -499,7 +499,7 @@ class PredictNumX(nn.Module):
         self.out = nn.Linear(hidden_size * 10, 1)
 
         self.lstm = nn.LSTM(hidden_size, hidden_size, 2, batch_first=True, bidirectional=True)
-        self.fc = nn.Linear(hidden_size * 2, 3)
+        self.fc = nn.Linear(hidden_size * 2, output_size)
 
 
     def forward(self, hidden, eval = False):
