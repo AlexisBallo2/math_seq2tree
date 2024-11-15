@@ -22,7 +22,7 @@ n_layers = 2
 useCustom = True
 # useCustom = False 
 num_obs = 50 
-
+title = ""
 config = {
     "batch_size": batch_size,
     "embedding_size": embedding_size,
@@ -40,8 +40,8 @@ print("CONFIG \n", config)
 # torch.autograd.set_detect_anomaly(True)
 
 # useCustom = False 
-setName = "MATH"
-# setName = "DRAW"
+# setName = "MATH"
+setName = "DRAW"
 os.makedirs("models", exist_ok=True)
 if setName == "DRAW":
     data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
@@ -279,7 +279,7 @@ for fold in range(num_folds):
     make_loss_graph(
         [fold_train_accuracy, fold_eval_accuracy], 
         ['Train', "Eval"],
-        f"src/post/accuracy-{time.time()}-{fold}.png", "Accuracy",
+        f"src/post/accuracy-{time.time()}-{fold}.png", title,
         "Epoch", "Accuracy By Epoch"
         )
     print('All TRAIN ACC', all_train_accuracys)
