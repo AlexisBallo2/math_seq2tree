@@ -21,7 +21,7 @@ n_layers = 2
 
 # useCustom = True
 useCustom = False 
-num_obs = 500 
+num_obs = 50 
 
 config = {
     "batch_size": batch_size,
