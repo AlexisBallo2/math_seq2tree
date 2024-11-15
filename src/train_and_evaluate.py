@@ -575,7 +575,10 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, output_lang,
     # B x P x N
 
     # predict number of xs
-    num_x = models['num_x_predict'](encoder_outputs, eval=True).argmax().item()
+    if useCustom:
+        num_x = models['num_x_predict'](encoder_outputs, eval=True).argmax().item()
+    else:
+        num_x = 1
 
     # if useCustom:
     #     # make random x vectors
