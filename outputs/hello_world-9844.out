@@ -1,0 +1,39 @@
+Job ID: 9844
+Node: node002 echo Starting: 11/14/24 18:23:42
+aballo
+CONFIG 
+ {'batch_size': 10, 'embedding_size': 128, 'hidden_size': 512, 'n_epochs': 10, 'learning_rate': 0.001, 'weight_decay': 1e-05, 'beam_size': 5, 'n_layers': 2, 'useCustom': True, 'num_obs': 1000}
+Reading file...
+Transfer numbers...
+Indexing words...
+keep_words 66 / 186 = 0.3548
+Indexed 69 words in input language, 30 words in output
+Number of training data 246
+Number of testind data 246
+fold: 1
+epoch: 1
+
+
+/home/aballo/math_seq2tree/src/models.py:581: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  smqkt = nn.functional.softmax(qkt)
+/home/aballo/math_seq2tree/src/models.py:613: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  smqkt = nn.functional.softmax(qkt)
+Traceback (most recent call last):
+  File "/home/aballo/math_seq2tree/run_seq2tree.py", line 215, in <module>
+    loss, acc = train_tree(
+  File "/home/aballo/math_seq2tree/src/train_and_evaluate.py", line 393, in train_tree
+    num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict'](
+  File "/home/lbiester/.conda/envs/CS457/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/lbiester/.conda/envs/CS457/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/aballo/math_seq2tree/src/models.py", line 385, in forward
+    num_score = self.score(leaf_input.unsqueeze(1), embedding_weight_, mask_nums)
+  File "/home/lbiester/.conda/envs/CS457/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/lbiester/.conda/envs/CS457/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/aballo/math_seq2tree/src/models.py", line 152, in forward
+    score = score.masked_fill_(num_mask.bool(), -1e12)
+RuntimeError: The expanded size of the tensor (18) must match the existing size (19) at non-singleton dimension 1.  Target sizes: [10, 18].  Tensor sizes: [10, 19]
+Ending: 11/14/24 18:23:48

@@ -512,8 +512,14 @@ class PredictNumX(nn.Module):
         padding_tensor = torch.tensor(zeroList)  # or any other values you want to pad with
         padding_tensor = padding_tensor.squeeze(1)
         num_padding_needed = 100 - hidden.size(0)
-        padding = padding_tensor.unsqueeze(0).expand(num_padding_needed, -1, -1).to(device)
-        hidden2 = torch.cat((hidden, padding), dim=0)
+
+        # Ensure num_padding_needed is positive
+        if num_padding_needed > 0:
+            padding = padding_tensor.unsqueeze(0).expand(num_padding_needed, -1, -1).to(device)
+            hidden2 = torch.cat((hidden, padding), dim=0)
+        else:
+            # If padding is not needed, use the original tensor
+            hidden2 = hidden
 
         hidden2T = hidden2.transpose(0, 1)
 

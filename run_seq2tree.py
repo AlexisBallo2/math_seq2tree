@@ -20,7 +20,7 @@ beam_size = 5
 n_layers = 2
 
 useCustom = True
-# num_obs = 50 
+num_obs = 500 
 
 config = {
     "batch_size": batch_size,
@@ -39,8 +39,8 @@ print("CONFIG \n", config)
 # torch.autograd.set_detect_anomaly(True)
 
 # useCustom = False 
-# setName = "MATH"
-setName = "DRAW"
+setName = "MATH"
+# setName = "DRAW"
 os.makedirs("models", exist_ok=True)
 if setName == "DRAW":
     data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")

@@ -1,0 +1,2391 @@
+Job ID: 9843
+Node: node002 echo Starting: 11/14/24 18:23:21
+aballo
+CONFIG 
+ {'batch_size': 10, 'embedding_size': 128, 'hidden_size': 512, 'n_epochs': 10, 'learning_rate': 0.001, 'weight_decay': 1e-05, 'beam_size': 5, 'n_layers': 2, 'useCustom': True, 'num_obs': 50}
+Reading file...
+Transfer numbers...
+Indexing words...
+keep_words 20 / 49 = 0.4082
+Indexed 23 words in input language, 13 words in output
+Number of training data 22
+Number of testind data 22
+fold: 1
+epoch: 1
+
+
+/home/aballo/math_seq2tree/src/models.py:581: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  smqkt = nn.functional.softmax(qkt)
+/home/aballo/math_seq2tree/src/models.py:613: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  smqkt = nn.functional.softmax(qkt)
+Equation 0
+        prediction: ['1', '1', '2']
+        actual: ['+', 'N1', 'X']
+        prediction: ['2', '1', '1']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', '+', '1']
+        actual: ['+', 'X', 'Y']
+        prediction: ['1', '*', '1']
+        actual: ['+', 'X', 'Y']
+        prediction: ['1', 'N2', '2', '*', '1']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['1', '1', '1']
+        actual: ['+', 'Y', 'X']
+        prediction: ['1', '1', '1', '1', '+']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['N1', 'Y', '1']
+        actual: ['+', 'Y', 'X']
+        prediction: ['N1', 'N1', '1']
+        actual: ['+', 'X', 'Y']
+        prediction: ['Y', '1', '1']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['*', '+', '-']
+        actual: ['+', 'X', 'Y']
+        prediction: ['X', '+', '1', '1', '1']
+        actual: ['+', 'N2', '*', 'N3', 'Y']
+        prediction: ['N4', '1', 'N4', '1', '+']
+        actual: ['+', '*', 'N3', 'X', 'N2']
+        prediction: ['1', '1', '+']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'N2', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['N1', 'N1', '1']
+        actual: ['-', 'Y', 'X']
+        prediction: ['1', '+', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['1', '1', '1']
+        actual: ['-', 'Y', 'X']
+        prediction: ['1', 'N1', 'N1']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '1', 'Y']
+        actual: ['-', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['+', '+', '+']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', '+', '+']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', '+', '+', '+', '+']
+        actual: ['+', 'N1', '*', '2', 'X']
+        prediction: ['+', '+', '+']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', '+', '+']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['+', 'X', '1']
+Equation 1
+        prediction: ['+', '+', '+']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', '+', '+']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['+', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['+', '+', '+']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['+', 'X', '1']
+Equation 1
+        prediction: ['+', '+', '+', '+', '+']
+        actual: ['-', 'Y', '*', 'N2', 'X']
+        prediction: ['+', '+', '+']
+        actual: ['+', 'X', 'Y']
+loss: 306666657109.3333
+--------------------------------
+
+
+actual ['+', 'X', 'Y']
+preds ['X']
+actual ['-', 'X', 'Y']
+preds ['X']
+
+
+actual ['+', 'X', 'Y']
+preds ['X']
+actual ['-', 'X', 'Y']
+preds ['X']
+
+
+actual ['-', 'X', 'Y']
+preds ['X']
+actual ['+', 'X', 'Y']
+preds ['X']
+
+
+actual ['+', 'X', 'Y']
+preds ['X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['X']
+actual ['-', 'X', 'Y']
+preds ['X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['-', 'Y', 'X']
+preds ['X']
+actual ['+', 'X', 'Y']
+preds ['X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'Y', 'X']
+preds ['+', 'X', 'X']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'Y', 'N0']
+preds ['X']
+actual ['+', 'X', 'Y']
+preds ['X']
+
+
+actual ['+', 'Y', '-', 'UNK']
+preds ['X']
+actual ['+', 'X', 'Y']
+preds ['X']
+
+
+actual ['+', 'X', 'Y']
+preds ['X']
+actual ['-', 'X', 'Y']
+preds ['X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['X']
+actual ['-', 'X', 'N3']
+preds ['X']
+
+
+actual ['+', 'X', 'Y']
+preds ['X']
+actual ['-', 'X', 'N2']
+preds ['X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'N0']
+preds ['X']
+actual ['+', 'X', 'Y']
+preds ['X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['X']
+actual ['-', 'Y', 'N2']
+preds ['X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'Y', 'N2']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['X']
+actual ['-', 'Y', 'X']
+preds ['X']
+------------------------------------------------------
+fold: 1
+epoch: 2
+
+
+Equation 0
+        prediction: ['+', '+', '+']
+        actual: ['+', 'N1', 'X']
+        prediction: ['+', '+', '+']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', '+', '+']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', '+', '+']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', 'X', 'X']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'X']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', '+', 'Y']
+        actual: ['+', 'X', '1']
+        prediction: ['+', '+', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['+', '+', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', '+', '+']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'X']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'X', 'X']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '+', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['-', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['+', 'X', 'X']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'X']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'X']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y', 'Y', 'Y']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['+', 'Y', '+', 'Y', 'Y']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y', '+', 'Y']
+        actual: ['+', 'N1', '*', '2', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', 'N0']
+        actual: ['+', 'X', '1']
+Equation 1
+        prediction: ['+', 'X', 'X', 'X', 'X']
+        actual: ['+', 'N2', '*', 'N3', 'Y']
+        prediction: ['+', 'X', 'X', 'X', 'X']
+        actual: ['+', '*', 'N3', 'X', 'N2']
+        prediction: ['+', 'X', 'X']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '-', 'N0']
+        actual: ['+', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '-', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['+', 'X', 'Y', '+', '-']
+        actual: ['-', 'Y', '*', 'N2', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+loss: 382222215850.6667
+--------------------------------
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'X']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'Y', 'X']
+preds ['+', 'X', 'X']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'Y', 'N0']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'Y', '-', 'UNK']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'N3']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'Y', 'Y']
+actual ['-', 'X', 'N2']
+preds ['+', 'Y', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'N0']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'N2']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'N2']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'Y']
+------------------------------------------------------
+fold: 1
+epoch: 3
+
+
+Equation 0
+        prediction: ['+', '*', '*']
+        actual: ['+', 'N1', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '*', '+', 'Y', 'Y']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['+', 'Y', '*', '+', 'Y']
+        actual: ['+', 'N1', '*', '2', 'X']
+        prediction: ['+', '+', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', '*']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '-', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['+', '+', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '-', 'Y', '+', 'Y']
+        actual: ['-', 'Y', '*', 'N2', 'X']
+        prediction: ['+', 'Y', 'Y', '+', 'Y']
+        actual: ['+', 'N2', '*', 'N3', 'Y']
+        prediction: ['+', 'Y', '+', 'Y', 'Y']
+        actual: ['+', '*', 'N3', 'X', 'N2']
+        prediction: ['+', '*', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '*', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '*', 'N0']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '-', 'Y']
+        actual: ['-', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['+', '+', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'X']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '*', 'Y']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', '+', '*']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', '+', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '+', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', '1']
+        prediction: ['+', '+', 'N0']
+        actual: ['+', 'X', '1']
+Equation 1
+        prediction: ['+', '+', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '+', '+']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', '*']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', 'N0']
+        actual: ['+', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['+', '*', '+', '+', '+']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['+', 'X', 'X']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['+', '+', 'N1']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'X']
+        actual: ['-', 'X', 'Y']
+loss: 337777784149.3333
+--------------------------------
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'X']
+
+
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'X']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'X']
+
+
+actual ['-', 'Y', 'X']
+preds ['-', 'X', 'X']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'X']
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'X', 'X']
+actual ['-', 'Y', 'X']
+preds ['-', 'X', 'X']
+
+
+actual ['+', 'Y', 'N0']
+preds ['+', 'X', 'X']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'Y', '-', 'UNK']
+preds ['+', 'X', 'X']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'N3']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'N2']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'X']
+actual ['-', 'Y', 'X']
+preds ['-', 'X', 'X']
+
+
+actual ['+', 'X', 'N0']
+preds ['-', 'X', 'X']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'Y', 'N2']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'Y', 'N2']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'X']
+------------------------------------------------------
+fold: 1
+epoch: 4
+
+
+Equation 0
+        prediction: ['+', 'X', 'X']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'X', 'X']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y', 'Y', 'Y']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['-', 'N0', '*']
+        actual: ['+', 'Y', 'X']
+        prediction: ['-', 'Y', '*', 'Y', 'Y']
+        actual: ['+', 'N1', '*', '2', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', '1']
+Equation 1
+        prediction: ['+', 'X', 'X', 'X', 'X']
+        actual: ['+', 'N2', '*', 'N3', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'X', 'X']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '2', '-']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['+', 'Y', '*']
+        actual: ['+', 'N1', 'X']
+        prediction: ['-', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['-', 'Y', 'Y', 'Y', 'Y']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['-', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'N0', '-']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'N1', 'N0']
+        actual: ['+', 'X', '1']
+Equation 1
+        prediction: ['+', 'N1', 'N2']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'X', 'X', 'X', 'Y']
+        actual: ['-', 'Y', '*', 'N2', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'X', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', '*', 'N1']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '2', '1']
+        actual: ['+', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['+', 'Y', 'X']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['+', 'X', 'X', 'X', '+']
+        actual: ['+', '*', 'N3', 'X', 'N2']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+loss: 306666657109.3333
+--------------------------------
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'X']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'Y', 'X']
+preds ['+', 'X', 'X']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'Y', 'N0']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'Y', '-', 'UNK']
+preds ['+', 'X', 'X']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'N3']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'N2']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'N0']
+preds ['+', 'X', 'X']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'Y', 'N2']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'Y', 'N2']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'X']
+------------------------------------------------------
+fold: 1
+epoch: 5
+
+
+Equation 0
+        prediction: ['+', 'Y', '*']
+        actual: ['+', 'N1', 'X']
+        prediction: ['+', '*', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'N1', 'Y', 'Y', 'Y']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['+', 'Y', '*', 'N1', 'Y']
+        actual: ['+', 'N1', '*', '2', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', '*', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', 'Y']
+        actual: ['+', 'X', '1']
+Equation 1
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'X', 'X', '*']
+        actual: ['-', 'Y', '*', 'N2', 'X']
+        prediction: ['+', '*', 'X', 'Y', '*']
+        actual: ['+', 'N2', '*', 'N3', 'Y']
+        prediction: ['+', 'Y', 'Y', '*', '+']
+        actual: ['+', '*', 'N3', 'X', 'N2']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', '*', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '2', 'Y']
+        actual: ['+', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['+', '2', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', '*']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', '2', '1']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', 'Y', 'Y', 'Y', 'Y']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '*', '*']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', '1', '2']
+        actual: ['+', 'X', '1']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['+', '2', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'X', '*']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '2', '2']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '*', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'Y', '*']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', '*', '1']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['+', 'N1', '*']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['+', 'N1', 'N0']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+loss: 471111117482.6667
+--------------------------------
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'X']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'Y', 'X']
+preds ['+', 'X', 'X']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'Y', 'N0']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'Y', '-', 'UNK']
+preds ['+', 'X', 'X']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'N3']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'N2']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'N0']
+preds ['+', 'X', 'X']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'N2']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'Y', 'N2']
+preds ['+', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'X']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'X']
+------------------------------------------------------
+fold: 1
+epoch: 6
+
+
+Equation 0
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'N1', 'X']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '2', '*']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', 'Y', '*']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'N0', '*']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', '2', 'N0']
+        actual: ['+', 'X', '1']
+Equation 1
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'X', 'X', 'X']
+        actual: ['-', 'Y', '*', 'N2', 'X']
+        prediction: ['+', '*', 'N0']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '*', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'X', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '*', '2']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '*', 'N0']
+        actual: ['+', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['-', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y', 'Y', 'Y']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', '1']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['-', 'X', 'X', 'X', 'Y']
+        actual: ['+', 'N2', '*', 'N3', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'X', 'X', 'X', 'X']
+        actual: ['+', '*', 'N3', 'X', 'N2']
+        prediction: ['-', 'X', 'X']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'X', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['-', '-', 'Y', '-', 'Y']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['+', 'Y', 'Y', 'Y', 'N1']
+        actual: ['+', 'N1', '*', '2', 'X']
+Equation 1
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+loss: 306666657109.3333
+--------------------------------
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['-', 'Y', 'X']
+preds ['-', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'X', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'Y', 'N0']
+preds ['-', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'Y', '-', 'UNK']
+preds ['-', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'N3']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'N2']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'N0']
+preds ['-', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'Y', 'N2']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'Y', 'N2']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'X', 'Y']
+------------------------------------------------------
+fold: 1
+epoch: 7
+
+
+Equation 0
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'N1', 'X']
+        prediction: ['+', 'Y', 'Y', 'Y', 'Y']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', 'Y', 'Y', 'Y', 'Y']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['+', 'N1', 'N2']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '*', 'N1']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', '1']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', '*', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'X', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'X', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'N0', 'N0']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'N1', 'N1']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', '*', 'Y', 'Y']
+        actual: ['+', 'N1', '*', '2', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '*', 'N0']
+        actual: ['+', 'X', '1']
+Equation 1
+        prediction: ['+', 'Y', 'Y', 'X', '*']
+        actual: ['-', 'Y', '*', 'N2', 'X']
+        prediction: ['-', 'X', 'X', 'Y', 'X']
+        actual: ['+', 'N2', '*', 'N3', 'Y']
+        prediction: ['-', 'X', 'X', 'X', '*']
+        actual: ['+', '*', 'N3', 'X', 'N2']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'X', 'X']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'N1', 'N0']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', '*', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'N1', 'N0']
+        actual: ['+', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', '*', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+loss: 422222211754.6667
+--------------------------------
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'Y', 'N0']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'Y', '-', 'UNK']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'N3']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'N2']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'N0']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'N2']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'N2']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'Y']
+------------------------------------------------------
+fold: 1
+epoch: 8
+
+
+Equation 0
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '*', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', '*']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', '*', 'N1']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '*', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', '1']
+        prediction: ['+', 'N1', 'N0']
+        actual: ['+', 'X', '1']
+Equation 1
+        prediction: ['+', 'X', 'X', 'Y', 'Y']
+        actual: ['-', 'Y', '*', 'N2', 'X']
+        prediction: ['+', 'X', '*', 'X', 'X']
+        actual: ['+', 'N2', '*', 'N3', 'Y']
+        prediction: ['+', '*', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'X', 'X', 'X', 'Y']
+        actual: ['+', '*', 'N3', 'X', 'N2']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'N0', 'N0']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '*', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '*', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'N1', 'N0']
+        actual: ['+', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'N1', 'X']
+        prediction: ['+', '*', 'Y', 'Y', 'Y']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['+', 'N0', '*']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', '*']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', 'Y', '+', 'Y', 'Y']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['+', 'Y', '*', 'N1', 'Y']
+        actual: ['+', 'N1', '*', '2', 'X']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '+', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', '*', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['+', '*', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '*', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '*', '*']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '*', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'X', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['+', '*', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '*', 'Y']
+        actual: ['-', 'Y', 'N1']
+Equation 1
+        prediction: ['-', 'X', 'X']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', '*', 'Y']
+        actual: ['+', 'X', 'Y']
+loss: 275555549184.0
+--------------------------------
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'Y', 'N0']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'Y', '-', 'UNK']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'N3']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'N2']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'N0']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'N2']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'N2']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'Y']
+------------------------------------------------------
+fold: 1
+epoch: 9
+
+
+Equation 0
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', '*', 'Y', 'Y']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['+', 'Y', '*']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', '*', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', '*', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['+', 'X', 'X', 'X', 'X']
+        actual: ['-', 'Y', '*', 'N2', 'X']
+        prediction: ['+', 'X', 'X', 'X', 'X']
+        actual: ['+', 'N2', '*', 'N3', 'Y']
+        prediction: ['+', 'X', 'X', 'X', 'X']
+        actual: ['+', '*', 'N3', 'X', 'N2']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'X', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'N1', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', '*', 'N1', 'Y']
+        actual: ['+', 'N1', '*', '2', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'N1', 'N1']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', '*', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', '1']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'N1', 'N0']
+        actual: ['+', 'X', '1']
+Equation 1
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'X', 'X']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'N1', 'N0']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'N1', 'N1']
+        actual: ['+', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['+', 'N1', '*']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', '-', 'Y', 'Y', 'N1']
+        actual: ['+', '*', '2', 'Y', 'N1']
+Equation 1
+        prediction: ['+', 'N0', '*']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+loss: 360000012288.0
+--------------------------------
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['-', 'Y', 'X']
+preds ['-', 'X', 'X']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'X', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'Y', 'N0']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'Y', '-', 'UNK']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'N3']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'N2']
+preds ['+', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'N0']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'N2']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'N2']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'X']
+preds ['+', 'X', 'Y']
+------------------------------------------------------
+fold: 1
+epoch: 10
+
+
+Equation 0
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', '*']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', 'N0', '+']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', '*', 'Y', 'Y']
+        actual: ['+', 'N1', '*', '2', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'N1', 'N1']
+        actual: ['-', 'Y', 'N1']
+Equation 1
+        prediction: ['-', 'X', 'X', 'X', 'X']
+        actual: ['-', 'Y', '*', 'N2', 'X']
+        prediction: ['+', 'X', 'X', 'X', 'X']
+        actual: ['+', 'N2', '*', 'N3', 'Y']
+        prediction: ['-', 'X', 'X', 'X', 'X']
+        actual: ['+', '*', 'N3', 'X', 'N2']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'N0', '-']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'Y', 'X']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'N1', 'N0']
+        actual: ['+', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['+', 'Y', '-']
+        actual: ['+', 'N1', 'X']
+        prediction: ['+', 'Y', 'Y', 'Y', 'Y']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['+', '+', 'Y', 'Y', 'Y']
+        actual: ['+', '*', '2', 'Y', 'N1']
+        prediction: ['+', '-', 'Y']
+        actual: ['-', 'Y', 'N1']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', '1']
+        prediction: ['+', 'N1', 'N1']
+        actual: ['+', 'X', '1']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'X', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'N0', 'N0']
+        actual: ['+', 'X', 'Y']
+        prediction: ['-', 'Y', 'Y']
+        actual: ['-', 'X', 'Y']
+
+
+Equation 0
+        prediction: ['-', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+        prediction: ['+', 'X', 'Y']
+        actual: ['+', 'X', 'Y']
+Equation 1
+        prediction: ['-', 'X', 'X']
+        actual: ['-', 'Y', 'X']
+        prediction: ['-', 'X', 'Y']
+        actual: ['-', 'X', 'Y']
+loss: 226666654379.233
+--------------------------------
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['-', 'Y', 'X']
+preds ['-', 'X', 'X']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'X']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'Y', 'X']
+preds ['-', 'X', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'Y', 'N0']
+preds ['+', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'Y', '-', 'UNK']
+preds ['-', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'N3']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'X', 'N2']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'N0']
+preds ['-', 'X', 'Y']
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'X', 'Y']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'N2']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['-', 'X', 'Y']
+actual ['-', 'Y', 'N2']
+preds ['-', 'X', 'Y']
+
+
+actual ['+', 'X', 'Y']
+preds ['+', 'X', 'Y']
+actual ['-', 'Y', 'X']
+preds ['-', 'X', 'Y']
+------------------------------------------------------
+All TRAIN ACC [[0.23, 0.40888888888888886, 0.43333333333333335, 0.4466666666666667, 0.42777777777777776, 0.42333333333333334, 0.49666666666666665, 0.47222222222222215, 0.5, 0.6111111111111112]]
+ALL EVAL ACC [[0.18181818181818182, 0.5714285714285714, 0.47402597402597413, 0.4967532467532468, 0.5649350649350648, 0.6493506493506493, 0.6926406926406927, 0.6926406926406927, 0.7543290043290043, 0.6796536796536796]]
+train time per token 0.027250682748854154
+infrence time per token 0.1764789624562995
+Ending: 11/14/24 18:24:11
