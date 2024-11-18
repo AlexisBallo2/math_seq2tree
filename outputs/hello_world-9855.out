@@ -1,0 +1,12 @@
+Job ID: 9855
+Node: node002 echo Starting: 11/15/24 14:11:04
+aballo
+CONFIG 
+ {'batch_size': 64, 'embedding_size': 128, 'hidden_size': 512, 'n_epochs': 10, 'learning_rate': 0.001, 'weight_decay': 1e-05, 'beam_size': 5, 'n_layers': 2, 'useCustom': True}
+Reading file...
+Transfer numbers...
+Traceback (most recent call last):
+  File "/home/aballo/math_seq2tree/run_seq2tree.py", line 62, in <module>
+    pairs = pairs[0:num_obs]
+NameError: name 'num_obs' is not defined
+Ending: 11/15/24 14:11:09

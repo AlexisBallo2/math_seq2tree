@@ -1,0 +1,12 @@
+Job ID: 9861
+Node: node002 echo Starting: 11/18/24 11:13:49
+aballo
+Traceback (most recent call last):
+  File "/home/aballo/math_seq2tree/run_seq2tree.py", line 3, in <module>
+    from src.train_and_evaluate import *
+  File "/home/aballo/math_seq2tree/src/train_and_evaluate.py", line 4, in <module>
+    from src.masked_cross_entropy import *
+  File "/home/aballo/math_seq2tree/src/masked_cross_entropy.py", line 3, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
+Ending: 11/18/24 11:13:49
