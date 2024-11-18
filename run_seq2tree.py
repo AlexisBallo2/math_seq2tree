@@ -8,7 +8,7 @@ import torch.optim
 from src.expressions_transfer import *
 
 # batch_size = 64
-batch_size = 10 
+batch_size = 30 
 embedding_size = 128
 hidden_size = 512
 n_epochs = 10 
@@ -17,11 +17,11 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-torch.manual_seed(1)
-random.seed(1)
+torch.manual_seed(10)
+random.seed(10)
 os.makedirs("models", exist_ok=True)
 data = load_raw_data("data/Math_23K.json")
-data = data[0:100]
+data = data[0:500]
 # data = load_raw_data("data/DRAW/draw.json")
 # data = None
 # with open("data/DRAW/draw.json", "r") as f:
@@ -36,7 +36,7 @@ data = data[0:100]
 # }'
 
 pairs, generate_nums, copy_nums = transfer_num(data)
-pairs = pairs[0:100]
+pairs = pairs[0:500]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
