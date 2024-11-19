@@ -1,3 +1,4 @@
 models/*
 **/*.pyc
 outputs/*
+src/post/*.png

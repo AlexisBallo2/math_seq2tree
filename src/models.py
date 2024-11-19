@@ -200,8 +200,8 @@ class EncoderSeq(nn.Module):
         # input_seqs: max_len x batch_size
         # max_len comes from longest in the batch
         # embedded = max_len x num_batches x embedding_dim
-        embedded = self.embedding(input_seqs)  # S x B x E
-        # embedded = self.em_dropout(embedded)
+        embedded1 = self.embedding(input_seqs)  # S x B x E
+        embedded = self.em_dropout(embedded1)
         # packed = lengths x embedding
         # with multiple batches it seems to concatenate the padded 
         # sequences of variable length
@@ -223,6 +223,8 @@ class EncoderSeq(nn.Module):
         # convert the GRU packed format back into dense tensor form
         # pade_outputs: max_len x num_batches x (2 (bidirectional) * hidden_size) 
         pade_outputs2, _ = torch.nn.utils.rnn.pad_packed_sequence(pade_outputs1)
+        # pade_outputs2 = torch.ones(input_seqs.size(0), input_seqs.size(1), self.hidden_size * 2)#.to(pade_outputs2.device)
+        
 
         # problem_output = 
         #   embedding (512) of the last GRU unit (from forward gru) 
@@ -268,7 +270,7 @@ class Prediction(nn.Module):
         self.score = Score(hidden_size * 2, hidden_size)
 
     # @line_profiler.profile  
-    def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, xs, seq_mask, mask_nums, useCustom):
+    def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, xs, seq_mask, mask_nums, useCustom, debug):
         # node_stacks: [TreeNodes] for each node containing the hidden state for the node
         # left_childs: [] of 
         # encoder_outputs: token embeddings: max_len x num_batches x hidden state 
@@ -311,6 +313,7 @@ class Prediction(nn.Module):
             else:
                 # second half of equation (11)
                 ld = self.dropout(l)
+                # ld = l
                 c = self.dropout(c)
                 g = torch.tanh(self.concat_r(torch.cat((ld, c), 1)))
                 t = torch.sigmoid(self.concat_rg(torch.cat((ld, c), 1)))
@@ -320,6 +323,7 @@ class Prediction(nn.Module):
         # batch_size x 1 x hidden_dim
         current_node = torch.stack(current_node_temp)
         # this is the q of the current subtree
+        current_embeddings = current_node # self.dropout(current_node)
         current_embeddings = self.dropout(current_node)
 
         # this gets the score calculation and relation between each 
@@ -359,6 +363,10 @@ class Prediction(nn.Module):
             embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
 
 
+        # if debug['active']:
+        #     print()
+
+
         # get the embedding of a leaf
         # embedding of a leaf is the concatenation of 
         #   the node embedding and the embedding after attention
@@ -371,6 +379,7 @@ class Prediction(nn.Module):
 
         # p_leaf = nn.functional.softmax(self.is_leaf(leaf_input), 1)
         # max pooling the embedding_weight
+        # embedding_weight_ = embedding_weight
         embedding_weight_ = self.dropout(embedding_weight)
 
 
@@ -425,6 +434,7 @@ class GenerateNode(nn.Module):
 
         # the operators will all be embedded the same way
         node_label_ = self.embeddings(node_label)
+        # node_label = node_label_
         node_label = self.em_dropout(node_label_)
 
         # squeeze embedding and context for each

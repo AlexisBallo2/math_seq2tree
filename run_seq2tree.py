@@ -6,22 +6,29 @@ from src.post.loss_graph import *
 import time
 import torch.optim
 from src.expressions_transfer import *
+import numpy as np
 
 # batch_size = 64
-torch.manual_seed(1)
-random.seed(1)
-batch_size = 10 
+torch.manual_seed(10)
+torch.use_deterministic_algorithms(True)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+random.seed(10)
+torch.cuda.manual_seed_all(2)
+np.random.seed(10)
+
+batch_size = 5
 embedding_size = 128
 hidden_size = 512
-n_epochs = 10 
+n_epochs = 5
 learning_rate = 1e-3 
 weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-useCustom = True
-# useCustom = False 
-num_obs = 50 
+# useCustom = True
+useCustom = False 
+num_obs = 30 
 title = ""
 config = {
     "batch_size": batch_size,
@@ -40,14 +47,14 @@ print("CONFIG \n", config)
 # torch.autograd.set_detect_anomaly(True)
 
 # useCustom = False 
-# setName = "MATH"
-setName = "DRAW"
+setName = "MATH"
+# setName = "DRAW"
 os.makedirs("models", exist_ok=True)
 if setName == "DRAW":
     data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
 else:
     data = load_raw_data("data/Math_23K.json")
-# data = data[0:num_obs]
+data = data[0:num_obs]
 
 # data format:
 # {
@@ -138,6 +145,11 @@ for fold in range(num_folds):
         "x_generate": x_generate,
         "x_to_q": x_to_q
     }
+
+    debug = {
+        "active" : True,
+        "output_lang": output_lang
+    }
     # the embedding layer is  only for generated number embeddings, operators, and paddings
 
     encoder_optimizer = torch.optim.Adam(encoder.parameters(), lr=learning_rate, weight_decay=weight_decay)
@@ -186,6 +198,8 @@ for fold in range(num_folds):
         generate_num_ids.append(output_lang.word2index[num])
 
     for epoch in range(n_epochs):
+        for scheduler in schedulers:
+            scheduler.step()
         loss_total = 0
         # input_batches: padded inputs
         # input_lengths: length of the inputs (without padding)
@@ -216,7 +230,7 @@ for fold in range(num_folds):
             loss, acc = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
-                output_lang, num_pos_batches[idx], useCustom, vars)
+                output_lang, num_pos_batches[idx], useCustom, vars, debug)
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             loss_total += loss
@@ -226,8 +240,6 @@ for fold in range(num_folds):
             for optimizer in optimizers:
                 optimizer.step()
 
-            for scheduler in schedulers:
-                scheduler.step()
 
         print("loss:", loss_total / len(input_lengths))
         # print("training time", time_since(time.time() - start))
@@ -241,27 +253,17 @@ for fold in range(num_folds):
             start = time.time()
             for test_batch in test_pairs:
                 start = time.perf_counter()
-                test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, models, output_lang, test_batch[5], vars, useCustom, beam_size=beam_size)
+                test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, models, output_lang, test_batch[5], vars, useCustom, debug, beam_size=beam_size)
                 end = time.perf_counter()
                 test_time_array.append([1, end - start])
                 lengths = 0
                 same = 0
                 for equ_count in range(len(test_batch[2])):
-                    equ_length = test_batch[3][equ_count]
                     actual = [output_lang.index2word[i] for i in test_batch[2][equ_count]]
-                    print('actual', actual[0:equ_length])
-                    try:
-                        print('preds', [output_lang.index2word[i] for i in test_res[equ_count][0:min(equ_length, len(test_res[equ_count]))]])
-                    except:
-                        print('preds', "None")
-                    for token in range(equ_length):
+                    predicted = [output_lang.index2word[i] for i in test_res[equ_count]]
+                    for i in range(min(len(actual), len(predicted))):
                         lengths += 1
-                        token_actual = actual[token]
-                        try:
-                            token_pred = output_lang.index2word[test_res[equ_count][token]]
-                        except:
-                            token_pred = None
-                        if token_actual == token_pred:
+                        if actual[i] == predicted[i]:
                             same += 1
 
                 accuracy = same / lengths

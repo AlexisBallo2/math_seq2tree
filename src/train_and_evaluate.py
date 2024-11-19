@@ -257,7 +257,7 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
 
 # @line_profiler.profile
-def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, useCustom, all_vars, english=False):
+def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, useCustom, all_vars, debug, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -339,7 +339,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # index in the language where the special (operators) tokens end and input/output text begins
     num_start = output_lang.num_start
 
-    pred_num_equations = models['num_x_predict'](encoder_outputs)
+    if useCustom:
+        pred_num_equations = models['num_x_predict'](encoder_outputs)
+    else:
+        pred_num_equations = 0
 
     if useCustom:
         # node that max(num_equations_per_obs) should be the same as the lenth of vars
@@ -390,7 +393,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             #       embeddings of the generate and copy numbers
 
             num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict'](
-                node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom)
+                node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug)
 
 
             # this is mainly what we want to train
@@ -513,18 +516,25 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         lengths = 0
         # print(f'Equation {cur_equation}')
         for i, batch in enumerate(all_node_outputs2):
-            vals = []
             equ_length = int(ith_equation_target_lengths[i].item())
+            cur_len = 0
+            cur_same = 0
+            vals = []
+            # print('coming equ length', equ_length)
             for j, probs in enumerate(batch):
+                if j == equ_length:
+                    break
                 max_val = torch.argmax(probs)
                 vals.append(max_val)
                 lengths += 1
-                if j > equ_length:
-                    break
+                cur_len += 1
                 if max_val == ith_equation_target[i][j]:
                     same += 1
+                    cur_same += 1
             print(f"        prediction: {[output_lang.index2word[_] for _ in vals[0:equ_length]]}")
-            print(f"        actual: {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
+            print(f"        actual:     {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
+            print('same', cur_same, 'length', cur_len)
+            print('acc', cur_same/cur_len)
         if total_loss != None:
             total_loss += current_equation_loss
         else:
@@ -532,9 +542,9 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         total_acc += [same/lengths]
     
     # add the loss of number equations
-    num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs.to(device))
-            
-    total_loss += num_x_loss
+    if useCustom:
+        num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs.to(device))
+        total_loss += num_x_loss
     total_loss.backward()
 
     # Update parameters with optimizers
@@ -542,7 +552,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
 # @line_profiler.profile
 def evaluate_tree(input_batch, input_length, generate_nums, models, output_lang, num_pos,
-                  vars, useCustom, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
+                  vars, useCustom, debug, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
 
     seq_mask = torch.ByteTensor(1, input_length).fill_(0)
     # Turn padded arrays into (batch_size x max_len) tensors, transpose into (max_len x batch_size)
@@ -611,9 +621,9 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, output_lang,
     # in language its 
     # operators + gen numbers + vars + copy numbers
     if useCustom:
-        num_mask.append([0] * num_size + [0] * num_x + [1] * (len(vars) - num_x) + [0] * len(generate_nums))
+        num_mask.append([0] * len(generate_nums) + [0] * num_x + [1] * (len(vars) - num_x) + [0] * num_size)
     else:
-        num_mask.append([0] * num_size +  [0] * len(generate_nums))
+        num_mask.append([0] * len(generate_nums)  +  [0] * num_size )
     num_mask = torch.ByteTensor(num_mask).to(device)
 
 
@@ -645,7 +655,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, output_lang,
                 # left_childs = torch.stack(b.left_childs)
                 left_childs = b.left_childs
 
-                num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict']( b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom)
+                num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict']( b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug)
 
                 # leaf = p_leaf[:, 0].unsqueeze(1)
                 # repeat_dims = [1] * leaf.dim()
