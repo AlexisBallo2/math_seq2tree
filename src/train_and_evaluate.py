@@ -531,10 +531,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 if max_val == ith_equation_target[i][j]:
                     same += 1
                     cur_same += 1
-            print(f"        prediction: {[output_lang.index2word[_] for _ in vals[0:equ_length]]}")
-            print(f"        actual:     {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
-            print('same', cur_same, 'length', cur_len)
-            print('acc', cur_same/cur_len)
+            # print(f"        prediction: {[output_lang.index2word[_] for _ in vals[0:equ_length]]}")
+            # print(f"        actual:     {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
+            # print('same', cur_same, 'length', cur_len)
+            # print('acc', cur_same/cur_len)
         if total_loss != None:
             total_loss += current_equation_loss
         else:
@@ -542,9 +542,9 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         total_acc += [same/lengths]
     
     # add the loss of number equations
-    if useCustom:
-        num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs.to(device))
-        total_loss += num_x_loss
+    # if useCustom:
+    #     num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs.to(device))
+    #     total_loss += num_x_loss
     total_loss.backward()
 
     # Update parameters with optimizers

@@ -7,6 +7,8 @@ import time
 import torch.optim
 from src.expressions_transfer import *
 import numpy as np
+import sympy as sp
+from sympy.solvers import solve
 
 # batch_size = 64
 torch.manual_seed(10)
@@ -17,7 +19,7 @@ random.seed(10)
 torch.cuda.manual_seed_all(2)
 np.random.seed(10)
 
-batch_size = 5
+batch_size = 20
 embedding_size = 128
 hidden_size = 512
 n_epochs = 5
@@ -28,8 +30,18 @@ n_layers = 2
 
 # useCustom = True
 useCustom = False 
-num_obs = 30 
-title = ""
+num_obs = 100 
+title = f"{num_obs} Observations, {n_epochs} Epochs, Custom = {useCustom} "
+
+# torch.autograd.set_detect_anomaly(True)
+
+# useCustom = False 
+# setName = "MATH"
+setName = "DRAW"
+
+# decide if we must be able to solve equation
+useEquSolutions = True
+# useEquSolutions = False 
 config = {
     "batch_size": batch_size,
     "embedding_size": embedding_size,
@@ -40,15 +52,10 @@ config = {
     "beam_size": beam_size,
     "n_layers": n_layers,
     "useCustom": useCustom,
-    # "num_obs": num_obs,
+    "setName" : setName,
+    "title" : title
 }
 print("CONFIG \n", config)
-
-# torch.autograd.set_detect_anomaly(True)
-
-# useCustom = False 
-setName = "MATH"
-# setName = "DRAW"
 os.makedirs("models", exist_ok=True)
 if setName == "DRAW":
     data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
@@ -65,7 +72,7 @@ data = data[0:num_obs]
 # "ans":"80"
 # }'
 
-pairs, generate_nums, copy_nums, vars = transfer_num(data, setName, useCustom)
+pairs, generate_nums, copy_nums, vars = transfer_num(data, setName, useCustom, useEquSolutions)
 pairs = pairs[0:num_obs]
 # pairs: list of tuples:
 #   input_seq: masked text
@@ -79,7 +86,7 @@ temp_pairs = []
 for p in pairs:
     # input_seq, prefixed equation, nums, num_pos
     equations = [from_infix_to_prefix(equ) for equ in p[1]]
-    temp_pairs.append((p[0], equations, p[2], p[3], p[4]))
+    temp_pairs.append((p[0], equations, p[2], p[3], p[4], p[5]))
 pairs = temp_pairs
 
 
@@ -103,6 +110,7 @@ total_inference_time = 0
 train_time_array = []
 test_time_array = []
 
+full_start = time.time()
 for fold in range(num_folds):
     pairs_tested = []
     pairs_trained = []
@@ -209,7 +217,7 @@ for fold in range(num_folds):
         # num_stack_batches: the corresponding nums lists
         # num_pos_batches: positions of the numbers lists
         # num_size_batches: number of numbers from the input text
-        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches = prepare_train_batch(train_pairs, batch_size, vars)
+        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions = prepare_train_batch(train_pairs, batch_size, vars)
         # generate temp x vectors
 
         print("fold:", fold + 1)
@@ -266,6 +274,25 @@ for fold in range(num_folds):
                         if actual[i] == predicted[i]:
                             same += 1
 
+                # if useEquSolutions:
+                #     try:
+                #         for equ in equations:
+                #             sympy_eq = sp.simplify("Eq(" + equ.replace("=", ",") + ")")
+                #             spEqs.append(sympy_eq)   
+                #         solved = solve(spEqs, dict=True)
+                #         targets = [round(i) for i in list(solved[0].values())]
+                #         act_solns = list(round(i) for i in d['lSolutions'])
+                #         same = 0
+                #         for i, equ in enumerate(targets):
+                #             if equ in act_solns:
+                #                 same += 1
+                #         if same != len(targets):
+                #             continue
+                #     except:
+                #         continue
+                # else:
+                #     targets = ['disabled'] 
+
                 accuracy = same / lengths
                 eval_accuracys.append(accuracy)
 
@@ -310,3 +337,6 @@ for length, runtime in test_time_array:
 print('train time per token', sum(train_time_per_all) / len(train_time_per_all))
 print('infrence time per token', sum(test_time_per_all) / len(test_time_per_all))
 
+full_end = time.time()
+total_run_time = full_end - full_start
+print("total run time", total_run_time)
