@@ -26,8 +26,8 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-# useCustom = True
-useCustom = False 
+useCustom = True
+# useCustom = False 
 num_obs = 30 
 title = ""
 config = {
