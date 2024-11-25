@@ -17,10 +17,10 @@ random.seed(10)
 torch.cuda.manual_seed_all(2)
 np.random.seed(10)
 
-batch_size = 5
+batch_size = 10 
 embedding_size = 128
 hidden_size = 512
-n_epochs = 5
+n_epochs = 10 
 learning_rate = 1e-3 
 weight_decay = 1e-5
 beam_size = 5
@@ -28,7 +28,7 @@ n_layers = 2
 
 useCustom = True
 # useCustom = False 
-num_obs = 30 
+num_obs = 100 
 title = ""
 config = {
     "batch_size": batch_size,
@@ -127,6 +127,7 @@ for fold in range(num_folds):
     #   [[] of where each number in the equation (that is not in the output lang) is found in the nums array]
     # Initialize models
     encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,n_layers=n_layers)
+    encoderVariables = EncoderSeqVARIABLES(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,n_layers=n_layers)
     predict = Prediction(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars), input_size=len(generate_nums))
     generate = GenerateNode(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars), embedding_size=embedding_size)
     merge = Merge(hidden_size=hidden_size, embedding_size=embedding_size)
@@ -138,6 +139,7 @@ for fold in range(num_folds):
 
     models = {
         "encoder": encoder,
+        "encoderVariables": encoderVariables,
         "predict": predict,
         "generate": generate,
         "merge": merge,
@@ -153,6 +155,7 @@ for fold in range(num_folds):
     # the embedding layer is  only for generated number embeddings, operators, and paddings
 
     encoder_optimizer = torch.optim.Adam(encoder.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    encoderVariables_optimizer = torch.optim.Adam(encoderVariables.parameters(), lr=learning_rate, weight_decay=weight_decay)
     predict_optimizer = torch.optim.Adam(predict.parameters(), lr=learning_rate, weight_decay=weight_decay)
     generate_optimizer = torch.optim.Adam(generate.parameters(), lr=learning_rate, weight_decay=weight_decay)
     merge_optimizer = torch.optim.Adam(merge.parameters(), lr=learning_rate, weight_decay=weight_decay)
@@ -162,6 +165,7 @@ for fold in range(num_folds):
 
     optimizers = [
         encoder_optimizer,
+        encoderVariables_optimizer,
         predict_optimizer,
         generate_optimizer,
         merge_optimizer,
@@ -171,6 +175,7 @@ for fold in range(num_folds):
     ]
 
     encoder_scheduler = torch.optim.lr_scheduler.StepLR(encoder_optimizer, step_size=20, gamma=0.5)
+    encoderVariables_scheduler = torch.optim.lr_scheduler.StepLR(encoderVariables_optimizer, step_size=20, gamma=0.5)
     predict_scheduler = torch.optim.lr_scheduler.StepLR(predict_optimizer, step_size=20, gamma=0.5)
     generate_scheduler = torch.optim.lr_scheduler.StepLR(generate_optimizer, step_size=20, gamma=0.5)
     merge_scheduler = torch.optim.lr_scheduler.StepLR(merge_optimizer, step_size=20, gamma=0.5)
@@ -180,6 +185,7 @@ for fold in range(num_folds):
 
     schedulers = [
         encoder_scheduler,
+        encoderVariables_scheduler,
         predict_scheduler,
         generate_scheduler,
         merge_scheduler,
@@ -261,10 +267,13 @@ for fold in range(num_folds):
                 for equ_count in range(len(test_batch[2])):
                     actual = [output_lang.index2word[i] for i in test_batch[2][equ_count]]
                     predicted = [output_lang.index2word[i] for i in test_res[equ_count]]
+                    print("actual:", actual)
+                    print('predicted:', predicted)
                     for i in range(min(len(actual), len(predicted))):
                         lengths += 1
                         if actual[i] == predicted[i]:
                             same += 1
+                    print()
 
                 accuracy = same / lengths
                 eval_accuracys.append(accuracy)

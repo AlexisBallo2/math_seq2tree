@@ -567,6 +567,7 @@ class GenerateXs(nn.Module):
 
         self.K = nn.Linear(hidden_size, hidden_size)
         self.V = nn.Linear(hidden_size, hidden_size)
+        self.fc = nn.Linear(hidden_size, hidden_size)
 
 
     def forward(self, num_xs, hidden, problem_q):
@@ -588,13 +589,13 @@ class GenerateXs(nn.Module):
             for j in range(nums_to_gen):
                 # leave the first vector
                 if len(xs) == 0:
-                    xs.append(goal_vect)
+                    xs.append(torch.tanh(self.fc(goal_vect)))
                 else:
                     # generate the next one from the attention of previous
                     qkt = torch.matmul(xs[j-1], kt)
                     smqkt = nn.functional.softmax(qkt)
                     # output: hidden_size
-                    outAttention = torch.matmul(smqkt, v)
+                    outAttention = -1 * torch.tanh(torch.matmul(smqkt, v))
                     xs.append(outAttention)
             out.append(torch.stack(xs))
         return torch.stack(out)
@@ -608,7 +609,7 @@ class XToQ(nn.Module):
         self.V = nn.Linear(hidden_size, hidden_size)
         self.lstm = nn.LSTM(hidden_size, hidden_size, 1, batch_first=True)
         self.fc = nn.Linear(hidden_size, 1)
-    def forward(self, hidden, x):
+    def forward(self, hidden, x, problem_q):
         # x = batch_size x num_xs x hidden_size
         # hidden = batch_size x tokens x hidden_size
 
@@ -623,10 +624,11 @@ class XToQ(nn.Module):
             for j in range(len(xs)):
                 # for each x for the batch
                 # xk^T
-                qkt = torch.matmul(xs[j], self.K(hidden2[i]).transpose(0,1))
-                smqkt = nn.functional.softmax(qkt)
-                output = torch.matmul(smqkt, self.V(hidden2[i]))
-                qs.append(output)
+                # qkt = torch.matmul(xs[j], self.K(hidden2[i]).transpose(0,1))
+                # smqkt = nn.functional.softmax(qkt)
+                # output = torch.tanh(torch.matmul(smqkt, self.V(hidden2[i])))
+                # qs.append(output)
+                qs.append(problem_q[i])
             # need to change later
             qs = torch.stack(qs)#.transpose(0,1)
             finals.append(qs)
@@ -642,3 +644,63 @@ class XToQ(nn.Module):
                 
         output = torch.stack(finals)
         return output
+
+
+class EncoderSeqVARIABLES(nn.Module):
+    def __init__(self, input_size, embedding_size, hidden_size, n_layers=2, dropout=0.5):
+        super(EncoderSeqVARIABLES, self).__init__()
+
+        self.input_size = input_size
+        self.embedding_size = embedding_size
+        self.hidden_size = hidden_size
+        self.n_layers = n_layers
+        self.dropout = dropout
+
+        self.embedding = nn.Embedding(input_size, embedding_size, padding_idx=0)
+        self.em_dropout = nn.Dropout(dropout)
+        self.gru_pade = nn.GRU(embedding_size, hidden_size, n_layers, dropout=dropout, bidirectional=True)
+
+    def forward(self, input_seqs, input_lengths, hidden=None):
+        # input_seqs: max_len x batch_size
+        # max_len comes from longest in the batch
+        # embedded = max_len x num_batches x embedding_dim
+        embedded1 = self.embedding(input_seqs)  # S x B x E
+        embedded = self.em_dropout(embedded1)
+        # packed = lengths x embedding
+        # with multiple batches it seems to concatenate the padded 
+        # sequences of variable length
+        # https://stackoverflow.com/questions/51030782/why-do-we-pack-the-sequences-in-pytorch
+        # convert to RNN form
+        packed = torch.nn.utils.rnn.pack_padded_sequence(embedded, input_lengths)
+
+
+        # initial hidden state for gru
+        pade_hidden = hidden
+        # pass equation through GRU
+        # this is equation (1) AND (2) (bidirectional GRU)
+        # pade_outputs: max_len x num_batches x (2 (bidirectional) * hidden_size)
+        #   these are the values from the last layer in the GRU
+        # pade_hidden: (2 (bidirectional) * num_layers) x num_batches x hidden_size
+        pade_outputs1, pade_hidden = self.gru_pade(packed, pade_hidden)
+
+
+        # convert the GRU packed format back into dense tensor form
+        # pade_outputs: max_len x num_batches x (2 (bidirectional) * hidden_size) 
+        pade_outputs2, _ = torch.nn.utils.rnn.pad_packed_sequence(pade_outputs1)
+        # pade_outputs2 = torch.ones(input_seqs.size(0), input_seqs.size(1), self.hidden_size * 2)#.to(pade_outputs2.device)
+        
+
+        # problem_output = 
+        #   embedding (512) of the last GRU unit (from forward gru) 
+        #   +
+        #   embedding (512) of the first GRU unit (from backward gru)
+        # this is equation (4)
+        # num_batches x hidden_size
+        problem_output = pade_outputs2[-1, :, :self.hidden_size] + pade_outputs2[0, :, self.hidden_size:]
+
+        # pade_outputs = 
+        #  forward GRU embeddings + backward GRU embeddings
+        # max_length x num_batches x hidden_size
+        # token embedding of each 
+        pade_outputs = pade_outputs2[:, :, :self.hidden_size] + pade_outputs2[:, :, self.hidden_size:]  # S x B x H
+        return pade_outputs, problem_output
