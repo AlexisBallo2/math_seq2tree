@@ -365,17 +365,12 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         # select the ith equation in each obs
         ith_equation_target = deepcopy(target[:, cur_equation, :].transpose(0,1))
         if useCustom:
-            # mask the variable of the current equation
-            cur_num_mask = num_mask
-            cur_num_mask[:, len(generate_nums) + cur_equation] = 1
-
             # get current equation 
             ith_equation_goal = qs[:, cur_equation, :]
             node_stacks = [[TreeNode(_)] for _ in ith_equation_goal.split(1, dim=0)]
             # ith_equation_goal = problem_output
             # node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
         else:
-            cur_num_mask = num_mask
             ith_equation_goal = problem_output
             node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
 
@@ -406,7 +401,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             #       embeddings of the generate and copy numbers
 
             num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict'](
-                node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, cur_num_mask, useCustom, debug)
+                node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug)
 
 
             # this is mainly what we want to train
@@ -649,14 +644,11 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, output_lang,
     for i in range(max(num_x, 1)):
         # get the node stacks
         if useCustom:
-            # ith_equation_goal = qs[:, i, :]
-            # node_stacks = [[TreeNode(_)] for _ in ith_equation_goal.split(1, dim=0)]
-            cur_num_mask = num_mask
-            cur_num_mask[:, len(generate_nums) + i] = 1
-            ith_equation_goal = problem_output
-            node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
+            ith_equation_goal = qs[:, i, :]
+            node_stacks = [[TreeNode(_)] for _ in ith_equation_goal.split(1, dim=0)]
+            # ith_equation_goal = problem_output
+            # node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
         else:
-            cur_num_mask = num_mask
             ith_equation_goal = problem_output
             node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
 
@@ -677,7 +669,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, output_lang,
                 # left_childs = torch.stack(b.left_childs)
                 left_childs = b.left_childs
 
-                num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict']( b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, cur_num_mask, useCustom, debug)
+                num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict']( b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug)
 
                 # leaf = p_leaf[:, 0].unsqueeze(1)
                 # repeat_dims = [1] * leaf.dim()

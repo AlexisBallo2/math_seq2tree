@@ -17,7 +17,7 @@ random.seed(10)
 torch.cuda.manual_seed_all(2)
 np.random.seed(10)
 
-batch_size = 10 
+batch_size = 1 
 embedding_size = 128
 hidden_size = 512
 n_epochs = 10 
@@ -28,7 +28,7 @@ n_layers = 2
 
 useCustom = True
 # useCustom = False 
-num_obs = 100 
+num_obs = 30 
 title = ""
 config = {
     "batch_size": batch_size,
