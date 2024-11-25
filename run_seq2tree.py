@@ -22,26 +22,26 @@ np.random.seed(10)
 batch_size = 20
 embedding_size = 128
 hidden_size = 512
-n_epochs = 5
+n_epochs = 10 
 learning_rate = 1e-3 
 weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-# useCustom = True
-useCustom = False 
 num_obs = 100 
-title = f"{num_obs} Observations, {n_epochs} Epochs, Custom = {useCustom} "
 
 # torch.autograd.set_detect_anomaly(True)
 
+useCustom = True
 # useCustom = False 
-# setName = "MATH"
-setName = "DRAW"
+
+setName = "MATH"
+# setName = "DRAW"
 
 # decide if we must be able to solve equation
-useEquSolutions = True
-# useEquSolutions = False 
+# useEquSolutions = True
+useEquSolutions = False 
+title = f"{num_obs} Observations, {n_epochs} Epochs, Dataset = {setName}, Custom = {useCustom} "
 config = {
     "batch_size": batch_size,
     "embedding_size": embedding_size,
@@ -86,7 +86,7 @@ temp_pairs = []
 for p in pairs:
     # input_seq, prefixed equation, nums, num_pos
     equations = [from_infix_to_prefix(equ) for equ in p[1]]
-    temp_pairs.append((p[0], equations, p[2], p[3], p[4], p[5]))
+    temp_pairs.append((p[0], equations, p[2], p[3], p[4], p[5], p[6]))
 pairs = temp_pairs
 
 
@@ -123,8 +123,7 @@ for fold in range(num_folds):
         else:
             pairs_trained += fold_pairs[fold_t]
 
-    input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums,
-                                                                    copy_nums, vars, useCustom, tree=True)
+    input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums, copy_nums, vars, useCustom, tree=True)
     # pair:
     #   input: sentence with all numbers masked as NUM
     #   length of input
@@ -217,7 +216,7 @@ for fold in range(num_folds):
         # num_stack_batches: the corresponding nums lists
         # num_pos_batches: positions of the numbers lists
         # num_size_batches: number of numbers from the input text
-        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions = prepare_train_batch(train_pairs, batch_size, vars)
+        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos = prepare_train_batch(train_pairs, batch_size, vars, output_lang, input_lang)
         # generate temp x vectors
 
         print("fold:", fold + 1)
@@ -238,7 +237,7 @@ for fold in range(num_folds):
             loss, acc = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
-                output_lang, num_pos_batches[idx], useCustom, vars, debug)
+                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], useCustom, vars, debug)
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             loss_total += loss
@@ -250,9 +249,11 @@ for fold in range(num_folds):
 
 
         print("loss:", loss_total / len(input_lengths))
+        train_acc = sum(train_accuracys) / len(train_accuracys)
+        print("train accuracy", train_acc)
+        fold_train_accuracy.append(train_acc)
         # print("training time", time_since(time.time() - start))
-        print("--------------------------------")
-        fold_train_accuracy.append(sum(train_accuracys) / len(train_accuracys))
+        # print("--------------------------------")
         # if epoch % 10 == 0 or epoch > n_epochs - 5:
         if True:
             for k, v in models.items():
@@ -261,18 +262,28 @@ for fold in range(num_folds):
             start = time.time()
             for test_batch in test_pairs:
                 start = time.perf_counter()
-                test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, models, output_lang, test_batch[5], vars, useCustom, debug, beam_size=beam_size)
+                test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, models, input_lang, output_lang, test_batch[5], vars, useCustom, debug, beam_size=beam_size)
                 end = time.perf_counter()
                 test_time_array.append([1, end - start])
                 lengths = 0
                 same = 0
+                print('test res')
                 for equ_count in range(len(test_batch[2])):
-                    actual = [output_lang.index2word[i] for i in test_batch[2][equ_count]]
-                    predicted = [output_lang.index2word[i] for i in test_res[equ_count]]
-                    for i in range(min(len(actual), len(predicted))):
+                    actual_length = test_batch[3][equ_count]
+                    actual = [output_lang.index2word[i] for i in test_batch[2][equ_count][0:actual_length]]
+                    if equ_count > len(test_res) - 1:
+                        predicted = [None for i in range(len(actual))]
+                    else:
+                        predicted = [output_lang.index2word[i] for i in test_res[equ_count][0:min(len(test_res[equ_count]), actual_length)]]
+                    print(f"    equation {equ_count}")
+                    print("         actual", actual)
+                    print("         predicted", predicted)
+
+                    for i in range(len(actual)):
                         lengths += 1
-                        if actual[i] == predicted[i]:
-                            same += 1
+                        if i < len(predicted):
+                            if actual[i] == predicted[i]:
+                                same += 1
 
                 # if useEquSolutions:
                 #     try:
@@ -296,7 +307,9 @@ for fold in range(num_folds):
                 accuracy = same / lengths
                 eval_accuracys.append(accuracy)
 
-            fold_eval_accuracy.append(sum(eval_accuracys) / len(eval_accuracys))
+            eval_acc = sum(eval_accuracys) / len(eval_accuracys)
+            print('eval accuracy', eval_acc)
+            fold_eval_accuracy.append(eval_acc)
 
             print("------------------------------------------------------")
             # torch.save(encoder.state_dict(), "models/encoder")
