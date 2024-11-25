@@ -5,6 +5,10 @@ import json
 import copy
 import re
 from src.expressions_transfer import *
+import sympy as sp
+from sympy.solvers import solve
+import math
+
 
 
 PAD_token = 0 
@@ -312,7 +316,7 @@ def load_roth_data(filename):  # load the json data to dict(dict()) for roth dat
 #     return test_str
 
 variableHierarchy = ['X', 'Y', 'Z']
-def transfer_num(data, setName, useCustom):  # transfer num into "NUM"
+def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num into "NUM"
     print("Transfer numbers...")
     # number regex
     # pattern = re.compile("\d*\(\d+/\d+\)\d*|\d+\.\d+%?|\d+%?")
@@ -343,9 +347,43 @@ def transfer_num(data, setName, useCustom):  # transfer num into "NUM"
 
         # strip "x=" from the equation
         if setName == "MATH":
-            equations = [d["equation"][2:]]
+            equ = d["equation"]
+            equations = [equ[2:]]
+            if useEqunSolutions:
+                try:
+                    sympy_eq = sp.simplify("Eq(" + equ.replace("=", ",") + ")")
+                    targets = [round(i) for i in solve(sympy_eq, dict=True)[0].values()]
+                except:
+                    continue
+            else:
+                targets = ['disabled'] 
+            print(targets)
+
         else:
             equations = d["lEquations"]
+            spEqs = []
+            if useEqunSolutions:
+                try:
+                    for equ in equations:
+                        sympy_eq = sp.simplify("Eq(" + equ.replace("=", ",") + ")")
+                        spEqs.append(sympy_eq)   
+                    solved = solve(spEqs, dict=True)
+                    targets = [round(i) for i in list(solved[0].values())]
+                    act_solns = list(round(i) for i in d['lSolutions'])
+                    same = 0
+                    for i, equ in enumerate(targets):
+                        if equ in act_solns:
+                            same += 1
+                    if same != len(targets):
+                        continue
+                except:
+                    continue
+            else:
+                targets = ['disabled'] 
+
+
+
+
 
 
         for s in seg:
@@ -513,7 +551,7 @@ def transfer_num(data, setName, useCustom):  # transfer num into "NUM"
         # out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
         # nums: list of numbers in the text
         # num_pos: list of positions of the numbers in the text
-        pairs.append((input_seq, final_out_seq_list, nums, num_pos, allVars))
+        pairs.append((input_seq, final_out_seq_list, nums, num_pos, allVars, equationTargetVars, targets))
 
     temp_g = []
     for g in generate_nums:
@@ -828,6 +866,9 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
     # remove the variable tokens. we want to control where they go
     for var in vars:
         output_lang.remove_token_from_vocab(var)
+
+    # add vars to input lang so we can pass them through encoder
+    # input_lang.add_sen_to_vocab(vars)
     # hard coded to true
     if tree:
         # lang is the current lang + generate_nums array + N{i} (for each copy_num)
@@ -873,6 +914,8 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         # convert input sentence and equation into the vocab tokens
         input_cell = indexes_from_sentence(input_lang, pair[0])
         output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair[1]]
+        # equation_target = [output_lang.word2index[equ] for equ in pair[5]]
+        equation_target = ["" for equ in pair[5]]
         # pair:
         #   input: sentence with all numbers masked as NUM
         #   length of input
@@ -882,7 +925,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         #   loc nums: where nums are in the text
         #   [[] of where each token in the equation is found in the nums array]
         train_pairs.append((input_cell, len(input_cell), output_cell, [len(equ) for equ in output_cell],
-                            pair[2], pair[3], num_stacks, pair[4]))
+                            pair[2], pair[3], num_stacks, pair[4], equation_target, pair[6]))
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
     print('Number of training data %d' % (len(train_pairs)))
     for pair in pairs_tested:
@@ -910,7 +953,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         # train_pairs.append((input_cell, len(input_cell), output_cell, len(output_cell),
         #                     pair[2], pair[3], num_stack, pair[4]))
         test_pairs.append((input_cell, len(input_cell), output_cell, [len(equ) for equ in output_cell],
-                           pair[2], pair[3], num_stacks, pair[4]))
+                           pair[2], pair[3], num_stacks, pair[4], pair[5]))
     print('Number of testind data %d' % (len(test_pairs)))
     return input_lang, output_lang, train_pairs, test_pairs
 
@@ -1015,13 +1058,15 @@ def pad_seq(seq, seq_len, max_length):
 
 
 # prepare the batches
-def prepare_train_batch(pairs_to_batch, batch_size, vars):
+def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lang):
     pairs = copy.deepcopy(pairs_to_batch)
     random.shuffle(pairs)  # shuffle the pairs
     pos = 0
     input_lengths = []
     output_lengths = []
     nums_batches = []
+    total_output_solutions = []
+    total_targets = []
     batches = []
     input_batches = []
     output_batches = []
@@ -1029,6 +1074,10 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars):
     num_pos_batches = []
     num_size_batches = []
     output_vars_batches = []
+
+    var_pos_in_input = []
+    var_size_in_input = []
+
     while pos + batch_size < len(pairs):
         batches.append(pairs[pos:pos+batch_size])
         pos += batch_size
@@ -1039,9 +1088,11 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars):
         input_length = []
         output_length = []
         output_vars = []
+        output_var_solutions = []
         max_equ_length = 0
         # for each item in a pair
         input_len_max = 0
+        targets = []
         input_batch = []
         output_batch = []
         num_batch = []
@@ -1050,14 +1101,18 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars):
         num_size_batch = []
         # get max number of eqautions in the batch:
         max_num_equ = 0
-        for i, li, j, lj, num, num_pos, num_stack, var_list in batch:
+        input_len_max = 0
+        var_pos_in_inputs = []
+
+        for i, li, j, lj, num, num_pos, num_stack, var_list, equ_targets, var_solns in batch:
             max_num_equ = max(max_num_equ, len(j))
             max_equ_length = max(max_equ_length, max(lj))
+            # input_len_max = max(input_len_max, li + len(vars))
+            input_len_max = max(input_len_max, li)
 
-        for i, li, j, lj, num, num_pos, num_stack, var_list in batch:
+        for i, li, j, lj, num, num_pos, num_stack, var_list, equ_targets, var_solns in batch:
             # i = length if input in pair
             input_length.append(li)
-            input_len_max = max(input_len_max, li)
             # j = length of output in pair
             output_length.append(lj + [0] * (max_num_equ - len(lj)))
             
@@ -1065,7 +1120,16 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars):
 
             num_batch.append(len(num))
             # input batch: padded input text
+            # inputs_with_vars_appended = i + [input_lang.word2index[i] for i in vars]
+            # input_batch.append(pad_seq(inputs_with_vars_appended, li + len(vars), input_len_max))
             input_batch.append(pad_seq(i, li, input_len_max))
+
+            var_pos = [li + i for i in range(len(var_list))]
+            var_size = len(var_list)
+            var_pos_in_inputs.append(var_pos)
+
+
+
             # output batch: padded output text
             output_temp = [pad_seq(equ, le, max_equ_length) for equ, le in zip(j, lj)]
             output_batch.append(output_temp + [pad_seq([], 0, max_equ_length) for _ in range(max_num_equ - len(j))])
@@ -1075,6 +1139,8 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars):
             num_pos_batch.append(num_pos)
             # size of numbers from input
             num_size_batch.append(len(num_pos))
+            output_var_solutions.append(var_solns)
+            targets.append(equ_targets)
 
             cur_vars = []
             for var in vars:
@@ -1093,6 +1159,9 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars):
         num_stack_batches.append(num_stack_batch)
         num_pos_batches.append(num_pos_batch)
         num_size_batches.append(num_size_batch)
+        total_output_solutions.append(output_var_solutions)
+        total_targets.append(targets)
+        var_pos_in_input.append(var_pos_in_inputs)
     # input_batches: padded inputs
     # input_lengths: length of the inputs (without padding)
     # output_batches: padded outputs
@@ -1101,7 +1170,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars):
     # num_stack_batches: the corresponding nums lists
     # num_pos_batches: positions of the numbers lists
     # num_size_batches: number of numbers from the input text
-    return input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_vars_batches
+    return input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_vars_batches, total_output_solutions, total_targets, var_pos_in_input
 
 
 def get_num_stack(eq, output_lang, num_pos):

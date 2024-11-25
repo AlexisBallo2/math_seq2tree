@@ -3,6 +3,8 @@
 
 import torch
 import torch.nn as nn
+from torch_kmeans import KMeans
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -568,12 +570,28 @@ class GenerateXs(nn.Module):
         self.K = nn.Linear(hidden_size, hidden_size)
         self.V = nn.Linear(hidden_size, hidden_size)
 
+        # self.oneK = KMeans(n_clusters=1)
+        self.twoK = KMeans(n_clusters=2)
+        self.threeK = KMeans(n_clusters=3)
+
+
 
     def forward(self, num_xs, hidden, problem_q):
         
         # hidden2: batch_size x tokens x hidden_size
 
         hidden2 = hidden.transpose(0,1)
+
+        # for batch in hidden2:
+        #     # if num_xs < 2:
+        #         # kmeans = self.oneK
+        #     elif num_xs < 3:
+        #         kmeans = self.twoK
+        #     else:
+        #         kmeans = self.threeK
+        #     result = kmeans(batch)
+            # print(result)
+
 
         # for each in batch
         out = []
@@ -597,7 +615,8 @@ class GenerateXs(nn.Module):
                     outAttention = torch.matmul(smqkt, v)
                     xs.append(outAttention)
             out.append(torch.stack(xs))
-        return torch.stack(out)
+        final = torch.stack(out)
+        return final
         # return xs
 
 
@@ -608,25 +627,29 @@ class XToQ(nn.Module):
         self.V = nn.Linear(hidden_size, hidden_size)
         self.lstm = nn.LSTM(hidden_size, hidden_size, 1, batch_first=True)
         self.fc = nn.Linear(hidden_size, 1)
-    def forward(self, hidden, x):
+    def forward(self, hidden, x, problem_q):
         # x = batch_size x num_xs x hidden_size
         # hidden = batch_size x tokens x hidden_size
 
         finals = []
 
+        # hidden2 = batch_size x tokens x hidden_size
         hidden2 = hidden.transpose(0,1)
+
         # for each in batch
         for i in range(hidden2.shape[0]):
             # get the x's for this batch
             xs = x[i]
             qs = []
+            # for each x
             for j in range(len(xs)):
-                # for each x for the batch
-                # xk^T
+                # # for each x for the batch
+                # # xk^T
                 qkt = torch.matmul(xs[j], self.K(hidden2[i]).transpose(0,1))
                 smqkt = nn.functional.softmax(qkt)
                 output = torch.matmul(smqkt, self.V(hidden2[i]))
                 qs.append(output)
+                # qs.append(problem_q[i])
             # need to change later
             qs = torch.stack(qs)#.transpose(0,1)
             finals.append(qs)
