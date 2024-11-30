@@ -3,6 +3,7 @@ import os
 from src.train_and_evaluate import *
 from src.models import *
 from src.post.loss_graph import *
+from src.utils import *
 import time
 import torch.optim
 from src.expressions_transfer import *
@@ -32,15 +33,15 @@ num_obs = 100
 
 # torch.autograd.set_detect_anomaly(True)
 
-useCustom = True
-# useCustom = False 
+# useCustom = True
+useCustom = False 
 
 setName = "MATH"
 # setName = "DRAW"
 
 # decide if we must be able to solve equation
-# useEquSolutions = True
-useEquSolutions = False 
+useEquSolutions = True
+# useEquSolutions = False 
 title = f"{num_obs} Observations, {n_epochs} Epochs, Dataset = {setName}, Custom = {useCustom} "
 config = {
     "batch_size": batch_size,
@@ -86,7 +87,7 @@ temp_pairs = []
 for p in pairs:
     # input_seq, prefixed equation, nums, num_pos
     equations = [from_infix_to_prefix(equ) for equ in p[1]]
-    temp_pairs.append((p[0], equations, p[2], p[3], p[4], p[5], p[6]))
+    temp_pairs.append((p[0], equations, p[2], p[3], p[4], p[5], p[6], p[7]))
 pairs = temp_pairs
 
 
@@ -103,6 +104,7 @@ best_acc_fold = []
 
 all_train_accuracys = []
 all_eval_accuracys = []
+all_soln_eval_accuracys = []
 
 total_training_time = 0
 total_inference_time = 0
@@ -116,6 +118,7 @@ for fold in range(num_folds):
     pairs_trained = []
     fold_train_accuracy = []
     fold_eval_accuracy = []
+    fold_soln_eval_accuracy = []
     # train on current fold, test on other folds
     for fold_t in range(num_folds):
         if fold_t == fold:
@@ -259,6 +262,7 @@ for fold in range(num_folds):
             for k, v in models.items():
                 v.eval()
             eval_accuracys = []
+            solution_eval_accuracys = []
             start = time.time()
             for test_batch in test_pairs:
                 start = time.perf_counter()
@@ -267,14 +271,20 @@ for fold in range(num_folds):
                 test_time_array.append([1, end - start])
                 lengths = 0
                 same = 0
+                num_pred_equations = len(test_res)
+                equation_strings = []
                 print('test res')
                 for equ_count in range(len(test_batch[2])):
                     actual_length = test_batch[3][equ_count]
-                    actual = [output_lang.index2word[i] for i in test_batch[2][equ_count][0:actual_length]]
+                    actual = [output_lang.index2word[i] for i in test_batch[2][equ_count][0:actual_length + 1]]
                     if equ_count > len(test_res) - 1:
                         predicted = [None for i in range(len(actual))]
                     else:
-                        predicted = [output_lang.index2word[i] for i in test_res[equ_count][0:min(len(test_res[equ_count]), actual_length)]]
+                        equn, token = test_res[equ_count]
+                        # print('temp predicted', [output_lang.index2word[i] for i in equn])
+                        predicted = [output_lang.index2word[i] for i in equn]
+                        # predicted = [output_lang.index2word[i] for i in equn[0:min(len(test_res[equ_count]) + 1, actual_length + 1)]]
+                        equation_strings.append(output_lang.index2word[token] + "=" + "".join(predicted))
                     print(f"    equation {equ_count}")
                     print("         actual", actual)
                     print("         predicted", predicted)
@@ -284,32 +294,23 @@ for fold in range(num_folds):
                         if i < len(predicted):
                             if actual[i] == predicted[i]:
                                 same += 1
-
-                # if useEquSolutions:
-                #     try:
-                #         for equ in equations:
-                #             sympy_eq = sp.simplify("Eq(" + equ.replace("=", ",") + ")")
-                #             spEqs.append(sympy_eq)   
-                #         solved = solve(spEqs, dict=True)
-                #         targets = [round(i) for i in list(solved[0].values())]
-                #         act_solns = list(round(i) for i in d['lSolutions'])
-                #         same = 0
-                #         for i, equ in enumerate(targets):
-                #             if equ in act_solns:
-                #                 same += 1
-                #         if same != len(targets):
-                #             continue
-                #     except:
-                #         continue
-                # else:
-                #     targets = ['disabled'] 
+                print('equation strings', equation_strings)
+                same_equation = solve_equation(equation_strings, test_batch[6])
+                if same_equation:
+                    print('solution success')
+                    solution_eval_accuracys.append(1)
+                else: 
+                    print('solution failed')
+                    solution_eval_accuracys.append(0)
 
                 accuracy = same / lengths
                 eval_accuracys.append(accuracy)
 
             eval_acc = sum(eval_accuracys) / len(eval_accuracys)
+            eval_soln_acc = sum(solution_eval_accuracys) / len(solution_eval_accuracys)
             print('eval accuracy', eval_acc)
             fold_eval_accuracy.append(eval_acc)
+            fold_soln_eval_accuracy.append(eval_soln_acc)
 
             print("------------------------------------------------------")
             # torch.save(encoder.state_dict(), "models/encoder")
@@ -318,6 +319,7 @@ for fold in range(num_folds):
             # torch.save(merge.state_dict(), "models/merge")
     all_train_accuracys.append(fold_train_accuracy)
     all_eval_accuracys.append(fold_eval_accuracy)
+    all_soln_eval_accuracys.append(fold_soln_eval_accuracy)
     make_loss_graph(
         [fold_train_accuracy, fold_eval_accuracy], 
         ['Train', "Eval"],
@@ -326,6 +328,7 @@ for fold in range(num_folds):
         )
     print('All TRAIN ACC', all_train_accuracys)
     print('ALL EVAL ACC', all_eval_accuracys)
+    print('ALL EVAL SOLN ACC', all_soln_eval_accuracys)
     break 
 
 # a, b, c = 0, 0, 0

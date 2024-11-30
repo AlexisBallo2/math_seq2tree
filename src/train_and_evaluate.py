@@ -273,6 +273,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     input_var = torch.LongTensor(input_batch).transpose(0, 1)
     problem_vars = torch.LongTensor(output_var_batches)
     target = torch.LongTensor(target_batch)#.transpose(0, 1)
+    target_length = torch.LongTensor(target_length)
     equation_targets_tensor = torch.LongTensor(equation_targets)
 
     # num vars total in the output lang. will need to mask ones not in the current equation
@@ -369,6 +370,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         # select the ith equation in each obs
         ith_equation_target = deepcopy(target[:, cur_equation, :].transpose(0,1))
         ith_equation_solution = deepcopy(equation_targets_tensor[:, cur_equation])
+        ith_equation_target_lengths = deepcopy(target_length[:, cur_equation])
         # it_equation_solution 
         if useCustom:
             ith_equation_goal = qs[:, cur_equation, :]
@@ -499,11 +501,9 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                     # left_childs is a running vector of the sub tree embeddings "t" 
                     # need this for generation of the right q
                     left_childs.append(o[-1].embedding)
+                    pred_equ_solutions[idx] = [o[-1]]
                 else:
                     left_childs.append(None)
-                if len(node_stack) == 0:
-                    # print('done generating tree for equation', idx)
-                    pred_equ_solutions[idx] = [o[-1]]
 
 
         # all_leafs = torch.stack(all_leafs, dim=1)  # B x S x 2
@@ -517,6 +517,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         # = batch_size x max_len x num_nums
         all_node_outputs2 = torch.stack(all_node_outputs, dim=1)  # B x S x N
 
+        # batch_size x max_len x num_nums
         ith_equation_target = ith_equation_target.transpose(0, 1).contiguous()
         if USE_CUDA:
             # all_leafs = all_leafs.cuda()
@@ -527,7 +528,26 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         #     print([output_lang.index2word[_] for _ in batch])
         #print('done equation')
         # loss = masked_cross_entropy(all_node_outputs2, target, target_length)
-        current_equation_loss = torch.nn.CrossEntropyLoss(reduction="none")(all_node_outputs2.view(-1, all_node_outputs2.size(2)), ith_equation_target.view(-1).to(device)).mean()
+        current_equation_loss_before = torch.nn.CrossEntropyLoss(reduction="none")(all_node_outputs2.view(-1, all_node_outputs2.size(2)), ith_equation_target.view(-1).to(device))
+
+        
+        # batch_size x max_len 
+        as_equations = current_equation_loss_before.view(all_node_outputs2.size(0), -1)
+
+
+        # generate a mask for tokens that WE FILLED 
+        n = len(ith_equation_target_lengths)
+        max_length_t =len(as_equations[0])
+        index = torch.arange(max_length_t).unsqueeze(0).repeat(n, 1)  # Create a 2D index tensor with shape (n, max_length)
+        mask_t = (index < ith_equation_target_lengths.unsqueeze(1)).float()  # Expand lengths tensor & compare with index tensor, then cast to float
+
+        as_equations = as_equations * mask_t.to(device)
+        current_equation_loss = as_equations.view(-1).mean()
+        
+        # print(mask)
+
+        # remove the lengths we dont care about
+
         same = 0
         lengths = 0
         # print(f'Equation {cur_equation}')
@@ -547,16 +567,28 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             # print(f"        actual:     {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
             # print('same', cur_same, 'length', cur_len)
 
-        # num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict'](pred_equ_solutions, [None for i in range(len(pred_equ_solutions))], encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug)
-        # prediction = torch.cat((op, num_score), 1)
+        # if useCustom:
+        #     # we masked some of the equations (they are 0s) so the model predicted all left nodes.
+        #     # so in pred_equ_solutions they are all None
+        #     # fill these with 0s. 
+        #     for i in range(len(pred_equ_solutions)):
+        #         if pred_equ_solutions[i] == None:
+        #             pred_equ_solutions[i] = [TreeEmbedding(torch.zeros(1, models['predict'].hidden_size), True)]
+        #     num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict'](pred_equ_solutions, [None for i in range(len(pred_equ_solutions))], encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug)
 
-        # tokenPredictions = prediction.argmax(dim = 1)
-        # for token, target in zip(tokenPredictions, ith_equation_solution):
-        #     print(f'predicted: {output_lang.index2word[token.item()]} actual: {output_lang.index2word[target.item()]}')
-        #     lengths += 1
-        #     if token == target:
-        #         same += 1
-        # equation_prediction_loss = torch.nn.CrossEntropyLoss(reduction="none")(prediction, ith_equation_solution.to(device)).mean()
+        #     prediction = torch.cat((op, num_score), 1)
+
+        #     tokenPredictions = prediction.argmax(dim = 1)
+        #     for token, target_t in zip(tokenPredictions, ith_equation_solution):
+        #         print(f'predicted: {output_lang.index2word[token.item()]} actual: {output_lang.index2word[target_t.item()]}')
+        #         lengths += 1
+        #         if token == target_t:
+        #             same += 1
+        #     equation_prediction_loss = torch.nn.CrossEntropyLoss(reduction="none")(prediction, ith_equation_solution.to(device)).mean()
+        #     if total_loss != None:
+        #         total_loss += equation_prediction_loss
+        #     else:
+        #         total_loss = equation_prediction_loss
 
             # print('acc', cur_same/cur_len)
         if total_loss != None:
@@ -566,9 +598,9 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         total_acc += [same/lengths]
     
     # add the loss of number equations
-    if useCustom:
-        num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs.to(device))
-        total_loss += num_x_loss
+    # if useCustom:
+        # num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs.to(device))
+        # total_loss += num_x_loss
         # total_loss += equation_prediction_loss
 
         # predict a solution token for the tree 
@@ -636,8 +668,9 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
         # # xs = get_all_number_encoder_outputs(encoder_outputs, var_pos, batch_size, var_size, models['encoder'].hidden_size)
         # xs = torch.zeros(1, len(vars), 512)
         # # padd the xs in the first dim to match the length of variables
-        padding = torch.zeros(1, len(vars) - num_x, 512)
-        xs = torch.cat((xs, padding.to(device)), dim=1).to(device)
+        if num_x <= len(vars):
+            padding = torch.zeros(1, len(vars) - num_x, 512)
+            xs = torch.cat((xs, padding.to(device)), dim=1).to(device)
     else: 
         xs = None
 
@@ -676,7 +709,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
 
         # evaulation uses beam search
         # key is how the beams are compared
-        beams = [TreeBeam(0.0, node_stacks, embeddings_stacks, left_childs, [])]
+        beams = [TreeBeam(0.0, node_stacks, embeddings_stacks, left_childs, [] )]
 
         for t in range(max_length):
             current_beams = []
@@ -762,9 +795,9 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
                         current_left_childs.append(current_embeddings_stacks[0][-1].embedding)
                     else:
                         current_left_childs.append(None)
+
                     # the beam "score" is the sum of the associations 
-                    current_beams.append(TreeBeam(b.score+float(tv), current_node_stack, current_embeddings_stacks,
-                                                current_left_childs, current_out))
+                    current_beams.append(TreeBeam(b.score+float(tv), current_node_stack, current_embeddings_stacks, current_left_childs, current_out ))
             # order beam by highest to lowest
             beams = sorted(current_beams, key=lambda x: x.score, reverse=True)
             beams = beams[:beam_size]
@@ -775,5 +808,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
             if flag:
                 break
 
-        final_beams.append(beams[0].out)
+        num_score_temp, op_temp, _, _, _ = models['predict']([beams[0].node_stack[-1]], [None for i in range(len([beams[0].node_stack[-1]]))], encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug)
+        possible_tokens = torch.cat((op_temp, num_score_temp), 1)
+        final_beams.append([beams[0].out, possible_tokens.argmax(dim=1)])
     return final_beams

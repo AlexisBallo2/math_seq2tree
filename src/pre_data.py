@@ -8,10 +8,20 @@ from src.expressions_transfer import *
 import sympy as sp
 from sympy.solvers import solve
 import math
+import inflect
 
 
 
 PAD_token = 0 
+
+p = inflect.engine()
+replace = {}
+
+for i in range(1, 101):
+    word = p.number_to_words(i)
+    replace[word] = i
+replace["4teen"] = 14
+
 
 
 class Lang:
@@ -328,6 +338,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
     vars = []
     copy_nums = 0
     for d in data:
+        pairNumMapping = {}
         # current_equation_vars = ['X']
         # numbers in this problem's text
         nums = []
@@ -339,7 +350,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
         else: 
 
             seg = d["sQuestion"].strip()
-            replace = { "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10 }
+            # replace = { "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven" : 11 }
             seg = seg.lower()
             for k,v in replace.items():
                 seg = seg.replace(k, str(v))
@@ -361,23 +372,24 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
 
         else:
             equations = d["lEquations"]
-            spEqs = []
+            # spEqs = []
             if useEqunSolutions:
-                try:
-                    for equ in equations:
-                        sympy_eq = sp.simplify("Eq(" + equ.replace("=", ",") + ")")
-                        spEqs.append(sympy_eq)   
-                    solved = solve(spEqs, dict=True)
-                    targets = [round(i) for i in list(solved[0].values())]
-                    act_solns = list(round(i) for i in d['lSolutions'])
-                    same = 0
-                    for i, equ in enumerate(targets):
-                        if equ in act_solns:
-                            same += 1
-                    if same != len(targets):
-                        continue
-                except:
-                    continue
+                targets = d['lSolutions']
+                # try:
+                #     for equ in equations:
+                #         sympy_eq = sp.simplify("Eq(" + equ.replace("=", ",") + ")")
+                #         spEqs.append(sympy_eq)   
+                #     solved = solve(spEqs, dict=True)
+                #     targets = [round(i) for i in list(solved[0].values())]
+                #     act_solns = list(round(i) for i in d['lSolutions'])
+                #     same = 0
+                #     for i, equ in enumerate(targets):
+                #         if equ in act_solns:
+                #             same += 1
+                #     if same != len(targets):
+                #         continue
+                # except:
+                    # continue
             else:
                 targets = ['disabled'] 
 
@@ -435,6 +447,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
                         res += seg_and_tag(st[:p_start])
                     # if this fraction is in the input text, append it as "N#"
                     if nums.count(n) == 1:
+                        pairNumMapping[n] = "N"+str(nums.index(n))
                         res.append("N"+str(nums.index(n)))
                     # if not, leave as variable
                     else:
@@ -459,6 +472,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
                     st_num = st_num[:-2]
                 if nums.count(st_num) == 1:
                     # same as fractions, append as "N#" if in the input text 
+                    pairNumMapping[st_num] = "N"+str(nums.index(st_num))
                     res.append("N"+str(nums.index(st_num)))
                 else:
                     # if 
@@ -551,7 +565,9 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
         # out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
         # nums: list of numbers in the text
         # num_pos: list of positions of the numbers in the text
-        pairs.append((input_seq, final_out_seq_list, nums, num_pos, allVars, equationTargetVars, targets))
+        if "14" in equationTargetVars:
+            print()
+        pairs.append((input_seq, final_out_seq_list, nums, num_pos, allVars, equationTargetVars, targets, pairNumMapping))
 
     temp_g = []
     for g in generate_nums:
@@ -863,6 +879,10 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
     # cuts off words that appear less than 5 times 
     input_lang.build_input_lang(trim_min_count)
 
+    # add outputs to lang
+    for tok in pair[5]:
+        output_lang.add_sen_to_vocab(tok)
+
     # remove the variable tokens. we want to control where they go
     for var in vars:
         output_lang.remove_token_from_vocab(var)
@@ -914,8 +934,8 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         # convert input sentence and equation into the vocab tokens
         input_cell = indexes_from_sentence(input_lang, pair[0])
         output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair[1]]
-        # equation_target = [output_lang.word2index[equ] for equ in pair[5]]
-        equation_target = ["" for equ in pair[5]]
+        equation_target = [output_lang.word2index[equ] for equ in pair[5]]
+        # equation_target = ["" for equ in pair[5]]
         # pair:
         #   input: sentence with all numbers masked as NUM
         #   length of input
@@ -925,7 +945,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         #   loc nums: where nums are in the text
         #   [[] of where each token in the equation is found in the nums array]
         train_pairs.append((input_cell, len(input_cell), output_cell, [len(equ) for equ in output_cell],
-                            pair[2], pair[3], num_stacks, pair[4], equation_target, pair[6]))
+                            pair[2], pair[3], num_stacks, pair[4], equation_target, pair[6], pair[7]))
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
     print('Number of training data %d' % (len(train_pairs)))
     for pair in pairs_tested:
@@ -1102,15 +1122,17 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
         # get max number of eqautions in the batch:
         max_num_equ = 0
         input_len_max = 0
+        targets_len_max = 0
         var_pos_in_inputs = []
 
-        for i, li, j, lj, num, num_pos, num_stack, var_list, equ_targets, var_solns in batch:
+        for i, li, j, lj, num, num_pos, num_stack, var_list, equ_targets, var_solns, num_mapping in batch:
             max_num_equ = max(max_num_equ, len(j))
             max_equ_length = max(max_equ_length, max(lj))
             # input_len_max = max(input_len_max, li + len(vars))
             input_len_max = max(input_len_max, li)
+            targets_len_max = max(targets_len_max, len(equ_targets))
 
-        for i, li, j, lj, num, num_pos, num_stack, var_list, equ_targets, var_solns in batch:
+        for i, li, j, lj, num, num_pos, num_stack, var_list, equ_targets, var_solns, num_mapping in batch:
             # i = length if input in pair
             input_length.append(li)
             # j = length of output in pair
@@ -1140,7 +1162,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
             # size of numbers from input
             num_size_batch.append(len(num_pos))
             output_var_solutions.append(var_solns)
-            targets.append(equ_targets)
+            targets.append(equ_targets + [0 for _ in range(targets_len_max - len(equ_targets))])
 
             cur_vars = []
             for var in vars:
