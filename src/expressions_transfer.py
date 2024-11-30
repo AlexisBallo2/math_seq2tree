@@ -216,3 +216,25 @@ def compute_prefix_expression(pre_fix):
         return st.pop()
     return None
 
+
+
+def from_prefix_to_infix(prefix):
+    try:
+        stack = []
+        operators = set(['+', '-', '*', '/'])
+
+        for token in reversed(prefix):
+            if token not in operators:
+                stack.append(token)
+            else:
+                a = stack.pop()
+                b = stack.pop()
+                expr = '(' + a + ' ' + token + ' ' + b + ')'
+                stack.append(expr)
+
+        return stack[0]
+    except:
+        return "".join(prefix) 
+
+
+# print(from_prefix_to_infix(["+", "1", "2"]))

@@ -33,11 +33,11 @@ num_obs = 100
 
 # torch.autograd.set_detect_anomaly(True)
 
-# useCustom = True
-useCustom = False 
+useCustom = True
+# useCustom = False 
 
-setName = "MATH"
-# setName = "DRAW"
+# setName = "MATH"
+setName = "DRAW"
 
 # decide if we must be able to solve equation
 useEquSolutions = True
@@ -282,17 +282,19 @@ for fold in range(num_folds):
                     else:
                         equn, token = test_res[equ_count]
                         # print('temp predicted', [output_lang.index2word[i] for i in equn])
-                        predicted = [output_lang.index2word[i] for i in equn]
+                        predicted_prefix = [output_lang.index2word[i] for i in equn]
+                        predicted_infix = from_prefix_to_infix(predicted_prefix)
+                        
                         # predicted = [output_lang.index2word[i] for i in equn[0:min(len(test_res[equ_count]) + 1, actual_length + 1)]]
-                        equation_strings.append(output_lang.index2word[token] + "=" + "".join(predicted))
+                        equation_strings.append(output_lang.index2word[token] + "=" + predicted_infix)
                     print(f"    equation {equ_count}")
                     print("         actual", actual)
-                    print("         predicted", predicted)
+                    print("         predicted", predicted_infix)
 
                     for i in range(len(actual)):
                         lengths += 1
-                        if i < len(predicted):
-                            if actual[i] == predicted[i]:
+                        if i < len(predicted_infix):
+                            if actual[i] == predicted_infix[i]:
                                 same += 1
                 print('equation strings', equation_strings)
                 same_equation = solve_equation(equation_strings, test_batch[6])
