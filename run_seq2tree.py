@@ -29,7 +29,8 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-num_obs = 100 
+# num_obs = 100 
+num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
@@ -62,7 +63,8 @@ if setName == "DRAW":
     data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
 else:
     data = load_raw_data("data/Math_23K.json")
-data = data[0:num_obs]
+if num_obs:
+    data = data[0:num_obs]
 
 # data format:
 # {
@@ -74,7 +76,8 @@ data = data[0:num_obs]
 # }'
 
 pairs, generate_nums, copy_nums, vars = transfer_num(data, setName, useCustom, useEquSolutions)
-pairs = pairs[0:num_obs]
+if num_obs:
+    pairs = pairs[0:num_obs]
 # pairs: list of tuples:
 #   input_seq: masked text
 #   out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
@@ -127,6 +130,17 @@ for fold in range(num_folds):
             pairs_trained += fold_pairs[fold_t]
 
     input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums, copy_nums, vars, useCustom, tree=True)
+    # all_pairs = train_pairs + test_pairs
+    # out = []
+    # for pair in all_pairs:
+    #     equations = pair[2]
+    #     for equ in equations:
+    #         english = [output_lang.index2word[i] for i in equ]
+    #         out.append(english)
+    # with open("src/post/datasetEquations.txt", "w") as f:
+    #     for equ in out:
+    #         f.write(" ".join(equ) + "\n")
+    # print()
     # pair:
     #   input: sentence with all numbers masked as NUM
     #   length of input

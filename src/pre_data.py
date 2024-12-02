@@ -17,10 +17,16 @@ PAD_token = 0
 p = inflect.engine()
 replace = {}
 
+replace['thirty nine'] = 39
+replace['sixteen'] = 39
+replace['eighteen'] = 18
+replace["4teen"] = 14
+replace['fourteen'] = 14
+replace['306,000'] = 306000
+replace['8,200'] = 8200 
 for i in range(1, 101):
     word = p.number_to_words(i)
     replace[word] = i
-replace["4teen"] = 14
 
 
 
@@ -470,7 +476,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
                 st_num = st[p_start:p_end]
                 if st_num[-2:] == ".0":
                     st_num = st_num[:-2]
-                if nums.count(st_num) == 1:
+                if nums.count(st_num) > 0:
                     # same as fractions, append as "N#" if in the input text 
                     pairNumMapping[st_num] = "N"+str(nums.index(st_num))
                     res.append("N"+str(nums.index(st_num)))
@@ -488,7 +494,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
             return res
 
         # replace variables with X, Y, Z to be consistent
-        varPattern = r'((x)|(y)|(z)|(a)|(b)|(c)|(k)|(n)|(m))'
+        varPattern = r'((x)|(y)|(z)|(a)|(b)|(c)|(k)|(n)|(m)|(o)|(p)|(q)|(r)|(s)|(t)|(u)|(v)|(w))'
         if setName == "MATH":
             allVars = ["X"]
         else:
@@ -565,8 +571,8 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
         # out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
         # nums: list of numbers in the text
         # num_pos: list of positions of the numbers in the text
-        if "14" in equationTargetVars:
-            print()
+        # if "14" in equationTargetVars:
+        #     print()
         pairs.append((input_seq, final_out_seq_list, nums, num_pos, allVars, equationTargetVars, targets, pairNumMapping))
 
     temp_g = []
@@ -875,13 +881,13 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             # for equ in pair[1]:
             #     if equ == "+":
             #         print()
+        # add outputs to lang
+        for tok in pair[5]:
+            output_lang.add_sen_to_vocab(tok)
     # this is hard coded at 5
     # cuts off words that appear less than 5 times 
     input_lang.build_input_lang(trim_min_count)
 
-    # add outputs to lang
-    for tok in pair[5]:
-        output_lang.add_sen_to_vocab(tok)
 
     # remove the variable tokens. we want to control where they go
     for var in vars:
@@ -936,7 +942,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair[1]]
         equation_target = [output_lang.word2index[equ] for equ in pair[5]]
         # equation_target = ["" for equ in pair[5]]
-        # pair:
+        # pair
         #   input: sentence with all numbers masked as NUM
         #   length of input
         #   output: prefix equation. Numbers from input as N{i}, non input as constants
