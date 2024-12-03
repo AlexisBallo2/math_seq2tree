@@ -527,6 +527,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
         # tag the equation (replace numbers (only ones that are in the input text), in the equation with "N#")
         # ex: ['(', 'N1', '-', '1', ')', '*', 'N0']
         # out_seq = [seg_and_tag(equ) for equ in newEquations]
+        print('newEquations', newEquations)
         out_seq = [seg_and_tag(equ) for equ in newEquations]
 
         # for each elem in equation sequence 
@@ -893,8 +894,8 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         #     if equ == "+":
         #         print()
         # add outputs to lang
-        for tok in pair['equationTargetVars']:
-            output_lang.add_sen_to_vocab(tok)
+        # for tok in pair['equationTargetVars']:
+        output_lang.add_sen_to_vocab(pair['equationTargetVars'])
     # this is hard coded at 5
     # cuts off words that appear less than 5 times 
     input_lang.build_input_lang(trim_min_count)
