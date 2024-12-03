@@ -31,7 +31,7 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-# num_obs = 100 
+num_obs = 100 
 # num_obs = 20 
 # num_obs = None 
 
