@@ -157,6 +157,7 @@ for fold in range(num_folds):
     # Initialize models
     encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,n_layers=n_layers)
     predict = Prediction(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars), input_size=len(generate_nums))
+    predict_output = Prediction(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars), input_size=len(generate_nums))
     generate = GenerateNode(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars), embedding_size=embedding_size)
     merge = Merge(hidden_size=hidden_size, embedding_size=embedding_size)
 
@@ -168,6 +169,7 @@ for fold in range(num_folds):
     models = {
         "encoder": encoder,
         "predict": predict,
+        'predict_output': predict_output,
         "generate": generate,
         "merge": merge,
         "num_x_predict": num_x_predict,
@@ -183,6 +185,7 @@ for fold in range(num_folds):
 
     encoder_optimizer = torch.optim.Adam(encoder.parameters(), lr=learning_rate, weight_decay=weight_decay)
     predict_optimizer = torch.optim.Adam(predict.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    predict_output_optimizer = torch.optim.Adam(predict_output.parameters(), lr=learning_rate, weight_decay=weight_decay)
     generate_optimizer = torch.optim.Adam(generate.parameters(), lr=learning_rate, weight_decay=weight_decay)
     merge_optimizer = torch.optim.Adam(merge.parameters(), lr=learning_rate, weight_decay=weight_decay)
     num_x_predict_optimizer = torch.optim.Adam(num_x_predict.parameters(), lr=learning_rate, weight_decay=weight_decay)
@@ -192,6 +195,7 @@ for fold in range(num_folds):
     optimizers = [
         encoder_optimizer,
         predict_optimizer,
+        predict_output_optimizer,
         generate_optimizer,
         merge_optimizer,
         num_x_predict_optimizer,
@@ -201,6 +205,7 @@ for fold in range(num_folds):
 
     encoder_scheduler = torch.optim.lr_scheduler.StepLR(encoder_optimizer, step_size=20, gamma=0.5)
     predict_scheduler = torch.optim.lr_scheduler.StepLR(predict_optimizer, step_size=20, gamma=0.5)
+    predict_output_scheduler = torch.optim.lr_scheduler.StepLR(predict_output_optimizer, step_size=20, gamma=0.5)
     generate_scheduler = torch.optim.lr_scheduler.StepLR(generate_optimizer, step_size=20, gamma=0.5)
     merge_scheduler = torch.optim.lr_scheduler.StepLR(merge_optimizer, step_size=20, gamma=0.5)
     num_x_predict_scheduler = torch.optim.lr_scheduler.StepLR(num_x_predict_optimizer, step_size=20, gamma=0.5)
@@ -210,6 +215,7 @@ for fold in range(num_folds):
     schedulers = [
         encoder_scheduler,
         predict_scheduler,
+        predict_output_scheduler,
         generate_scheduler,
         merge_scheduler,
         num_x_predict_scheduler,
