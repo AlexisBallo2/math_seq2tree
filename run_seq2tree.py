@@ -20,19 +20,19 @@ random.seed(10)
 torch.cuda.manual_seed_all(2)
 np.random.seed(10)
 
-# batch_size = 20
-batch_size = 5 
+batch_size = 20
+# batch_size = 5 
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 3 
 n_epochs = 10 
-learning_rate = 1e-3 
+learning_rate = 1e-1 
 weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
 # num_obs = 100 
-num_obs = 20 
+# num_obs = 20 
 # num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
