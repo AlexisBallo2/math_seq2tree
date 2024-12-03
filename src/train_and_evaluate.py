@@ -531,18 +531,18 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         current_equation_loss_before = torch.nn.CrossEntropyLoss(reduction="none")(all_node_outputs2.view(-1, all_node_outputs2.size(2)), ith_equation_target.view(-1).to(device))
 
         
-        # batch_size x max_len 
-        as_equations = current_equation_loss_before.view(all_node_outputs2.size(0), -1)
+        # # batch_size x max_len 
+        # as_equations = current_equation_loss_before.view(all_node_outputs2.size(0), -1)
 
 
-        # generate a mask for tokens that WE FILLED 
-        n = len(ith_equation_target_lengths)
-        max_length_t =len(as_equations[0])
-        index = torch.arange(max_length_t).unsqueeze(0).repeat(n, 1)  # Create a 2D index tensor with shape (n, max_length)
-        mask_t = (index < ith_equation_target_lengths.unsqueeze(1)).float()  # Expand lengths tensor & compare with index tensor, then cast to float
+        # # generate a mask for tokens that WE FILLED 
+        # n = len(ith_equation_target_lengths)
+        # max_length_t =len(as_equations[0])
+        # index = torch.arange(max_length_t).unsqueeze(0).repeat(n, 1)  # Create a 2D index tensor with shape (n, max_length)
+        # mask_t = (index < ith_equation_target_lengths.unsqueeze(1)).float()  # Expand lengths tensor & compare with index tensor, then cast to float
 
-        as_equations = as_equations * mask_t.to(device)
-        current_equation_loss = as_equations.view(-1).mean()
+        # as_equations = as_equations * mask_t.to(device)
+        # current_equation_loss = as_equations.view(-1).mean()
         
         # print(mask)
 
@@ -567,41 +567,43 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             # print(f"        actual:     {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
             # print('same', cur_same, 'length', cur_len)
 
-        if useCustom:
+        # if useCustom:
             # we masked some of the equations (they are 0s) so the model predicted all left nodes.
             # so in pred_equ_solutions they are all None
             # fill these with 0s. 
-            for i in range(len(pred_equ_solutions)):
-                if pred_equ_solutions[i] == None:
-                    pred_equ_solutions[i] = [TreeEmbedding(torch.zeros(1, models['predict'].hidden_size), True)]
-            num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict'](pred_equ_solutions, [None for i in range(len(pred_equ_solutions))], encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug)
+            # for i in range(len(pred_equ_solutions)):
+            #     if pred_equ_solutions[i] == None:
+            #         pred_equ_solutions[i] = [TreeEmbedding(torch.zeros(1, models['predict'].hidden_size), True)]
+            # num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict'](pred_equ_solutions, [None for i in range(len(pred_equ_solutions))], encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug)
 
-            prediction = torch.cat((op, num_score), 1)
+            # prediction = torch.cat((op, num_score), 1)
 
-            tokenPredictions = prediction.argmax(dim = 1)
-            for token, target_t in zip(tokenPredictions, ith_equation_solution):
-                print(f'predicted: {output_lang.index2word[token.item()]} actual: {output_lang.index2word[target_t.item()]}')
-                lengths += 1
-                if token == target_t:
-                    same += 1
-            equation_prediction_loss = torch.nn.CrossEntropyLoss(reduction="none")(prediction, ith_equation_solution.to(device)).mean()
-            if total_loss != None:
-                total_loss += equation_prediction_loss
-            else:
-                total_loss = equation_prediction_loss
+            # tokenPredictions = prediction.argmax(dim = 1)
+            # for token, target_t in zip(tokenPredictions, ith_equation_solution):
+            #     print(f'predicted: {output_lang.index2word[token.item()]} actual: {output_lang.index2word[target_t.item()]}')
+            #     lengths += 1
+            #     if token == target_t:
+            #         same += 1
+            # equation_prediction_loss = torch.nn.CrossEntropyLoss(reduction="none")(prediction, ith_equation_solution.to(device)).mean()
+            # if total_loss != None:
+            #     total_loss += equation_prediction_loss
+            # else:
+            #     total_loss = equation_prediction_loss
 
             # print('acc', cur_same/cur_len)
         if total_loss != None:
-            total_loss += current_equation_loss
+            # total_loss += current_equation_loss
+            total_loss += current_equation_loss_before.mean()
         else:
-            total_loss = current_equation_loss
+            # total_loss = current_equation_loss
+            total_loss = current_equation_loss_before.mean()
         total_acc += [same/lengths]
     
     # add the loss of number equations
-    if useCustom:
-        num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs.to(device))
-        total_loss += num_x_loss
-        total_loss += equation_prediction_loss
+    # if useCustom:
+    #     num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs.to(device))
+    #     total_loss += num_x_loss
+        # total_loss += equation_prediction_loss
 
         # predict a solution token for the tree 
         # actual_target = 

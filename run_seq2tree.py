@@ -20,17 +20,20 @@ random.seed(10)
 torch.cuda.manual_seed_all(2)
 np.random.seed(10)
 
-batch_size = 20
+# batch_size = 20
+batch_size = 5 
 embedding_size = 128
 hidden_size = 512
-n_epochs = 10 
+n_epochs = 5 
+# n_epochs = 10 
 learning_rate = 1e-3 
 weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
 # num_obs = 100 
-num_obs = None 
+num_obs = 30 
+# num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
@@ -89,9 +92,9 @@ if num_obs:
 temp_pairs = []
 for p in pairs:
     # input_seq, prefixed equation, nums, num_pos
-    equations = [from_infix_to_prefix(equ) for equ in p[1]]
-    temp_pairs.append((p[0], equations, p[2], p[3], p[4], p[5], p[6], p[7]))
-pairs = temp_pairs
+    p['equations'] = [from_infix_to_prefix(equ) for equ in p['equations']]
+    # temp_pairs.append((p[0], equations, p[2], p[3], p[4], p[5], p[6], p[7]))
+# pairs = temp_pairs
 
 
 num_folds = 2
@@ -222,8 +225,8 @@ for fold in range(num_folds):
         generate_num_ids.append(output_lang.word2index[num])
 
     for epoch in range(n_epochs):
-        for scheduler in schedulers:
-            scheduler.step()
+        # for scheduler in schedulers:
+        #     scheduler.step()
         loss_total = 0
         # input_batches: padded inputs
         # input_lengths: length of the inputs (without padding)
@@ -258,17 +261,23 @@ for fold in range(num_folds):
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             loss_total += loss
+            #temp
             train_accuracys.append(acc)
+            # train_accuracys.append(loss)
             
             # Step the optimizers
             for optimizer in optimizers:
                 optimizer.step()
+        # step the schedulers
+        for scheduler in schedulers:
+            scheduler.step()
 
 
         print("loss:", loss_total / len(input_lengths))
         train_acc = sum(train_accuracys) / len(train_accuracys)
         print("train accuracy", train_acc)
-        fold_train_accuracy.append(train_acc)
+        fold_train_accuracy.append(loss_total / len(input_lengths))
+        # fold_train_accuracy.append(train_acc)
         # print("training time", time_since(time.time() - start))
         # print("--------------------------------")
         # if epoch % 10 == 0 or epoch > n_epochs - 5:
@@ -280,7 +289,7 @@ for fold in range(num_folds):
             start = time.time()
             for test_batch in test_pairs:
                 start = time.perf_counter()
-                test_res = evaluate_tree(test_batch[0], test_batch[1], generate_num_ids, models, input_lang, output_lang, test_batch[5], vars, useCustom, debug, beam_size=beam_size)
+                test_res = evaluate_tree(test_batch['input_cell'], test_batch['input_len'], generate_num_ids, models, input_lang, output_lang, test_batch['num_pos'], vars, useCustom, debug, beam_size=beam_size)
                 end = time.perf_counter()
                 test_time_array.append([1, end - start])
                 lengths = 0
@@ -288,9 +297,9 @@ for fold in range(num_folds):
                 num_pred_equations = len(test_res)
                 equation_strings = []
                 print('test res')
-                for equ_count in range(len(test_batch[2])):
-                    actual_length = test_batch[3][equ_count]
-                    actual = [output_lang.index2word[i] for i in test_batch[2][equ_count][0:actual_length + 1]]
+                for equ_count in range(len(test_batch['equations'])):
+                    actual_length = test_batch['equation_lens'][equ_count]
+                    actual = [output_lang.index2word[i] for i in test_batch['equations'][equ_count][0:actual_length + 1]]
                     if equ_count > len(test_res) - 1:
                         predicted = [None for i in range(len(actual))]
                     else:
@@ -307,26 +316,26 @@ for fold in range(num_folds):
 
                     for i in range(len(actual)):
                         lengths += 1
-                        if i < len(predicted_infix):
-                            if actual[i] == predicted_infix[i]:
+                        if i < len(predicted_prefix):
+                            if actual[i] == predicted_prefix[i]:
                                 same += 1
                 print('equation strings', equation_strings)
-                same_equation = solve_equation(equation_strings, test_batch[6])
-                if same_equation:
-                    print('solution success')
-                    solution_eval_accuracys.append(1)
-                else: 
-                    print('solution failed')
-                    solution_eval_accuracys.append(0)
+                # same_equation = solve_equation(equation_strings, test_batch[6])
+                # if same_equation:
+                #     print('solution success')
+                #     solution_eval_accuracys.append(1)
+                # else: 
+                #     print('solution failed')
+                #     solution_eval_accuracys.append(0)
 
                 accuracy = same / lengths
                 eval_accuracys.append(accuracy)
 
             eval_acc = sum(eval_accuracys) / len(eval_accuracys)
-            eval_soln_acc = sum(solution_eval_accuracys) / len(solution_eval_accuracys)
+            # eval_soln_acc = sum(solution_eval_accuracys) / len(solution_eval_accuracys)
             print('eval accuracy', eval_acc)
             fold_eval_accuracy.append(eval_acc)
-            fold_soln_eval_accuracy.append(eval_soln_acc)
+            # fold_soln_eval_accuracy.append(eval_soln_acc)
 
             print("------------------------------------------------------")
             # torch.save(encoder.state_dict(), "models/encoder")
@@ -337,7 +346,8 @@ for fold in range(num_folds):
     all_eval_accuracys.append(fold_eval_accuracy)
     all_soln_eval_accuracys.append(fold_soln_eval_accuracy)
     make_loss_graph(
-        [fold_train_accuracy, fold_eval_accuracy], 
+        # [fold_train_accuracy, fold_eval_accuracy], 
+        [fold_train_accuracy, fold_train_accuracy], 
         ['Train', "Eval"],
         f"src/post/accuracy-{time.time()}-{fold}.png", title,
         "Epoch", "Accuracy By Epoch"

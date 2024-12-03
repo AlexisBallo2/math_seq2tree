@@ -17,6 +17,7 @@ PAD_token = 0
 p = inflect.engine()
 replace = {}
 
+replace['zero'] = 0
 replace['thirty nine'] = 39
 replace['sixteen'] = 39
 replace['eighteen'] = 18
@@ -573,7 +574,17 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
         # num_pos: list of positions of the numbers in the text
         # if "14" in equationTargetVars:
         #     print()
-        pairs.append((input_seq, final_out_seq_list, nums, num_pos, allVars, equationTargetVars, targets, pairNumMapping))
+        # pairs.append((input_seq, final_out_seq_list, nums, num_pos, allVars, equationTargetVars, targets, pairNumMapping))
+        pairs.append({
+            "input_seq": input_seq,
+            "equations": final_out_seq_list,
+            "nums": nums,
+            "num_pos": num_pos,
+            "allVars": allVars,
+            "equationTargetVars": equationTargetVars,
+            "solution": targets,
+            "pairNumMapping": pairNumMapping
+        })
 
     temp_g = []
     for g in generate_nums:
@@ -871,18 +882,18 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
 
     print("Indexing words...")
     for pair in pairs_trained:
-        if not tree or pair[-1]:
-            # add input sentence to vocab
-            input_lang.add_sen_to_vocab(pair[0])
-            # vocab for the equations. note that this does not add numbers or num tokens
-            # to the lang
-            for equ in pair[1]:
-                output_lang.add_sen_to_vocab(equ)
-            # for equ in pair[1]:
-            #     if equ == "+":
-            #         print()
+        # if not tree or pair[-1]:
+        # add input sentence to vocab
+        input_lang.add_sen_to_vocab(pair['input_seq'])
+        # vocab for the equations. note that this does not add numbers or num tokens
+        # to the lang
+        for equ in pair['equations']:
+            output_lang.add_sen_to_vocab(equ)
+        # for equ in pair[1]:
+        #     if equ == "+":
+        #         print()
         # add outputs to lang
-        for tok in pair[5]:
+        for tok in pair['equationTargetVars']:
             output_lang.add_sen_to_vocab(tok)
     # this is hard coded at 5
     # cuts off words that appear less than 5 times 
@@ -911,7 +922,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
 
         # if its not in the nums list, then have that val in equation come from ALL
         # the numbers
-        for equ in pair[1]:
+        for equ in pair['equations']:
             num_stack = []
             for word in equ:
                 temp_num = []
@@ -921,7 +932,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
                 if word not in output_lang.index2word:
                     flag_not = False
                     # for each in nums list
-                    for i, j in enumerate(pair[2]):
+                    for i, j in enumerate(pair['nums']):
                         if j == word:
                             temp_num.append(i)
 
@@ -931,16 +942,16 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
                     num_stack.append(temp_num)
                 if not flag_not and len(temp_num) == 0:
                     # if no nums in both, let all numbers be in both??
-                    num_stack.append([_ for _ in range(len(pair[2]))])
+                    num_stack.append([_ for _ in range(len(pair['nums']))])
 
             # ???
             num_stack.reverse()
             num_stacks.append(num_stack)
 
         # convert input sentence and equation into the vocab tokens
-        input_cell = indexes_from_sentence(input_lang, pair[0])
-        output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair[1]]
-        equation_target = [output_lang.word2index[equ] for equ in pair[5]]
+        input_cell = indexes_from_sentence(input_lang, pair['input_seq'])
+        output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair['equations']]
+        equation_target = [output_lang.word2index[equ] for equ in pair['equationTargetVars']]
         # equation_target = ["" for equ in pair[5]]
         # pair
         #   input: sentence with all numbers masked as NUM
@@ -950,36 +961,62 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         #   nums: numbers from the input text
         #   loc nums: where nums are in the text
         #   [[] of where each token in the equation is found in the nums array]
-        train_pairs.append((input_cell, len(input_cell), output_cell, [len(equ) for equ in output_cell],
-                            pair[2], pair[3], num_stacks, pair[4], equation_target, pair[6], pair[7]))
+        # train_pairs.append((input_cell, len(input_cell), output_cell, [len(equ) for equ in output_cell],
+        #                     pair[2], pair[3], num_stacks, pair[4], equation_target, pair[6], pair[7]))
+        train_pairs.append({
+            "input_cell": input_cell,
+            "input_len": len(input_cell),
+            "equations" : output_cell,
+            "equation_lens": [len(equ) for equ in output_cell],
+            "nums": pair['nums'],
+            "num_pos": pair['num_pos'],
+            "num_stack": num_stacks,
+            "allVars": pair['allVars'],
+            "equationTargetVars": equation_target,
+            "solution":  pair['solution'],
+            "pairNumMapping": pair['pairNumMapping']
+        })
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
     print('Number of training data %d' % (len(train_pairs)))
     for pair in pairs_tested:
         num_stacks = []
-        for equ in pair[1]:
+        for equ in pair['equations']:
             num_stack = []
             for word in equ: 
                 temp_num = []
                 flag_not = True
                 if word not in output_lang.index2word:
                     flag_not = False
-                    for i, j in enumerate(pair[2]):
+                    for i, j in enumerate(pair['nums']):
                         if j == word:
                             temp_num.append(i)
 
                 if not flag_not and len(temp_num) != 0:
                     num_stack.append(temp_num)
                 if not flag_not and len(temp_num) == 0:
-                    num_stack.append([_ for _ in range(len(pair[2]))])
+                    num_stack.append([_ for _ in range(len(pair['nums']))])
 
             num_stack.reverse()
             num_stacks.append(num_stack)
-        input_cell = indexes_from_sentence(input_lang, pair[0])
-        output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair[1]]
+        input_cell = indexes_from_sentence(input_lang, pair['input_seq'])
+        output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair['equations']]
         # train_pairs.append((input_cell, len(input_cell), output_cell, len(output_cell),
         #                     pair[2], pair[3], num_stack, pair[4]))
-        test_pairs.append((input_cell, len(input_cell), output_cell, [len(equ) for equ in output_cell],
-                           pair[2], pair[3], num_stacks, pair[4], pair[5]))
+        # test_pairs.append((input_cell, len(input_cell), output_cell, [len(equ) for equ in output_cell],
+        #                    pair[2], pair[3], num_stacks, pair[4], pair[5]))
+        test_pairs.append({
+            "input_cell": input_cell,
+            "input_len": len(input_cell),
+            "equations": output_cell,
+            "equation_lens": [len(equ) for equ in output_cell],
+            "nums": pair['nums'],
+            "num_pos": pair['num_pos'],
+            "num_stack": num_stacks,
+            "allVars": pair['allVars'],
+            "equationTargetVars": pair['equationTargetVars'],
+            "solution": pair['solution'],
+            "pairNumMapping": pair['pairNumMapping'],
+        })
     print('Number of testind data %d' % (len(test_pairs)))
     return input_lang, output_lang, train_pairs, test_pairs
 
@@ -1110,7 +1147,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
     batches.append(pairs[pos:])
 
     for batch in batches:
-        batch = sorted(batch, key=lambda tp: tp[1], reverse=True)
+        batch = sorted(batch, key=lambda tp: tp['input_len'], reverse=True)
         input_length = []
         output_length = []
         output_vars = []
@@ -1131,48 +1168,51 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
         targets_len_max = 0
         var_pos_in_inputs = []
 
-        for i, li, j, lj, num, num_pos, num_stack, var_list, equ_targets, var_solns, num_mapping in batch:
-            max_num_equ = max(max_num_equ, len(j))
-            max_equ_length = max(max_equ_length, max(lj))
+        # for i, li, j, lj, num, num_pos, num_stack, var_list, equ_targets, var_solns, num_mapping in batch:
+        for pair in batch:
+            max_num_equ = max(max_num_equ, len(pair['equations']))
+            max_equ_length = max(max_equ_length, max(pair['equation_lens']))
             # input_len_max = max(input_len_max, li + len(vars))
-            input_len_max = max(input_len_max, li)
-            targets_len_max = max(targets_len_max, len(equ_targets))
+            input_len_max = max(input_len_max, pair['input_len'])
+            targets_len_max = max(targets_len_max, len(pair['equationTargetVars']))
 
-        for i, li, j, lj, num, num_pos, num_stack, var_list, equ_targets, var_solns, num_mapping in batch:
+        # for i, li, j, lj, num, num_pos, num_stack, var_list, equ_targets, var_solns, num_mapping in batch:
+        for pair in batch:
             # i = length if input in pair
-            input_length.append(li)
+            input_length.append(pair['input_len'])
             # j = length of output in pair
-            output_length.append(lj + [0] * (max_num_equ - len(lj)))
+            output_length.append(pair['equation_lens'] + [0] * (max_num_equ - len(pair['equation_lens'])))
             
-            max_equ_length = max(max_equ_length, max(lj))
+            # max_equ_length = max(max_equ_length, max(lj))
 
-            num_batch.append(len(num))
+            num_batch.append(len(pair['nums']))
             # input batch: padded input text
             # inputs_with_vars_appended = i + [input_lang.word2index[i] for i in vars]
             # input_batch.append(pad_seq(inputs_with_vars_appended, li + len(vars), input_len_max))
-            input_batch.append(pad_seq(i, li, input_len_max))
+            input_batch.append(pad_seq(pair['input_cell'], pair['input_len'], input_len_max))
 
-            var_pos = [li + i for i in range(len(var_list))]
-            var_size = len(var_list)
+            # var_pos = [li + i for i in range(len(var_list))]
+            var_pos = [pair['input_len'] + i for i in range(len(pair['allVars']))]
+            var_size = len(pair['allVars'])
             var_pos_in_inputs.append(var_pos)
 
 
 
             # output batch: padded output text
-            output_temp = [pad_seq(equ, le, max_equ_length) for equ, le in zip(j, lj)]
-            output_batch.append(output_temp + [pad_seq([], 0, max_equ_length) for _ in range(max_num_equ - len(j))])
+            output_temp = [pad_seq(equ, le, max_equ_length) for equ, le in zip(pair['equations'], pair['equation_lens'])]
+            output_batch.append(output_temp + [pad_seq([], 0, max_equ_length) for _ in range(max_num_equ - len(pair['equations']))])
             # the corresponding arrays
-            num_stack_batch.append(num_stack + [[] for _ in range(max_num_equ - len(num_stack))])
+            num_stack_batch.append(pair['num_stack'] + [[] for _ in range(max_num_equ - len(pair['num_stack']))])
             # positions of numbers
-            num_pos_batch.append(num_pos)
+            num_pos_batch.append(pair['num_pos'])
             # size of numbers from input
-            num_size_batch.append(len(num_pos))
-            output_var_solutions.append(var_solns)
-            targets.append(equ_targets + [0 for _ in range(targets_len_max - len(equ_targets))])
+            num_size_batch.append(len(pair['nums']))
+            output_var_solutions.append(pair['solution'])
+            targets.append(pair['equationTargetVars'] + [0 for _ in range(targets_len_max - len(pair['equationTargetVars']))])
 
             cur_vars = []
             for var in vars:
-                if var in var_list:
+                if var in pair['allVars']:
                     cur_vars.append(1)
                 else:
                     cur_vars.append(0)
