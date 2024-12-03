@@ -12,36 +12,36 @@ import sympy as sp
 from sympy.solvers import solve
 
 # batch_size = 64
-torch.manual_seed(10)
-torch.use_deterministic_algorithms(True)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-random.seed(10)
-torch.cuda.manual_seed_all(2)
-np.random.seed(10)
+# torch.manual_seed(10)
+# torch.use_deterministic_algorithms(True)
+# torch.backends.cudnn.deterministic = True
+# torch.backends.cudnn.benchmark = False
+# random.seed(10)
+# torch.cuda.manual_seed_all(2)
+# np.random.seed(10)
 
 # batch_size = 20
 batch_size = 5 
 embedding_size = 128
 hidden_size = 512
-n_epochs = 5 
-# n_epochs = 10 
+# n_epochs = 3 
+n_epochs = 20 
 learning_rate = 1e-3 
 weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
 # num_obs = 100 
-num_obs = 30 
+num_obs = 20 
 # num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
-useCustom = True
-# useCustom = False 
+# useCustom = True
+useCustom = False 
 
-# setName = "MATH"
-setName = "DRAW"
+setName = "MATH"
+# setName = "DRAW"
 
 # decide if we must be able to solve equation
 useEquSolutions = True
@@ -109,6 +109,7 @@ fold_pairs.append(pairs[(fold_size * (num_folds-1)):])
 best_acc_fold = []
 
 all_train_accuracys = []
+all_train_loss = []
 all_eval_accuracys = []
 all_soln_eval_accuracys = []
 
@@ -123,6 +124,7 @@ for fold in range(num_folds):
     pairs_tested = []
     pairs_trained = []
     fold_train_accuracy = []
+    fold_loss = []
     fold_eval_accuracy = []
     fold_soln_eval_accuracy = []
     # train on current fold, test on other folds
@@ -261,9 +263,7 @@ for fold in range(num_folds):
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             loss_total += loss
-            #temp
             train_accuracys.append(acc)
-            # train_accuracys.append(loss)
             
             # Step the optimizers
             for optimizer in optimizers:
@@ -276,7 +276,8 @@ for fold in range(num_folds):
         print("loss:", loss_total / len(input_lengths))
         train_acc = sum(train_accuracys) / len(train_accuracys)
         print("train accuracy", train_acc)
-        fold_train_accuracy.append(loss_total / len(input_lengths))
+        fold_train_accuracy.append(train_acc)
+        fold_loss.append(loss_total / len(input_lengths))
         # fold_train_accuracy.append(train_acc)
         # print("training time", time_since(time.time() - start))
         # print("--------------------------------")
@@ -343,15 +344,22 @@ for fold in range(num_folds):
             # torch.save(generate.state_dict(), "models/generate")
             # torch.save(merge.state_dict(), "models/merge")
     all_train_accuracys.append(fold_train_accuracy)
+    all_train_loss.append(fold_loss)
     all_eval_accuracys.append(fold_eval_accuracy)
     all_soln_eval_accuracys.append(fold_soln_eval_accuracy)
     make_loss_graph(
-        # [fold_train_accuracy, fold_eval_accuracy], 
-        [fold_train_accuracy, fold_train_accuracy], 
+        fold_loss, 
+        f"src/post/loss-{time.time()}-{fold}.png", title,
+        "Epoch", "Loss By Epoch"
+        )
+    make_eval_graph(
+        [fold_train_accuracy, fold_eval_accuracy], 
         ['Train', "Eval"],
         f"src/post/accuracy-{time.time()}-{fold}.png", title,
         "Epoch", "Accuracy By Epoch"
         )
+    print('fold train accuracy', fold_train_accuracy)
+    print('fold eval accuracy', fold_eval_accuracy)
     print('All TRAIN ACC', all_train_accuracys)
     print('ALL EVAL ACC', all_eval_accuracys)
     print('ALL EVAL SOLN ACC', all_soln_eval_accuracys)
