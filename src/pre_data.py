@@ -454,7 +454,8 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
                         res += seg_and_tag(st[:p_start])
                     # if this fraction is in the input text, append it as "N#"
                     if nums.count(n) == 1:
-                        pairNumMapping[n] = "N"+str(nums.index(n))
+                        # pairNumMapping[n] = "N"+str(nums.index(n))
+                        pairNumMapping["N"+str(nums.index(n))] = n
                         res.append("N"+str(nums.index(n)))
                     # if not, leave as variable
                     else:
@@ -479,7 +480,8 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
                     st_num = st_num[:-2]
                 if nums.count(st_num) > 0:
                     # same as fractions, append as "N#" if in the input text 
-                    pairNumMapping[st_num] = "N"+str(nums.index(st_num))
+                    # pairNumMapping[st_num] = "N"+str(nums.index(st_num))
+                    pairNumMapping["N"+str(nums.index(st_num))] = st_num
                     res.append("N"+str(nums.index(st_num)))
                 else:
                     # if 

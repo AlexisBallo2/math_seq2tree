@@ -313,13 +313,14 @@ for fold in range(num_folds):
                         equn, token = test_res[equ_count]
                         # print('temp predicted', [output_lang.index2word[i] for i in equn])
                         predicted_prefix = [output_lang.index2word[i] for i in equn]
-                        predicted_infix = from_prefix_to_infix(predicted_prefix)
+                        replaced_nums = replace_nums(test_batch['pairNumMapping'], predicted_prefix)
+                        predicted_infix = from_prefix_to_infix(replaced_nums)
                         
                         # predicted = [output_lang.index2word[i] for i in equn[0:min(len(test_res[equ_count]) + 1, actual_length + 1)]]
                         equation_strings.append(output_lang.index2word[token] + "=" + predicted_infix)
                     print(f"    equation {equ_count}")
                     print("         actual", actual)
-                    print("         predicted", predicted_infix)
+                    print("         predicted", predicted_prefix)
 
                     for i in range(len(actual)):
                         lengths += 1
@@ -327,22 +328,22 @@ for fold in range(num_folds):
                             if actual[i] == predicted_prefix[i]:
                                 same += 1
                 print('equation strings', equation_strings)
-                # same_equation = solve_equation(equation_strings, test_batch[6])
-                # if same_equation:
-                #     print('solution success')
-                #     solution_eval_accuracys.append(1)
-                # else: 
-                #     print('solution failed')
-                #     solution_eval_accuracys.append(0)
+                same_equation = solve_equation(equation_strings, test_batch['solution'])
+                if same_equation:
+                    print('solution success')
+                    solution_eval_accuracys.append(1)
+                else: 
+                    print('solution failed')
+                    solution_eval_accuracys.append(0)
 
                 accuracy = same / lengths
                 eval_accuracys.append(accuracy)
 
             eval_acc = sum(eval_accuracys) / len(eval_accuracys)
-            # eval_soln_acc = sum(solution_eval_accuracys) / len(solution_eval_accuracys)
+            eval_soln_acc = sum(solution_eval_accuracys) / len(solution_eval_accuracys)
             print('eval accuracy', eval_acc)
             fold_eval_accuracy.append(eval_acc)
-            # fold_soln_eval_accuracy.append(eval_soln_acc)
+            fold_soln_eval_accuracy.append(eval_soln_acc)
 
             print("------------------------------------------------------")
             # torch.save(encoder.state_dict(), "models/encoder")

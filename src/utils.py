@@ -24,3 +24,13 @@ def solve_equation(equations, solutions):
         return True
     except:
         return False
+
+def replace_nums(mapping, equation):
+    final_equation = []
+    for token in equation:
+        if mapping.get(token, "") != "":
+            final_equation.append(mapping[token])
+        else:
+            final_equation.append(token)
+    return final_equation
+
