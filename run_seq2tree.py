@@ -12,36 +12,36 @@ import sympy as sp
 from sympy.solvers import solve
 
 # batch_size = 64
-torch.manual_seed(10)
-torch.use_deterministic_algorithms(True)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-random.seed(10)
-torch.cuda.manual_seed_all(2)
-np.random.seed(10)
+# torch.manual_seed(10)
+# torch.use_deterministic_algorithms(True)
+# torch.backends.cudnn.deterministic = True
+# torch.backends.cudnn.benchmark = False
+# random.seed(10)
+# torch.cuda.manual_seed_all(2)
+# np.random.seed(10)
 
-batch_size = 20
+batch_size = 64 
 # batch_size = 5 
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 3 
-n_epochs = 10 
+n_epochs = 20 
 learning_rate = 1e-1 
 weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-num_obs = 100 
+# num_obs = 1000 
 # num_obs = 20 
-# num_obs = None 
+num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
-useCustom = True
-# useCustom = False 
+# useCustom = True
+useCustom = False 
 
-# setName = "MATH"
-setName = "DRAW"
+setName = "MATH"
+# setName = "DRAW"
 
 # decide if we must be able to solve equation
 useEquSolutions = True
