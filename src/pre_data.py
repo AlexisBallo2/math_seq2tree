@@ -165,152 +165,152 @@ def load_raw_data(filename):  # load the json data to list(dict()) for MATH 23K
     return data
 
 
-# remove the superfluous brackets
-def remove_brackets(x):
-    y = x
-    if x[0] == "(" and x[-1] == ")":
-        x = x[1:-1]
-        flag = True
-        count = 0
-        for s in x:
-            if s == ")":
-                count -= 1
-                if count < 0:
-                    flag = False
-                    break
-            elif s == "(":
-                count += 1
-        if flag:
-            return x
-    return y
+# # remove the superfluous brackets
+# def remove_brackets(x):
+#     y = x
+#     if x[0] == "(" and x[-1] == ")":
+#         x = x[1:-1]
+#         flag = True
+#         count = 0
+#         for s in x:
+#             if s == ")":
+#                 count -= 1
+#                 if count < 0:
+#                     flag = False
+#                     break
+#             elif s == "(":
+#                 count += 1
+#         if flag:
+#             return x
+#     return y
 
 
-def load_mawps_data(filename):  # load the json data to list(dict()) for MAWPS
-    print("Reading lines...")
-    f = open(filename, encoding="utf-8")
-    data = json.load(f)
-    out_data = []
-    for d in data:
-        if "lEquations" not in d or len(d["lEquations"]) != 1:
-            continue
-        x = d["lEquations"][0].replace(" ", "")
+# def load_mawps_data(filename):  # load the json data to list(dict()) for MAWPS
+#     print("Reading lines...")
+#     f = open(filename, encoding="utf-8")
+#     data = json.load(f)
+#     out_data = []
+#     for d in data:
+#         if "lEquations" not in d or len(d["lEquations"]) != 1:
+#             continue
+#         x = d["lEquations"][0].replace(" ", "")
 
-        if "lQueryVars" in d and len(d["lQueryVars"]) == 1:
-            v = d["lQueryVars"][0]
-            if v + "=" == x[:len(v)+1]:
-                xt = x[len(v)+1:]
-                if len(set(xt) - set("0123456789.+-*/()")) == 0:
-                    temp = d.copy()
-                    temp["lEquations"] = xt
-                    out_data.append(temp)
-                    continue
+#         if "lQueryVars" in d and len(d["lQueryVars"]) == 1:
+#             v = d["lQueryVars"][0]
+#             if v + "=" == x[:len(v)+1]:
+#                 xt = x[len(v)+1:]
+#                 if len(set(xt) - set("0123456789.+-*/()")) == 0:
+#                     temp = d.copy()
+#                     temp["lEquations"] = xt
+#                     out_data.append(temp)
+#                     continue
 
-            if "=" + v == x[-len(v)-1:]:
-                xt = x[:-len(v)-1]
-                if len(set(xt) - set("0123456789.+-*/()")) == 0:
-                    temp = d.copy()
-                    temp["lEquations"] = xt
-                    out_data.append(temp)
-                    continue
+#             if "=" + v == x[-len(v)-1:]:
+#                 xt = x[:-len(v)-1]
+#                 if len(set(xt) - set("0123456789.+-*/()")) == 0:
+#                     temp = d.copy()
+#                     temp["lEquations"] = xt
+#                     out_data.append(temp)
+#                     continue
 
-        if len(set(x) - set("0123456789.+-*/()=xX")) != 0:
-            continue
+#         if len(set(x) - set("0123456789.+-*/()=xX")) != 0:
+#             continue
 
-        if x[:2] == "x=" or x[:2] == "X=":
-            if len(set(x[2:]) - set("0123456789.+-*/()")) == 0:
-                temp = d.copy()
-                temp["lEquations"] = x[2:]
-                out_data.append(temp)
-                continue
-        if x[-2:] == "=x" or x[-2:] == "=X":
-            if len(set(x[:-2]) - set("0123456789.+-*/()")) == 0:
-                temp = d.copy()
-                temp["lEquations"] = x[:-2]
-                out_data.append(temp)
-                continue
-    return out_data
+#         if x[:2] == "x=" or x[:2] == "X=":
+#             if len(set(x[2:]) - set("0123456789.+-*/()")) == 0:
+#                 temp = d.copy()
+#                 temp["lEquations"] = x[2:]
+#                 out_data.append(temp)
+#                 continue
+#         if x[-2:] == "=x" or x[-2:] == "=X":
+#             if len(set(x[:-2]) - set("0123456789.+-*/()")) == 0:
+#                 temp = d.copy()
+#                 temp["lEquations"] = x[:-2]
+#                 out_data.append(temp)
+#                 continue
+#     return out_data
 
 
-def load_roth_data(filename):  # load the json data to dict(dict()) for roth data
-    print("Reading lines...")
-    f = open(filename, encoding="utf-8")
-    data = json.load(f)
-    out_data = {}
-    for d in data:
-        if "lEquations" not in d or len(d["lEquations"]) != 1:
-            continue
-        x = d["lEquations"][0].replace(" ", "")
+# def load_roth_data(filename):  # load the json data to dict(dict()) for roth data
+#     print("Reading lines...")
+#     f = open(filename, encoding="utf-8")
+#     data = json.load(f)
+#     out_data = {}
+#     for d in data:
+#         if "lEquations" not in d or len(d["lEquations"]) != 1:
+#             continue
+#         x = d["lEquations"][0].replace(" ", "")
 
-        if "lQueryVars" in d and len(d["lQueryVars"]) == 1:
-            v = d["lQueryVars"][0]
-            if v + "=" == x[:len(v)+1]:
-                xt = x[len(v)+1:]
-                if len(set(xt) - set("0123456789.+-*/()")) == 0:
-                    temp = d.copy()
-                    temp["lEquations"] = remove_brackets(xt)
-                    y = temp["sQuestion"]
-                    seg = y.strip().split(" ")
-                    temp_y = ""
-                    for s in seg:
-                        if len(s) > 1 and (s[-1] == "," or s[-1] == "." or s[-1] == "?"):
-                            temp_y += s[:-1] + " " + s[-1:] + " "
-                        else:
-                            temp_y += s + " "
-                    temp["sQuestion"] = temp_y[:-1]
-                    out_data[temp["iIndex"]] = temp
-                    continue
+#         if "lQueryVars" in d and len(d["lQueryVars"]) == 1:
+#             v = d["lQueryVars"][0]
+#             if v + "=" == x[:len(v)+1]:
+#                 xt = x[len(v)+1:]
+#                 if len(set(xt) - set("0123456789.+-*/()")) == 0:
+#                     temp = d.copy()
+#                     temp["lEquations"] = remove_brackets(xt)
+#                     y = temp["sQuestion"]
+#                     seg = y.strip().split(" ")
+#                     temp_y = ""
+#                     for s in seg:
+#                         if len(s) > 1 and (s[-1] == "," or s[-1] == "." or s[-1] == "?"):
+#                             temp_y += s[:-1] + " " + s[-1:] + " "
+#                         else:
+#                             temp_y += s + " "
+#                     temp["sQuestion"] = temp_y[:-1]
+#                     out_data[temp["iIndex"]] = temp
+#                     continue
 
-            if "=" + v == x[-len(v)-1:]:
-                xt = x[:-len(v)-1]
-                if len(set(xt) - set("0123456789.+-*/()")) == 0:
-                    temp = d.copy()
-                    temp["lEquations"] = remove_brackets(xt)
-                    y = temp["sQuestion"]
-                    seg = y.strip().split(" ")
-                    temp_y = ""
-                    for s in seg:
-                        if len(s) > 1 and (s[-1] == "," or s[-1] == "." or s[-1] == "?"):
-                            temp_y += s[:-1] + " " + s[-1:] + " "
-                        else:
-                            temp_y += s + " "
-                    temp["sQuestion"] = temp_y[:-1]
-                    out_data[temp["iIndex"]] = temp
-                    continue
+#             if "=" + v == x[-len(v)-1:]:
+#                 xt = x[:-len(v)-1]
+#                 if len(set(xt) - set("0123456789.+-*/()")) == 0:
+#                     temp = d.copy()
+#                     temp["lEquations"] = remove_brackets(xt)
+#                     y = temp["sQuestion"]
+#                     seg = y.strip().split(" ")
+#                     temp_y = ""
+#                     for s in seg:
+#                         if len(s) > 1 and (s[-1] == "," or s[-1] == "." or s[-1] == "?"):
+#                             temp_y += s[:-1] + " " + s[-1:] + " "
+#                         else:
+#                             temp_y += s + " "
+#                     temp["sQuestion"] = temp_y[:-1]
+#                     out_data[temp["iIndex"]] = temp
+#                     continue
 
-        if len(set(x) - set("0123456789.+-*/()=xX")) != 0:
-            continue
+#         if len(set(x) - set("0123456789.+-*/()=xX")) != 0:
+#             continue
 
-        if x[:2] == "x=" or x[:2] == "X=":
-            if len(set(x[2:]) - set("0123456789.+-*/()")) == 0:
-                temp = d.copy()
-                temp["lEquations"] = remove_brackets(x[2:])
-                y = temp["sQuestion"]
-                seg = y.strip().split(" ")
-                temp_y = ""
-                for s in seg:
-                    if len(s) > 1 and (s[-1] == "," or s[-1] == "." or s[-1] == "?"):
-                        temp_y += s[:-1] + " " + s[-1:] + " "
-                    else:
-                        temp_y += s + " "
-                temp["sQuestion"] = temp_y[:-1]
-                out_data[temp["iIndex"]] = temp
-                continue
-        if x[-2:] == "=x" or x[-2:] == "=X":
-            if len(set(x[:-2]) - set("0123456789.+-*/()")) == 0:
-                temp = d.copy()
-                temp["lEquations"] = remove_brackets(x[2:])
-                y = temp["sQuestion"]
-                seg = y.strip().split(" ")
-                temp_y = ""
-                for s in seg:
-                    if len(s) > 1 and (s[-1] == "," or s[-1] == "." or s[-1] == "?"):
-                        temp_y += s[:-1] + " " + s[-1:] + " "
-                    else:
-                        temp_y += s + " "
-                temp["sQuestion"] = temp_y[:-1]
-                out_data[temp["iIndex"]] = temp
-                continue
-    return out_data
+#         if x[:2] == "x=" or x[:2] == "X=":
+#             if len(set(x[2:]) - set("0123456789.+-*/()")) == 0:
+#                 temp = d.copy()
+#                 temp["lEquations"] = remove_brackets(x[2:])
+#                 y = temp["sQuestion"]
+#                 seg = y.strip().split(" ")
+#                 temp_y = ""
+#                 for s in seg:
+#                     if len(s) > 1 and (s[-1] == "," or s[-1] == "." or s[-1] == "?"):
+#                         temp_y += s[:-1] + " " + s[-1:] + " "
+#                     else:
+#                         temp_y += s + " "
+#                 temp["sQuestion"] = temp_y[:-1]
+#                 out_data[temp["iIndex"]] = temp
+#                 continue
+#         if x[-2:] == "=x" or x[-2:] == "=X":
+#             if len(set(x[:-2]) - set("0123456789.+-*/()")) == 0:
+#                 temp = d.copy()
+#                 temp["lEquations"] = remove_brackets(x[2:])
+#                 y = temp["sQuestion"]
+#                 seg = y.strip().split(" ")
+#                 temp_y = ""
+#                 for s in seg:
+#                     if len(s) > 1 and (s[-1] == "," or s[-1] == "." or s[-1] == "?"):
+#                         temp_y += s[:-1] + " " + s[-1:] + " "
+#                     else:
+#                         temp_y += s + " "
+#                 temp["sQuestion"] = temp_y[:-1]
+#                 out_data[temp["iIndex"]] = temp
+#                 continue
+#     return out_data
 
 # for testing equation
 # def out_equation(test, num_list):
@@ -497,7 +497,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
             return res
 
         # replace variables with X, Y, Z to be consistent
-        varPattern = r'((x)|(y)|(z)|(a)|(b)|(c)|(k)|(n)|(m)|(o)|(p)|(q)|(r)|(s)|(t)|(u)|(v)|(w))'
+        varPattern = r'((x)|(y)|(z)|(a)|(b)|(c)|(d)|(e)|(f)|(g)|(h)|(i)|(j)|(k)|(n)|(m)|(o)|(p)|(q)|(r)|(s)|(t)|(u)|(v)|(w))'
         if setName == "MATH":
             allVars = ["X"]
         else:

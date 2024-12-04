@@ -20,28 +20,29 @@ from sympy.solvers import solve
 # torch.cuda.manual_seed_all(2)
 # np.random.seed(10)
 
-batch_size = 64 
-# batch_size = 5 
+batch_size = 5 
+# batch_size = 64 
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 3 
 n_epochs = 20 
+# n_epochs = 20 
 learning_rate = 1e-1 
 weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
+num_obs = 20 
 # num_obs = 1000 
-# num_obs = 20 
-num_obs = None 
+# num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
 # useCustom = True
 useCustom = False 
 
-setName = "MATH"
-# setName = "DRAW"
+# setName = "MATH"
+setName = "DRAW"
 
 # decide if we must be able to solve equation
 useEquSolutions = True
@@ -313,7 +314,7 @@ for fold in range(num_folds):
                         equn, token = test_res[equ_count]
                         # print('temp predicted', [output_lang.index2word[i] for i in equn])
                         predicted_prefix = [output_lang.index2word[i] for i in equn]
-                        replaced_nums = replace_nums(test_batch['pairNumMapping'], predicted_prefix)
+                        replaced_nums = replace_nums(test_batch['pairNumMapping'], predicted_prefix[min(len(test_res[equ_count]), actual_length)])
                         predicted_infix = from_prefix_to_infix(replaced_nums)
                         
                         # predicted = [output_lang.index2word[i] for i in equn[0:min(len(test_res[equ_count]) + 1, actual_length + 1)]]

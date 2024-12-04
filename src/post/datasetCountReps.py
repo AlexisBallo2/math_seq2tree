@@ -46,15 +46,19 @@ from collections import Counter
 
 # counting baseline accuracy (just predicting + token)
 # count + tokens
+# with open("src/post/datasetEquations.txt", "r") as f:
+#     data = f.read().split("\n")
+#     total_tokens = 0
+#     total_plus = 0
+#     for line in data:
+#         splitted = line.split(" ")
+#         for token in splitted:
+#             total_tokens += 1
+#             if token == "+":
+#                 total_plus += 1
+#     print(total_plus, total_tokens)
+#     print(total_plus / total_tokens)
+
 with open("src/post/datasetEquations.txt", "r") as f:
-    data = f.read().split("\n")
-    total_tokens = 0
-    total_plus = 0
-    for line in data:
-        splitted = line.split(" ")
-        for token in splitted:
-            total_tokens += 1
-            if token == "+":
-                total_plus += 1
-    print(total_plus, total_tokens)
-    print(total_plus / total_tokens)
+    data = Counter(f.read())
+    print(data)
