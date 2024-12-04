@@ -580,7 +580,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             # fill these with 0s. 
             for i in range(len(pred_equ_solutions)):
                 if pred_equ_solutions[i] == None:
-                    pred_equ_solutions[i] = [TreeEmbedding(torch.zeros(1, models['predict'].hidden_size), True)]
+                    pred_equ_solutions[i] = [TreeEmbedding(torch.zeros(1, models['predict'].hidden_size).to(device), True)]
             num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict_output'](pred_equ_solutions, [None for i in range(len(pred_equ_solutions))], encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug)
 
             prediction = torch.cat((op, num_score), 1)
