@@ -565,26 +565,33 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         lengths = 0
         # print(f'Equation {cur_equation}')
         for i, batch in enumerate(all_node_outputs2):
+            cur_len = 0
+            cur_same = 0
+            equ_length = int(ith_equation_target_lengths[i].item())
+            vals = []
             for j, probs in enumerate(batch):
-                max_val = torch.argmax(probs)
-                lengths += 1
-                if max_val == ith_equation_target[i][j]:
-                    same += 1
+                if j < equ_length:
+                    lengths += 1
+                    cur_len += 1
+                    max_val = torch.argmax(probs)
+                    vals.append(max_val)
+                    if max_val == ith_equation_target[i][j]:
+                        same += 1
+                        cur_same += 1
+            print(f"        prediction: {[output_lang.index2word[_] for _ in vals[0:equ_length]]}")
+            print(f"        actual:     {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
+            print('same', cur_same, 'length', cur_len)
+
         # for i, batch in enumerate(all_node_outputs2):
-        #     equ_length = int(ith_equation_target_lengths[i].item())
         #     vals = []
         #     # print('coming equ length', equ_length)
         #     for j, probs in enumerate(batch):
         #         if j == equ_length:
         #             break
         #         max_val = torch.argmax(probs)
-        #         vals.append(max_val)
-        #         lengths += 1
-        #         if max_val == ith_equation_target[i][j]:
-        #             same += 1
-            # print(f"        prediction: {[output_lang.index2word[_] for _ in vals[0:equ_length]]}")
-            # print(f"        actual:     {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
-            # print('same', cur_same, 'length', cur_len)
+        #         # lengths += 1
+        #         # if max_val == ith_equation_target[i][j]:
+        #         #     same += 1
 
         # if useCustom:
         if False:
