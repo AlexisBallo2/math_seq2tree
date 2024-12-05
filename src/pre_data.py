@@ -369,10 +369,10 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
             equations = [equ[2:]]
             if useEqunSolutions:
                 try:
-                    sympy_eq = sp.simplify("Eq(" + equ.replace("=", ",") + ")")
-                    targets = [round(i) for i in solve(sympy_eq, dict=True)[0].values()]
+                    targets = []
                 except:
-                    continue
+                    targets = []
+                    # continue
             else:
                 targets = ['disabled'] 
             print(targets)
@@ -897,15 +897,17 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         #         print()
         # add outputs to lang
         # for tok in pair['equationTargetVars']:
-        output_lang.add_sen_to_vocab(pair['equationTargetVars'])
+        if useCustom:
+            output_lang.add_sen_to_vocab(pair['equationTargetVars'])
     # this is hard coded at 5
     # cuts off words that appear less than 5 times 
     input_lang.build_input_lang(trim_min_count)
 
 
     # remove the variable tokens. we want to control where they go
-    for var in vars:
-        output_lang.remove_token_from_vocab(var)
+    if useCustom:
+        for var in vars:
+            output_lang.remove_token_from_vocab(var)
 
     # add vars to input lang so we can pass them through encoder
     # input_lang.add_sen_to_vocab(vars)
@@ -954,7 +956,10 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         # convert input sentence and equation into the vocab tokens
         input_cell = indexes_from_sentence(input_lang, pair['input_seq'])
         output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair['equations']]
-        equation_target = [output_lang.word2index[equ] for equ in pair['equationTargetVars']]
+        if useCustom:
+            equation_target = [output_lang.word2index[equ] for equ in pair['equationTargetVars']]
+        else: 
+            equation_target = pair['equationTargetVars']
         # equation_target = ["" for equ in pair[5]]
         # pair
         #   input: sentence with all numbers masked as NUM

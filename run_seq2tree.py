@@ -12,13 +12,13 @@ import sympy as sp
 from sympy.solvers import solve
 
 # batch_size = 64
-# torch.manual_seed(10)
-# torch.use_deterministic_algorithms(True)
-# torch.backends.cudnn.deterministic = True
-# torch.backends.cudnn.benchmark = False
-# random.seed(10)
-# torch.cuda.manual_seed_all(2)
-# np.random.seed(10)
+torch.manual_seed(10)
+torch.use_deterministic_algorithms(True)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+random.seed(10)
+torch.cuda.manual_seed_all(2)
+np.random.seed(10)
 
 batch_size = 2 
 # batch_size = 64 
@@ -27,7 +27,7 @@ hidden_size = 512
 # n_epochs = 3 
 n_epochs = 10 
 # n_epochs = 20 
-learning_rate = 1e-1 
+learning_rate = 1e-3 
 weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
@@ -38,8 +38,8 @@ num_obs = 50
 
 # torch.autograd.set_detect_anomaly(True)
 
-# useCustom = True
-useCustom = False 
+useCustom = True
+# useCustom = False 
 
 setName = "MATH"
 # setName = "DRAW"
@@ -234,6 +234,8 @@ for fold in range(num_folds):
         generate_num_ids.append(output_lang.word2index[num])
 
     for epoch in range(n_epochs):
+        for scheduler in schedulers:
+            scheduler.step()
         # for scheduler in schedulers:
         #     scheduler.step()
         loss_total = 0
@@ -276,8 +278,6 @@ for fold in range(num_folds):
             for optimizer in optimizers:
                 optimizer.step()
         # step the schedulers
-        for scheduler in schedulers:
-            scheduler.step()
 
 
         print("loss:", loss_total / len(input_lengths))
@@ -313,7 +313,7 @@ for fold in range(num_folds):
                     else:
                         equn, token = test_res[equ_count]
                         # print('temp predicted', [output_lang.index2word[i] for i in equn])
-                        predicted_prefix = [output_lang.index2word[i] for i in equn]
+                        predicted_prefix = [output_lang.index2word[i] if i < len(output_lang.index2word) else " " for i in equn ]
                         replaced_nums = replace_nums(test_batch['pairNumMapping'], predicted_prefix)
                         predicted_infix = from_prefix_to_infix(replaced_nums)
                         

@@ -152,8 +152,8 @@ class Score(nn.Module):
         score = score.squeeze(1)
         score = score.view(this_batch_size, -1)  # B x O
         if num_mask is not None:
-            # score = score.masked_fill_(num_mask.bool(), -1e12)
-            score = score.masked_fill_(num_mask.bool(), 0)
+            score = score.masked_fill_(num_mask.bool(), -1e12)
+            # score = score.masked_fill_(num_mask.bool(), 0)
         return score
 
 
@@ -450,7 +450,7 @@ class GenerateNode(nn.Module):
         node_embedding = node_embedding.squeeze(1)
         current_context = current_context.squeeze(1)
         node_embedding = self.em_dropout(node_embedding)
-        current_context = self.em_dropout(current_context)
+        # current_context = self.em_dropout(current_context)
 
 
         # first half of equation (10)
