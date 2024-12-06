@@ -21,20 +21,21 @@ from sympy.solvers import solve
 # np.random.seed(10)
 
 # batch_size = 2 
-batch_size = 64 
+batch_size = 20
+# batch_size = 64 
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 3 
 # n_epochs = 10 
-n_epochs = 3 
+n_epochs = 10 
 learning_rate = 1e-3 
 weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-# num_obs = 50 
+num_obs = 400 
 # num_obs = 1000 
-num_obs = None 
+# num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
@@ -329,13 +330,19 @@ for fold in range(num_folds):
                             if actual[i] == predicted_prefix[i]:
                                 same += 1
                 print('equation strings', equation_strings)
-                same_equation = solve_equation(equation_strings, test_batch['solution'])
-                if same_equation:
-                    print('solution success')
-                    solution_eval_accuracys.append(1)
-                else: 
-                    print('solution failed')
-                    solution_eval_accuracys.append(0)
+                if setName == "DRAW":
+                    same_equation = solve_equation(equation_strings, test_batch['solution'])
+                    if same_equation:
+                        print('solution success')
+                        solution_eval_accuracys.append(1)
+                    else: 
+                        print('solution failed')
+                        solution_eval_accuracys.append(0)
+                else:
+                    if lengths == same:
+                        solution_eval_accuracys.append(1)
+                    else:
+                        solution_eval_accuracys.append(0)
 
                 accuracy = same / lengths
                 eval_accuracys.append(accuracy)
