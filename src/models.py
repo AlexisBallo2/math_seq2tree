@@ -56,7 +56,8 @@ class Attn(nn.Module):
         attn_energies = attn_energies.squeeze(1)
         attn_energies = attn_energies.view(max_len, this_batch_size).transpose(0, 1)  # B x S
         if seq_mask is not None:
-            attn_energies = attn_energies.masked_fill_(seq_mask, -1e12)
+            # attn_energies = attn_energies.masked_fill_(seq_mask, -1e12)
+            attn_energies = attn_energies.masked_fill_(seq_mask, 0)
         attn_energies = self.softmax(attn_energies)
         # Normalize energies to weights in range 0 to 1, resize to B x 1 x S
         return attn_energies.unsqueeze(1)
@@ -152,8 +153,8 @@ class Score(nn.Module):
         score = score.squeeze(1)
         score = score.view(this_batch_size, -1)  # B x O
         if num_mask is not None:
-            score = score.masked_fill_(num_mask.bool(), -1e12)
-            # score = score.masked_fill_(num_mask.bool(), 0)
+            # score = score.masked_fill_(num_mask.bool(), -1e12)
+            score = score.masked_fill_(num_mask.bool(), 0)
         return score
 
 
@@ -180,7 +181,8 @@ class TreeAttn(nn.Module):
         attn_energies = attn_energies.squeeze(1)
         attn_energies = attn_energies.view(max_len, this_batch_size).transpose(0, 1)  # B x S
         if seq_mask is not None:
-            attn_energies = attn_energies.masked_fill_(seq_mask.bool(), -1e12)
+            # attn_energies = attn_energies.masked_fill_(seq_mask.bool(), -1e12)
+            attn_energies = attn_energies.masked_fill_(seq_mask.bool(), 0)
         attn_energies = nn.functional.softmax(attn_energies, dim=1)  # B x S
 
         return attn_energies.unsqueeze(1)
@@ -556,7 +558,7 @@ class PredictNumX(nn.Module):
         emb = torch.cat((final_token_emb.to(device), first_token_emb.to(device)), dim = -1)
         out = self.fc(emb).squeeze(-1)  # out: tensor of shape (batch_size, output_size)
         # mask the first token (dont want to predict 0 xs)
-        out[:, 0] = -1e12
+        # out[:, 0] = -1e12
         # out[:, 0] = 0
         softmax = torch.nn.Softmax(dim=-1)
         return softmax(out)
