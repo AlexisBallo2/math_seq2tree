@@ -11,6 +11,18 @@ import numpy as np
 import sympy as sp
 from sympy.solvers import solve
 
+
+import sys
+args = sys.argv
+if "-id" in args:
+    id_index = args.index("-id")
+    run_id = args[id_index + 1]
+    print("ID", run_id)
+else:
+    run_id = "0"
+
+
+
 # batch_size = 64
 # torch.manual_seed(10)
 # torch.use_deterministic_algorithms(True)
@@ -21,13 +33,13 @@ from sympy.solvers import solve
 # np.random.seed(10)
 
 # batch_size = 2 
-batch_size = 30 
-# batch_size = 64 
+# batch_size = 30 
+batch_size = 64 
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 3 
 # n_epochs = 10 
-n_epochs = 10 
+n_epochs = 20 
 learning_rate = 1e-3 
 # learning_rate = 1e-3 
 # learning_rate = 1e-3 
@@ -35,9 +47,9 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-num_obs = 600 
+# num_obs = 600 
 # num_obs = 1000 
-# num_obs = None 
+num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
@@ -372,13 +384,13 @@ for fold in range(num_folds):
     all_soln_eval_accuracys.append(fold_soln_eval_accuracy)
     make_loss_graph(
         fold_loss, 
-        f"src/post/loss-{time.time()}-{fold}.png", title,
+        f"src/post/loss-{time.time()}-{run_id}.png", title,
         "Epoch", "Loss By Epoch"
         )
     make_eval_graph(
         [fold_train_accuracy, fold_eval_accuracy], 
         ['Train', "Eval"],
-        f"src/post/accuracy-{time.time()}-{fold}.png", title,
+        f"src/post/accuracy-{time.time()}-{run_id}.png", title,
         "Epoch", "Accuracy By Epoch"
         )
     print('fold train accuracy', fold_train_accuracy)

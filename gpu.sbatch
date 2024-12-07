@@ -22,7 +22,7 @@ echo "Job ID: ${SLURM_JOB_ID}"
 echo "Node: ${SLURMD_NODENAME}" echo "Starting: "`date +"%D %T"` 
 echo "$USER"
 # Running your code here 
-python -u run_seq2tree.py
+python -u run_seq2tree.py -id $SLURM_JOB_ID
 # End of job info 
 echo "Ending: "`date +"%D %T"`
 
