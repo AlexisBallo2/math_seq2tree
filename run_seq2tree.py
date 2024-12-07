@@ -35,17 +35,17 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-# num_obs = 600 
+num_obs = 600 
 # num_obs = 1000 
-num_obs = None 
+# num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
 useCustom = True
 # useCustom = False 
 
-# setName = "MATH"
-setName = "DRAW"
+setName = "MATH"
+# setName = "DRAW"
 
 # decide if we must be able to solve equation
 useEquSolutions = True
@@ -177,8 +177,8 @@ for fold in range(num_folds):
         "generate": generate,
         "merge": merge,
         "num_x_predict": num_x_predict,
-        "x_generate": x_generate,
-        "x_to_q": x_to_q
+        "q_generate": x_generate,
+        "q_to_x": x_to_q
     }
 
     debug = {

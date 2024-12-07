@@ -359,17 +359,16 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     if useCustom:
         # node that max(num_equations_per_obs) should be the same as the lenth of vars
         # xs: batch_size x num_vars x hidden_size
-        xs = models['x_generate'](len(all_vars), encoder_outputs, problem_output)
+        qs = models['q_generate'](len(all_vars), encoder_outputs, problem_output)
         # xs = get_all_number_encoder_outputs(encoder_outputs, var_pos, batch_size, var_size, models['encoder'].hidden_size)
         # xs = torch.zeros(batch_size, len(all_vars), 512)
     else: 
-        xs = None 
-
+        qs = problem_output
     if useCustom:
         # qs: batch_size x num_vars x hidden_size
-        qs = models['x_to_q'](encoder_outputs, xs, problem_output)
+        xs = models['q_to_x'](encoder_outputs, qs, problem_output)
     else:
-        qs = problem_output
+        xs = None 
 
     # do equations one at a time
     for cur_equation in range(max(num_equations_per_obs)):
@@ -692,23 +691,25 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
 
     # get xs
     if useCustom:
-        xs = models['x_generate'](num_x, encoder_outputs, problem_output)
+        qs = models['q_generate'](num_x, encoder_outputs, problem_output)
         # var_pos = [[input_length + i for i in range(len(vars))]]
         # var_size = len(var_pos[0])
         # # xs = get_all_number_encoder_outputs(encoder_outputs, var_pos, batch_size, var_size, models['encoder'].hidden_size)
         # xs = torch.zeros(1, len(vars), 512)
         # # padd the xs in the first dim to match the length of variables
-        if num_x <= len(vars):
+        if (num_x) < len(vars):
             padding = torch.zeros(1, len(vars) - num_x, 512)
-            xs = torch.cat((xs, padding.to(device)), dim=1).to(device)
+            qs = torch.cat((qs, padding.to(device)), dim=1).to(device)
+        if num_x > len(vars):
+            qs = qs[:, :len(vars), :]
     else: 
-        xs = None
+        qs = problem_output
 
     # get qs
     if useCustom:
-        qs = models['x_to_q'](encoder_outputs, xs, problem_output)
+        xs = models['q_to_x'](encoder_outputs, qs, problem_output)
     else:
-        qs = problem_output
+        xs = None
 
 
     # num_mask = torch.ByteTensor(1, len(num_pos) + len(generate_nums)).fill_(0)
