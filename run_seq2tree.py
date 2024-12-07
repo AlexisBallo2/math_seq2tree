@@ -33,8 +33,9 @@ else:
 # np.random.seed(10)
 
 # batch_size = 2 
+batch_size = 10
 # batch_size = 30 
-batch_size = 64 
+# batch_size = 64 
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 3 
@@ -47,6 +48,7 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
+# num_obs = 100
 # num_obs = 600 
 # num_obs = 1000 
 num_obs = None 
