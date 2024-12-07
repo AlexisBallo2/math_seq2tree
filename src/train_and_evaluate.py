@@ -695,7 +695,6 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
         # var_pos = [[input_length + i for i in range(len(vars))]]
         # var_size = len(var_pos[0])
         # # xs = get_all_number_encoder_outputs(encoder_outputs, var_pos, batch_size, var_size, models['encoder'].hidden_size)
-        # xs = torch.zeros(1, len(vars), 512)
         # # padd the xs in the first dim to match the length of variables
         if (num_x) < len(vars):
             padding = torch.zeros(1, len(vars) - num_x, 512)
@@ -707,7 +706,8 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
 
     # get qs
     if useCustom:
-        xs = models['q_to_x'](encoder_outputs, qs, problem_output)
+        # xs = models['q_to_x'](encoder_outputs, qs, problem_output)
+        xs = torch.zeros(1, len(vars), 512)
     else:
         xs = None
 
@@ -718,7 +718,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
     # in language its 
     # operators + gen numbers + vars + copy numbers
     if useCustom:
-        num_mask.append([0] * len(generate_nums) + [0] * num_x + [1] * (len(vars) - num_x) + [0] * num_size)
+        num_mask.append([0] * len(generate_nums) + [0] * min(num_x, len(vars)) + [1] * (max(len(vars) - num_x, 0)) + [0] * num_size)
     else:
         num_mask.append([0] * len(generate_nums)  +  [0] * num_size )
     num_mask = torch.ByteTensor(num_mask).to(device)
@@ -726,7 +726,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
 
     final_beams = []
 
-    for i in range(max(num_x, 1)):
+    for i in range(min(num_x, len(vars))):
         # get the node stacks
         if useCustom:
             ith_equation_goal = qs[:, i, :]
