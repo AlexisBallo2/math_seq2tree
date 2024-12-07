@@ -39,8 +39,8 @@ batch_size = 10
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 3 
-# n_epochs = 10 
-n_epochs = 20 
+n_epochs = 10 
+# n_epochs = 20 
 learning_rate = 1e-3 
 # learning_rate = 1e-3 
 # learning_rate = 1e-3 
@@ -48,15 +48,15 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-# num_obs = 100
+num_obs = 100
 # num_obs = 600 
 # num_obs = 1000 
-num_obs = None 
+# num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
-useCustom = True
-# useCustom = False 
+# useCustom = True
+useCustom = False 
 
 setName = "MATH"
 # setName = "DRAW"
@@ -336,20 +336,20 @@ for fold in range(num_folds):
                     else:
                         equn, token = test_res[equ_count]
                         # print('temp predicted', [output_lang.index2word[i] for i in equn])
-                        predicted_prefix = [output_lang.index2word[i] if i < len(output_lang.index2word) else " " for i in equn ]
-                        replaced_nums = replace_nums(test_batch['pairNumMapping'], predicted_prefix)
+                        predicted = [output_lang.index2word[i] if i < len(output_lang.index2word) else " " for i in equn ]
+                        replaced_nums = replace_nums(test_batch['pairNumMapping'], predicted)
                         predicted_infix = from_prefix_to_infix(replaced_nums)
                         
                         # predicted = [output_lang.index2word[i] for i in equn[0:min(len(test_res[equ_count]) + 1, actual_length + 1)]]
                         equation_strings.append(output_lang.index2word[token] + "=" + predicted_infix)
                     print(f"    equation {equ_count}")
                     print("         actual", actual)
-                    print("         predicted", predicted_prefix)
+                    print("         predicted", predicted)
 
                     for i in range(len(actual)):
                         lengths += 1
-                        if i < len(predicted_prefix):
-                            if actual[i] == predicted_prefix[i]:
+                        if i < len(predicted):
+                            if actual[i] == predicted[i]:
                                 same += 1
                 print('equation strings', equation_strings)
                 if setName == "DRAW":

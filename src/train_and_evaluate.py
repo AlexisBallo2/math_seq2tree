@@ -728,7 +728,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
 
     final_beams = []
 
-    for i in range(min(num_x, len(vars))):
+    for i in range(num_x):
         # get the node stacks
         if useCustom:
             ith_equation_goal = qs[:, i, :]
