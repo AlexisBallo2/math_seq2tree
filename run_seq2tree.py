@@ -21,7 +21,7 @@ from sympy.solvers import solve
 # np.random.seed(10)
 
 # batch_size = 2 
-batch_size = 20
+batch_size = 30 
 # batch_size = 64 
 embedding_size = 128
 hidden_size = 512
@@ -29,21 +29,23 @@ hidden_size = 512
 # n_epochs = 10 
 n_epochs = 10 
 learning_rate = 1e-3 
+# learning_rate = 1e-3 
+# learning_rate = 1e-3 
 weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-num_obs = 400 
+# num_obs = 600 
 # num_obs = 1000 
-# num_obs = None 
+num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
-# useCustom = True
-useCustom = False 
+useCustom = True
+# useCustom = False 
 
-setName = "MATH"
-# setName = "DRAW"
+# setName = "MATH"
+setName = "DRAW"
 
 # decide if we must be able to solve equation
 useEquSolutions = True
