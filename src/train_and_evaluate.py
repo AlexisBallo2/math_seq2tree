@@ -706,8 +706,8 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
 
     # get qs
     if useCustom:
-        # xs = models['q_to_x'](encoder_outputs, qs, problem_output)
-        xs = torch.zeros(1, len(vars), 512)
+        xs = models['q_to_x'](encoder_outputs, qs, problem_output)
+        # xs = torch.zeros(1, len(vars), 512)
     else:
         xs = None
 

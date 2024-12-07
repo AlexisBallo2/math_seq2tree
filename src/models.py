@@ -614,7 +614,7 @@ class GenerateXs(nn.Module):
             for j in range(nums_to_gen):
                 # leave the first vector
                 if len(xs) == 0:
-                    xs.append(torch.sigmoid(goal_vect))
+                    xs.append(goal_vect)
                 else:
                     # generate the next one from the attention of previous
                     qkt = torch.matmul(xs[j-1], kt)
