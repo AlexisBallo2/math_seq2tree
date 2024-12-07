@@ -559,7 +559,7 @@ class PredictNumX(nn.Module):
         out = self.fc(emb).squeeze(-1)  # out: tensor of shape (batch_size, output_size)
         # mask the first token (dont want to predict 0 xs)
         # out[:, 0] = -1e12
-        # out[:, 0] = 0
+        out[:, 0] = 0
         softmax = torch.nn.Softmax(dim=-1)
         return softmax(out)
         # return abs(out) 
