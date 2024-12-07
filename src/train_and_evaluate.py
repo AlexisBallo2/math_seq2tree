@@ -330,6 +330,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # encoder_outputs: num_batches x 512 q_0 vector
     # problem_output: max_length x num_batches x hidden_size
     encoder_outputs, problem_output = models['encoder'](input_var, input_length) 
+    encoder_var_outputs, var_output = models['encoder_var'](input_var, input_length) 
     # Prepare input and output variables
 
     
@@ -366,7 +367,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         qs = problem_output
     if useCustom:
         # qs: batch_size x num_vars x hidden_size
-        xs = models['q_to_x'](encoder_outputs, qs, problem_output)
+        xs = models['q_to_x'](encoder_var_outputs, qs, var_output)
     else:
         xs = None 
 
@@ -664,6 +665,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
     # Run words through encoder
     # encoder_outputs, problem_output = models['encoder'](input_var, [input_length + len(vars)])
     encoder_outputs, problem_output = models['encoder'](input_var, [input_length])
+    encoder_var_outputs, var_output = models['encoder_var'](input_var, [input_length])
 
     # Prepare input and output variables
     node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
@@ -706,7 +708,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
 
     # get qs
     if useCustom:
-        xs = models['q_to_x'](encoder_outputs, qs, problem_output)
+        xs = models['q_to_x'](encoder_var_outputs, qs, var_output)
         # xs = torch.zeros(1, len(vars), 512)
     else:
         xs = None
