@@ -325,6 +325,7 @@ for fold in range(num_folds):
         print("loss:", loss_total / len(input_lengths))
         batch_train_acc = sum(batch_train_accuricies["train_token"]) / len(batch_train_accuricies["train_token"])
         print("train accuracy", batch_train_acc)
+        fold_accuracies["loss"].append(loss_total / len(input_lengths))
         fold_accuracies["train_token"].append(batch_train_acc)
         # fold_train_accuracy.append(train_acc)
         fold_loss.append(loss_total / len(input_lengths))
