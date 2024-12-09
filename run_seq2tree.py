@@ -360,12 +360,13 @@ for fold in range(num_folds):
                     else:
                         equn, token = test_res[equ_count]
                         # print('temp predicted', [output_lang.index2word[i] for i in equn])
+                        pred_token = output_lang.index2word[token]
                         predicted = [output_lang.index2word[i] if i < len(output_lang.index2word) else " " for i in equn ]
                         replaced_nums = replace_nums(test_batch['pairNumMapping'], predicted)
                         predicted_infix = from_prefix_to_infix(replaced_nums)
                         
                         # predicted = [output_lang.index2word[i] for i in equn[0:min(len(test_res[equ_count]) + 1, actual_length + 1)]]
-                        equation_strings.append(output_lang.index2word[token] + "=" + predicted_infix)
+                        equation_strings.append(pred_token + "=" + predicted_infix)
                     print(f"    equation {equ_count}")
                     print("         actual", actual)
                     print("         predicted", predicted)
@@ -375,6 +376,11 @@ for fold in range(num_folds):
                         if i < len(predicted):
                             if actual[i] == predicted[i]:
                                 same += 1
+                    if setName == "DRAW":
+                        lengths += 1
+                        if pred_token == test_batch['equationTargetVars'][equ_count]:
+                            same += 1
+
                 print('equation strings', equation_strings)
                 if setName == "DRAW":
                     same_equation = solve_equation(equation_strings, test_batch['solution'])

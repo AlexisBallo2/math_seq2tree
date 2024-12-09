@@ -621,7 +621,9 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 lengths += 1
                 if token == target_t:
                     same += 1
-            equation_prediction_loss = torch.nn.CrossEntropyLoss(reduction="none")(prediction, ith_equation_solution.to(device)).mean()
+            mask_solutions = ith_equation_solution != 0
+            equation_prediction_loss_temp = torch.nn.CrossEntropyLoss(reduction="none")(prediction, ith_equation_solution.to(device)) * mask_solutions
+            equation_prediction_loss = equation_prediction_loss_temp.mean()
             if total_loss != None:
                 total_loss += equation_prediction_loss
             else:
