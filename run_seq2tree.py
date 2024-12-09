@@ -141,6 +141,17 @@ full_start = time.time()
 for fold in range(num_folds):
     pairs_tested = []
     pairs_trained = []
+
+    fold_accuracies = {
+        "train_token": [],
+        "test_token": [],
+        "train_soln": [],
+        "eval_soln": [],
+
+        "num_x_mse": [],
+        "loss" : []
+    }
+
     fold_train_accuracy = []
     fold_loss = []
     fold_eval_accuracy = []
@@ -276,6 +287,11 @@ for fold in range(num_folds):
         print("fold:", fold + 1)
         print("epoch:", epoch + 1)
         train_accuracys = []
+        batch_train_accuricies = {
+            "train_token": [],
+            "train_soln": [],
+            "num_x_mse": []
+        } 
         start = time.time()
         for idx in range(len(input_lengths)):
             # Zero gradients of both optimizers
@@ -288,14 +304,16 @@ for fold in range(num_folds):
 
             input_batch_len = len(input_batches[idx])
             start = time.perf_counter()
-            loss, acc = train_tree(
+            loss, acc, num_x_mse = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
                 output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], useCustom, vars, debug, setName)
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             loss_total += loss
-            train_accuracys.append(acc)
+            batch_train_accuricies["train_token"].append(acc)
+            batch_train_accuricies["num_x_mse"].append(num_x_mse)
+            # train_accuracys.append(acc)
             
             # Step the optimizers
             for optimizer in optimizers:
@@ -304,10 +322,12 @@ for fold in range(num_folds):
 
 
         print("loss:", loss_total / len(input_lengths))
-        train_acc = sum(train_accuracys) / len(train_accuracys)
-        print("train accuracy", train_acc)
-        fold_train_accuracy.append(train_acc)
+        batch_train_acc = sum(batch_train_accuricies["train_token"]) / len(batch_train_accuricies["train_token"])
+        print("train accuracy", batch_train_acc)
+        fold_accuracies["train_token"].append(batch_train_acc)
+        # fold_train_accuracy.append(train_acc)
         fold_loss.append(loss_total / len(input_lengths))
+        fold_accuracies["num_x_mse"].append(sum(batch_train_accuricies["num_x_mse"]) / len(batch_train_accuricies["num_x_mse"]))
         # fold_train_accuracy.append(train_acc)
         # print("training time", time_since(time.time() - start))
         # print("--------------------------------")

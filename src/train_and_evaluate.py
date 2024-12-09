@@ -357,9 +357,13 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # index in the language where the special (operators) tokens end and input/output text begins
     num_start = output_lang.num_start
 
+
+    num_equations_mse = []
     if useCustom:
         pred_num_equations = models['num_x_predict'](encoder_outputs)
-        print()
+        for i, num in enumerate(num_equations_per_obs):
+            num_equations_mse.append((pred_num_equations[i].argmax().item()  - num.item())**2)
+
     else:
         pred_num_equations = 0
 
@@ -584,8 +588,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                     if max_val == ith_equation_target[i][j]:
                         same += 1
                         # cur_same += 1
-            # print(f"        prediction: {[output_lang.index2word[_] for _ in vals[0:equ_length]]}")
-            # print(f"        actual:     {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
+            print(f"        prediction: {[output_lang.index2word[_] for _ in vals[0:equ_length]]}")
+            print(f"        actual:     {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
             # print('same', cur_same, 'length', cur_len)
 
         # for i, batch in enumerate(all_node_outputs2):
@@ -644,7 +648,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     total_loss.backward()
 
     # Update parameters with optimizers
-    return total_loss.item(), sum(total_acc)/len(total_acc)
+    return total_loss.item(), sum(total_acc)/len(total_acc), sum(num_equations_mse)/len(num_equations_mse)
 
 # @line_profiler.profile
 def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, output_lang, num_pos, vars, useCustom, debug, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
