@@ -48,18 +48,18 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-num_obs = 100
+# num_obs = 100
 # num_obs = 600 
 # num_obs = 1000 
-# num_obs = None 
+num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
-# useCustom = True
-useCustom = False 
+useCustom = True
+# useCustom = False 
 
-setName = "MATH"
-# setName = "DRAW"
+# setName = "MATH"
+setName = "DRAW"
 
 # decide if we must be able to solve equation
 useEquSolutions = True
@@ -291,7 +291,7 @@ for fold in range(num_folds):
             loss, acc = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
-                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], useCustom, vars, debug)
+                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], useCustom, vars, debug, setName)
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             loss_total += loss

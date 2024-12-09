@@ -258,7 +258,7 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
 
 # @line_profiler.profile
-def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets,var_pos, useCustom, all_vars,  debug, english=False):
+def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets,var_pos, useCustom, all_vars,  debug, setName, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -282,7 +282,12 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
     # num vars total in the output lang. will need to mask ones not in the current equation
    # num_total_vars = len(problem_vars[0])
-    num_equations_per_obs = torch.LongTensor([len(equ_set) for equ_set in target_batch])
+    non_expanded_lengths = []
+    for i in target_length.tolist():
+        non = [j for j in i if j != 0]
+        non_expanded_lengths.append(non)
+    #    non_expanded_lengths.append(target_length[i])
+    num_equations_per_obs = torch.LongTensor([len(equ_set) for equ_set in non_expanded_lengths])
     num_total_vars = max(num_equations_per_obs)
 
     # sequence mask for attention
@@ -354,6 +359,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
     if useCustom:
         pred_num_equations = models['num_x_predict'](encoder_outputs)
+        print()
     else:
         pred_num_equations = 0
 
@@ -593,8 +599,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         #         # if max_val == ith_equation_target[i][j]:
         #         #     same += 1
 
-        # if useCustom:
-        if False:
+        if useCustom and setName == "DRAW":
+        # if False:
             # we masked some of the equations (they are 0s) so the model predicted all left nodes.
             # so in pred_equ_solutions they are all None
             # fill these with 0s. 
@@ -627,8 +633,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         total_acc += [same/lengths]
     
     # add the loss of number equations
-    # if useCustom:
-    if False:
+    if useCustom:
+    # if False:
         num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs.to(device))
         total_loss += num_x_loss
         total_loss += equation_prediction_loss

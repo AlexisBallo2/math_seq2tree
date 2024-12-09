@@ -59,6 +59,6 @@ from collections import Counter
 #     print(total_plus, total_tokens)
 #     print(total_plus / total_tokens)
 
-with open("src/post/datasetEquations.txt", "r") as f:
-    data = Counter(f.read())
-    print(data)
+# with open("src/post/datasetEquations.txt", "r") as f:
+#     data = Counter(f.read())
+#     print(data)
