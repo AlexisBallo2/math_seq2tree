@@ -641,7 +641,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # if False:
         num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs.to(device))
         total_loss += num_x_loss
-        total_loss += equation_prediction_loss
+        # total_loss += equation_prediction_loss
 
         # predict a solution token for the tree 
         # actual_target = 
