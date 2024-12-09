@@ -38,8 +38,8 @@ batch_size = 10
 # batch_size = 64 
 embedding_size = 128
 hidden_size = 512
-# n_epochs = 3 
-n_epochs = 10 
+n_epochs = 3 
+# n_epochs = 10 
 # n_epochs = 20 
 learning_rate = 1e-3 
 # learning_rate = 1e-3 
@@ -48,10 +48,10 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-# num_obs = 100
+num_obs = 100
 # num_obs = 600 
 # num_obs = 1000 
-num_obs = None 
+# num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
@@ -144,8 +144,9 @@ for fold in range(num_folds):
 
     fold_accuracies = {
         "train_token": [],
-        "test_token": [],
         "train_soln": [],
+
+        "eval_token": [],
         "eval_soln": [],
 
         "num_x_mse": [],
@@ -333,10 +334,13 @@ for fold in range(num_folds):
         # print("--------------------------------")
         # if epoch % 10 == 0 or epoch > n_epochs - 5:
         if True:
+            batch_eval_accuricies = {
+                "eval_token": [],
+                "eval_soln": [],
+                "num_x_mse": []
+            } 
             for k, v in models.items():
                 v.eval()
-            eval_accuracys = []
-            solution_eval_accuracys = []
             start = time.time()
             for test_batch in test_pairs:
                 start = time.perf_counter()
@@ -376,47 +380,49 @@ for fold in range(num_folds):
                     same_equation = solve_equation(equation_strings, test_batch['solution'])
                     if same_equation:
                         print('solution success')
-                        solution_eval_accuracys.append(1)
+                        batch_eval_accuricies["eval_soln"].append(1)
                     else: 
                         print('solution failed')
-                        solution_eval_accuracys.append(0)
+                        batch_eval_accuricies["eval_soln"].append(0)
                 else:
                     if lengths == same:
-                        solution_eval_accuracys.append(1)
+                        batch_eval_accuricies["eval_soln"].append(1)
                     else:
-                        solution_eval_accuracys.append(0)
+                        batch_eval_accuricies["eval_soln"].append(0)
 
                 accuracy = same / lengths
-                eval_accuracys.append(accuracy)
+                batch_eval_accuricies["eval_token"].append(accuracy)
 
-            eval_acc = sum(eval_accuracys) / len(eval_accuracys)
-            eval_soln_acc = sum(solution_eval_accuracys) / len(solution_eval_accuracys)
+            eval_acc = sum(batch_eval_accuricies["eval_token"]) / len(batch_eval_accuricies["eval_token"])
+            eval_soln_acc = sum(batch_eval_accuricies["eval_soln"]) / len(batch_eval_accuricies["eval_soln"])
             print('eval accuracy', eval_acc)
-            fold_eval_accuracy.append(eval_acc)
-            fold_soln_eval_accuracy.append(eval_soln_acc)
+            fold_accuracies["eval_token"].append(eval_acc)
+            fold_accuracies["eval_soln"].append(eval_soln_acc)
+            # fold_eval_accuracy.append(eval_acc)
+            # fold_soln_eval_accuracy.append(eval_soln_acc)
 
             print("------------------------------------------------------")
             # torch.save(encoder.state_dict(), "models/encoder")
             # torch.save(predict.state_dict(), "models/predict")
             # torch.save(generate.state_dict(), "models/generate")
             # torch.save(merge.state_dict(), "models/merge")
-    all_train_accuracys.append(fold_train_accuracy)
-    all_train_loss.append(fold_loss)
-    all_eval_accuracys.append(fold_eval_accuracy)
-    all_soln_eval_accuracys.append(fold_soln_eval_accuracy)
+    all_train_accuracys.append(fold_accuracies["loss"])
+    all_train_loss.append(fold_accuracies["loss"])
+    all_eval_accuracys.append(fold_accuracies["eval_token"])
+    all_soln_eval_accuracys.append(fold_accuracies["eval_soln"])
     make_loss_graph(
-        fold_loss, 
+        fold_accuracies['loss'], 
         f"src/post/loss-{time.time()}-{run_id}.png", title,
         "Epoch", "Loss By Epoch"
         )
     make_eval_graph(
-        [fold_train_accuracy, fold_eval_accuracy], 
+        [fold_accuracies["train_token"], fold_accuracies["eval_token"]], 
         ['Train', "Eval"],
         f"src/post/accuracy-{time.time()}-{run_id}.png", title,
         "Epoch", "Accuracy By Epoch"
         )
-    print('fold train accuracy', fold_train_accuracy)
-    print('fold eval accuracy', fold_eval_accuracy)
+    print('fold train accuracy', fold_accuracies["train_token"])
+    print('fold eval accuracy', fold_accuracies['eval_token'])
     print('All TRAIN ACC', all_train_accuracys)
     print('ALL EVAL ACC', all_eval_accuracys)
     print('ALL EVAL SOLN ACC', all_soln_eval_accuracys)

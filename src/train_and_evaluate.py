@@ -578,13 +578,13 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             # cur_len = 0
             # cur_same = 0
             equ_length = int(ith_equation_target_lengths[i].item())
-            # vals = []
+            vals = []
             for j, probs in enumerate(batch):
                 if j < equ_length:
                     lengths += 1
                     # cur_len += 1
                     max_val = torch.argmax(probs)
-                    # vals.append(max_val)
+                    vals.append(max_val)
                     if max_val == ith_equation_target[i][j]:
                         same += 1
                         # cur_same += 1
