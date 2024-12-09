@@ -1221,9 +1221,9 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
             cur_vars = []
             for var in vars:
                 if var in pair['allVars']:
-                    cur_vars.append(1)
-                else:
                     cur_vars.append(0)
+                else:
+                    cur_vars.append(1)
             output_vars.append(cur_vars)
 
         input_batches.append(input_batch)
