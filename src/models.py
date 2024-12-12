@@ -520,48 +520,64 @@ class PredictNumX(nn.Module):
         self.lstm = nn.LSTM(hidden_size, hidden_size, 2, batch_first=True, bidirectional=True)
         self.fc = nn.Linear(hidden_size * 2, output_size)
 
+        self.fc1 = nn.Linear(hidden_size, hidden_size)
+        self.relu = nn.ReLU()
+        self.fc2 = nn.Linear(hidden_size, 4)
+        self.softmax = nn.Softmax(dim=-1)
 
-    def forward(self, hidden, eval = False):
+
+
+    def forward(self, goal_vect, eval = False):
+        temp = self.fc1(goal_vect)
+        temp2 = self.relu(temp)
+        temp3 = self.fc2(temp2)
+        temp4 = self.relu(temp3)
+        # temp4[:, 0] = 0
+        # softmax = torch.nn.Softmax(dim=-1)
+        # return softmax(out)
+        # return abs(out) 
+        return temp4
+
         # hidden will be a list of unknown length with embed dimension of 512. 
 
-        if eval == False:
-            zeroList = [[[0.0] * 512] for _ in range(hidden.size(1))]
-        else:
-            zeroList = [[[0.0] * 512] for _ in range(1)]
-        padding_tensor = torch.tensor(zeroList)  # or any other values you want to pad with
-        padding_tensor = padding_tensor.squeeze(1)
-        num_padding_needed = 100 - hidden.size(0)
+        # if eval == False:
+        #     zeroList = [[[0.0] * 512] for _ in range(hidden.size(1))]
+        # else:
+        #     zeroList = [[[0.0] * 512] for _ in range(1)]
+        # padding_tensor = torch.tensor(zeroList)  # or any other values you want to pad with
+        # padding_tensor = padding_tensor.squeeze(1)
+        # num_padding_needed = 100 - hidden.size(0)
 
-        # Ensure num_padding_needed is positive
-        if num_padding_needed > 0:
-            padding = padding_tensor.unsqueeze(0).expand(num_padding_needed, -1, -1).to(device)
-            hidden2 = torch.cat((hidden, padding), dim=0)
-        else:
-            # If padding is not needed, use the original tensor
-            hidden2 = hidden
+        # # Ensure num_padding_needed is positive
+        # if num_padding_needed > 0:
+        #     padding = padding_tensor.unsqueeze(0).expand(num_padding_needed, -1, -1).to(device)
+        #     hidden2 = torch.cat((hidden, padding), dim=0)
+        # else:
+        #     # If padding is not needed, use the original tensor
+        #     hidden2 = hidden
 
-        hidden2T = hidden2.transpose(0, 1)
+        # hidden2T = hidden2.transpose(0, 1)
 
 
 
-        # pad this list to be 100 long
-        # Initialize hidden and cell states with zeros
-        h0 = torch.zeros(self.lstm.num_layers * 2, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
-        c0 = torch.zeros(self.lstm.num_layers * 2, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
+        # # pad this list to be 100 long
+        # # Initialize hidden and cell states with zeros
+        # h0 = torch.zeros(self.lstm.num_layers * 2, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
+        # c0 = torch.zeros(self.lstm.num_layers * 2, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
 
-        # Forward propagate LSTM
-        # out: batch_size x max_tokens x hidden size
-        out, _ = self.lstm(hidden2T, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
-        # pass last token through feedforward nn
-        final_token_emb = out[:, -1, 512:] + out[:, -1, :512]
-        first_token_emb = out[:, 1, :512] + out[:, 1, 512:]
-        emb = torch.cat((final_token_emb.to(device), first_token_emb.to(device)), dim = -1)
-        out = self.fc(emb).squeeze(-1)  # out: tensor of shape (batch_size, output_size)
-        # mask the first token (dont want to predict 0 xs)
-        # out[:, 0] = -1e12
-        out[:, 0] = 0
-        softmax = torch.nn.Softmax(dim=-1)
-        return softmax(out)
+        # # Forward propagate LSTM
+        # # out: batch_size x max_tokens x hidden size
+        # out, _ = self.lstm(hidden2T, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
+        # # pass last token through feedforward nn
+        # final_token_emb = out[:, -1, 512:] + out[:, -1, :512]
+        # first_token_emb = out[:, 1, :512] + out[:, 1, 512:]
+        # emb = torch.cat((final_token_emb.to(device), first_token_emb.to(device)), dim = -1)
+        # out = self.fc(emb).squeeze(-1)  # out: tensor of shape (batch_size, output_size)
+        # # mask the first token (dont want to predict 0 xs)
+        # # out[:, 0] = -1e12
+        # out[:, 0] = 0
+        # softmax = torch.nn.Softmax(dim=-1)
+        # return softmax(out)
         # return abs(out) 
 
 class GenerateXs(nn.Module):

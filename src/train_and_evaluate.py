@@ -360,7 +360,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
     num_equations_mse = []
     if useCustom:
-        pred_num_equations = models['num_x_predict'](encoder_outputs)
+        pred_num_equations = models['num_x_predict'](problem_output)
         for i, num in enumerate(num_equations_per_obs):
             num_equations_mse.append((pred_num_equations[i].argmax().item()  - num.item())**2)
 
@@ -689,7 +689,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
 
     # predict number of xs
     if useCustom:
-        num_x = models['num_x_predict'](encoder_outputs, eval=True).argmax().item()
+        num_x = models['num_x_predict'](problem_output, eval=True).argmax().item()
     else:
         num_x = 1
 
