@@ -48,6 +48,7 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
+# num_obs = 20
 # num_obs = 100
 # num_obs = 600 
 # num_obs = 1000 
@@ -58,8 +59,8 @@ num_obs = None
 useCustom = True
 # useCustom = False 
 
-# setName = "MATH"
-setName = "DRAW"
+setName = "MATH"
+# setName = "DRAW"
 
 # decide if we must be able to solve equation
 useEquSolutions = True
@@ -149,7 +150,7 @@ for fold in range(num_folds):
         "eval_token": [],
         "eval_soln": [],
 
-        "num_x_mse": [],
+        "train_num_x_mse": [],
         "loss" : []
     }
 
@@ -288,10 +289,12 @@ for fold in range(num_folds):
         print("fold:", fold + 1)
         print("epoch:", epoch + 1)
         train_accuracys = []
-        batch_train_accuricies = {
+        batch_accuricies = {
             "train_token": [],
             "train_soln": [],
-            "num_x_mse": []
+            "train_num_x_mse": [],
+            "eval_token": [],
+            "eval_soln": [],
         } 
         start = time.time()
         for idx in range(len(input_lengths)):
@@ -312,8 +315,8 @@ for fold in range(num_folds):
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             loss_total += loss
-            batch_train_accuricies["train_token"].append(acc)
-            batch_train_accuricies["num_x_mse"].append(num_x_mse)
+            batch_accuricies["train_token"].append(acc)
+            batch_accuricies["train_num_x_mse"].append(num_x_mse)
             # train_accuracys.append(acc)
             
             # Step the optimizers
@@ -323,23 +326,22 @@ for fold in range(num_folds):
 
 
         print("loss:", loss_total / len(input_lengths))
-        batch_train_acc = sum(batch_train_accuricies["train_token"]) / len(batch_train_accuricies["train_token"])
+        batch_train_acc = sum(batch_accuricies["train_token"]) / len(batch_accuricies["train_token"])
         print("train accuracy", batch_train_acc)
         fold_accuracies["loss"].append(loss_total / len(input_lengths))
         fold_accuracies["train_token"].append(batch_train_acc)
         # fold_train_accuracy.append(train_acc)
         fold_loss.append(loss_total / len(input_lengths))
-        fold_accuracies["num_x_mse"].append(sum(batch_train_accuricies["num_x_mse"]) / len(batch_train_accuricies["num_x_mse"]))
+        fold_accuracies["train_num_x_mse"].append(sum(batch_accuricies["train_num_x_mse"]) / len(batch_accuricies["train_num_x_mse"]))
         # fold_train_accuracy.append(train_acc)
         # print("training time", time_since(time.time() - start))
         # print("--------------------------------")
         # if epoch % 10 == 0 or epoch > n_epochs - 5:
         if True:
-            batch_eval_accuricies = {
+            eval_accuracies =  {
                 "eval_token": [],
-                "eval_soln": [],
-                "num_x_mse": []
-            } 
+                "eval_soln": []
+            }
             for k, v in models.items():
                 v.eval()
             start = time.time()
@@ -387,21 +389,21 @@ for fold in range(num_folds):
                     same_equation = solve_equation(equation_strings, test_batch['solution'])
                     if same_equation:
                         print('solution success')
-                        batch_eval_accuricies["eval_soln"].append(1)
+                        eval_accuracies["eval_soln"].append(1)
                     else: 
                         print('solution failed')
-                        batch_eval_accuricies["eval_soln"].append(0)
+                        eval_accuracies["eval_soln"].append(0)
                 else:
                     if lengths == same:
-                        batch_eval_accuricies["eval_soln"].append(1)
+                        eval_accuracies["eval_soln"].append(1)
                     else:
-                        batch_eval_accuricies["eval_soln"].append(0)
+                        eval_accuracies["eval_soln"].append(0)
 
                 accuracy = same / lengths
-                batch_eval_accuricies["eval_token"].append(accuracy)
+                eval_accuracies["eval_token"].append(accuracy)
 
-            eval_acc = sum(batch_eval_accuricies["eval_token"]) / len(batch_eval_accuricies["eval_token"])
-            eval_soln_acc = sum(batch_eval_accuricies["eval_soln"]) / len(batch_eval_accuricies["eval_soln"])
+            eval_acc = sum(eval_accuracies["eval_token"]) / len(eval_accuracies["eval_token"])
+            eval_soln_acc = sum(eval_accuracies["eval_soln"]) / len(eval_accuracies["eval_soln"])
             print('eval accuracy', eval_acc)
             fold_accuracies["eval_token"].append(eval_acc)
             fold_accuracies["eval_soln"].append(eval_soln_acc)
@@ -417,6 +419,7 @@ for fold in range(num_folds):
     all_train_loss.append(fold_accuracies["loss"])
     all_eval_accuracys.append(fold_accuracies["eval_token"])
     all_soln_eval_accuracys.append(fold_accuracies["eval_soln"])
+    print('fold accuracies', fold_accuracies)
     make_loss_graph(
         fold_accuracies['loss'], 
         f"src/post/loss-{time.time()}-{run_id}.png", title,
