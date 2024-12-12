@@ -532,11 +532,9 @@ class PredictNumX(nn.Module):
         temp2 = self.relu(temp)
         temp3 = self.fc2(temp2)
         temp4 = self.relu(temp3)
-        # temp4[:, 0] = 0
-        # softmax = torch.nn.Softmax(dim=-1)
-        # return softmax(out)
-        # return abs(out) 
-        return temp4
+        temp4[:, 0] = -1e12
+        out = self.softmax(temp4)
+        return out 
 
         # hidden will be a list of unknown length with embed dimension of 512. 
 
