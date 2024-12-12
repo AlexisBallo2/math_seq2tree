@@ -531,8 +531,10 @@ class PredictNumX(nn.Module):
         temp = self.fc1(goal_vect)
         temp2 = self.relu(temp)
         temp3 = self.fc2(temp2)
-        temp4 = self.relu(temp3)
-        temp4[:, 0] = -1e12
+
+        mask = torch.tensor([0, 1, 1, 1]).to(device)
+
+        temp4 = self.relu(temp3) * mask
         out = self.softmax(temp4)
         return out 
 
