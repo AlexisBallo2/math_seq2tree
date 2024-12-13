@@ -39,8 +39,8 @@ batch_size = 64
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 3 
-# n_epochs = 10 
-n_epochs = 20 
+n_epochs = 10 
+# n_epochs = 20 
 learning_rate = 1e-3 
 # learning_rate = 1e-3 
 # learning_rate = 1e-3 
@@ -59,7 +59,8 @@ num_obs = None
 useCustom = True
 # useCustom = False 
 
-setName = "MATH"
+# setName = "MATH"
+setName = "PEN"
 # setName = "DRAW"
 
 # decide if we must be able to solve equation
@@ -83,6 +84,8 @@ print("CONFIG \n", config)
 os.makedirs("models", exist_ok=True)
 if setName == "DRAW":
     data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
+elif setName == "PEN":
+    data = load_DRAW_data("data/PEN.json")
 else:
     data = load_raw_data("data/Math_23K.json")
 if num_obs:
@@ -111,9 +114,13 @@ if num_obs:
 temp_pairs = []
 for p in pairs:
     # input_seq, prefixed equation, nums, num_pos
-    p['equations'] = [from_infix_to_prefix(equ) for equ in p['equations']]
+    try:
+        p['equations'] = [from_infix_to_prefix(equ) for equ in p['equations']]
+        temp_pairs.append(p)
+    except:
+        print('error in equation', p)
     # temp_pairs.append((p[0], equations, p[2], p[3], p[4], p[5], p[6], p[7]))
-# pairs = temp_pairs
+pairs = temp_pairs
 
 
 num_folds = 2
