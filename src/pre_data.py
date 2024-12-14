@@ -596,8 +596,13 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
             temp_g.append(g)
 
     # copy_nums: max length of numbers
+    setVars = list(set(vars))
+    orderedVars = []
+    for var in variableHierarchy:
+        if var in setVars:
+            orderedVars.append(var)
     if useCustom:
-        return pairs, temp_g, copy_nums, list(set(vars)) 
+        return pairs, temp_g, copy_nums, orderedVars
     else:
         return pairs, temp_g, copy_nums, [] 
 
