@@ -1,6 +1,7 @@
 
 import sympy as sp
 from sympy.solvers import solve
+import json 
 
 def solve_equation(equations, solutions):
     # convert prefix to infix
@@ -34,3 +35,10 @@ def replace_nums(mapping, equation):
             final_equation.append(token)
     return final_equation
 
+
+
+def write_comparison(train, eval):
+    with open("src/post/train_results.json", "w") as f:
+        f.write(json.dumps(train))
+    with open("src/post/eval_results.json", "w") as f:
+        f.write(json.dumps(eval))

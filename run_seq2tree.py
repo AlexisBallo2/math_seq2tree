@@ -33,9 +33,9 @@ else:
 # np.random.seed(10)
 
 # batch_size = 2 
-batch_size = 10
+# batch_size = 10
 # batch_size = 30 
-# batch_size = 64 
+batch_size = 64 
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 3 
@@ -48,11 +48,11 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-num_obs = 20
+# num_obs = 20
 # num_obs = 100
 # num_obs = 600 
 # num_obs = 1000 
-# num_obs = None 
+num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
@@ -137,6 +137,10 @@ total_inference_time = 0
 
 train_time_array = []
 test_time_array = []
+
+
+train_comparison = []
+eval_comparison = []
 
 full_start = time.time()
 for fold in range(num_folds):
@@ -312,12 +316,13 @@ for fold in range(num_folds):
 
             input_batch_len = len(input_batches[idx])
             start = time.perf_counter()
-            loss, acc, num_x_mse = train_tree(
+            loss, acc, num_x_mse, comparison = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
                 output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], useCustom, vars, debug, setName)
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
+            train_comparison.append(comparison)
             loss_total += loss
             batch_accuricies["train_token"].append(acc)
             batch_accuricies["train_num_x_mse"].append(num_x_mse)
@@ -349,6 +354,7 @@ for fold in range(num_folds):
             for k, v in models.items():
                 v.eval()
             start = time.time()
+            batch_eval_comparison = []
             for test_batch in test_pairs:
                 start = time.perf_counter()
                 test_res, pred_num_x = evaluate_tree(test_batch['input_cell'], test_batch['input_len'], generate_num_ids, models, input_lang, output_lang, test_batch['num_pos'], vars, useCustom, debug, beam_size=beam_size)
@@ -381,6 +387,10 @@ for fold in range(num_folds):
                     print(f"    equation {equ_count}")
                     print("         actual", actual)
                     print("         predicted", predicted)
+                    batch_eval_comparison.append({
+                        "prediction": predicted,
+                        "actual": actual
+                    })
 
                     for i in range(len(actual)):
                         lengths += 1
@@ -409,6 +419,7 @@ for fold in range(num_folds):
 
                 accuracy = same / lengths
                 batch_accuricies["eval_token"].append(accuracy)
+                eval_comparison.append(batch_eval_comparison)
 
             eval_acc = sum(batch_accuricies["eval_token"]) / len(batch_accuricies["eval_token"])
             eval_soln_acc = sum(batch_accuricies["eval_soln"]) / len(batch_accuricies["eval_soln"])
@@ -433,6 +444,8 @@ for fold in range(num_folds):
     for k, v in fold_accuracies.items():
         print(k, v)
         print("\n")
+    # print('COMPARISONS', train_comparison, eval_comparison)
+    write_comparison(train_comparison, eval_comparison)
     # print('fold accuracies', fold_accuracies)
     make_loss_graph(
         fold_accuracies['loss'], 
