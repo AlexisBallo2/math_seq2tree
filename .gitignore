@@ -2,3 +2,4 @@ models/*
 **/*.pyc
 outputs/*
 src/post/*.png
+src/__pycache__/*
