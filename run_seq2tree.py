@@ -33,9 +33,9 @@ else:
 # np.random.seed(10)
 
 # batch_size = 2 
-# batch_size = 10
+batch_size = 10
 # batch_size = 30 
-batch_size = 64 
+# batch_size = 64 
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 3 
@@ -48,11 +48,11 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-# num_obs = 20
+num_obs = 20
 # num_obs = 100
 # num_obs = 600 
 # num_obs = 1000 
-num_obs = None 
+# num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
@@ -361,7 +361,7 @@ for fold in range(num_folds):
                 print('test res')
 
                 num_x_mse = (pred_num_x - len(test_batch['equations']))**2
-                print(f'predicted num x mse: {num_x_mse}, actual: {len(test_batch["equations"])}')
+                print(f'predicted num x mse: {pred_num_x}, actual: {len(test_batch["equations"])}')
                 batch_accuricies["eval_num_x_mse"].append(num_x_mse)
                 for equ_count in range(len(test_batch['equations'])):
                     actual_length = test_batch['equation_lens'][equ_count]
@@ -432,6 +432,7 @@ for fold in range(num_folds):
 
     for k, v in fold_accuracies.items():
         print(k, v)
+        print("\n")
     # print('fold accuracies', fold_accuracies)
     make_loss_graph(
         fold_accuracies['loss'], 
