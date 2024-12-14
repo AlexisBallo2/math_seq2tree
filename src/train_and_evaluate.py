@@ -362,6 +362,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     if useCustom:
         pred_num_equations = models['num_x_predict'](problem_output)
         for i, num in enumerate(num_equations_per_obs):
+            print(f'predicted num x mse: {pred_num_equations[i].argmax().item()}, actual: {num.item()}')
             num_equations_mse.append((pred_num_equations[i].argmax().item()  - num.item())**2)
 
     else:
@@ -704,6 +705,10 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
     #     x_list = None
 
     # get xs
+    # for the length of the number mask, must be 
+    # generate_nums + vars + copy numbers
+    # if num_x < len(vars): then we need to add padding
+    # if num_x > len(vars): then we need to cut off the end
     if useCustom:
         qs = models['q_generate'](num_x, encoder_outputs, problem_output)
         # var_pos = [[input_length + i for i in range(len(vars))]]

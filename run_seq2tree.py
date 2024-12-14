@@ -361,6 +361,7 @@ for fold in range(num_folds):
                 print('test res')
 
                 num_x_mse = (pred_num_x - len(test_batch['equations']))**2
+                print(f'predicted num x mse: {num_x_mse}, actual: {len(test_batch["equations"])}')
                 batch_accuricies["eval_num_x_mse"].append(num_x_mse)
                 for equ_count in range(len(test_batch['equations'])):
                     actual_length = test_batch['equation_lens'][equ_count]
@@ -429,7 +430,9 @@ for fold in range(num_folds):
     all_eval_accuracys.append(fold_accuracies["eval_token"])
     all_soln_eval_accuracys.append(fold_accuracies["eval_soln"])
 
-    print('fold accuracies', fold_accuracies)
+    for k, v in fold_accuracies.items():
+        print(k, v)
+    # print('fold accuracies', fold_accuracies)
     make_loss_graph(
         fold_accuracies['loss'], 
         f"src/post/loss-{time.time()}-{run_id}.png", title,
