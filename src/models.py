@@ -535,7 +535,7 @@ class PredictNumX(nn.Module):
         mask = torch.tensor([0, 1, 1, 1]).to(device)
 
         temp4 = self.relu(temp3) * mask
-        out = self.softmax(temp4)
+        out = self.softmax(temp4) * mask
         return out 
 
         # hidden will be a list of unknown length with embed dimension of 512. 

@@ -59,8 +59,8 @@ num_obs = None
 useCustom = True
 # useCustom = False 
 
-setName = "MATH"
-# setName = "DRAW"
+# setName = "MATH"
+setName = "DRAW"
 
 # decide if we must be able to solve equation
 useEquSolutions = True
@@ -146,11 +146,12 @@ for fold in range(num_folds):
     fold_accuracies = {
         "train_token": [],
         "train_soln": [],
+        "train_num_x_mse": [],
 
         "eval_token": [],
         "eval_soln": [],
+        "eval_num_x_mse": [],
 
-        "train_num_x_mse": [],
         "loss" : []
     }
 
@@ -293,8 +294,11 @@ for fold in range(num_folds):
             "train_token": [],
             "train_soln": [],
             "train_num_x_mse": [],
+
+
             "eval_token": [],
             "eval_soln": [],
+            "eval_num_x_mse": []
         } 
         start = time.time()
         for idx in range(len(input_lengths)):
@@ -338,16 +342,16 @@ for fold in range(num_folds):
         # print("--------------------------------")
         # if epoch % 10 == 0 or epoch > n_epochs - 5:
         if True:
-            eval_accuracies =  {
-                "eval_token": [],
-                "eval_soln": []
-            }
+            # eval_accuracies =  {
+            #     "eval_token": [],
+            #     "eval_soln": []
+            # }
             for k, v in models.items():
                 v.eval()
             start = time.time()
             for test_batch in test_pairs:
                 start = time.perf_counter()
-                test_res = evaluate_tree(test_batch['input_cell'], test_batch['input_len'], generate_num_ids, models, input_lang, output_lang, test_batch['num_pos'], vars, useCustom, debug, beam_size=beam_size)
+                test_res, pred_num_x = evaluate_tree(test_batch['input_cell'], test_batch['input_len'], generate_num_ids, models, input_lang, output_lang, test_batch['num_pos'], vars, useCustom, debug, beam_size=beam_size)
                 end = time.perf_counter()
                 test_time_array.append([1, end - start])
                 lengths = 0
@@ -355,6 +359,9 @@ for fold in range(num_folds):
                 num_pred_equations = len(test_res)
                 equation_strings = []
                 print('test res')
+
+                num_x_mse = (pred_num_x - len(test_batch['equations']))**2
+                batch_accuricies["eval_num_x_mse"].append(num_x_mse)
                 for equ_count in range(len(test_batch['equations'])):
                     actual_length = test_batch['equation_lens'][equ_count]
                     actual = [output_lang.index2word[i] for i in test_batch['equations'][equ_count][0:actual_length + 1]]
@@ -389,24 +396,26 @@ for fold in range(num_folds):
                     same_equation = solve_equation(equation_strings, test_batch['solution'])
                     if same_equation:
                         print('solution success')
-                        eval_accuracies["eval_soln"].append(1)
+                        batch_accuricies["eval_soln"].append(1)
                     else: 
                         print('solution failed')
-                        eval_accuracies["eval_soln"].append(0)
+                        batch_accuricies["eval_soln"].append(0)
                 else:
                     if lengths == same:
-                        eval_accuracies["eval_soln"].append(1)
+                        batch_accuricies["eval_soln"].append(1)
                     else:
-                        eval_accuracies["eval_soln"].append(0)
+                        batch_accuricies["eval_soln"].append(0)
 
                 accuracy = same / lengths
-                eval_accuracies["eval_token"].append(accuracy)
+                batch_accuricies["eval_token"].append(accuracy)
 
-            eval_acc = sum(eval_accuracies["eval_token"]) / len(eval_accuracies["eval_token"])
-            eval_soln_acc = sum(eval_accuracies["eval_soln"]) / len(eval_accuracies["eval_soln"])
+            eval_acc = sum(batch_accuricies["eval_token"]) / len(batch_accuricies["eval_token"])
+            eval_soln_acc = sum(batch_accuricies["eval_soln"]) / len(batch_accuricies["eval_soln"])
+            eval_num_x_mse = sum(batch_accuricies["eval_num_x_mse"]) / len(batch_accuricies["eval_num_x_mse"])
             print('eval accuracy', eval_acc)
             fold_accuracies["eval_token"].append(eval_acc)
             fold_accuracies["eval_soln"].append(eval_soln_acc)
+            fold_accuracies["eval_num_x_mse"].append(eval_num_x_mse)
             # fold_eval_accuracy.append(eval_acc)
             # fold_soln_eval_accuracy.append(eval_soln_acc)
 
@@ -419,6 +428,7 @@ for fold in range(num_folds):
     all_train_loss.append(fold_accuracies["loss"])
     all_eval_accuracys.append(fold_accuracies["eval_token"])
     all_soln_eval_accuracys.append(fold_accuracies["eval_soln"])
+
     print('fold accuracies', fold_accuracies)
     make_loss_graph(
         fold_accuracies['loss'], 

@@ -856,4 +856,4 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
         num_score_temp, op_temp, _, _, _ = models['predict_output']([beams[0].node_stack[-1]], [None for i in range(len([beams[0].node_stack[-1]]))], encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug)
         possible_tokens = torch.cat((op_temp, num_score_temp), 1)
         final_beams.append([beams[0].out, possible_tokens.argmax(dim=1)])
-    return final_beams
+    return final_beams, num_x 
