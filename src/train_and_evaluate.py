@@ -320,6 +320,15 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     padding_hidden = torch.FloatTensor([0.0 for _ in range(models['predict'].hidden_size)]).unsqueeze(0)
 
 
+    possible_tokens = []
+    for i, mask in enumerate(num_mask.tolist()):
+        cur_tokens = []
+        for j, val in enumerate(mask):
+            if val == 0:
+                cur_tokens.append(output_lang.index2word[j])
+        possible_tokens.append(cur_tokens)
+    print('possible tokens', possible_tokens)
+
     if USE_CUDA:
         input_var = input_var.cuda()
         seq_mask = seq_mask.cuda()
@@ -699,6 +708,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
         num_x = models['num_x_predict'](problem_output, eval=True).argmax().item()
     else:
         num_x = 1
+    print('predicted num x', num_x)
 
     # if useCustom:
     #     # make random x vectors
@@ -748,6 +758,12 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
         num_mask.append([0] * len(generate_nums)  +  [0] * num_size )
     num_mask = torch.ByteTensor(num_mask).to(device)
 
+    cur_tokens = []
+    for j, val in enumerate(num_mask.tolist()[0]):
+        if val == 0:
+            cur_tokens.append(output_lang.index2word[j])
+    print('possible tokens', cur_tokens)
+    print()
 
     final_beams = []
 
