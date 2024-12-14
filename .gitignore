@@ -3,3 +3,5 @@ models/*
 outputs/*
 src/post/*.png
 src/__pycache__/*
+
+src/src/post/*.json
