@@ -364,7 +364,8 @@ class Prediction(nn.Module):
         # batch_size is the embeddings of the numbers
         #   batch_size x nums_count x hidden_dim
         if useCustom:
-            embedding_weight = torch.cat((embedding_weight1, xs, num_pades), dim=1)  # B x O x N
+            # embedding_weight = torch.cat((embedding_weight1, xs, num_pades), dim=1)  # B x O x N
+            embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
         else:
             embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
 
@@ -674,9 +675,9 @@ class XToQ(nn.Module):
                 qkt = torch.matmul(xs[j], self.K(hidden2[i]).transpose(0,1))
                 smqkt = nn.functional.softmax(qkt)
                 output = torch.sigmoid(torch.matmul(smqkt, self.V(hidden2[i])))
-                # qs.append(output)
-                output_zeros = torch.zeros(output.size()).to(output.device)
-                qs.append(output_zeros)
+                qs.append(output)
+                # output_zeros = torch.zeros(output.size()).to(output.device)
+                # qs.append(output_zeros)
                 # qs.append(problem_q[i])
             # need to change later
             qs = torch.stack(qs)#.transpose(0,1)

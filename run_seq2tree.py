@@ -33,14 +33,14 @@ else:
 # np.random.seed(10)
 
 # batch_size = 2 
-# batch_size = 10
+batch_size = 10
 # batch_size = 30 
-batch_size = 64 
+# batch_size = 64 
 embedding_size = 128
 hidden_size = 512
-# n_epochs = 3 
+n_epochs = 3 
 # n_epochs = 10 
-n_epochs = 20 
+# n_epochs = 20 
 learning_rate = 1e-3 
 # learning_rate = 1e-3 
 # learning_rate = 1e-3 
@@ -48,11 +48,11 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-# num_obs = 20
+num_obs = 20
 # num_obs = 100
 # num_obs = 600 
 # num_obs = 1000 
-num_obs = None 
+# num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
@@ -193,8 +193,8 @@ for fold in range(num_folds):
     # Initialize models
     encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,n_layers=n_layers)
     encoder_var = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,n_layers=n_layers)
-    predict = Prediction(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars), input_size=len(generate_nums))
-    predict_output = Prediction(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars), input_size=len(generate_nums))
+    predict = Prediction(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars), input_size=len(generate_nums) + len(vars))
+    predict_output = Prediction(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars), input_size=len(generate_nums) + len(vars))
     generate = GenerateNode(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars), embedding_size=embedding_size)
     merge = Merge(hidden_size=hidden_size, embedding_size=embedding_size)
 
