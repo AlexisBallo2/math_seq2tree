@@ -674,7 +674,9 @@ class XToQ(nn.Module):
                 qkt = torch.matmul(xs[j], self.K(hidden2[i]).transpose(0,1))
                 smqkt = nn.functional.softmax(qkt)
                 output = torch.sigmoid(torch.matmul(smqkt, self.V(hidden2[i])))
-                qs.append(output)
+                # qs.append(output)
+                output_zeros = torch.zeros(output.size()).to(output.device)
+                qs.append(output_zeros)
                 # qs.append(problem_q[i])
             # need to change later
             qs = torch.stack(qs)#.transpose(0,1)
