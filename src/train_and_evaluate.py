@@ -732,7 +732,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
         # # xs = get_all_number_encoder_outputs(encoder_outputs, var_pos, batch_size, var_size, models['encoder'].hidden_size)
         # # padd the xs in the first dim to match the length of variables
         if (num_x) < len(vars):
-            padding = torch.zeros(1, len(vars) - num_x, 512)
+            padding = torch.zeros(1, len(vars) - num_x, 1024)
             qs = torch.cat((qs, padding.to(device)), dim=1).to(device)
         if num_x > len(vars):
             qs = qs[:, :len(vars), :]

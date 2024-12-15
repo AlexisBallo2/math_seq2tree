@@ -37,7 +37,7 @@ else:
 # batch_size = 30 
 batch_size = 64 
 embedding_size = 128
-hidden_size = 512
+hidden_size = 1024
 # n_epochs = 3 
 # n_epochs = 10 
 n_epochs = 20 
