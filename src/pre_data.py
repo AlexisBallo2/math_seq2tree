@@ -586,6 +586,19 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
         # if "14" in equationTargetVars:
         #     print()
         # pairs.append((input_seq, final_out_seq_list, nums, num_pos, allVars, equationTargetVars, targets, pairNumMapping))
+        # combined_out_seq = []
+        # for i, out_seq in enumerate(final_out_seq_list):
+        #     if i == 0:
+        #         combined_out_seq += out_seq
+        #     if i< len(final_out_seq_list) - 1:
+        #         combined_out_seq += ["="]
+        #         combined_out_seq += out_seq
+        #     # combined_out_seq += out_seq
+        
+        # combined_target_vars = ["0"]
+        # for target_var in equationTargetVars:
+        #     combined_target_vars.append(target_var)
+
         pairs.append({
             "input_seq": input_seq,
             "equations": final_out_seq_list,

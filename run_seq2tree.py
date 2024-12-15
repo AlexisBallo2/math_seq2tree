@@ -112,6 +112,11 @@ temp_pairs = []
 for p in pairs:
     # input_seq, prefixed equation, nums, num_pos
     p['equations'] = [from_infix_to_prefix(equ) for equ in p['equations']]
+    equ_with_equals = []
+    for equ in p['equations']:
+        equ_with_equals += equ
+    p['equations'] = [equ_with_equals]
+    p['equationTargetVars'] = ["0"]
     # temp_pairs.append((p[0], equations, p[2], p[3], p[4], p[5], p[6], p[7]))
 # pairs = temp_pairs
 

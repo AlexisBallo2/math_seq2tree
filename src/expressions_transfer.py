@@ -45,7 +45,7 @@ def construct_exp_tree(postfix):
 def from_infix_to_postfix(expression):
     st = list()
     res = list()
-    priority = {"+": 0, "-": 0, "*": 1, "/": 1, "^": 2}
+    priority = {"+": 0, "-": 0, "*": 1, "/": 1, "^": 2, "=": 3}
     for e in expression:
         if e in ["(", "["]:
             st.append(e)
@@ -73,7 +73,7 @@ def from_infix_to_postfix(expression):
 def from_infix_to_prefix(expression):
     st = list()
     res = list()
-    priority = {"+": 0, "-": 0, "*": 1, "/": 1, "^": 2}
+    priority = {"+": 0, "-": 0, "*": 1, "/": 1, "^": 2, "=" : 3}
     expression = deepcopy(expression)
     expression.reverse()
     # Shunting Yard Algorithm
@@ -170,7 +170,7 @@ def compute_postfix_expression(post_fix):
 
 def compute_prefix_expression(pre_fix):
     st = list()
-    operators = ["+", "-", "^", "*", "/"]
+    operators = ["+", "-", "^", "*", "/", "="]
     pre_fix = deepcopy(pre_fix)
     pre_fix.reverse()
     for p in pre_fix:
@@ -221,7 +221,7 @@ def compute_prefix_expression(pre_fix):
 def from_prefix_to_infix(prefix):
     try:
         stack = []
-        operators = set(['+', '-', '*', '/'])
+        operators = set(['+', '-', '*', '/', "="])
 
         for token in reversed(prefix):
             if token not in operators:
