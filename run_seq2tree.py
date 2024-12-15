@@ -34,13 +34,14 @@ else:
 
 # batch_size = 2 
 # batch_size = 10
-# batch_size = 30 
-batch_size = 64 
+batch_size = 30 
+# batch_size = 64 
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 3 
 # n_epochs = 10 
-n_epochs = 20 
+# n_epochs = 20 
+n_epochs = 40 
 learning_rate = 1e-3 
 # learning_rate = 1e-3 
 # learning_rate = 1e-3 

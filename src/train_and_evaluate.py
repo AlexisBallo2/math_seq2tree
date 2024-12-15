@@ -497,8 +497,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
         if USE_CUDA:
             # all_leafs = all_leafs.cuda()
-            all_node_outputs = all_node_outputs.cuda()
-            target = target.cuda()
+            # all_node_outputs = all_node_outputs.cuda()
+            # target = target.cuda()
             new_all_sa_outputs = []
             for sa_pair in all_sa_outputs:
                 new_all_sa_outputs.append((sa_pair[0].cuda(),sa_pair[1].cuda()))
