@@ -62,6 +62,16 @@ useCustom = True
 # setName = "MATH"
 setName = "DRAW"
 
+useSubMethod = True
+# useSubMethod = False
+
+useSemanticAlignment = True
+# useSemanticAlignment = False
+
+useOneEquation = True
+# useOneEquation = False
+
+
 # decide if we must be able to solve equation
 useEquSolutions = True
 # useEquSolutions = False 
@@ -77,7 +87,10 @@ config = {
     "n_layers": n_layers,
     "useCustom": useCustom,
     "setName" : setName,
-    "title" : title
+    "title" : title,
+    "useSubMethod": useSubMethod,
+    "useSemanticAlignment": useSemanticAlignment,
+    "useOneEquation": useOneEquation
 }
 print("CONFIG \n", config)
 os.makedirs("models", exist_ok=True)
@@ -97,7 +110,7 @@ if num_obs:
 # "ans":"80"
 # }'
 
-pairs, generate_nums, copy_nums, vars = transfer_num(data, setName, useCustom, useEquSolutions)
+pairs, generate_nums, copy_nums, vars = transfer_num(data, setName, useCustom, useEquSolutions, useSubMethod)
 if num_obs:
     pairs = pairs[0:num_obs]
 # pairs: list of tuples:
@@ -112,12 +125,12 @@ temp_pairs = []
 for p in pairs:
     # input_seq, prefixed equation, nums, num_pos
     p['equations'] = [from_infix_to_prefix(equ) for equ in p['equations']]
-    equ_with_equals = []
-    for equ in p['equations']:
-        equ_with_equals += equ
-    p['equations'] = [equ_with_equals]
-    p['equationTargetVars'] = ["0"]
-    # temp_pairs.append((p[0], equations, p[2], p[3], p[4], p[5], p[6], p[7]))
+    if useOneEquation:
+        equ_with_equals = []
+        for equ in p['equations']:
+            equ_with_equals += equ
+        p['equations'] = [equ_with_equals]
+        p['equationTargetVars'] = ["0"]
 # pairs = temp_pairs
 
 
@@ -332,7 +345,7 @@ for fold in range(num_folds):
             loss, acc, num_x_mse, comparison = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
-                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], useCustom, vars, debug, setName)
+                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], useCustom, vars, debug, setName, useSemanticAlignment)
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             train_comparison.append(comparison)

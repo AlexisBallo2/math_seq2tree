@@ -139,7 +139,7 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
 
 # @line_profiler.profile
-def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets,var_pos, useCustom, all_vars,  debug, setName, english=False):
+def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets,var_pos, useCustom, all_vars,  debug, setName, useSemanticAlignment, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -553,10 +553,16 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
             # print('acc', cur_same/cur_len)
         if total_loss != None:
-            total_loss += current_equation_loss + 0.01 * total_semanti_alognment_loss
+            if useSemanticAlignment:
+                total_loss += current_equation_loss + 0.01 * total_semanti_alognment_loss
+            else:
+                total_loss += current_equation_loss
             # total_loss += current_equation_loss_before.mean()
         else:
-            total_loss = current_equation_loss + 0.01 * total_semanti_alognment_loss
+            if useSemanticAlignment:
+                total_loss = current_equation_loss + 0.01 * total_semanti_alognment_loss
+            else:
+                total_loss = current_equation_loss
             # total_loss = current_equation_loss_before.mean()
         total_acc += [same/lengths]
     

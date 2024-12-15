@@ -333,7 +333,7 @@ def load_raw_data(filename):  # load the json data to list(dict()) for MATH 23K
 #     return test_str
 
 variableHierarchy = ['X', 'Y', 'Z']
-def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num into "NUM"
+def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod):  # transfer num into "NUM"
     print("Transfer numbers...")
     # number regex
     # pattern = re.compile("\d*\(\d+/\d+\)\d*|\d+\.\d+%?|\d+%?")
@@ -565,15 +565,22 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
                     # outputEquation.append()
 
                     # equationTargetVars.append(outputEquation[-1])
-                    # equationTargetVars.append(outputEquation[-1])
-                    equationTargetVars.append("0")
-                    
-                    final_out_seq_list.append(outputEquation[:-2] + ["-", outputEquation[-1]])
+                    if useSubMethod:
+                        equationTargetVars.append("0")
+                        final_out_seq_list.append(outputEquation[:-2] + ["-", outputEquation[-1]])
+                    else:
+                        equationTargetVars.append(outputEquation[-1])
+                        final_out_seq_list.append(outputEquation[:-2])
+
                 elif outputEquation[1] == "=":
 
                     # equationTargetVars.append(outputEquation[0])
-                    equationTargetVars.append("0")
-                    final_out_seq_list.append(outputEquation[2:] + ["-", outputEquation[0]])
+                    if useSubMethod:
+                        equationTargetVars.append("0")
+                        final_out_seq_list.append(outputEquation[2:] + ["-", outputEquation[0]])
+                    else:
+                        equationTargetVars.append(outputEquation[0])
+                        final_out_seq_list.append(outputEquation[2:])
 
                 else:
                     continue
@@ -583,21 +590,6 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
         # out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
         # nums: list of numbers in the text
         # num_pos: list of positions of the numbers in the text
-        # if "14" in equationTargetVars:
-        #     print()
-        # pairs.append((input_seq, final_out_seq_list, nums, num_pos, allVars, equationTargetVars, targets, pairNumMapping))
-        # combined_out_seq = []
-        # for i, out_seq in enumerate(final_out_seq_list):
-        #     if i == 0:
-        #         combined_out_seq += out_seq
-        #     if i< len(final_out_seq_list) - 1:
-        #         combined_out_seq += ["="]
-        #         combined_out_seq += out_seq
-        #     # combined_out_seq += out_seq
-        
-        # combined_target_vars = ["0"]
-        # for target_var in equationTargetVars:
-        #     combined_target_vars.append(target_var)
 
         pairs.append({
             "input_seq": input_seq,
