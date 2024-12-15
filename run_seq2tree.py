@@ -34,13 +34,14 @@ else:
 
 # batch_size = 2 
 # batch_size = 10
-# batch_size = 30 
-batch_size = 64 
+batch_size = 30 
+# batch_size = 64 
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 3 
 # n_epochs = 10 
-n_epochs = 20 
+# n_epochs = 20 
+n_epochs = 40 
 learning_rate = 1e-3 
 # learning_rate = 1e-3 
 # learning_rate = 1e-3 
@@ -113,10 +114,10 @@ for p in pairs:
     # input_seq, prefixed equation, nums, num_pos
     p['equations'] = [from_infix_to_prefix(equ) for equ in p['equations']]
     equ_with_equals = []
-    for equ in p['equations']:
-        equ_with_equals += equ
-    p['equations'] = [equ_with_equals]
-    p['equationTargetVars'] = ["0"]
+    # for equ in p['equations']:
+    #     equ_with_equals += equ
+    # p['equations'] = [equ_with_equals]
+    # p['equationTargetVars'] = ["0"]
     # temp_pairs.append((p[0], equations, p[2], p[3], p[4], p[5], p[6], p[7]))
 # pairs = temp_pairs
 
