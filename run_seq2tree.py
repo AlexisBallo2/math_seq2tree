@@ -207,6 +207,8 @@ for fold in range(num_folds):
     x_generate = GenerateXs(hidden_size=hidden_size, output_size=5, batch_size=batch_size)
     x_to_q = XToQ(hidden_size=hidden_size)
 
+    sementic_alignment = Seq2TreeSemanticAlignment(encoder_hidden_size=hidden_size, decoder_hidden_size=hidden_size, hidden_size=hidden_size)
+
 
     models = {
         "encoder": encoder,
@@ -217,7 +219,8 @@ for fold in range(num_folds):
         "merge": merge,
         "num_x_predict": num_x_predict,
         "q_generate": x_generate,
-        "q_to_x": x_to_q
+        "q_to_x": x_to_q,
+        "sementic_alignment": sementic_alignment
     }
 
     debug = {
@@ -235,6 +238,8 @@ for fold in range(num_folds):
     num_x_predict_optimizer = torch.optim.Adam(num_x_predict.parameters(), lr=learning_rate, weight_decay=weight_decay)
     x_generate_optimizer = torch.optim.Adam(x_generate.parameters(), lr=learning_rate, weight_decay=weight_decay)
     x_to_q_optimizer = torch.optim.Adam(x_to_q.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    sementic_alignment_optimizer = torch.optim.Adam(sementic_alignment.parameters(), lr=learning_rate, weight_decay=weight_decay)
+
 
     optimizers = [
         encoder_optimizer,
@@ -245,7 +250,8 @@ for fold in range(num_folds):
         merge_optimizer,
         num_x_predict_optimizer,
         x_generate_optimizer,
-        x_to_q_optimizer
+        x_to_q_optimizer,
+        sementic_alignment_optimizer
     ]
 
     encoder_scheduler = torch.optim.lr_scheduler.StepLR(encoder_optimizer, step_size=20, gamma=0.5)
@@ -257,6 +263,7 @@ for fold in range(num_folds):
     num_x_predict_scheduler = torch.optim.lr_scheduler.StepLR(num_x_predict_optimizer, step_size=20, gamma=0.5)
     x_generate_scheduler = torch.optim.lr_scheduler.StepLR(x_generate_optimizer, step_size=20, gamma=0.5)
     x_to_q_scheduler = torch.optim.lr_scheduler.StepLR(x_to_q_optimizer, step_size=20, gamma=0.5)
+    sementic_alignment_scheduler = torch.optim.lr_scheduler.StepLR(sementic_alignment_optimizer, step_size=20, gamma=0.5)
 
     schedulers = [
         encoder_scheduler,
@@ -267,7 +274,8 @@ for fold in range(num_folds):
         merge_scheduler,
         num_x_predict_scheduler,
         x_generate_scheduler,
-        x_to_q_scheduler
+        x_to_q_scheduler,
+        sementic_alignment_scheduler
     ]
 
     # Move models to GPU

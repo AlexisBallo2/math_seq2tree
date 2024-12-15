@@ -693,3 +693,89 @@ class XToQ(nn.Module):
                 
         output = torch.stack(finals)
         return output
+
+
+
+# Attention:
+class Attn2(nn.Module):
+    def __init__(self, hidden_size, batch_first=False, bidirectional_encoder=True):
+        super(Attn2, self).__init__()
+        self.hidden_size = hidden_size
+        self.batch_first = batch_first
+        self.bidirectional_encoder = bidirectional_encoder
+        if self.bidirectional_encoder:
+            self.attn = nn.Linear(hidden_size * 2, hidden_size)
+        else:
+            self.attn = nn.Linear(hidden_size, hidden_size)
+        self.score = nn.Linear(hidden_size, 1, bias=False)
+        self.softmax = nn.Softmax(dim=1)
+
+    def forward(self, hidden, encoder_outputs, seq_mask=None):
+        if self.batch_first:  # B x S x H
+            max_len = encoder_outputs.size(1)
+            repeat_dims = [1] * hidden.dim()
+            repeat_dims[1] = max_len
+        else:  # S x B x H
+            max_len = encoder_outputs.size(0)
+            repeat_dims = [1] * hidden.dim()
+            repeat_dims[0] = max_len
+        # batch_first: False S x B x H
+        # batch_first: True B x S x H
+        hidden = hidden.repeat(*repeat_dims)  # Repeats this tensor along the specified dimensions
+
+        # For each position of encoder outputs
+        if self.batch_first:
+            batch_size = encoder_outputs.size(0)
+        else:
+            batch_size = encoder_outputs.size(1)
+        # (B x S) x (2 x H) or (S x B) x (2 x H)
+        energy_in = torch.cat((hidden, encoder_outputs), 2).view(-1, 2 * self.hidden_size)
+        attn_energies = self.score(torch.tanh(self.attn(energy_in)))  # (S x B) x 1 or (B x S) x 1
+        attn_energies = attn_energies.squeeze(1)  # (S x B) or (B x S)
+        if self.batch_first:
+            attn_energies = attn_energies.view(batch_size, max_len)  # B x S
+        else:
+            attn_energies = attn_energies.view(max_len, batch_size).transpose(0, 1)  # B x S
+        if seq_mask is not None:
+            attn_energies = attn_energies.masked_fill_(seq_mask.bool(), -1e12)
+        # Normalize energies to weights in range 0 to 1, resize to B x 1 x S
+        attn_energies = self.softmax(attn_energies)
+        return attn_energies.unsqueeze(1)
+
+
+class Seq2TreeSemanticAlignment(nn.Module):
+    def __init__(self, encoder_hidden_size, decoder_hidden_size, hidden_size, batch_first=False, bidirectional_encoder=True):
+        super(Seq2TreeSemanticAlignment, self).__init__()
+        self.batch_first = batch_first
+        self.attn = Attn2(encoder_hidden_size,batch_first=batch_first,bidirectional_encoder=bidirectional_encoder)
+        self.encoder_linear1 = nn.Linear(encoder_hidden_size, hidden_size)
+        self.encoder_linear2 = nn.Linear(hidden_size, hidden_size)
+
+        self.decoder_linear1 = nn.Linear(decoder_hidden_size, hidden_size)
+        self.decoder_linear2 = nn.Linear(hidden_size, hidden_size)
+
+    def forward(self,  decoder_hidden, encoder_outputs):
+        # print(decoder_hidden.size())
+        # print(encoder_outputs.size())
+        if self.batch_first:
+            decoder_hidden = decoder_hidden.unsqueeze(0)
+            encoder_outputs = encoder_outputs.unsqueeze(0)
+        else:
+            decoder_hidden = decoder_hidden.unsqueeze(0)
+            encoder_outputs = encoder_outputs.unsqueeze(1)
+        attn_weights = self.attn(decoder_hidden, encoder_outputs, None)
+        if self.batch_first:
+            align_context = attn_weights.bmm(encoder_outputs) # B x 1 x H
+        else:
+            align_context = attn_weights.bmm(encoder_outputs.transpose(0, 1))  # B x 1 x H
+            align_context = align_context.transpose(0,1)
+
+        encoder_linear1 = torch.tanh(self.encoder_linear1(align_context))
+        encoder_linear2 = self.encoder_linear2(encoder_linear1)
+
+        decoder_linear1 = torch.tanh(self.decoder_linear1(decoder_hidden))
+        decoder_linear2 = self.decoder_linear2(decoder_linear1)
+
+        return encoder_linear2, decoder_linear2
+
+

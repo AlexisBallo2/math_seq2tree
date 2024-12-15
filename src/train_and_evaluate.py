@@ -303,6 +303,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
         pred_equ_solutions = [None for _ in range(batch_size)]
 
+        all_sa_outputs = []
+
         for t in range(max_target_length):
 
             # predict gets the encodings and embeddings for the current node 
@@ -406,6 +408,9 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                         # contains equation (13)
                         # this combines a left and right tree along with a node
                         current_num = models['merge'](op.embedding, sub_stree.embedding, current_num)
+                        temp_encoder_outputs = encoder_outputs.transpose(0,1)
+                        encoder_mapping, decoder_mapping = models['sementic_alignment'](current_num, temp_encoder_outputs[idx])
+                        all_sa_outputs.append((encoder_mapping, decoder_mapping))
                         #print('merged. o now of size', len(o))
                     # then re-add the node back to the stack
                     #print("adding current_num to o (terminal node)")
@@ -489,6 +494,26 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             })
             # print('same', cur_same, 'length', cur_len)
 
+
+        if USE_CUDA:
+            # all_leafs = all_leafs.cuda()
+            all_node_outputs = all_node_outputs.cuda()
+            target = target.cuda()
+            new_all_sa_outputs = []
+            for sa_pair in all_sa_outputs:
+                new_all_sa_outputs.append((sa_pair[0].cuda(),sa_pair[1].cuda()))
+            all_sa_outputs = new_all_sa_outputs
+
+        semantic_alignment_loss = nn.MSELoss()
+        total_semanti_alognment_loss = 0
+        sa_len = len(all_sa_outputs)
+        for sa_pair in all_sa_outputs:
+            total_semanti_alognment_loss += semantic_alignment_loss(sa_pair[0],sa_pair[1])
+        # print(total_semanti_alognment_loss)
+        total_semanti_alognment_loss = total_semanti_alognment_loss / sa_len
+        # print(total_semanti_alognment_loss)
+
+
         # for i, batch in enumerate(all_node_outputs2):
         #     vals = []
         #     # print('coming equ length', equ_length)
@@ -528,10 +553,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
             # print('acc', cur_same/cur_len)
         if total_loss != None:
-            total_loss += current_equation_loss
+            total_loss += current_equation_loss + 0.01 * total_semanti_alognment_loss
             # total_loss += current_equation_loss_before.mean()
         else:
-            total_loss = current_equation_loss
+            total_loss = current_equation_loss + 0.01 * total_semanti_alognment_loss
             # total_loss = current_equation_loss_before.mean()
         total_acc += [same/lengths]
     
