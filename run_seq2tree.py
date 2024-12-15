@@ -410,10 +410,10 @@ for fold in range(num_folds):
                         if i < len(predicted):
                             if actual[i] == predicted[i]:
                                 same += 1
-                    if setName == "DRAW":
-                        lengths += 1
-                        if pred_token == test_batch['equationTargetVars'][equ_count]:
-                            same += 1
+                    # if setName == "DRAW":
+                    #     lengths += 1
+                    #     if pred_token == test_batch['equationTargetVars'][equ_count]:
+                    #         same += 1
 
                 print('equation strings', equation_strings)
                 if setName == "DRAW":
