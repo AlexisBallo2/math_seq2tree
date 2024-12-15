@@ -340,8 +340,8 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
     pattern = re.compile("-?\d*\(\d+/\d+\)\d*|-?\d+\.\d+%?|-?\d+%?")
     var_pattern = re.compile("([xyz])(?:[\+\-\*/])([xyz])(?:\s*=\s*\d+)?")
     pairs = []
-    generate_nums = []
-    generate_nums_dict = {}
+    generate_nums = ["0"]
+    generate_nums_dict = {"0": 10}
     vars = []
     copy_nums = 0
     for d in data:
@@ -561,11 +561,19 @@ def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num in
             for outputEquation in out_seq:
                 # only want equations in this form
                 if outputEquation[-2] == "=":
-                    equationTargetVars.append(outputEquation[-1])
-                    final_out_seq_list.append(outputEquation[:-2])
+                    # outputEquation += ["-", outputEquation[-1]]
+                    # outputEquation.append()
+
+                    # equationTargetVars.append(outputEquation[-1])
+                    # equationTargetVars.append(outputEquation[-1])
+                    equationTargetVars.append("0")
+                    
+                    final_out_seq_list.append(outputEquation[:-2] + ["-", outputEquation[-1]])
                 elif outputEquation[1] == "=":
-                    equationTargetVars.append(outputEquation[0])
-                    final_out_seq_list.append(outputEquation[2:])
+
+                    # equationTargetVars.append(outputEquation[0])
+                    equationTargetVars.append("0")
+                    final_out_seq_list.append(outputEquation[2:] + ["-", outputEquation[0]])
 
                 else:
                     continue
