@@ -248,6 +248,32 @@ class EncoderSeq(nn.Module):
         return pade_outputs, problem_output
 
 
+class TokenIrrevalant(nn.Module):
+    def __init__(self, hidden_size, output_size, dropout=0.5):
+        super(TokenIrrevalant, self).__init__()
+
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+        self.dropout = dropout
+
+        self.em_dropout = nn.Dropout(dropout)
+        self.out = nn.Linear(hidden_size * 2 , 1)
+    def forward(self, hidden, goal_vect):
+        # hidden = batch_size x num embeddings x hidden_size 
+        hidden = self.em_dropout(hidden)
+
+        # g_expanded = goal_vect.unsqueeze(0).unsqueeze(0).expand(hidden.shape[0], hidden.shape[1], hidden.shape[2])
+        g_expanded = goal_vect.repeat(1, hidden.shape[1], 1)
+
+        # Concatenate q to hidden along the hidden_size dimension
+        hidden_with_g = torch.cat((hidden, g_expanded), dim=2)
+        # concat goal_vect to every hidden
+        concatted = torch.sigmoid(self.out(hidden_with_g))
+        return concatted
+
+
+
+
 class Prediction(nn.Module):
     # a seq2tree decoder with Problem aware dynamic encoding
 
@@ -274,6 +300,8 @@ class Prediction(nn.Module):
 
         self.attn = TreeAttn(hidden_size, hidden_size)
         self.score = Score(hidden_size * 2, hidden_size)
+
+        self.irr = TokenIrrevalant(hidden_size, 2, dropout)
 
     # @line_profiler.profile  
     def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, xs, seq_mask, mask_nums, useCustom, debug, useSeperateVars):
@@ -369,8 +397,13 @@ class Prediction(nn.Module):
             embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
 
 
-        # if debug['active']:
-        #     print()
+
+        # get if the tokens are relevant to the problem
+        relavelant = self.irr(embedding_weight, current_node)
+        repeated = relavelant.repeat(1, 1, self.hidden_size)
+        embedding_weight = embedding_weight * repeated 
+        # print()
+
 
 
         # get the embedding of a leaf
