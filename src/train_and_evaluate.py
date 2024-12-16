@@ -319,7 +319,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             #   embedding_weight: batch_size x num_length x hidden_size
             #       embeddings of the generate and copy numbers
 
-            num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict'](node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug, useSeperateVars)
+            num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict'](node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug, useSeperateVars, ith_equation_goal)
 
 
             # this is mainly what we want to train
@@ -710,7 +710,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
                 # left_childs = torch.stack(b.left_childs)
                 left_childs = b.left_childs
 
-                num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict']( b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug, useSeperateVars)
+                num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict']( b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug, useSeperateVars, ith_equation_goal)
 
                 # leaf = p_leaf[:, 0].unsqueeze(1)
                 # repeat_dims = [1] * leaf.dim()
@@ -797,7 +797,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
             if flag:
                 break
 
-        num_score_temp, op_temp, _, _, _ = models['predict_output']([beams[0].node_stack[-1]], [None for i in range(len([beams[0].node_stack[-1]]))], encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug, useSeperateVars)
+        num_score_temp, op_temp, _, _, _ = models['predict_output']([beams[0].node_stack[-1]], [None for i in range(len([beams[0].node_stack[-1]]))], encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug, useSeperateVars, ith_equation_goal)
         possible_tokens = torch.cat((op_temp, num_score_temp), 1)
         final_beams.append([beams[0].out, possible_tokens.argmax(dim=1)])
     return final_beams, num_x 

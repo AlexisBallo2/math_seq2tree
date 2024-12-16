@@ -263,7 +263,7 @@ class TokenIrrevalant(nn.Module):
         hidden = self.em_dropout(hidden)
 
         # g_expanded = goal_vect.unsqueeze(0).unsqueeze(0).expand(hidden.shape[0], hidden.shape[1], hidden.shape[2])
-        g_expanded = goal_vect.repeat(1, hidden.shape[1], 1)
+        g_expanded = goal_vect.unsqueeze(1).repeat(1, hidden.shape[1], 1)
 
         # Concatenate q to hidden along the hidden_size dimension
         hidden_with_g = torch.cat((hidden, g_expanded), dim=2)
@@ -304,7 +304,7 @@ class Prediction(nn.Module):
         self.irr = TokenIrrevalant(hidden_size, 2, dropout)
 
     # @line_profiler.profile  
-    def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, xs, seq_mask, mask_nums, useCustom, debug, useSeperateVars):
+    def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, xs, seq_mask, mask_nums, useCustom, debug, useSeperateVars, all_q):
         # node_stacks: [TreeNodes] for each node containing the hidden state for the node
         # left_childs: [] of 
         # encoder_outputs: token embeddings: max_len x num_batches x hidden state 
@@ -399,7 +399,7 @@ class Prediction(nn.Module):
 
 
         # get if the tokens are relevant to the problem
-        relavelant = self.irr(embedding_weight, current_node)
+        relavelant = self.irr(embedding_weight, all_q)
         repeated = relavelant.repeat(1, 1, self.hidden_size)
         embedding_weight = embedding_weight * repeated 
         # print()
