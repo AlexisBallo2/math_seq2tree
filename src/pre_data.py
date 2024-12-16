@@ -104,10 +104,10 @@ class Lang:
         for i, j in enumerate(self.index2word):
             self.word2index[j] = i
 
-    def build_output_lang_for_tree(self, generate_num, copy_nums, vars, useCustom):  # build the output lang vocab and dict
+    def build_output_lang_for_tree(self, generate_num, copy_nums, vars, useCustom, useSeperateVars):  # build the output lang vocab and dict
         self.num_start = len(self.index2word)
 
-        if useCustom:
+        if useCustom and useSeperateVars:
             self.index2word = self.index2word + generate_num + vars + ["N" + str(i) for i in range(copy_nums)] + ["UNK"]
         else:
             self.index2word = self.index2word + generate_num + ["N" + str(i) for i in range(copy_nums)] + ["UNK"]
@@ -895,7 +895,7 @@ def indexes_from_sentence(lang, sentence, tree=False):
     return res
 
 
-def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, copy_nums, vars, useCustom, tree=False):
+def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, copy_nums, vars, useCustom, useSeperateVars, tree=False):
     input_lang = Lang()
     output_lang = Lang()
     train_pairs = []
@@ -923,7 +923,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
 
 
     # remove the variable tokens. we want to control where they go
-    if useCustom:
+    if useCustom and useSeperateVars:
         for var in vars:
             output_lang.remove_token_from_vocab(var)
 
@@ -932,7 +932,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
     # hard coded to true
     if tree:
         # lang is the current lang + generate_nums array + N{i} (for each copy_num)
-        output_lang.build_output_lang_for_tree(generate_nums, copy_nums, vars, useCustom)
+        output_lang.build_output_lang_for_tree(generate_nums, copy_nums, vars, useCustom, useSeperateVars)
     else:
         # same but has pad, eos, unk tokens
         output_lang.build_output_lang(generate_nums, copy_nums)

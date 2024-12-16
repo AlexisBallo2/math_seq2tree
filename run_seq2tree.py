@@ -40,8 +40,8 @@ embedding_size = 128
 hidden_size = 512
 # n_epochs = 3 
 # n_epochs = 10 
-# n_epochs = 20 
-n_epochs = 40 
+n_epochs = 20 
+# n_epochs = 40 
 learning_rate = 1e-3 
 # learning_rate = 1e-3 
 # learning_rate = 1e-3 
@@ -71,6 +71,9 @@ useSemanticAlignment = True
 
 useOneEquation = True
 # useOneEquation = False
+
+# useSeperateVars = True
+useSeperateVars = False
 
 
 # decide if we must be able to solve equation
@@ -189,7 +192,7 @@ for fold in range(num_folds):
         else:
             pairs_trained += fold_pairs[fold_t]
 
-    input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums, copy_nums, vars, useCustom, tree=True)
+    input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums, copy_nums, vars, useCustom, useSeperateVars, tree=True)
     # all_pairs = train_pairs + test_pairs
     # out = []
     # for pair in all_pairs:
@@ -212,9 +215,14 @@ for fold in range(num_folds):
     # Initialize models
     encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,n_layers=n_layers)
     encoder_var = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,n_layers=n_layers)
-    predict = Prediction(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars), input_size=len(generate_nums))
-    predict_output = Prediction(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars), input_size=len(generate_nums))
-    generate = GenerateNode(hidden_size=hidden_size, op_nums=output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars), embedding_size=embedding_size)
+    if useSeperateVars:
+        op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars)
+    else:
+        op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums)
+
+    predict = Prediction(hidden_size=hidden_size, op_nums=op_nums, input_size=len(generate_nums))
+    predict_output = Prediction(hidden_size=hidden_size, op_nums=op_nums, input_size=len(generate_nums))
+    generate = GenerateNode(hidden_size=hidden_size, op_nums=op_nums, embedding_size=embedding_size)
     merge = Merge(hidden_size=hidden_size, embedding_size=embedding_size)
 
     num_x_predict = PredictNumX(hidden_size=hidden_size, output_size=4, batch_size=batch_size)
@@ -346,7 +354,7 @@ for fold in range(num_folds):
             loss, acc, num_x_mse, comparison = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
-                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], useCustom, vars, debug, setName, useSemanticAlignment)
+                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars)
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             train_comparison.append(comparison)
@@ -384,7 +392,7 @@ for fold in range(num_folds):
             batch_eval_comparison = []
             for test_batch in test_pairs:
                 start = time.perf_counter()
-                test_res, pred_num_x = evaluate_tree(test_batch['input_cell'], test_batch['input_len'], generate_num_ids, models, input_lang, output_lang, test_batch['num_pos'], vars, useCustom, debug, beam_size=beam_size)
+                test_res, pred_num_x = evaluate_tree(test_batch['input_cell'], test_batch['input_len'], generate_num_ids, models, input_lang, output_lang, test_batch['num_pos'], vars, useCustom, debug, useSemanticAlignment, useSeperateVars, beam_size=beam_size)
                 end = time.perf_counter()
                 test_time_array.append([1, end - start])
                 lengths = 0

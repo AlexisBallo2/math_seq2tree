@@ -139,7 +139,7 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
 
 # @line_profiler.profile
-def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets,var_pos, useCustom, all_vars,  debug, setName, useSemanticAlignment, english=False):
+def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets,var_pos, useCustom, all_vars,  debug, setName, useSemanticAlignment, useSeperateVars, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -182,14 +182,14 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # number mask 
     # 0s where the numbers are from input, 1s where not in input
     num_mask = []
-    if useCustom:
+    if useCustom and useSeperateVars:
         max_num_size = max(num_size_batch) + len(generate_nums) + len(all_vars) 
     else:
         max_num_size = max(num_size_batch) + len(generate_nums) 
     # in language its 
     # operators + gen numbers + vars + copy numbers
     for i, num_size in enumerate(num_size_batch):
-        if useCustom:
+        if useCustom and useSeperateVars:
             d = num_size + len(problem_vars[i].tolist()) + len(generate_nums)
             num_mask.append([0] * len(generate_nums) + problem_vars[i].tolist() + [0] * num_size + [1] * (max_num_size - d))
         else:
@@ -319,7 +319,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             #   embedding_weight: batch_size x num_length x hidden_size
             #       embeddings of the generate and copy numbers
 
-            num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict'](node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug)
+            num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict'](node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug, useSeperateVars)
 
 
             # this is mainly what we want to train
@@ -504,14 +504,19 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 new_all_sa_outputs.append((sa_pair[0].cuda(),sa_pair[1].cuda()))
             all_sa_outputs = new_all_sa_outputs
 
-        semantic_alignment_loss = nn.MSELoss()
-        total_semanti_alognment_loss = 0
-        sa_len = len(all_sa_outputs)
-        for sa_pair in all_sa_outputs:
-            total_semanti_alognment_loss += semantic_alignment_loss(sa_pair[0],sa_pair[1])
-        # print(total_semanti_alognment_loss)
-        total_semanti_alognment_loss = total_semanti_alognment_loss / sa_len
-        # print(total_semanti_alognment_loss)
+
+        if useSemanticAlignment: 
+            semantic_alignment_loss = nn.MSELoss()
+            total_semanti_alognment_loss = 0
+            sa_len = len(all_sa_outputs)
+            for sa_pair in all_sa_outputs:
+                total_semanti_alognment_loss += semantic_alignment_loss(sa_pair[0],sa_pair[1])
+            # print(total_semanti_alognment_loss)
+            try:
+                total_semanti_alognment_loss = total_semanti_alognment_loss / sa_len
+            except:
+                total_semanti_alognment_loss = 0
+            # print(total_semanti_alognment_loss)
 
 
         # for i, batch in enumerate(all_node_outputs2):
@@ -581,7 +586,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     return total_loss.item(), sum(total_acc)/len(total_acc), sum(num_equations_mse)/len(num_equations_mse), comparison
 
 # @line_profiler.profile
-def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, output_lang, num_pos, vars, useCustom, debug, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
+def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, output_lang, num_pos, vars, useCustom, debug, useSemanticAlignment, useSeperateVars, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
 
     # seq_mask = torch.ByteTensor(1, input_length + len(vars)).fill_(0)
     seq_mask = torch.ByteTensor(1, input_length).fill_(0)
@@ -652,7 +657,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
         qs = problem_output
 
     # get qs
-    if useCustom:
+    if useCustom and useSeperateVars:
         xs = models['q_to_x'](encoder_var_outputs, qs, var_output)
         # xs = torch.zeros(1, len(vars), 512)
     else:
@@ -664,7 +669,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
     # max_num_size = num_pos + len(generate_nums) + len(vars) 
     # in language its 
     # operators + gen numbers + vars + copy numbers
-    if useCustom:
+    if useCustom and useSeperateVars:
         num_mask.append([0] * len(generate_nums) + [0] * min(num_x, len(vars)) + [1] * (max(len(vars) - num_x, 0)) + [0] * num_size)
     else:
         num_mask.append([0] * len(generate_nums)  +  [0] * num_size )
@@ -705,7 +710,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
                 # left_childs = torch.stack(b.left_childs)
                 left_childs = b.left_childs
 
-                num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict']( b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug)
+                num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict']( b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug, useSeperateVars)
 
                 # leaf = p_leaf[:, 0].unsqueeze(1)
                 # repeat_dims = [1] * leaf.dim()
@@ -792,7 +797,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
             if flag:
                 break
 
-        num_score_temp, op_temp, _, _, _ = models['predict_output']([beams[0].node_stack[-1]], [None for i in range(len([beams[0].node_stack[-1]]))], encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug)
+        num_score_temp, op_temp, _, _, _ = models['predict_output']([beams[0].node_stack[-1]], [None for i in range(len([beams[0].node_stack[-1]]))], encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug, useSeperateVars)
         possible_tokens = torch.cat((op_temp, num_score_temp), 1)
         final_beams.append([beams[0].out, possible_tokens.argmax(dim=1)])
     return final_beams, num_x 
