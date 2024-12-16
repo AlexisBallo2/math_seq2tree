@@ -271,6 +271,37 @@ class TokenIrrevalant(nn.Module):
         concatted = torch.sigmoid(self.out(hidden_with_g))
         return concatted
 
+class NumOrOpp(nn.Module):
+    def __init__(self, hidden_size, dropout=0.5):
+        super(NumOrOpp, self).__init__()
+
+        self.hidden_size = hidden_size
+        self.dropout = dropout
+
+        self.em_dropout = nn.Dropout(dropout)
+        self.out = nn.Linear(hidden_size, 2)
+        self.padding_hidden = torch.FloatTensor([0.0 for _ in range(hidden_size)])
+    def forward(self, goal_vect):
+        squeezed_goals = goal_vect.squeeze(1)
+        # current_embeddings1 = []
+        # # for each stack of tokens 
+        # # 2 batches = 2 stacks
+        # for st in node_stacks:
+        #     # not sure why would be zero. it's initialized w/ single num each 
+        #     # if it is zero, let that token's embedding be the zero embedding
+        #     if len(st) == 0:
+        #         current_embeddings1.append(self.padding_hidden)
+        #     else:
+        #         # use embedding from the last node in the stack
+        #         current_node = st[-1]
+        #         current_embeddings1.append(current_node.embedding.squeeze())
+
+        # print()
+        # current_embeddings = torch.stack(current_embeddings1)
+        out = self.out(squeezed_goals)
+
+        return out 
+
 
 
 
@@ -398,11 +429,11 @@ class Prediction(nn.Module):
 
 
 
-        # get if the tokens are relevant to the problem
-        relavelant = self.irr(embedding_weight, all_q)
-        repeated = relavelant.repeat(1, 1, self.hidden_size)
-        embedding_weight = embedding_weight * repeated 
-        # print()
+        # # get if the tokens are relevant to the problem
+        # relavelant = self.irr(embedding_weight, all_q)
+        # repeated = relavelant.repeat(1, 1, self.hidden_size)
+        # embedding_weight = embedding_weight * repeated 
+        # # print()
 
 
 

@@ -304,6 +304,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         pred_equ_solutions = [None for _ in range(batch_size)]
 
         all_sa_outputs = []
+        all_num_opp_scale = []
+        actuct_num_or_opp = []
 
         for t in range(max_target_length):
 
@@ -322,8 +324,26 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict'](node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug, useSeperateVars, ith_equation_goal)
 
 
-            # this is mainly what we want to train
-            outputs = torch.cat((op, num_score), 1)
+            # # this is mainly what we want to train
+            # outputs = torch.cat((op, num_score), 1)
+
+            # batch_size x 2 
+            num_or_opp_weight = models['num_or_opp'](current_context)
+            all_num_opp_scale.append(num_or_opp_weight)
+            # batch_size
+            nums_weight = num_or_opp_weight[:, 0].unsqueeze(1) #.repeat(1, num_score.size(1))
+            # batch_size
+            opps_weight = num_or_opp_weight[:, 1].unsqueeze(1)#.transpose(0, -1)#.repeat(1, op.size(1))
+
+            # num_score = 2 x 5
+            # op = 2 x 4
+
+            scaled_num_score = num_score * nums_weight
+            scaled_op = op * opps_weight
+
+            outputs = torch.cat((scaled_op, scaled_num_score), 1)
+
+
 
             # plt.plot(outputs[0].tolist())
             # plt.clf()
@@ -341,6 +361,11 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             #       target_t: actual equation value
             #       generate_input: equation value if its an operator
             target_t, generate_input = generate_tree_input(ith_equation_target[t].tolist(), outputs, ith_equation_num_stacks, num_start, unk)
+            op_or_num = target_t < num_start
+            ones_zeros_tensor = op_or_num.type(target.dtype)
+
+            actuct_num_or_opp.append(ones_zeros_tensor)
+
             ith_equation_target[t] = target_t
             if USE_CUDA:
                 generate_input = generate_input.cuda()
@@ -423,6 +448,18 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                     pred_equ_solutions[idx] = [o[-1]]
                 else:
                     left_childs.append(None)
+
+
+        # loss for the classifier of the operator and number tokens
+        stacked_actual = torch.stack(actuct_num_or_opp)  # B x S x 2
+        stacked_got = torch.stack(all_num_opp_scale)  # B x S x 2
+
+        # loss
+        classify_loss = torch.nn.CrossEntropyLoss(reduction="none")(stacked_got.view(-1, stacked_got.size(2)), stacked_actual.view(-1).to(device)).mean()
+        # actuct_num_or_opp
+        # all_num_opp_scale
+
+
 
 
         # all_leafs = torch.stack(all_leafs, dim=1)  # B x S x 2
@@ -575,7 +612,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     if useCustom:
     # if False:
         num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs.to(device))
-        total_loss += num_x_loss
+        total_loss += num_x_loss + classify_loss
         # total_loss += equation_prediction_loss
 
         # predict a solution token for the tree 
@@ -712,6 +749,23 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
 
                 num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict']( b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug, useSeperateVars, ith_equation_goal)
 
+                            # batch_size x 2 
+                num_or_opp_weight = models['num_or_opp'](current_context)
+                # all_num_opp_scale.append(num_or_opp_weight)
+                # batch_size
+                nums_weight = num_or_opp_weight[:, 0].unsqueeze(1) #.repeat(1, num_score.size(1))
+                # batch_size
+                opps_weight = num_or_opp_weight[:, 1].unsqueeze(1)#.transpose(0, -1)#.repeat(1, op.size(1))
+
+                # num_score = 2 x 5
+                # op = 2 x 4
+
+                scaled_num_score = num_score * nums_weight
+                scaled_op = op * opps_weight
+
+                out_score = nn.functional.log_softmax(torch.cat((scaled_op, scaled_num_score), dim=1), dim=1)
+                # out_score = nn.functional.log_softmax(torch.cat((op, num_score), dim=1), dim=1)
+
                 # leaf = p_leaf[:, 0].unsqueeze(1)
                 # repeat_dims = [1] * leaf.dim()
                 # repeat_dims[1] = op.size(1)
@@ -723,7 +777,9 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
                 # non_leaf = non_leaf.repeat(*repeat_dims)
                 #
                 # p_leaf = torch.cat((leaf, non_leaf), dim=1)
-                out_score = nn.functional.log_softmax(torch.cat((op, num_score), dim=1), dim=1)
+
+
+
 
                 # out_score = p_leaf * out_score
 

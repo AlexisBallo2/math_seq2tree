@@ -32,15 +32,15 @@ else:
 # torch.cuda.manual_seed_all(2)
 # np.random.seed(10)
 
-# batch_size = 2 
+batch_size = 2 
 # batch_size = 10
-batch_size = 30 
+# batch_size = 30 
 # batch_size = 64 
 embedding_size = 128
 hidden_size = 512
-# n_epochs = 3 
+n_epochs = 3 
 # n_epochs = 10 
-n_epochs = 20 
+# n_epochs = 20 
 # n_epochs = 40 
 learning_rate = 1e-3 
 # learning_rate = 1e-3 
@@ -49,11 +49,11 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-# num_obs = 20
+num_obs = 20
 # num_obs = 100
 # num_obs = 600 
 # num_obs = 1000 
-num_obs = None 
+# num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
@@ -230,6 +230,7 @@ for fold in range(num_folds):
     x_to_q = XToQ(hidden_size=hidden_size)
 
     sementic_alignment = Seq2TreeSemanticAlignment(encoder_hidden_size=hidden_size, decoder_hidden_size=hidden_size, hidden_size=hidden_size)
+    num_or_opp = NumOrOpp(512)
 
 
     models = {
@@ -242,7 +243,8 @@ for fold in range(num_folds):
         "num_x_predict": num_x_predict,
         "q_generate": x_generate,
         "q_to_x": x_to_q,
-        "sementic_alignment": sementic_alignment
+        "sementic_alignment": sementic_alignment,
+        "num_or_opp": num_or_opp
     }
 
     debug = {
@@ -261,6 +263,7 @@ for fold in range(num_folds):
     x_generate_optimizer = torch.optim.Adam(x_generate.parameters(), lr=learning_rate, weight_decay=weight_decay)
     x_to_q_optimizer = torch.optim.Adam(x_to_q.parameters(), lr=learning_rate, weight_decay=weight_decay)
     sementic_alignment_optimizer = torch.optim.Adam(sementic_alignment.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    num_or_opp_optimizer = torch.optim.Adam(num_or_opp.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
 
     optimizers = [
@@ -273,7 +276,8 @@ for fold in range(num_folds):
         num_x_predict_optimizer,
         x_generate_optimizer,
         x_to_q_optimizer,
-        sementic_alignment_optimizer
+        sementic_alignment_optimizer,
+        num_or_opp_optimizer
     ]
 
     encoder_scheduler = torch.optim.lr_scheduler.StepLR(encoder_optimizer, step_size=20, gamma=0.5)
@@ -286,6 +290,7 @@ for fold in range(num_folds):
     x_generate_scheduler = torch.optim.lr_scheduler.StepLR(x_generate_optimizer, step_size=20, gamma=0.5)
     x_to_q_scheduler = torch.optim.lr_scheduler.StepLR(x_to_q_optimizer, step_size=20, gamma=0.5)
     sementic_alignment_scheduler = torch.optim.lr_scheduler.StepLR(sementic_alignment_optimizer, step_size=20, gamma=0.5)
+    num_or_opp_scheduler = torch.optim.lr_scheduler.StepLR(num_or_opp_optimizer, step_size=20, gamma=0.5)
 
     schedulers = [
         encoder_scheduler,
@@ -297,7 +302,8 @@ for fold in range(num_folds):
         num_x_predict_scheduler,
         x_generate_scheduler,
         x_to_q_scheduler,
-        sementic_alignment_scheduler
+        sementic_alignment_scheduler,
+        num_or_opp_scheduler
     ]
 
     # Move models to GPU
