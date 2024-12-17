@@ -338,8 +338,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             # num_score = 2 x 5
             # op = 2 x 4
 
-            scaled_num_score = num_score * nums_weight
-            scaled_op = op * opps_weight
+            scaled_num_score = num_score * nums_weight * 10
+            scaled_op = op * opps_weight * 10
 
             outputs = torch.cat((scaled_op, scaled_num_score), 1)
 
@@ -455,7 +455,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         stacked_got = torch.stack(all_num_opp_scale)  # B x S x 2
 
         # loss
-        classify_loss = torch.nn.CrossEntropyLoss(reduction="none")(stacked_got.view(-1, stacked_got.size(2)), stacked_actual.view(-1).to(device)).mean()
+        classify_loss = torch.nn.CrossEntropyLoss(reduction="none")(stacked_got.view(-1, stacked_got.size(2)), stacked_actual.view(-1).to(device)).mean() * 10
         # actuct_num_or_opp
         # all_num_opp_scale
 
@@ -759,9 +759,8 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
 
                 # num_score = 2 x 5
                 # op = 2 x 4
-
-                scaled_num_score = num_score * nums_weight
-                scaled_op = op * opps_weight
+                scaled_num_score = num_score * nums_weight * 10
+                scaled_op = op * opps_weight * 10
 
                 out_score = nn.functional.log_softmax(torch.cat((scaled_op, scaled_num_score), dim=1), dim=1)
                 # out_score = nn.functional.log_softmax(torch.cat((op, num_score), dim=1), dim=1)

@@ -38,7 +38,8 @@ batch_size = 30
 # batch_size = 64 
 embedding_size = 128
 hidden_size = 512
-# n_epochs = 3 
+# n_epochs = 5 
+# n_epochs = 10 
 # n_epochs = 10 
 n_epochs = 20 
 # n_epochs = 40 
@@ -50,6 +51,7 @@ beam_size = 5
 n_layers = 2
 
 # num_obs = 20
+# num_obs = 50
 # num_obs = 100
 # num_obs = 600 
 # num_obs = 1000 
