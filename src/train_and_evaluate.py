@@ -139,7 +139,7 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
 
 # @line_profiler.profile
-def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets,var_pos, useCustom, all_vars,  debug, setName, useSemanticAlignment, useSeperateVars, english=False):
+def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets,var_pos, useCustom, all_vars,  debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -272,6 +272,9 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     else:
         xs = None 
 
+    op_occurances = 0
+    op_right = 0
+
     # do equations one at a time
     for cur_equation in range(max(num_equations_per_obs)):
         # select the ith equation in each obs
@@ -327,21 +330,29 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             # # this is mainly what we want to train
             # outputs = torch.cat((op, num_score), 1)
 
-            # batch_size x 2 
-            num_or_opp_weight = models['num_or_opp'](current_context)
-            all_num_opp_scale.append(num_or_opp_weight)
-            # batch_size
-            nums_weight = num_or_opp_weight[:, 0].unsqueeze(1) #.repeat(1, num_score.size(1))
-            # batch_size
-            opps_weight = num_or_opp_weight[:, 1].unsqueeze(1)#.transpose(0, -1)#.repeat(1, op.size(1))
 
             # num_score = 2 x 5
             # op = 2 x 4
 
-            scaled_num_score = num_score * nums_weight * 10
-            scaled_op = op * opps_weight * 10
+            if useOpScaling:
+                # batch_size x 2 
+                num_or_opp_weight = models['num_or_opp'](current_context)
+                all_num_opp_scale.append(num_or_opp_weight)
+                # batch_size
+                nums_weight = num_or_opp_weight[:, 0].unsqueeze(1) #.repeat(1, num_score.size(1))
+                # batch_size
+                opps_weight = num_or_opp_weight[:, 1].unsqueeze(1)#.transpose(0, -1)#.repeat(1, op.size(1))
 
-            outputs = torch.cat((scaled_op, scaled_num_score), 1)
+                scaled_num_score = num_score * nums_weight * 10
+                scaled_op = op * opps_weight * 10
+
+                outputs = torch.cat((scaled_op, scaled_num_score), 1)
+            else:
+                num_or_opp_weight_op = op.max(dim=1) 
+                num_or_opp_weight_num = num_score.max(dim=1) 
+                num_or_opp_weight = torch.cat((num_or_opp_weight_op.values, num_or_opp_weight_num.values), 0)
+                all_num_opp_scale.append(num_or_opp_weight)
+                outputs = torch.cat((op, num_score), 1)
 
 
 
@@ -454,8 +465,19 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         stacked_actual = torch.stack(actuct_num_or_opp)  # B x S x 2
         stacked_got = torch.stack(all_num_opp_scale)  # B x S x 2
 
+        for i, batch in enumerate(stacked_actual):
+            for j, probs in enumerate(batch):
+                op_occurances += 1
+                if stacked_got[i][j].argmax() == probs.item():
+                    op_right += 1
+                # print(j, probs)
+                # print(j, stacked_got[i][j])
+                # print()
         # loss
-        classify_loss = torch.nn.CrossEntropyLoss(reduction="none")(stacked_got.view(-1, stacked_got.size(2)), stacked_actual.view(-1).to(device)).mean() * 10
+        if useOpScaling:
+            classify_loss = torch.nn.CrossEntropyLoss(reduction="none")(stacked_got.view(-1, stacked_got.size(2)), stacked_actual.view(-1).to(device)).mean() * 10
+        else:
+            classify_loss = 0
         # actuct_num_or_opp
         # all_num_opp_scale
 
@@ -620,10 +642,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     total_loss.backward()
 
     # Update parameters with optimizers
-    return total_loss.item(), sum(total_acc)/len(total_acc), sum(num_equations_mse)/len(num_equations_mse), comparison
+    return total_loss.item(), sum(total_acc)/len(total_acc), sum(num_equations_mse)/len(num_equations_mse), comparison, op_right/op_occurances
 
 # @line_profiler.profile
-def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, output_lang, num_pos, vars, useCustom, debug, useSemanticAlignment, useSeperateVars, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
+def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, output_lang, num_pos, vars, useCustom, debug, useSemanticAlignment, useSeperateVars, useOpScaling, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
 
     # seq_mask = torch.ByteTensor(1, input_length + len(vars)).fill_(0)
     seq_mask = torch.ByteTensor(1, input_length).fill_(0)
@@ -759,10 +781,13 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
 
                 # num_score = 2 x 5
                 # op = 2 x 4
-                scaled_num_score = num_score * nums_weight * 10
-                scaled_op = op * opps_weight * 10
+                if useOpScaling:
+                    scaled_num_score = num_score * nums_weight * 10
+                    scaled_op = op * opps_weight * 10
 
-                out_score = nn.functional.log_softmax(torch.cat((scaled_op, scaled_num_score), dim=1), dim=1)
+                    out_score = nn.functional.log_softmax(torch.cat((scaled_op, scaled_num_score), dim=1), dim=1)
+                else:
+                    out_score = nn.functional.log_softmax(torch.cat((op, num_score), dim=1), dim=1)
                 # out_score = nn.functional.log_softmax(torch.cat((op, num_score), dim=1), dim=1)
 
                 # leaf = p_leaf[:, 0].unsqueeze(1)

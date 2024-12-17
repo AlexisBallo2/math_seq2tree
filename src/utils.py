@@ -123,4 +123,4 @@ def get_baseline():
     print(same/lengths)
     #     # print(solve_equation(equation, [0, 1, 2]))
 
-get_baseline()
+# get_baseline()

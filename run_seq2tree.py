@@ -33,15 +33,15 @@ else:
 # np.random.seed(10)
 
 # batch_size = 2 
-# batch_size = 10
-batch_size = 30 
+batch_size = 10
+# batch_size = 30 
 # batch_size = 64 
 embedding_size = 128
 hidden_size = 512
-# n_epochs = 5 
+n_epochs = 5 
 # n_epochs = 10 
 # n_epochs = 10 
-n_epochs = 20 
+# n_epochs = 20 
 # n_epochs = 40 
 learning_rate = 1e-3 
 # learning_rate = 1e-3 
@@ -51,11 +51,11 @@ beam_size = 5
 n_layers = 2
 
 # num_obs = 20
-# num_obs = 50
+num_obs = 50
 # num_obs = 100
 # num_obs = 600 
 # num_obs = 1000 
-num_obs = None 
+# num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
@@ -77,6 +77,8 @@ useOneEquation = True
 # useSeperateVars = True
 useSeperateVars = False
 
+useOpScaling = True
+# useOpScaling = False
 
 # decide if we must be able to solve equation
 useEquSolutions = True
@@ -175,6 +177,7 @@ for fold in range(num_folds):
         "train_token": [],
         "train_soln": [],
         "train_num_x_mse": [],
+        "train_op_right": [],
 
         "eval_token": [],
         "eval_soln": [],
@@ -341,6 +344,7 @@ for fold in range(num_folds):
             "train_token": [],
             "train_soln": [],
             "train_num_x_mse": [],
+            "train_op_right": [],
 
 
             "eval_token": [],
@@ -359,15 +363,16 @@ for fold in range(num_folds):
 
             input_batch_len = len(input_batches[idx])
             start = time.perf_counter()
-            loss, acc, num_x_mse, comparison = train_tree(
+            loss, acc, num_x_mse, comparison, op_right = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
-                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars)
+                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling)
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             train_comparison.append(comparison)
             loss_total += loss
             batch_accuricies["train_token"].append(acc)
+            batch_accuricies["train_op_right"].append(op_right)
             batch_accuricies["train_num_x_mse"].append(num_x_mse)
             # train_accuracys.append(acc)
             
@@ -382,6 +387,7 @@ for fold in range(num_folds):
         print("train accuracy", batch_train_acc)
         fold_accuracies["loss"].append(loss_total / len(input_lengths))
         fold_accuracies["train_token"].append(batch_train_acc)
+        fold_accuracies["train_op_right"].append(sum(batch_accuricies["train_op_right"]) / len(batch_accuricies["train_op_right"]))
         # fold_train_accuracy.append(train_acc)
         fold_loss.append(loss_total / len(input_lengths))
         fold_accuracies["train_num_x_mse"].append(sum(batch_accuricies["train_num_x_mse"]) / len(batch_accuricies["train_num_x_mse"]))
@@ -400,7 +406,7 @@ for fold in range(num_folds):
             batch_eval_comparison = []
             for test_batch in test_pairs:
                 start = time.perf_counter()
-                test_res, pred_num_x = evaluate_tree(test_batch['input_cell'], test_batch['input_len'], generate_num_ids, models, input_lang, output_lang, test_batch['num_pos'], vars, useCustom, debug, useSemanticAlignment, useSeperateVars, beam_size=beam_size)
+                test_res, pred_num_x = evaluate_tree(test_batch['input_cell'], test_batch['input_len'], generate_num_ids, models, input_lang, output_lang, test_batch['num_pos'], vars, useCustom, debug, useSemanticAlignment, useSeperateVars, useOpScaling, beam_size=beam_size)
                 end = time.perf_counter()
                 test_time_array.append([1, end - start])
                 lengths = 0
