@@ -359,7 +359,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 # scaled_num_score = num_score * nums_weight * 10
                 # scaled_op = op * opps_weight * 10
 
-                outputs = torch.cat((op, num_score), 1)
+                outputs = torch.cat((op, var, num_score), 1)
                 # outputs = torch.cat((scaled_op, scaled_num_score), 1)
             else:
                 num_or_opp_weight_op = op.max(dim=1) 
