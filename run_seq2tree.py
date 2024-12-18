@@ -33,15 +33,15 @@ else:
 # np.random.seed(10)
 
 # batch_size = 2 
-batch_size = 10
-# batch_size = 30 
+# batch_size = 10
+batch_size = 30 
 # batch_size = 64 
 embedding_size = 128
 hidden_size = 512
-n_epochs = 5 
+# n_epochs = 5 
 # n_epochs = 10 
 # n_epochs = 10 
-# n_epochs = 20 
+n_epochs = 20 
 # n_epochs = 40 
 learning_rate = 1e-3 
 # learning_rate = 1e-3 
@@ -51,11 +51,11 @@ beam_size = 5
 n_layers = 2
 
 # num_obs = 20
-num_obs = 50
+# num_obs = 50
 # num_obs = 100
 # num_obs = 600 
 # num_obs = 1000 
-# num_obs = None 
+num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
@@ -71,14 +71,14 @@ useSubMethod = True
 useSemanticAlignment = True
 # useSemanticAlignment = False
 
-useOneEquation = True
-# useOneEquation = False
+# useOneEquation = True
+useOneEquation = False
 
-# useSeperateVars = True
-useSeperateVars = False
+useSeperateVars = True
+# useSeperateVars = False
 
-useOpScaling = True
-# useOpScaling = False
+# useOpScaling = True
+useOpScaling = False
 
 # decide if we must be able to solve equation
 useEquSolutions = True
@@ -118,7 +118,7 @@ if num_obs:
 # "ans":"80"
 # }'
 
-pairs, generate_nums, copy_nums, vars = transfer_num(data, setName, useCustom, useEquSolutions, useSubMethod)
+pairs, generate_nums, copy_nums, vars = transfer_num(data, setName, useCustom, useEquSolutions, useSubMethod, useSeperateVars)
 if num_obs:
     pairs = pairs[0:num_obs]
 # pairs: list of tuples:
@@ -225,8 +225,8 @@ for fold in range(num_folds):
     else:
         op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums)
 
-    predict = Prediction(hidden_size=hidden_size, op_nums=op_nums, input_size=len(generate_nums))
-    predict_output = Prediction(hidden_size=hidden_size, op_nums=op_nums, input_size=len(generate_nums))
+    predict = Prediction(hidden_size=hidden_size, op_nums=op_nums, input_size=len(generate_nums), num_vars=len(vars))
+    predict_output = Prediction(hidden_size=hidden_size, op_nums=op_nums, input_size=len(generate_nums), num_vars=len(vars))
     generate = GenerateNode(hidden_size=hidden_size, op_nums=op_nums, embedding_size=embedding_size)
     merge = Merge(hidden_size=hidden_size, embedding_size=embedding_size)
 

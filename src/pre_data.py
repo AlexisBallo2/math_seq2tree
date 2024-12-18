@@ -108,7 +108,8 @@ class Lang:
         self.num_start = len(self.index2word)
 
         if useCustom and useSeperateVars:
-            self.index2word = self.index2word + generate_num + vars + ["N" + str(i) for i in range(copy_nums)] + ["UNK"]
+            self.index2word = self.index2word + vars + generate_num + ["N" + str(i) for i in range(copy_nums)] + ["UNK"]
+            # self.index2word = self.index2word + generate_num + vars + ["N" + str(i) for i in range(copy_nums)] + ["UNK"]
         else:
             self.index2word = self.index2word + generate_num + ["N" + str(i) for i in range(copy_nums)] + ["UNK"]
 
@@ -333,7 +334,7 @@ def load_raw_data(filename):  # load the json data to list(dict()) for MATH 23K
 #     return test_str
 
 variableHierarchy = ['X', 'Y', 'Z']
-def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod):  # transfer num into "NUM"
+def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSeperateVars):  # transfer num into "NUM"
     print("Transfer numbers...")
     # number regex
     # pattern = re.compile("\d*\(\d+/\d+\)\d*|\d+\.\d+%?|\d+%?")
@@ -490,6 +491,32 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod):  # t
                     # seq and tag text after number
                     res += seg_and_tag(st[p_end:])
                 return res
+            # get the vars if seperate
+            # if useSeperateVars:
+            #     changed_var = r'((X)|(Y)|(Z))'
+            #     pos_st = re.search(changed_var, st)
+            #     if pos_st:
+            #         p_start = pos_st.start()
+            #         p_end = pos_st.end()
+            #         if p_start > 0:
+            #             # seq and tag text before number
+            #             res += seg_and_tag(st[:p_start])
+            #         # strip text around number
+            #         st_num = st[p_start:p_end]
+            #         if st_num[-2:] == ".0":
+            #             st_num = st_num[:-2]
+            #         if nums.count(st_num) > 0:
+            #             # same as fractions, append as "N#" if in the input text 
+            #             # pairNumMapping[st_num] = "N"+str(nums.index(st_num))
+            #             pairNumMapping["N"+str(nums.index(st_num))] = st_num
+            #             res.append("N"+str(nums.index(st_num)))
+            #         else:
+            #             # if 
+            #             res.append(st_num)
+            #         if p_end < len(st):
+            #             # seq and tag text after number
+            #             res += seg_and_tag(st[p_end:])
+            #         return res
             # if no number
             for ss in st:
                 # just keep text
@@ -541,6 +568,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod):  # t
                 #   list of numbers in the equation that are not in the input text
                 #   dict of the number and the number of times it appears in the equation
                 if s[0].isdigit() and s not in generate_nums and s not in nums:
+                # if (s[0].isdigit() or (s[0] in ["X", "Y", "Z"] and not useSeperateVars)) and s not in generate_nums and s not in nums:
                     generate_nums.append(s)
                     generate_nums_dict[s] = 0
                 if s in generate_nums and s not in nums:

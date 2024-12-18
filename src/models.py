@@ -280,9 +280,50 @@ class NumOrOpp(nn.Module):
 
         self.em_dropout = nn.Dropout(dropout)
         self.out = nn.Linear(hidden_size, 2)
+        self.out2 = nn.Linear(hidden_size * 2, 2)
         self.padding_hidden = torch.FloatTensor([0.0 for _ in range(hidden_size)])
-    def forward(self, goal_vect):
+
+        self.k = nn.Linear(hidden_size, hidden_size)
+        self.q = nn.Linear(hidden_size, hidden_size)
+        self.v = nn.Linear(hidden_size, hidden_size)
+
+        self.upper = nn.Parameter(torch.randn(1, hidden_size))
+    def forward(self, encoder_outputs, goal_vect, equation_goal):
+        # batch size x hidden_size, 
         squeezed_goals = goal_vect.squeeze(1)
+        concatted = torch.concat((squeezed_goals, equation_goal), 1)
+        out = torch.relu(self.out2(concatted))
+        return out
+        # return self.out(squeezed_goals)
+        # encoder_outputs: batch_size x hidden_size
+        # to batch_size x tokens x hidden_size
+        enc_outputs = encoder_outputs.transpose(0, 1)
+        # for each batch
+        outs = []
+        for i in range(enc_outputs.size(0)):
+            # for each token
+            # q,k,v: num_tokens x hidden_size
+            # q = self.q(enc_outputs[i])
+            q = squeezed_goals.repeat(enc_outputs.size(1), 1)
+            k = self.k(enc_outputs[i])
+            v = self.v(enc_outputs[i])
+            qk = torch.matmul(q, k.transpose(0, 1))
+            smkq = nn.functional.softmax(qk)
+            smkqv = torch.matmul(smkq, v)
+            subbed = smkqv - self.upper
+            # out = torch.sigmoid(torch.matmul(smkq, v))
+            # add across the tokens
+            # batch_kqvs = torch.stack(batch_kqvs)
+            # summed = torch.sum(out, dim=0)
+            summed = torch.sum(subbed, dim=0)
+            fc = torch.sigmoid(self.out(summed))
+            outs.append(fc)
+            # outs.append(out)
+        stacked = torch.stack(outs)
+        return stacked
+
+
+
         # current_embeddings1 = []
         # # for each stack of tokens 
         # # 2 batches = 2 stacks
@@ -308,7 +349,7 @@ class NumOrOpp(nn.Module):
 class Prediction(nn.Module):
     # a seq2tree decoder with Problem aware dynamic encoding
 
-    def __init__(self, hidden_size, op_nums, input_size, dropout=0.5):
+    def __init__(self, hidden_size, op_nums, input_size, num_vars, dropout=0.5):
         super(Prediction, self).__init__()
 
         # Keep for reference
@@ -328,6 +369,7 @@ class Prediction(nn.Module):
         self.concat_rg = nn.Linear(hidden_size * 2, hidden_size)
 
         self.ops = nn.Linear(hidden_size * 2, op_nums)
+        self.var = nn.Linear(hidden_size * 2, num_vars)
 
         self.attn = TreeAttn(hidden_size, hidden_size)
         self.score = Score(hidden_size * 2, hidden_size)
@@ -423,7 +465,8 @@ class Prediction(nn.Module):
         # batch_size is the embeddings of the numbers
         #   batch_size x nums_count x hidden_dim
         if useCustom and useSeperateVars:
-            embedding_weight = torch.cat((embedding_weight1, xs, num_pades), dim=1)  # B x O x N
+            embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
+            # embedding_weight = torch.cat((embedding_weight1, xs, num_pades), dim=1)  # B x O x N
         else:
             embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
 
@@ -469,6 +512,7 @@ class Prediction(nn.Module):
         # get the predicted operation (classification)
         # batch_size x num_ops 
         op = self.ops(leaf_input)
+        var = self.var(leaf_input)
 
         # return p_leaf, num_score, op, current_embeddings, current_attn
 
@@ -483,7 +527,7 @@ class Prediction(nn.Module):
         #       context vector for the subtree
         #   embedding_weight : batch_size x num_length x hidden_size
         #       number embeddings
-        return num_score, op, current_node, current_context, embedding_weight
+        return num_score, op, var, current_node, current_context, embedding_weight
 
 
 class GenerateNode(nn.Module):
