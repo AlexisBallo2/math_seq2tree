@@ -466,7 +466,8 @@ class Prediction(nn.Module):
         #   batch_size x nums_count x hidden_dim
         if useCustom and useSeperateVars and useVarsAsNums:
             # embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
-            embedding_weight = torch.cat((embedding_weight1, xs, num_pades), dim=1)  # B x O x N
+            # embedding_weight = torch.cat((embedding_weight1, xs, num_pades), dim=1)  # B x O x N
+             embedding_weight = torch.cat((xs, embedding_weight1, num_pades), dim=1)  # B x O x N
         else:
             embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
 

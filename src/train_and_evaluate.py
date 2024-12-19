@@ -125,13 +125,12 @@ def copy_list(l):
 
 
 class TreeBeam:  # the class save the beam node
-    def __init__(self, score, node_stack, embedding_stack, left_childs, out, num_or_opp):
+    def __init__(self, score, node_stack, embedding_stack, left_childs, out):
         self.score = score
         self.embedding_stack = copy_list(embedding_stack)
         self.node_stack = copy_list(node_stack)
         self.left_childs = copy_list(left_childs)
         self.out = copy.deepcopy(out)
-        self.num_or_opp = num_or_opp
 
 
 class TreeEmbedding:  # the class save the tree
@@ -140,7 +139,7 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
 
 # @line_profiler.profile
-def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets,var_pos, batch_sni, useCustom, all_vars,  debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, english=False):
+def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets,var_pos, batch_sni, useCustom, all_vars,  debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, inTraining, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -157,10 +156,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     problem_vars = torch.LongTensor(output_var_batches)
     target = torch.LongTensor(target_batch)#.transpose(0, 1)
     target_length = torch.LongTensor(target_length)
-    if useCustom:
-        equation_targets_tensor = torch.LongTensor(equation_targets)
-    else:
-        equation_targets_tensor = None
+    # if useCustom:
+    #     equation_targets_tensor = torch.LongTensor(equation_targets)
+    # else:
+    #     equation_targets_tensor = None
 
     # num vars total in the output lang. will need to mask ones not in the current equation
    # num_total_vars = len(problem_vars[0])
@@ -180,14 +179,6 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         seq_mask.append([0 for _ in range(i)] + [1 for _ in range(i, max_len)])
     seq_mask = torch.ByteTensor(seq_mask)
 
-    # number mask 
-    # 0s where the numbers are from input, 1s where not in input
-    num_mask = []
-    if useCustom and useSeperateVars:
-        max_num_size = max(num_size_batch) + len(generate_nums)  
-        # max_num_size = max(num_size_batch) + len(generate_nums) + len(all_vars) 
-    else:
-        max_num_size = max(num_size_batch) + len(generate_nums) 
     # in language its 
     # operators + gen numbers + vars + copy numbers
 
@@ -243,19 +234,55 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             batch_is_sni = torch.stack(batch_is_sni).squeeze(1)
             is_sni_list.append(batch_is_sni)
         # is_sni_list = torch.stack(is_sni_list)
+    # number mask 
+
+    num_equations_mse = []
+    if useCustom:
+        pred_num_equations = models['num_x_predict'](problem_output)
+        for i, num in enumerate(num_equations_per_obs):
+            print(f'predicted num x mse: {pred_num_equations[i].argmax().item()}, actual: {num.item()}')
+            num_equations_mse.append((pred_num_equations[i].argmax().item()  - num.item())**2)
+
+    else:
+        pred_num_equations = 0
+
+    # 0s where the numbers are from input, 1s where not in input
+    num_mask = []
+    if useCustom and useSeperateVars:
+        # max_num_size = max(num_size_batch) + len(generate_nums)  
+        max_num_size = max(num_size_batch) + len(generate_nums) + len(all_vars) 
+    else:
+        max_num_size = max(num_size_batch) + len(generate_nums) 
 
     for i, num_size in enumerate(num_size_batch):
         if useCustom and useSeperateVars:
-            d = num_size + len(generate_nums)
+            d = num_size + len(generate_nums) + len(problem_vars[i].tolist())
             if useSNIMask:
                 cur_sni_list = is_sni_list[i].argmax(1)
                 # flip the mask
                 flipped = cur_sni_list == 0
                 flipped = flipped.type(torch.int)
                 flipped = flipped.tolist()
-                num_mask.append([0] * len(generate_nums) + flipped + [1] * (max_num_size - d))
+                if inTraining:
+                    num_mask.append(problem_vars[i].tolist() + [0] * len(generate_nums) + flipped + [1] * (max_num_size - d))
+                else:
+                    num_vars_predicted = pred_num_equations.argmax().item()
+                    if num_vars_predicted < len(all_vars):
+                        problem_var_list = [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
+                    else:
+                        problem_var_list = [0] * len(all_vars)
+                    num_mask.append(problem_var_list + [0] * len(generate_nums) + flipped + [1] * (max_num_size))
             else:
-                num_mask.append([0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
+                if inTraining:
+                    num_mask.append( problem_vars[i].tolist() + [0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
+                else:
+                    num_vars_predicted = pred_num_equations.argmax().item()
+                    if num_vars_predicted < len(all_vars):
+                        problem_var_list = [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
+                    else:
+                        problem_var_list = [0] * len(all_vars)
+                    num_mask.append(problem_var_list + [0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
+
             # num_mask.append([0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
             # d = num_size + len(problem_vars[i].tolist()) + len(generate_nums)
             # num_mask.append([0] * len(generate_nums) + problem_vars[i].tolist() + [0] * num_size + [1] * (max_num_size - d))
@@ -263,6 +290,13 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             d = num_size + len(generate_nums)
             num_mask.append([0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
     num_mask = torch.ByteTensor(num_mask)
+
+    for t_batch in num_mask:
+        avail_tokens = []
+        for i, isIn in enumerate(t_batch):
+            if isIn == 0:
+                avail_tokens.append(output_lang.index2word[i])
+        print("avail tokens", avail_tokens)
 
 
     if USE_CUDA:
@@ -297,20 +331,13 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     num_start = output_lang.num_start
 
 
-    num_equations_mse = []
-    if useCustom:
-        pred_num_equations = models['num_x_predict'](problem_output)
-        for i, num in enumerate(num_equations_per_obs):
-            print(f'predicted num x mse: {pred_num_equations[i].argmax().item()}, actual: {num.item()}')
-            num_equations_mse.append((pred_num_equations[i].argmax().item()  - num.item())**2)
-
-    else:
-        pred_num_equations = 0
-
     if useCustom:
         # node that max(num_equations_per_obs) should be the same as the lenth of vars
         # xs: batch_size x num_vars x hidden_size
-        qs = models['q_generate'](len(all_vars), encoder_outputs, problem_output)
+        if inTraining:
+            qs = models['q_generate'](len(all_vars), encoder_outputs, problem_output)
+        else:
+            qs = models['q_generate'](pred_num_equations.argmax().item(), encoder_outputs, problem_output)
         # xs = get_all_number_encoder_outputs(encoder_outputs, var_pos, batch_size, var_size, models['encoder'].hidden_size)
         # xs = torch.zeros(batch_size, len(all_vars), 512)
     else: 
@@ -321,17 +348,31 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     else:
         xs = None 
 
+    # pad xs and qs
+    pred_num_equations_val = pred_num_equations.argmax().item()
+    if (pred_num_equations_val) < len(all_vars):
+        padding = torch.zeros(1, len(all_vars) - pred_num_equations_val, 512)
+        qs = torch.cat((qs, padding.to(device)), dim=1).to(device)
+        xs = torch.cat((xs, padding.to(device)), dim=1).to(device)
+    if pred_num_equations_val > len(all_vars):
+        qs = qs[:, :len(all_vars), :]
+        xs = xs[:, :len(all_vars), :]
     op_occurances = 0
     op_right = 0
 
     # do equations one at a time
-    for cur_equation in range(max(num_equations_per_obs)):
+    if inTraining:
+        num_equations_to_do = max(num_equations_per_obs)
+    else:
+        num_equations_to_do = max(pred_num_equations.argmax().item(),len(all_vars))
+
+    for cur_equation in range(num_equations_to_do):
         # select the ith equation in each obs
         ith_equation_target = deepcopy(target[:, cur_equation, :].transpose(0,1))
-        if useCustom:
-            ith_equation_solution = deepcopy(equation_targets_tensor[:, cur_equation])
-        else:
-            ith_equation_solution = None
+        # if useCustom:
+        #     # ith_equation_solution = deepcopy(equation_targets_tensor[:, cur_equation])
+        # else:
+        #     ith_equation_solution = None
         ith_equation_target_lengths = deepcopy(target_length[:, cur_equation])
         # it_equation_solution 
         if useCustom:
@@ -483,8 +524,12 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             # the node generation takes the first half of equations (10) and (11) 
             left_child, right_child, node_label = models['generate'](current_embeddings, generate_input, current_context)
             left_childs = []
+            if inTraining:
+                target_list = ith_equation_target[t].tolist()  
+            else:
+                target_list = outputs.argmax(dim=1).tolist()
             for idx, l, r, node_stack, i, o in zip(range(batch_size), left_child.split(1), right_child.split(1),
-                                                node_stacks, ith_equation_target[t].tolist(), embeddings_stacks):
+                                                node_stacks, target_list, embeddings_stacks):
                 # current_token = output_lang.ids_to_tokens([i])
                 # current_equation = output_lang.ids_to_tokens(target.transpose(0,1)[idx])
                 #print("at token", current_token, "in", current_equation)
@@ -521,13 +566,13 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
                     # current_nums_embedding: batch_size x num_length x hidden_size
                     # current_num = num_embedding of the number selected
-                    if useSeperateVars:
-                        if i < num_start + len(all_vars):
-                            current_num = xs[idx, i - num_start].unsqueeze(0)
-                        else:
-                            current_num = current_nums_embeddings[idx, i - (num_start + len(all_vars))].unsqueeze(0)
-                    else:
-                        current_num = current_nums_embeddings[idx, i - num_start].unsqueeze(0)
+                    # if useSeperateVars:
+                    #     if i < num_start + len(all_vars):
+                    #         current_num = xs[idx, i - num_start].unsqueeze(0)
+                    #     else:
+                    #         current_num = current_nums_embeddings[idx, i - (num_start + len(all_vars))].unsqueeze(0)
+                    # else:
+                    current_num = current_nums_embeddings[idx, i - num_start].unsqueeze(0)
                     # while there are tokens in the embedding stack and the last element IS a leaf node
                     while len(o) > 0 and o[-1].terminal:
                         #print("terminal element in o, getting terminal element and operator, and merging")
@@ -560,7 +605,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
         for i, batch in enumerate(stacked_actual):
             for j, probs in enumerate(batch):
-                print('predicted', stacked_got[i][j].argmax().item(), 'actual op value', probs.item())
+                # print('predicted', stacked_got[i][j].argmax().item(), 'actual op value', probs.item())
                 op_occurances += 1
                 if stacked_got[i][j].argmax() == probs.item():
                     op_right += 1
@@ -586,7 +631,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 sni_loss += torch.nn.CrossEntropyLoss()(indiv_sni_batch, torch.tensor(batch_sni[i]))
                 for j, sni in enumerate(indiv_sni_batch):
                     # sni_loss += torch.nn.CrossEntropyLoss()(sni, batch_sni[i][j])
-                    print('predicted', sni.argmax().item(), 'actual sni', batch_sni[i][j])
+                    # print('predicted', sni.argmax().item(), 'actual sni', batch_sni[i][j])
                     if sni.argmax() == batch_sni[i][j]:
                         sni_right += 1
                         # op_right += 1
@@ -755,13 +800,14 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
         # predict a solution token for the tree 
         # actual_target = 
+    # if inTraining:
     total_loss.backward()
 
     # Update parameters with optimizers
     return total_loss.item(), sum(total_acc)/len(total_acc), sum(num_equations_mse)/len(num_equations_mse), comparison, op_right/op_occurances, sni_acc 
 
 # @line_profiler.profile
-def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, output_lang, num_pos, vars, useCustom, debug, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, equation_lengths, equations, useSNIMask, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
+def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, output_lang, num_pos, vars, useCustom, debug, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, equation_lengths, useSNIMask, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
 
     # seq_mask = torch.ByteTensor(1, input_length + len(vars)).fill_(0)
     seq_mask = torch.ByteTensor(1, input_length).fill_(0)
@@ -912,29 +958,13 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
 
         # evaulation uses beam search
         # key is how the beams are compared
-        beams = [TreeBeam(0.0, node_stacks, embeddings_stacks, left_childs, [], [])]
+        beams = [TreeBeam(0.0, node_stacks, embeddings_stacks, left_childs, [] )]
 
         # for t in range(max_length):
-        actual_num_or_opp = []
         for t in range(equation_lengths[i]): 
-            # target_t, generate_input = generate_tree_input(ith_equation_target[t].tolist(), outputs, ith_equation_num_stacks, num_start, unk)
-            # ith_equation_target[t] = target_t
-            # op_or_num = target_t.clone().detach() # < num_start
-            op_or_num = equations[i][t]
-            # for i, num in enumerate(target_t):
-            if op_or_num < num_start:
-                op_or_num = 0
-            elif op_or_num < num_start + len(vars):
-                op_or_num = 1 
-            else:
-                op_or_num = 2
-            actual_num_or_opp.append(op_or_num)
-
-
             current_beams = []
             while len(beams) > 0:
                 b = beams.pop()
-                # beam_num_or_opp = b.num_or_opp
                 if len(b.node_stack[0]) == 0:
                     b.left_childs = [_.embedding for _ in b.embedding_stack[0]]
                     current_beams.append(b)
@@ -947,7 +977,6 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
                             # batch_size x 2 
                 if useOpScaling:
                     num_or_opp_weight = models['num_or_opp'](encoder_outputs,current_context, ith_equation_goal)
-                    b.num_or_opp.append(num_or_opp_weight)
                     # all_num_opp_scale.append(num_or_opp_weight)
                     # batch_size
                     opps_weight = num_or_opp_weight[:, 0].unsqueeze(1)#.transpose(0, -1)#.repeat(1, op.size(1))
@@ -970,12 +999,6 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
                             out_score = nn.functional.log_softmax(torch.cat((scaled_op, scaled_num_score), 1), 1)
                     # out_score = nn.functional.log_softmax(torch.cat((scaled_op, scaled_var, scaled_num_score), dim=1), dim=1)
                 else:
-                    num_or_opp_weight_op = op.max(dim=1) 
-                    num_or_opp_weight_num = num_score.max(dim=1) 
-                    num_or_opp_weight = torch.cat((num_or_opp_weight_op.values, num_or_opp_weight_num.values), 0)
-                    b.num_or_opp.append(num_or_opp_weight)
-                    
-
                     if useVarsAsNums :
                         out_score = nn.functional.log_softmax(torch.cat((op, num_score), 1), 1)
                     else:   
@@ -1051,100 +1074,18 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
                         current_left_childs.append(None)
 
                     # the beam "score" is the sum of the associations 
-                    current_beams.append(TreeBeam(b.score+float(tv), current_node_stack, current_embeddings_stacks, current_left_childs, current_out, b.num_or_opp ))
+                    current_beams.append(TreeBeam(b.score+float(tv), current_node_stack, current_embeddings_stacks, current_left_childs, current_out ))
             # order beam by highest to lowest
             beams = sorted(current_beams, key=lambda x: x.score, reverse=True)
             beams = beams[:beam_size]
-            flag = True
-            for b in beams:
-                if len(b.node_stack[0]) != 0:
-                    flag = False
-            if flag:
-                break
+            # flag = True
+            # for b in beams:
+            #     if len(b.node_stack[0]) != 0:
+            #         flag = False
+            # if flag:
+            #     break
         # validation loss:
-
-        final_beam = beams[0]
-        # # if True:
-        if useOpScaling:
-            stacked_got = torch.stack(final_beam.num_or_opp)
-            actual_num_or_opp = torch.tensor(actual_num_or_opp)
-            classify_loss = torch.nn.CrossEntropyLoss(reduction="none")(stacked_got.view(-1, stacked_got.size(2)), actual_num_or_opp.view(-1).to(device)).mean() 
-            print()
-            # classify_loss = 0
-        else:
-            classify_loss = 0
-                # loss the sni
-        # sni_occurances = 0
-        # sni_right = 0
-        # sni_loss = 0
-        # if useSNIMask:
-        #     for i, indiv_sni_batch in enumerate(is_sni_list):
-        #         sni_loss += torch.nn.CrossEntropyLoss()(indiv_sni_batch, torch.tensor(batch_sni[i]))
-        #         for j, sni in enumerate(indiv_sni_batch):
-        #             # sni_loss += torch.nn.CrossEntropyLoss()(sni, batch_sni[i][j])
-        #             print('predicted', sni.argmax().item(), 'actual sni', batch_sni[i][j])
-        #             if sni.argmax() == batch_sni[i][j]:
-        #                 sni_right += 1
-        #                 # op_right += 1
-        #             sni_occurances += 1
-        #     sni_acc = sni_right/sni_occurances
-        #     print("sni:", sni_right/sni_occurances)
-        #     print()
-        # else:
-        #     sni_acc = 0
-        #     sni_loss = 0
-        #         all_node_outputs2 = torch.stack(all_node_outputs, dim=1)  # B x S x N
-
-        # # batch_size x max_len x num_nums
-        # ith_equation_target = ith_equation_target.transpose(0, 1).contiguous()
-        # if USE_CUDA:
-        #     # all_leafs = all_leafs.cuda()
-        #     all_node_outputs2 = all_node_outputs2.cuda()
-        #     ith_equation_target = ith_equation_target.cuda()
-
-        # # for batch in target:
-        # #     print([output_lang.index2word[_] for _ in batch])
-        # #print('done equation')
-        # current_equation_loss = masked_cross_entropy(all_node_outputs2, ith_equation_target, ith_equation_target_lengths )
-        # if useSemanticAlignment: 
-        #     semantic_alignment_loss = nn.MSELoss()
-        #     total_semanti_alognment_loss = 0
-        #     sa_len = len(all_sa_outputs)
-        #     for sa_pair in all_sa_outputs:
-        #         total_semanti_alognment_loss += semantic_alignment_loss(sa_pair[0],sa_pair[1])
-        #     # print(total_semanti_alognment_loss)
-        #     try:
-        #         total_semanti_alognment_loss = total_semanti_alognment_loss / sa_len
-        #     except:
-        #         total_semanti_alognment_loss = 0
-        #         if total_loss != None:
-        #     if useSemanticAlignment:
-        #         total_loss += current_equation_loss + 0.01 * total_semanti_alognment_loss
-        #     else:
-        #         total_loss += current_equation_loss
-        #     # total_loss += current_equation_loss_before.mean()
-        # else:
-        #     if useSemanticAlignment:
-        #         total_loss = current_equation_loss + 0.01 * total_semanti_alognment_loss
-        #     else:
-        #         total_loss = current_equation_loss
-        #     # total_loss = current_equation_loss_before.mean()
-        # total_acc += [same/lengths]
-    
-    # add the loss of number equations
-    if useCustom:
-    # if False:
-        num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs.to(device))
-        total_loss += num_x_loss + classify_loss + sni_loss
-        # total_loss += equation_prediction_loss
-
-        # predict a solution token for the tree 
-        # actual_target = 
-
-
-
-
-
+        # if True:
 
         # num_score_temp, var, op_temp, _, _, _ = models['predict_output']([beams[0].node_stack[-1]], [None for i in range(len([beams[0].node_stack[-1]]))], encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug, useSeperateVars, ith_equation_goal, useVarsAsNums)
         # if useVarsAsNums:

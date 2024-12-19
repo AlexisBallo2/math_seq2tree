@@ -15,11 +15,12 @@ def make_loss_graph(data, filename, title, xlabel, ylabel):
     plt.savefig(filename)
     plt.clf()
 
-def make_eval_graph(data2, legend, filename, title, xlabel, ylabel):
+def make_eval_graph(data2, legend, filename, title, xlabel, ylabel, yrange):
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
     plt.title(title)
-    plt.ylim([0, 1])
+    if yrange:
+        plt.ylim(yrange)
 
     t = [i for i in range(len(data2[0]))]
     for i in range(len(data2)):
