@@ -516,6 +516,7 @@ class Prediction(nn.Module):
             var = None
         else:
             var = self.var(leaf_input)
+        
 
         # return p_leaf, num_score, op, current_embeddings, current_attn
 
@@ -639,6 +640,7 @@ class PredictNumX(nn.Module):
 
 
     def forward(self, goal_vect, eval = False):
+        goal_vect = self.em_dropout(goal_vect)
         temp = self.fc1(goal_vect)
         temp2 = self.relu(temp)
         temp3 = self.fc2(temp2)
@@ -736,7 +738,7 @@ class GenerateXs(nn.Module):
             xs = []
             nums_to_gen = num_xs
             # nums_to_gen = max(int(num_xs.tolist()), 1)
-            goal_vect = problem_q[i]
+            goal_vect = self.em_dropout(problem_q[i])
             kt = self.K(hidden2[i]).transpose(0,1)
             v = self.V(hidden2[i])
             # for each number to gen
@@ -760,6 +762,7 @@ class GenerateXs(nn.Module):
 class XToQ(nn.Module):
     def __init__(self, hidden_size, dropout=0.5):
         super(XToQ, self).__init__()
+        self.em_dropout = nn.Dropout(dropout)
         self.K = nn.Linear(hidden_size, hidden_size)
         self.V = nn.Linear(hidden_size, hidden_size)
         self.lstm = nn.LSTM(hidden_size, hidden_size, 1, batch_first=True)
@@ -783,6 +786,7 @@ class XToQ(nn.Module):
                 # # for each x for the batch
                 # # xk^T
                 qkt = torch.matmul(xs[j], self.K(hidden2[i]).transpose(0,1))
+                qkt = self.em_dropout(qkt)
                 smqkt = nn.functional.softmax(qkt)
                 output = torch.sigmoid(torch.matmul(smqkt, self.V(hidden2[i])))
                 # qs.append(output)
@@ -891,3 +895,26 @@ class Seq2TreeSemanticAlignment(nn.Module):
         return encoder_linear2, decoder_linear2
 
 
+
+class SNI(nn.Module):
+    def __init__(self, hidden_size, dropout=0.5):
+        super(SNI, self).__init__()
+
+        self.lstm = nn.LSTM(input_size=512, hidden_size = 512, num_layers=1, batch_first=True, bidirectional=False)
+        self.h0 = torch.randn(1, 512, hidden_size )
+        self.c0 = torch.randn(1, 512, hidden_size)
+
+        self.classifyer = torch.nn.Linear(512, 2)
+
+
+    def forward(self, encoder_states):
+        # encoder_states: 7 x 512
+        encoder_states = encoder_states.unsqueeze(0)
+        # out = self.lstm(encoder_states, (self.h0, self.c0))
+        out, _ = self.lstm(encoder_states)
+        final_token_emb = torch.relu(out[:, -1])
+        classified = self.classifyer(final_token_emb)
+
+        return classified
+
+        print()

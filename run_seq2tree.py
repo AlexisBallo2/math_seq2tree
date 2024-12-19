@@ -12,6 +12,7 @@ import sympy as sp
 from sympy.solvers import solve
 
 
+
 import sys
 args = sys.argv
 if "-id" in args:
@@ -21,6 +22,7 @@ if "-id" in args:
 else:
     run_id = "0"
 
+sys.stdout = open('output.txt','wt')
 
 
 # batch_size = 64
@@ -34,6 +36,7 @@ else:
 
 # batch_size = 2 
 batch_size = 10
+# batch_size = 20
 # batch_size = 30 
 # batch_size = 64 
 embedding_size = 128
@@ -43,6 +46,7 @@ n_epochs = 10
 # n_epochs = 10 
 # n_epochs = 20 
 # n_epochs = 40 
+# learning_rate = 1e-2 
 learning_rate = 1e-3 
 # learning_rate = 1e-3 
 # learning_rate = 1e-3 
@@ -50,10 +54,10 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-# num_obs = 20
+num_obs = 20
 # num_obs = 50
 # num_obs = 100
-num_obs = 200
+# num_obs = 200
 # num_obs = 600 
 # num_obs = 1000 
 # num_obs = None 
@@ -77,20 +81,23 @@ useSemanticAlignment = True
 useOneEquation = False
 
 # take vars out of the vocab (control where they go)
-useSeperateVars = True
-# useSeperateVars = False
+# useSeperateVars = True
+useSeperateVars = False
 
 # weight the choosing of op vs var vs num
-# useOpScaling = True
-useOpScaling = False
+useOpScaling = True
+# useOpScaling = False
 
 # decide if we must be able to solve equation
 useEquSolutions = True
 # useEquSolutions = False 
 
 # use vars as numbers
-# useVarsAsNums = True
-useVarsAsNums = False
+useVarsAsNums = True
+# useVarsAsNums = False
+
+# useSNIMask = True
+useSNIMask = False
 
 
 title = f"{num_obs} Observations, {n_epochs} Epochs, Dataset = {setName}, Custom = {useCustom} "
@@ -188,6 +195,7 @@ for fold in range(num_folds):
         "train_soln": [],
         "train_num_x_mse": [],
         "train_op_right": [],
+        "train_sni_acc": [],
 
         "eval_token": [],
         "eval_soln": [],
@@ -246,6 +254,8 @@ for fold in range(num_folds):
 
     sementic_alignment = Seq2TreeSemanticAlignment(encoder_hidden_size=hidden_size, decoder_hidden_size=hidden_size, hidden_size=hidden_size)
     num_or_opp = NumOrOpp(512)
+    sni = SNI(hidden_size=hidden_size)
+
 
 
     models = {
@@ -258,8 +268,9 @@ for fold in range(num_folds):
         "num_x_predict": num_x_predict,
         "q_generate": x_generate,
         "q_to_x": x_to_q,
-        "sementic_alignment": sementic_alignment,
-        "num_or_opp": num_or_opp
+        "semantic_alignment": sementic_alignment,
+        "num_or_opp": num_or_opp,
+        "sni": sni
     }
 
     debug = {
@@ -279,6 +290,7 @@ for fold in range(num_folds):
     x_to_q_optimizer = torch.optim.Adam(x_to_q.parameters(), lr=learning_rate, weight_decay=weight_decay)
     sementic_alignment_optimizer = torch.optim.Adam(sementic_alignment.parameters(), lr=learning_rate, weight_decay=weight_decay)
     num_or_opp_optimizer = torch.optim.Adam(num_or_opp.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    sni_optimizer = torch.optim.Adam(sni.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
 
     optimizers = [
@@ -292,7 +304,8 @@ for fold in range(num_folds):
         x_generate_optimizer,
         x_to_q_optimizer,
         sementic_alignment_optimizer,
-        num_or_opp_optimizer
+        num_or_opp_optimizer,
+        sni_optimizer
     ]
 
     encoder_scheduler = torch.optim.lr_scheduler.StepLR(encoder_optimizer, step_size=20, gamma=0.5)
@@ -306,6 +319,7 @@ for fold in range(num_folds):
     x_to_q_scheduler = torch.optim.lr_scheduler.StepLR(x_to_q_optimizer, step_size=20, gamma=0.5)
     sementic_alignment_scheduler = torch.optim.lr_scheduler.StepLR(sementic_alignment_optimizer, step_size=20, gamma=0.5)
     num_or_opp_scheduler = torch.optim.lr_scheduler.StepLR(num_or_opp_optimizer, step_size=20, gamma=0.5)
+    sni_scheduler = torch.optim.lr_scheduler.StepLR(sni_optimizer, step_size=20, gamma=0.5)
 
     schedulers = [
         encoder_scheduler,
@@ -318,7 +332,8 @@ for fold in range(num_folds):
         x_generate_scheduler,
         x_to_q_scheduler,
         sementic_alignment_scheduler,
-        num_or_opp_scheduler
+        num_or_opp_scheduler,
+        sni_scheduler
     ]
 
     # Move models to GPU
@@ -344,7 +359,7 @@ for fold in range(num_folds):
         # num_stack_batches: the corresponding nums lists
         # num_pos_batches: positions of the numbers lists
         # num_size_batches: number of numbers from the input text
-        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos = prepare_train_batch(train_pairs, batch_size, vars, output_lang, input_lang)
+        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni = prepare_train_batch(train_pairs, batch_size, vars, output_lang, input_lang)
         # generate temp x vectors
 
         print("fold:", fold + 1)
@@ -355,6 +370,7 @@ for fold in range(num_folds):
             "train_soln": [],
             "train_num_x_mse": [],
             "train_op_right": [],
+            "train_sni_acc": [],
 
 
             "eval_token": [],
@@ -373,10 +389,10 @@ for fold in range(num_folds):
 
             input_batch_len = len(input_batches[idx])
             start = time.perf_counter()
-            loss, acc, num_x_mse, comparison, op_right = train_tree(
+            loss, acc, num_x_mse, comparison, op_right, sni_acc = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
-                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums)
+                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask)
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             train_comparison.append(comparison)
@@ -384,6 +400,7 @@ for fold in range(num_folds):
             batch_accuricies["train_token"].append(acc)
             batch_accuricies["train_op_right"].append(op_right)
             batch_accuricies["train_num_x_mse"].append(num_x_mse)
+            batch_accuricies["train_sni_acc"].append(sni_acc)
             # train_accuracys.append(acc)
             
             # Step the optimizers
@@ -401,6 +418,7 @@ for fold in range(num_folds):
         # fold_train_accuracy.append(train_acc)
         fold_loss.append(loss_total / len(input_lengths))
         fold_accuracies["train_num_x_mse"].append(sum(batch_accuricies["train_num_x_mse"]) / len(batch_accuricies["train_num_x_mse"]))
+        fold_accuracies["train_sni_acc"].append(sum(batch_accuricies["train_sni_acc"]) / len(batch_accuricies["train_sni_acc"]))
         # fold_train_accuracy.append(train_acc)
         # print("training time", time_since(time.time() - start))
         # print("--------------------------------")
@@ -416,7 +434,7 @@ for fold in range(num_folds):
             batch_eval_comparison = []
             for test_batch in test_pairs:
                 start = time.perf_counter()
-                test_res, pred_num_x = evaluate_tree(test_batch['input_cell'], test_batch['input_len'], generate_num_ids, models, input_lang, output_lang, test_batch['num_pos'], vars, useCustom, debug, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, beam_size=beam_size)
+                test_res, pred_num_x = evaluate_tree(test_batch['input_cell'], test_batch['input_len'], generate_num_ids, models, input_lang, output_lang, test_batch['num_pos'], vars, useCustom, debug, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, test_batch['equation_lens'], test_batch['equations'], useSNIMask, beam_size=beam_size)
                 end = time.perf_counter()
                 test_time_array.append([1, end - start])
                 lengths = 0
@@ -504,7 +522,7 @@ for fold in range(num_folds):
         print(k, v)
         print("\n")
     # print('COMPARISONS', train_comparison, eval_comparison)
-    write_comparison(train_comparison, eval_comparison)
+    # write_comparison(train_comparison, eval_comparison)
     # print('fold accuracies', fold_accuracies)
     make_loss_graph(
         fold_accuracies['loss'], 

@@ -1017,12 +1017,28 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         #   [[] of where each token in the equation is found in the nums array]
         # train_pairs.append((input_cell, len(input_cell), output_cell, [len(equ) for equ in output_cell],
         #                     pair[2], pair[3], num_stacks, pair[4], equation_target, pair[6], pair[7]))
+        nums_sni = []
+        for num in pair['nums']:
+            key = None
+            for k, v in pair['pairNumMapping'].items():
+                if num == v:
+                    key = k
+                    break
+            sig = 0 
+            for equ in pair['equations']:
+                if key in equ:
+                    sig = 1 
+                    break
+            nums_sni.append(sig)
+
+
         train_pairs.append({
             "input_cell": input_cell,
             "input_len": len(input_cell),
             "equations" : output_cell,
             "equation_lens": [len(equ) for equ in output_cell],
             "nums": pair['nums'],
+            "nums_sni": nums_sni,
             "num_pos": pair['num_pos'],
             "num_stack": num_stacks,
             "allVars": pair['allVars'],
@@ -1054,6 +1070,20 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             num_stacks.append(num_stack)
         input_cell = indexes_from_sentence(input_lang, pair['input_seq'])
         output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair['equations']]
+        
+        nums_sni = []
+        for num in pair['nums']:
+            key = None
+            for k, v in pair['pairNumMapping'].items():
+                if num == v:
+                    key = k
+                    break
+            sig = 0 
+            for equ in pair['equations']:
+                if key in equ:
+                    sig = 1 
+                    break
+            nums_sni.append(sig)
         # train_pairs.append((input_cell, len(input_cell), output_cell, len(output_cell),
         #                     pair[2], pair[3], num_stack, pair[4]))
         # test_pairs.append((input_cell, len(input_cell), output_cell, [len(equ) for equ in output_cell],
@@ -1064,6 +1094,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             "equations": output_cell,
             "equation_lens": [len(equ) for equ in output_cell],
             "nums": pair['nums'],
+            "nums_sni": nums_sni,
             "num_pos": pair['num_pos'],
             "num_stack": num_stacks,
             "allVars": pair['allVars'],
@@ -1194,6 +1225,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
 
     var_pos_in_input = []
     var_size_in_input = []
+    batches_sni = []
 
     while pos + batch_size < len(pairs):
         batches.append(pairs[pos:pos+batch_size])
@@ -1221,6 +1253,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
         input_len_max = 0
         targets_len_max = 0
         var_pos_in_inputs = []
+        batch_snis = []
 
         # for i, li, j, lj, num, num_pos, num_stack, var_list, equ_targets, var_solns, num_mapping in batch:
         for pair in batch:
@@ -1264,6 +1297,8 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
             output_var_solutions.append(pair['solution'])
             targets.append(pair['equationTargetVars'] + [0 for _ in range(targets_len_max - len(pair['equationTargetVars']))])
 
+            batch_snis.append(pair['nums_sni'])
+
             cur_vars = []
             for var in vars:
                 if var in pair['allVars']:
@@ -1284,6 +1319,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
         total_output_solutions.append(output_var_solutions)
         total_targets.append(targets)
         var_pos_in_input.append(var_pos_in_inputs)
+        batches_sni.append(batch_snis)
     # input_batches: padded inputs
     # input_lengths: length of the inputs (without padding)
     # output_batches: padded outputs
@@ -1292,7 +1328,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
     # num_stack_batches: the corresponding nums lists
     # num_pos_batches: positions of the numbers lists
     # num_size_batches: number of numbers from the input text
-    return input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_vars_batches, total_output_solutions, total_targets, var_pos_in_input
+    return input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_vars_batches, total_output_solutions, total_targets, var_pos_in_input, batches_sni
 
 
 def get_num_stack(eq, output_lang, num_pos):
