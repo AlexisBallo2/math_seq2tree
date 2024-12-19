@@ -139,7 +139,7 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
 
 # @line_profiler.profile
-def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets,var_pos, batch_sni, useCustom, all_vars,  debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, inTraining, english=False):
+def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets, var_pos, batch_sni, useCustom, all_vars,  debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, inTraining, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -239,6 +239,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     num_equations_mse = []
     if useCustom:
         pred_num_equations = models['num_x_predict'](problem_output)
+        max_pred_num_equations = max(pred_num_equations.argmax(dim = 1).tolist())
         for i, num in enumerate(num_equations_per_obs):
             print(f'predicted num x mse: {pred_num_equations[i].argmax().item()}, actual: {num.item()}')
             num_equations_mse.append((pred_num_equations[i].argmax().item()  - num.item())**2)
@@ -257,31 +258,45 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     for i, num_size in enumerate(num_size_batch):
         if useCustom and useSeperateVars:
             d = num_size + len(generate_nums) + len(problem_vars[i].tolist())
-            if useSNIMask:
-                cur_sni_list = is_sni_list[i].argmax(1)
-                # flip the mask
-                flipped = cur_sni_list == 0
-                flipped = flipped.type(torch.int)
-                flipped = flipped.tolist()
-                if inTraining:
-                    num_mask.append(problem_vars[i].tolist() + [0] * len(generate_nums) + flipped + [1] * (max_num_size - d))
-                else:
-                    num_vars_predicted = pred_num_equations.argmax().item()
-                    if num_vars_predicted < len(all_vars):
-                        problem_var_list = [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
-                    else:
-                        problem_var_list = [0] * len(all_vars)
-                    num_mask.append(problem_var_list + [0] * len(generate_nums) + flipped + [1] * (max_num_size))
+            # if useSNIMask:
+            #     cur_sni_list = is_sni_list[i].argmax(1)
+            #     # flip the mask
+            #     flipped = cur_sni_list == 0
+            #     flipped = flipped.type(torch.int)
+            #     flipped = flipped.tolist()
+            #     if inTraining:
+            #         num_mask.append(problem_vars[i].tolist() + [0] * len(generate_nums) + flipped + [1] * (max_num_size - d))
+            #     else:
+            #         num_vars_predicted = pred_num_equations.argmax().item()
+            #         if num_vars_predicted < len(all_vars):
+            #             problem_var_list = [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
+            #         else:
+            #             problem_var_list = [0] * len(all_vars)
+            #         num_mask.append(problem_var_list + [0] * len(generate_nums) + flipped + [1] * (max_num_size))
+            # else:
+            if inTraining:
+                # for problem_var in problem_vars[i].tolist():
+                #     print('can use var', output_lang.index2word[problem_var])
+                # for generate_num in generate_nums:
+                #     print('can use num', output_lang.index2word[generate_num])
+                # for num_t in range(num_size):
+                #     print('can use num', output_lang.index2word[len(problem_vars[i].tolist()) + len(generate_nums) + num_t])
+
+                current_mask =  problem_vars[i].tolist() + [0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d)
+                num_mask.append(current_mask)
+                # for temp, indiv_mask in enumerate(current_mask):
+                #     if indiv_mask == 0:
+                #         print("mask", output_lang.index2word[temp + output_lang.num_start])
+                #     else:
+                #         print("NOT", output_lang.index2word[temp + output_lang.num_start])
+                # print()
             else:
-                if inTraining:
-                    num_mask.append( problem_vars[i].tolist() + [0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
+                num_vars_predicted = pred_num_equations[i].argmax().item()
+                if num_vars_predicted < len(all_vars):
+                    problem_var_list = [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
                 else:
-                    num_vars_predicted = pred_num_equations.argmax().item()
-                    if num_vars_predicted < len(all_vars):
-                        problem_var_list = [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
-                    else:
-                        problem_var_list = [0] * len(all_vars)
-                    num_mask.append(problem_var_list + [0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
+                    problem_var_list = [0] * len(all_vars)
+                num_mask.append(problem_var_list + [0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
 
             # num_mask.append([0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
             # d = num_size + len(problem_vars[i].tolist()) + len(generate_nums)
@@ -295,7 +310,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         avail_tokens = []
         for i, isIn in enumerate(t_batch):
             if isIn == 0:
-                avail_tokens.append(output_lang.index2word[i])
+                avail_tokens.append(output_lang.index2word[i + output_lang.num_start])
         print("avail tokens", avail_tokens)
 
 
@@ -337,7 +352,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         if inTraining:
             qs = models['q_generate'](len(all_vars), encoder_outputs, problem_output)
         else:
-            qs = models['q_generate'](pred_num_equations.argmax().item(), encoder_outputs, problem_output)
+            qs = models['q_generate'](max_pred_num_equations, encoder_outputs, problem_output)
         # xs = get_all_number_encoder_outputs(encoder_outputs, var_pos, batch_size, var_size, models['encoder'].hidden_size)
         # xs = torch.zeros(batch_size, len(all_vars), 512)
     else: 
@@ -349,22 +364,22 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         xs = None 
 
     # pad xs and qs
-    pred_num_equations_val = pred_num_equations.argmax().item()
-    if (pred_num_equations_val) < len(all_vars):
-        padding = torch.zeros(1, len(all_vars) - pred_num_equations_val, 512)
+    # pred_num_equations_val = pred_num_equations.argmax().item()
+    if qs.size(1) < len(all_vars):
+        padding = torch.zeros(qs.size(0), len(all_vars) - max_pred_num_equations, 512)
         qs = torch.cat((qs, padding.to(device)), dim=1).to(device)
         xs = torch.cat((xs, padding.to(device)), dim=1).to(device)
-    if pred_num_equations_val > len(all_vars):
+    if max_pred_num_equations > len(all_vars):
         qs = qs[:, :len(all_vars), :]
         xs = xs[:, :len(all_vars), :]
     op_occurances = 0
     op_right = 0
 
     # do equations one at a time
-    if inTraining:
-        num_equations_to_do = max(num_equations_per_obs)
-    else:
-        num_equations_to_do = max(pred_num_equations.argmax().item(),len(all_vars))
+    # if inTraining:
+    num_equations_to_do = max(num_equations_per_obs)
+    # else:
+    #     num_equations_to_do = max(pred_num_equations.argmax().item(),len(all_vars))
 
     for cur_equation in range(num_equations_to_do):
         # select the ith equation in each obs
@@ -526,6 +541,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             left_childs = []
             if inTraining:
                 target_list = ith_equation_target[t].tolist()  
+                # preds = outputs.argmax(dim=1).tolist()
             else:
                 target_list = outputs.argmax(dim=1).tolist()
             for idx, l, r, node_stack, i, o in zip(range(batch_size), left_child.split(1), right_child.split(1),
@@ -538,6 +554,9 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 #   batch_num
                 #   the left child: h_l 
                 #   the right child: h_r
+                # print('current token', output_lang.index2word[i])
+                # if inTraining:
+                #     print('actually predicted', output_lang.index2word[preds[idx]])
                 if len(node_stack) != 0:
                     node = node_stack.pop()
                     #print("removed last from node_stack, now", len(node_stack), "elems")

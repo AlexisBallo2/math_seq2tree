@@ -34,7 +34,7 @@ else:
 # torch.cuda.manual_seed_all(2)
 # np.random.seed(10)
 
-# batch_size = 2 
+# batch_size = 1 
 batch_size = 10
 # batch_size = 20
 # batch_size = 30 
@@ -54,8 +54,8 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-# num_obs = 20
-num_obs = 50
+num_obs = 20
+# num_obs = 50
 # num_obs = 100
 # num_obs = 200
 # num_obs = 600 
@@ -73,8 +73,8 @@ setName = "DRAW"
 useSubMethod = True
 # useSubMethod = False
 
-useSemanticAlignment = True
-# useSemanticAlignment = False
+# useSemanticAlignment = True
+useSemanticAlignment = False
 
 # combine all equations into one
 # useOneEquation = True

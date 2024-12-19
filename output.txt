@@ -1,0 +1,3188 @@
+CONFIG 
+ {'batch_size': 10, 'embedding_size': 128, 'hidden_size': 512, 'n_epochs': 10, 'learning_rate': 0.001, 'weight_decay': 1e-05, 'beam_size': 5, 'n_layers': 2, 'useCustom': True, 'setName': 'DRAW', 'title': '200 Observations, 10 Epochs, Dataset = DRAW, Custom = True ', 'useSubMethod': True, 'useSemanticAlignment': True, 'useOneEquation': False}
+Reading file...
+Transfer numbers...
+newEquations ['Y+X=18.0', 'Y-X=4.0']
+newEquations ['Y+X=22.0', 'Y-X=4.0']
+newEquations ['Y-X=10.0', 'Y+X=34.0']
+newEquations ['Y+X=38.0', 'Y-X=12.0']
+newEquations ['Y+X=39.0', 'Y-X=7.0']
+newEquations ['Y+X=20.0', 'Y-X=4.0']
+newEquations ['X-Y=5.0', 'Y+X=29.0']
+newEquations ['Y+X=621.0', 'Y-X=109.0']
+newEquations ['Y+X=55.0', 'Y-X=13.0']
+newEquations ['Y=X+5.0', 'Y+X=19.0']
+newEquations ['Y=X+(-6.0)', 'Y+X=12.0']
+newEquations ['Y+X=39.0', 'Y-X=11.0']
+newEquations ['Y+X=2.0', 'Y-X=8.0']
+newEquations ['Y+X=64.0', 'Y-X=42.0']
+newEquations ['Y+X=70.0', 'Y-8.0=X']
+newEquations ['Y+X=75.0', 'Y-3.0=X']
+newEquations ['Y+X=42.0', 'X-Y=8.0']
+newEquations ['X=Y+2.0', 'Y+X=30.0']
+newEquations ['Y+X=50.0', 'Y-X=10.0']
+newEquations ['Y+X=64.0', 'Y=X-12.0']
+newEquations ['Y+X=55.0', 'Y=X-5.0']
+newEquations ['Y+X=35.0', 'X-Y=7.0']
+newEquations ['Y+X=0.0', 'X-Y=16.0']
+newEquations ['Y=X-10.0', 'Y+X=60.0']
+newEquations ['Y=X-7.0', 'Y+X=35.0']
+newEquations ['Y+X=53.0', 'Y-X=27.0']
+newEquations ['Y+1.0=X', 'Y+X=145.0']
+newEquations ['X=4.0+Y', 'Y+X=56.0']
+newEquations ['Y+X=34.0', 'Y-X=10.0']
+newEquations ['Y+X=28.0', 'Y-X=4.0']
+newEquations ['Y+X=31.0', 'Y-X=9.0']
+newEquations ['X+Y=22.0', 'X-Y=4.0']
+newEquations ['Y+1.0=X', '1405.0=Y+X']
+newEquations ['Y+X=90.0', 'Y-X=18.0']
+newEquations ['Y+X=64.0', 'Y-X=8.0']
+newEquations ['Y+X=48.0', 'Y-X=24.0']
+newEquations ['Y-X=9.0', 'Y+X=46.0']
+newEquations ['Y=X-3.0', 'Y+X=11.0']
+newEquations ['3.0*(2.0*X)=(2.0*X-2.0)+(2.0*X+2.0)+4.0']
+newEquations ['(2.0*X-2.0)+(2.0*X+2.0)=4.0*(2.0*X)-12.0']
+newEquations ['(2.0*X-2.0)+(2.0*X+2.0)=3.0*2.0*X-22.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)+(2.0*X+3.0)=-81.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)+(2.0*X+3.0)=-81.0']
+newEquations ['Y+X=76.0', 'X=3.0*Y+8.0']
+newEquations ['X=4.0+2.0*Y', 'X+Y=25.0']
+newEquations ['Y+X=78.0', 'X-4.0*Y=13.0']
+newEquations ['Y+X=13.0', 'Y=1.0+3.0*X']
+newEquations ['Y+X=32.0', 'Y-12.0=2.0*X']
+newEquations ['Y=2.0*X+3.0', 'Y+X=27.0']
+newEquations ['Y=2.0*X+5.0', 'Y+X=35.0']
+newEquations ['Y+X=36.0', 'Y=X*2.0+3.0']
+newEquations ['X+Y=78.0', 'Y=4.0*X+8.0']
+newEquations ['Y+X=94.0', 'X=6.0+3.0*Y']
+newEquations ['Y=2.0+3.0*X', 'Y+X=30.0']
+newEquations ['Y+X=825.0', 'Y=8.0*X+15.0']
+newEquations ['X-15.0=7.0']
+newEquations ['-8 * 17.0  - 48.0 =  X * (-8)']
+newEquations ['X=1.0+1.0']
+newEquations ['3.0*Y=4.0*X', 'Y+X=21.0']
+newEquations ['Y+X=22.0', '5.0*Y=6.0*X']
+newEquations ['2.0*(X-1.0)+6.0*X+3.0*(X+1.0)=133.0']
+newEquations ['5.0*3.0*X=150.0']
+newEquations ['3.0*3.0*X=72.0']
+newEquations ['4.0*X-3.0=5.0*X-10.0']
+newEquations ['(2.0*X-21.0)=129.0+(-1.0*X)']
+newEquations ['Y+X=82.0', 'Y+17.0=2.0*X']
+newEquations ['Y+X=32.0', 'X=4.0*Y-5.0']
+newEquations ['Y+X=112.0', '11.0*Y-X=32.0']
+newEquations ['Y+5.0=2.0*X', 'Y+X=28.0']
+newEquations ['Y+X=48.0', '3.0*Y=32.0+X']
+newEquations ['Y=4.0*X-7.0', 'Y+X=28.0']
+newEquations ['Y+X=89.0', 'X+4.0=2.0*Y']
+newEquations ['5.0*Y-8.0=X', 'Y+X=100.0']
+newEquations ['Y+X=14.0', '2.0*Y-X=1.0']
+newEquations ['Y=6.0*X-2.0', 'Y+X=25.0']
+newEquations ['X+Y=240.0', 'X=2.0*Y-6.0']
+newEquations ['Y+X=12.0', '3.0*X-Y=5.0']
+newEquations ['Y+X=57.0', 'Y=2.0*X-3.0']
+newEquations ['Y+X=62.0', '2.0*X=4.0+Y']
+newEquations ['2.0*(2.0*X+1.0)=3.0*(2.0*X-1.0)-13.0']
+newEquations ['2.0*(2.0*X+1.0)=3.0*(2.0*X-1.0)-13.0']
+newEquations ['5.0*(2.0*X-1.0)=3.0*(2.0*X+1.0)+12.0']
+newEquations ['2.0*(2.0*X+1.0)=3.0*(2.0*X-1.0)-13.0']
+newEquations ['6.0*(2.0*X-1.0)=4.0*(2.0*X+1.0)+10.0']
+newEquations ['3.0*(2.0*X+1.0)=4.0*(2.0*X-1.0)-5.0']
+newEquations ['4.0*(2.0*X-1.0)=3.0*(2.0*X+1.0)+9.0']
+newEquations ['5.0*(2.0*X)=2.0*(2*2.0*X+6.0)-4.0']
+newEquations ['Y+X=23.0', '2.0*X=4.0*Y+4.0']
+newEquations ['Y+X=15.0', '8.0*Y=3.0*X-1.0']
+newEquations ['Y+X=20.0', '5.0*Y-2.0=2.0*X']
+newEquations ['Y+X=88.0', '3.0*Y=2.0*X+29.0']
+newEquations ['Y+X=18.0', '3.0*Y=2.0*X-1.0']
+newEquations ['Y+X=10.0', '3.0*X+3.0=8.0*Y']
+newEquations ['Y+X=33.0', '3.0*Y=4.0*X-6.0']
+newEquations ['Y+X=10.0', '3.0*X=8.0*Y-3.0']
+newEquations ['Y+X=10.0', '3.0*Y=8.0*X-3.0']
+newEquations ['X+X+1.0=105.0']
+newEquations ['X+(X+1.0)=237.0']
+newEquations ['X+X+1.0=449.0']
+newEquations ['X+(X+1.0)=35.0']
+newEquations ['X+(X+1.0)=19.0']
+newEquations ['X+(X+1.0)=83.0']
+newEquations ['X+(X+1.0)=291.0']
+newEquations ['X+X+1.0=547.0']
+newEquations ['X+(X+1.0)=95.0']
+newEquations ['X+X+1.0=75.0']
+newEquations ['X+(X+1.0)=383.0']
+newEquations ['X+(X+1.0)=23.0']
+newEquations ['X+(X+1.0)=23.0']
+newEquations ['X+(X+1.0)=27.0']
+newEquations ['X+(X+2.0)=126.0']
+newEquations ['X+(X+1.0)=71.0']
+newEquations ['2.0*X+2.0=2.0*(2.0*X)+20.0']
+newEquations ['2.0*X+2.0=2.0+2.0*(2.0*X)']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)=176.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)=56.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)=56.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)=84.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)=56.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)=164.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)=56.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)=28.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)=176.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)=88.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)=24.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)=76.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)=24.0']
+newEquations ['8.0*X+7.0*(X+1.0)=127.0']
+newEquations ['5.0*X+3.0*(X+1.0)=59.0']
+newEquations ['5.0*X+3.0*(X+1.0)=67.0']
+newEquations ['2.0*X+3.0*(X+1.0)=83.0']
+newEquations ['2.0*X+3.0*(X+1.0)=28.0']
+newEquations ['2.0*X+2.0=2.0*(2.0*X)-6.0']
+newEquations ['2.0*X+2.0=3.0*(2.0*X)-6.0']
+newEquations ['2.0*(2.0*X)=10.0+(2.0*X+2.0)']
+newEquations ['2.0*X+2.0=3.0*(2.0*X)-6.0']
+newEquations ['2.0*X+2.0=2.0*(2.0*X)-6.0']
+newEquations ['2.0*(2.0*X)-20.0=2.0*X+2.0']
+newEquations ['(2.0*X+2.0)=3.0*(2.0*X)-58.0']
+newEquations ['2.0*X+2.0=3.0*(2.0*X)-6.0']
+newEquations ['2.0*(2.0*X)=(2.0*X+2.0)+16.0']
+newEquations ['2.0*X+2.0=2.0*2.0*X-20.0']
+newEquations ['2.0*X+2.0=3.0*2.0*X-6.0']
+newEquations ['(X-1.0)+X+(X+1.0)=126.0']
+newEquations ['(X-1.0)+X+(X+1.0)=87.0']
+newEquations ['(X-1.0)+X+(X+1.0)=48.0']
+newEquations ['(X-1.0)+X+(X+1.0)=96.0']
+newEquations ['(X-1.0)+X+(X+1.0)=6.0']
+newEquations ['(X-1.0)+X+(X+1.0)=249.0']
+newEquations ['(X-1.0)+X+(X+1.0)=90.0']
+newEquations ['(X-1.0)+X+(X+1.0)=90.0']
+newEquations ['(X-1.0)+X+(X+1.0)=336.0']
+newEquations ['(X-1.0)+X+(X+1.0)=171.0']
+newEquations ['(X-1.0)+X+(X+1.0)=114.0']
+newEquations ['(X-1.0)+X+(X+1.0)=30.0']
+newEquations ['(X-1.0)+X+(X+1.0)=48.0']
+newEquations ['(X-1.0)+X+(X+1.0)=111.0']
+newEquations ['(X-1.0)+X+(X+1.0)=315.0']
+newEquations ['(X-1.0)+X+(X+1.0)=42.0']
+newEquations ['(X-1.0)+X+(X+1.0)=87.0']
+newEquations ['(X-1.0)+X+(X+1.0)=42.0']
+newEquations ['(X-1.0)+X+(X+1.0)=27.0']
+newEquations ['(X-1.0)+X+(X+1.0)=63.0']
+newEquations ['(2.0*X-3.0)+(2.0*X-1.0)+(2.0*X+1.0)+(2.0*X+3.0)=216.0']
+newEquations ['(2.0*X-3.0)+(2.0*X-1.0)+(2.0*X+1.0)+(2.0*X+3.0)=120.0']
+newEquations ['(2.0*X-3.0)+(2.0*X-1.0)+(2.0*X+1.0)+(2.0*X+3.0)=216.0']
+newEquations ['(2.0*X-3.0)+(2.0*X-1.0)+(2.0*X+1.0)+(2.0*X+3.0)=416.0']
+newEquations ['(2.0*X-3.0)+(2.0*X-1.0)+(2.0*X+1.0)+(2.0*X+3.0)=144.0']
+newEquations ['(2.0*X-3.0)+(2.0*X-1.0)+(2.0*X+1.0)+(2.0*X+3.0)=336.0']
+newEquations ['(2.0*X-3.0)+(2.0*X-1.0)+(2.0*X+1.0)+(2.0*X+3.0)=360.0']
+newEquations ['(X-1.0)+X+(X+1.0)+(X+2.0)=94.0']
+newEquations ['(X-1.0)+X+(X+1.0)+(X+2.0)=62.0']
+newEquations ['(X-1.0)+X+(X+1.0)+(X+2.0)=434.0']
+newEquations ['(X-1.0)+X+(X+1.0)+(X+2.0)=114.0']
+newEquations ['X+2.0+6.0=3.0*X']
+newEquations ['2.0*X=X+1.0+26.0']
+newEquations ['2.0*X=(X+1.0)+16.0']
+newEquations ['(X-1.0)+X+(X+1.0)=(X-1.0)+33.0']
+newEquations ['(X-1.0)+X+(X+1.0)=(X-1.0)+33.0']
+newEquations ['0.333333333333*X=0.5*X-6.0']
+newEquations ['0.388888*X=0.875*X-770.0']
+newEquations ['0.333333333333*X=0.5*X-5.0']
+newEquations ['3.0*X-5.0*X=20.0']
+newEquations ['2.0*X=6.0*X-220.0']
+newEquations ['2.0*X+12.0= -1.0* 6.0 * X']
+newEquations ['3.0*X=5.0*X-10.0']
+newEquations ['8.0*X=11.0+4.0*X']
+newEquations ['3.0*X=7.0+2.0*X']
+newEquations ['4.0*X=36.0+(-2.0)*X']
+newEquations ['7.0*X-5.0*X=18.0']
+newEquations ['6.0*X=3.0*X+24.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)+(2.0*X+3.0)=417.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)+(2.0*X+3.0)=39.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)+(2.0*X+3.0)=123.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)+(2.0*X+3.0)=111.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)+(2.0*X+3.0)=33.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)+(2.0*X+3.0)=183.0']
+newEquations ['2.0*X-1.0+2.0*X+1.0+2.0*X+3.0=237.0']
+newEquations ['2.0*X-1.0+2.0*X+1.0+2.0*X+3.0=105.0']
+newEquations ['(2.0*X-1.0)+(2.0*X+1.0)+(2.0*X+3.0)=39.0']
+Indexing words...
+keep_words 20 / 63 = 0.3175
+Indexed 23 words in input language, 17 words in output
+Number of training data 70
+Number of testind data 69
+fold: 1
+epoch: 1
+predicted num x mse: 2, actual: 1
+predicted num x mse: 3, actual: 1
+predicted num x mse: 2, actual: 1
+predicted num x mse: 2, actual: 1
+predicted num x mse: 2, actual: 1
+predicted num x mse: 2, actual: 1
+predicted num x mse: 2, actual: 1
+predicted num x mse: 2, actual: 1
+predicted num x mse: 2, actual: 1
+predicted num x mse: 2, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['3', '2', '1', '3', '3', 'X', '3', '*', '*', '2', '3']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['X', '1', '3', '2', '1', '3', '3', '*', '3', '1', '1', '2', '1', '2', '0', '3', '3', '3', '2', '2', '2', '+', '*', '1', '3']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['3', '3', '2', 'X', '2', '3', '3', '*', '2', '+', 'N1', '3', '*', '3', '3', '1', '2', '3', 'N1', '1', '2', '1', '+', '2', '2']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['3', '3', 'X', '3', '3', '3', '3', '3', '*', '3', '0', '+', '0', 'X', 'X', '2', '3', '3', '3']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['3', '2', '3', '3', '3', '3', '*', '2', '3', '3', '2', '1', '2']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['3', '3', '2', '3', 'X', '1', '*', 'X', '3', '2', '2', 'N2', 'N3', '2', 'N1', '2', '*', '2', '3']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', 'N1', '+', '*', '2', 'X', 'N1', '+', '*', '2', 'X', 'N0', '1']
+        prediction: ['2', '2', '3', '1', '2', '+', '0', '2', '3', '3', '2']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['+', '3', '3', '3', '3', '3', '2', '*', '1', '3', '3', '3', '1', '0', '3']
+        actual:     ['-', '+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2', 'N1']
+        prediction: ['3', '3', '2', '2', '3', '0', '0', '+', '*', '2', '3', '3', '+', '1', '3', '2', '*', '3', '3']
+        actual:     ['-', '+', '+', '+', '+', '-', '*', '2', 'X', '1', '*', '2', 'X', '1', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['3', '0', '2', '3', '2', '2', 'N0']
+        actual:     ['-', '+', 'X', '+', 'X', 'N0', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['X', 'X', '+', 'X', 'X', 'X', 'X', 'X', '+', '+', 'X']
+        actual:     ['-', '+', '*', 'N0', 'X', '*', 'N1', '+', 'X', '1', 'N2']
+        prediction: ['X', '+', '+', 'X', 'X', 'X', '+', 'X', '+', 'X', 'X', '+', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['X', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '2']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '2', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['X', 'X', 'X', 'X', '2', 'X', 'X', '2', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['X', 'X', '2', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+']
+        actual:     ['-', '+', '*', 'N0', 'X', '*', 'N2', '+', 'X', '1', 'N3']
+        prediction: ['+', '+', '+', '+', '+', '1', '+', '+', '+', '+', '1']
+        actual:     ['-', '+', '*', 'N1', 'X', '*', 'N2', '+', 'X', '1', 'N3']
+        prediction: ['+', '+', '+', '+', 'X', 'X', '+', '+', '+']
+        actual:     ['-', '-', '*', 'N1', 'X', '*', 'N0', 'X', 'N2']
+        prediction: ['+', '+', '+', '+', '+', '+', 'X', '1', '+', '+', '+', 'X', '+', '+', '+', '+', '1', '1', 'X']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['+', '+', '+', '+', 'X', '+', '1', '+', '+', 'X', '+', '+', '+']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['1', '+', 'X', 'X', 'X', '1', 'X', '1', '1', '+', '+', 'X', 'X', 'X', 'X', '+', '+', 'X', '1', '+', '+', 'X', 'X', 'X', '1']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['1', 'X', '+', '1', '+', '1', 'X', 'X', '+', 'X', '1', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['X', '1', '1', 'X', '+', '1', '+', '+', '1', '1', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['+', 'X', '1', '+', 'X', 'X', '1', '+', '+', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['X', '1', '1', '+', '+', '1', '+', '1', '+', '+', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N1', 'X', '*', 'N0', 'X', 'N2']
+        prediction: ['+', '+', '+', '+', '+', 'X', '+', '+', '+', '+', '+']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['+', '+', '+', '+', '+', '+', 'X', 'X', '+', '+', '+', 'X', '+', '+', '+', '+', 'X', 'X', '+']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['+', '+', '+', '+', '+', 'X', '+', '+', '+', '1', '+']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['+', '+', '+', '+', '+', 'X', 'X', '+', '+', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '+', 'X', '+', '+', '+', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['X', '+', '+', 'X', '+', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['X', '+', '+', 'X', '+', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['+', '+', '+', '+', '+', '+', 'X', 'X', 'X', '+', 'X', '+', '+', 'X', 'X']
+        actual:     ['-', '+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2', 'N1']
+        prediction: ['-', '+', '+', '+', '+', 'X', '+', '+', '+', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', 'X', 'X', '1', 'N1']
+        prediction: ['X', 'X', 'X', '+', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2', 'N1']
+        prediction: ['-', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', 'X', 'N1', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', 'X', 'X', '1', 'N1']
+        prediction: ['X', '+', 'X', '+', '+', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', 'X', 'X', 'X', 'X', 'X', 'X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '-', '-', 'X', '+', '+', '-', 'X', '+']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '+', 'X', '+', '+', '+', '+', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '+', '-', 'X', '+', '+', '-', '-', 'X', '+', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '-', '-', '+', '-', 'X', 'X', '+', '-', '-', '1', 'X', '+', '-', '-', 'X', 'X', '+', '+', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '+', '-', '+', '+', '+', 'X', 'X', '+', '+', '-', 'X', 'X', '+', '+', '-', 'X', 'X', '+', '+', '-', 'X', 'X', '+']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '-', '+', '-', '+', 'X', '+', '+', '-', 'X', '+', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', 'X', '-', '+', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '+', '+', 'X', '+', '+', '-', '+', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '+', '-', '+', 'X', '+', '+', '+', '+', '+', '-', 'X', '1']
+        actual:     ['-', '+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2', 'N1']
+        prediction: ['-', '+', '+', 'X', '-', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '-', 'X', 'X', '+', 'X', 'X', '-', 'X', 'X']
+        actual:     ['-', '+', '*', 'N1', 'X', '*', 'N2', '+', 'X', '1', 'N3']
+        prediction: ['-', '+', '-', '1', 'X', '1', '1', 'X', '+', '1', '1']
+        actual:     ['-', '+', '*', 'N0', 'X', '*', 'N1', '+', 'X', '1', 'N2']
+        prediction: ['-', '+', '+', '*', '-', '+', '+', '1', 'X', 'X', '+', 'X', 'X', '+', '+', '1', 'X', '+', '1']
+        actual:     ['-', '+', '+', '+', '+', '-', '*', '2', 'X', '1', '*', '2', 'X', '1', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '-', '+', '+', 'X', 'X', '+', '+', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '+', 'X', '1', '+', '-', 'X', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '+', 'X', 'X', '1', '+', '-', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '1', 'X', 'X', '+', '+', 'X', 'X', '1', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', 'X', 'X', '+', '+', '1', '1', '1', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '-', '+', '1', 'X', '1', '+', '+', 'X', 'X', 'X', '+', '+', '1', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '-', '+', '+', '+', 'X', 'X', 'X', '+', '+', '1', 'X', 'X', '+', '+', '1', 'X', 'X', '+', '+', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+loss: 3.048842021397182
+train accuracy 0.2663342104296592
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1', '1', '1']
+        actual:     ['-', '+', '*', '2', 'X', 'N1', 'Y']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1', '1']
+        actual:     ['-', '+', 'X', '-', 'X', 'Y']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'X', 'N2', 'Y']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '1', '+', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1']
+        actual:     ['-', '+', '+', '*', '2', '-', 'X', '1', '*', 'N1', 'X', '*', 'N0', '+', 'X', '1', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'N0', 'X']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '1', '1', '1', '1', '1']
+        actual:     ['-', '-', '*', 'N2', 'X', 'N0', 'Y']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N4']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1', '1', '1']
+        actual:     ['-', '-', '*', 'N3', 'Y', 'N2', 'X']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '1', '1', '1', '1']
+        actual:     ['-', '*', '*', 'N0', 'N1', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'X', '*', 'N2', 'Y', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', '1', 'X']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '1', '1', '1']
+        actual:     ['-', '+', 'X', 'Y', 'N0']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'X', 'Y', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1', '1', '1']
+        actual:     ['-', '-', '*', 'N4', 'Y', 'X', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'X', 'Y', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1', '1', '1']
+        actual:     ['-', '+', 'N1', '*', '2', 'Y', 'X']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'X', 'Y', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'N3', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1', '1', '1']
+        actual:     ['-', '-', '*', 'N3', 'X', 'Y', 'N4']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'X', 'Y', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1', '1', '1']
+        actual:     ['-', '+', '*', 'N2', 'X', 'N3', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '1', '1']
+        actual:     ['-', '-', 'X', 'Y', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '1', '1', '1', '1', '1']
+        actual:     ['-', '-', '*', 'N2', 'X', 'N1', 'Y']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N3']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '1', '1', '1', '1']
+        actual:     ['-', '*', '*', 'N0', 'N0', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'X', 'Y', 'N1']
+        prediction: ['1', '1', '1', '1', '1', '1', '1']
+        actual:     ['-', '+', '*', 'N3', 'X', 'N2', 'Y']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '1', '+', '1', '1', '1']
+        actual:     ['-', '+', '+', 'X', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '1', '1']
+        actual:     ['-', '-', 'X', 'N1', 'Y']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'N0', 'N0', 'X']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '1', '+', '1', '1', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '1', '1']
+        actual:     ['-', '-', 'X', 'N1', 'Y']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1', '1', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1', '1', '1']
+        actual:     ['-', '+', '*', 'X', 'N0', 'N3', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'X', 'Y', 'N1']
+        prediction: ['1', '1', '1', '1', '1', '1', '1']
+        actual:     ['-', '-', '*', 'N0', 'Y', 'N2', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'N2', '*', 'N3', 'Y', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '1', '1']
+        actual:     ['-', '+', 'N1', 'Y', 'X']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1', '1', '1']
+        actual:     ['-', '+', '*', 'N3', 'Y', 'N2', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N0']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'X', 'Y', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'X', 'N2', 'Y']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '1', '+', '1', '1', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '+', '+', '+', '+']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', '1', 'X']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N0']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1', '1', '1']
+        actual:     ['-', '+', '*', '2', 'X', 'N1', 'Y']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '1', '1', '1']
+        actual:     ['-', '-', 'X', 'N0', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1', 'N2']
+        prediction: ['-', '+', '1', '+', '1', '1', '1']
+        actual:     ['-', '+', 'N1', '*', 'N2', 'X', 'Y']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N4']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '1', '1']
+        actual:     ['-', '-', 'X', 'N1', 'Y']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '1', '+', '1', '1', '1']
+        actual:     ['-', '+', '+', 'X', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'N2', '*', 'N3', 'X', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1', '1', '1']
+        actual:     ['-', '-', '*', 'N0', 'Y', 'X', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N0']
+        prediction: ['1', '1', '1', '1', '1', '1', '1']
+        actual:     ['-', '-', '*', 'N1', 'X', 'N2', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'X', 'N0', 'Y']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '1', '1', '1', '1', '1']
+        actual:     ['-', '-', '*', 'N2', 'Y', 'N3', 'X']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '1', '+', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['1', '1', '1', '1', '1']
+        actual:     ['-', '-', 'Y', 'N2', 'X']
+
+loss: 6.15606174952742
+eval accuracy 0.20975926602525047
+------------------------------------------------------
+fold: 1
+epoch: 2
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '*', '1', 'X', '1', 'X', 'X', 'X', '1', '1', '1']
+        actual:     ['-', '+', '*', 'N1', 'X', '*', 'N2', '+', 'X', '1', 'N3']
+        prediction: ['-', '*', '*', '1', '*', 'X', '1', '+', '*', '1', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '*', 'X', '1', 'X', 'X', '1', '1', '1', 'X', 'X']
+        actual:     ['-', '+', '*', 'N1', 'X', '*', 'N2', '+', 'X', '1', 'N3']
+        prediction: ['-', '+', '1', '+', '1', 'X', '1', '+', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', 'X', '1', 'X', '1', 'X', 'X']
+        actual:     ['-', '-', '*', 'N1', 'X', '*', 'N0', 'X', 'N2']
+        prediction: ['-', '*', 'X', '1', 'X', 'X', 'X', 'X', '1']
+        actual:     ['-', '-', '*', 'N1', 'X', '*', 'N0', 'X', 'N2']
+        prediction: ['-', '+', '*', '*', '1', '1', 'X', '+', '1', 'X', '1', '1', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '*', '+', 'X', 'X', '1', '1', '1', '1', 'X', 'X', '+', '+', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '1', '1', '1', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '1', '+', 'X', '+', 'X']
+        actual:     ['-', '+', '+', 'X', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '*', '*', '*', 'X', 'X', '+', '+', '*', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '*', 'X', 'X', 'X', 'X', 'X', '1', '*', 'X', '1']
+        actual:     ['-', '+', '*', 'N0', 'X', '*', 'N1', '+', 'X', '1', 'N2']
+        prediction: ['-', '*', '*', '*', '*', 'X', 'X', 'X', '+', '*', 'X', 'X', 'X', '+', '*', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '*', '*', '*', '*', 'X', '+', '+', 'X', '1', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '*', '*', 'X', '1', 'X', '+', '*', 'X', 'X', 'X', '+', '1', 'X', 'X', '1', 'X']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', 'N1', '+', '*', '2', 'X', 'N1', '+', '*', '2', 'X', 'N0', 'X']
+        prediction: ['-', '+', '+', 'X', '*', '*', 'X', '+', '+', '+', 'X', '+', 'X', '1', 'X']
+        actual:     ['-', '+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2', 'N1']
+        prediction: ['-', '+', '*', '*', '*', '1', '+', '+', '*', '1', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '*', '+', '1', '+', '+', '*', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '*', '*', '*', 'X', 'X', 'X', '+', '*', 'X', 'X', 'X', '+', '*', '1', 'X', 'X', '+', '*', '1', 'X', 'X', '1']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '*', '*', '+', 'X', '+', '+', '*', '1', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '*', '*', '*', '*', '*', 'X', 'X', 'X', '+', '*', 'X', 'X', 'X', '+', '*', 'X', 'X', 'X', '+', '*', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '*', '*', '*', 'X', 'X', 'X', '+', '*', 'X', 'X', 'X', '+', '*', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '*', '+', '*', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '*', 'X', 'X', 'X', '+', '*', 'X', 'X', '+', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '+', 'X', 'X', 'X', '+', '*', 'X', 'X', '+', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '*', 'X', 'X', 'X', '+', '*', 'X', 'X', '+', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '*', 'X', '+', 'X', '+', '*', 'X', 'X', '+', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '+', 'X', '+', '+', '*', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '*', '*', '*', 'X', '+', '+', '*', 'X', '+', '*', '1', 'X']
+        actual:     ['-', '+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2', 'N1']
+        prediction: ['-', '+', '*', '*', 'X', 'X', 'X', '+', '*', 'X', '+', '+', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '*', 'X', '2', '+', 'X', 'X', '*', 'X', 'X']
+        actual:     ['-', '+', '*', 'N0', 'X', '*', 'N2', '+', 'X', '1', 'N3']
+        prediction: ['-', '+', '*', '-', '+', '+', '*', 'X', 'X', 'X', '+', 'N0', 'X', '+', '+', 'X', 'X', '+', 'X']
+        actual:     ['-', '+', '+', '+', '+', '-', '*', '2', 'X', '1', '*', '2', 'X', '1', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '*', '+', '+', 'X', 'X', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '+', '+', 'X', '+', '+', '*', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '+', 'X', 'X', 'X', '+', '*', 'X', 'X', '+', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '+', 'X', 'X', '+', '*', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '+', 'X', 'X', 'X', '+', '*', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '+', '2', '2', 'X', '+', '*', '2', 'X', '+', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '*', '*', '+', '+', 'X', 'X', 'X', '+', '2', 'X', '+', '+', 'X', 'X', '+', 'X']
+        actual:     ['-', '+', '+', '+', '+', '-', '*', '2', 'X', '1', '*', '2', 'X', '1', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '+', '+', '+', 'X', 'X', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '-', '-', '*', 'X', 'X', '+', '*', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '+', 'X', 'X', 'X', '+', '*', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '-', '+', 'X', 'X', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '-', '+', 'X', 'X', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '-', '+', 'X', 'X', '+', '-', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', 'X', '-', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '-', '*', '+', 'X', 'X', 'X', '+', '-', 'X', 'X', 'X', '+', '-', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '-', '-', '+', 'X', 'X', '+', '2', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '+', '+', 'X', 'X', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '-', '-', '+', 'X', 'X', '+', 'X', 'X', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '-', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '*', 'N0', 'X', '*', 'N1', '+', 'X', '1', 'N2']
+        prediction: ['-', '+', 'X', '-', '-', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '-', '-', '-', '+', 'X', 'X', 'X', 'X', '+', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '-', '-', '-', '+', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '-', '-', '-', '+', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '-', '-', '+', 'X', 'X', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '-', '+', 'X', 'X', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '-', '-', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2', 'N1']
+        prediction: ['-', '+', '-', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '-', '-', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', 'X', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '-', '-', '+', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '-', '-', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', 'X', 'X', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', 'X', 'X', 'X', 'X', '+', '-', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '-', '+', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '-', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '-', 'X', 'X', 'X', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+loss: 2.2940943581717357
+train accuracy 0.407881036922997
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', 'X', 'X']
+        actual:     ['-', '-', 'X', 'N0', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'Y', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', '1', 'X']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N0']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '+', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'Y', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '+', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '*', 'N3', 'Y', 'N2', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '-', '+', '+', 'X']
+        actual:     ['-', '+', '+', 'X', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '+', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'N2', '*', 'N3', 'Y', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'N1', 'Y', 'X']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '*', 'N2', 'X', 'N3', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'Y', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N2', 'X', 'N1', 'Y']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'N2', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', '1', 'X']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', 'X']
+        actual:     ['-', '-', 'X', 'N1', 'Y']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'N3', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N2', 'X', 'N0', 'Y']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N4']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N0']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N3']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', 'X', 'X', 'X', '+', 'X']
+        actual:     ['-', '*', '*', 'N0', 'N1', 'X', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '+', '+', '+', '+']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', '-', '+', '+']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', 'X', 'X', 'X', '+', 'X']
+        actual:     ['-', '*', '*', 'N0', 'N0', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '+', '-', '+', '+']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', 'N1', '*', '2', 'Y', 'X']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'X', 'Y', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '*', '2', 'X', 'N1', 'Y']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '-', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N0']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N1', 'X', 'N2', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'N2', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N3', 'Y', 'N2', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '+', 'X']
+        actual:     ['-', '+', 'X', 'Y', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '*', 'N3', 'X', 'N2', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N3', 'X', 'Y', 'N4']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '-', 'X', 'Y', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N0', 'Y', 'X', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N2', 'Y', 'N3', 'X']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'X', 'N0', 'Y']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '+', '-', '+', '+']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '-', '+', '+', 'X']
+        actual:     ['-', '+', '+', 'X', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '*', '2', 'X', 'N1', 'Y']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'N0', 'X']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'X', 'Y', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N0', 'Y', 'N2', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', 'X']
+        actual:     ['-', '-', 'X', 'N1', 'Y']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '+', 'X']
+        actual:     ['-', '+', 'N0', 'N0', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', 'X', 'X']
+        actual:     ['-', '+', 'X', '-', 'X', 'Y']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N4', 'Y', 'X', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '*', 'X', 'N0', 'N3', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'N2', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '-', '+', '+']
+        actual:     ['-', '+', 'X', 'Y', 'N0']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'Y', 'N1']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '-', '-', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '*', '2', '-', 'X', '1', '*', 'N1', 'X', '*', 'N0', '+', 'X', '1', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '+', '+']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', '*', 'N2', 'Y', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '+', 'X']
+        actual:     ['-', '-', 'X', 'N1', 'Y']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', '+', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'N2', '*', 'N3', 'X', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1', 'N2']
+        prediction: ['-', '+', '+', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', 'N1', '*', 'N2', 'X', 'Y']
+        prediction: ['X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N4']
+
+loss: 6.723597098087919
+eval accuracy 0.29732675678967263
+------------------------------------------------------
+fold: 1
+epoch: 3
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '-', '-', '+', 'X', 'X', '+', '*', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '+', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '+', 'X', 'X', '+', '*', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '+', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '+', '+', 'X', 'X', 'X', '+', '+', 'X', 'X', 'X', '+', '+', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '+', '+', '+', 'X', 'X', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '+', '+', 'X', 'X', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', 'X', '+', 'X', 'X', 'X', '*', '1', 'X']
+        actual:     ['-', '+', '*', 'N0', 'X', '*', 'N2', '+', 'X', '1', 'N3']
+        prediction: ['-', '+', '+', 'X', 'X', 'X', 'X', 'X', '*', 'X', 'X']
+        actual:     ['-', '+', '*', 'N0', 'X', '*', 'N1', '+', 'X', '1', 'N2']
+        prediction: ['-', '+', '+', '+', 'X', 'X', 'X', '+', '*', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '-', '+', '+', '1', 'X', '+', '*', 'X', '+', '+', '1', 'X']
+        actual:     ['-', '+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2', 'N1']
+        prediction: ['-', '+', '-', '-', '+', 'X', 'X', 'X', '+', '+', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '+', '+', '+', 'X', 'X', '+', '+', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '+', 'X', 'X', '+', '+', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '+', 'X', 'X', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '+', '1', 'X', '+', '+', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '*', 'X', 'X', 'X', 'X', '+', '*', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '*', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '*', '*', '*', 'X', 'X', '+', '*', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '*', '*', 'X', 'X', '+', '*', '1', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', 'X', 'X', '+', '*', 'X', 'X', 'X', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '+', '1', 'X', '+', '*', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', '1', 'X', '+', '*', '+', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', 'X', 'X', '+', '*', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '+', '+', 'X', 'X', '+', 'X', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2', 'N1']
+        prediction: ['-', '+', '+', '+', '*', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '*', 'X', '+', '+', 'X', '+', 'X', '1', 'X']
+        actual:     ['-', '+', '*', 'N1', 'X', '*', 'N2', '+', 'X', '1', 'N3']
+        prediction: ['-', '+', '*', '-', 'X', '1', '+', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', 'X', 'X', 'X', 'X', 'X', '*', '+', 'X']
+        actual:     ['-', '+', '*', 'N0', 'X', '*', 'N1', '+', 'X', '1', 'N2']
+        prediction: ['-', '+', '*', 'X', 'X', 'X', 'X', 'X', '*', 'X', 'X']
+        actual:     ['-', '+', '*', 'N1', 'X', '*', 'N2', '+', 'X', '1', 'N3']
+        prediction: ['-', '+', '+', '*', '-', '-', '*', 'X', 'X', 'X', '+', 'X', 'X', '+', '+', 'X', 'X', '+', '1']
+        actual:     ['-', '+', '+', '+', '+', '-', '*', '2', 'X', '1', '*', '2', 'X', '1', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '*', 'X', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', 'N1', '+', '*', '2', 'X', 'N1', '+', '*', '2', 'X', 'N0', 'X']
+        prediction: ['-', '+', '*', '-', '*', '1', 'X', '+', 'X', '1', 'X']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '-', 'X', 'X', 'X', '1', '+', '*', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '*', '*', '-', '+', 'X', 'X', 'X', '1', '+', 'X', 'X', '+', '+', 'X', 'X', '+', '1']
+        actual:     ['-', '+', '+', '+', '+', '-', '*', '2', 'X', '1', '*', '2', 'X', '1', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', 'X', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', 'X', '*', 'X', '1', 'X', '+', 'X', '+', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', 'X', '+', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N1', 'X', '*', 'N0', 'X', 'N2']
+        prediction: ['-', '+', '*', 'X', 'X', 'X', 'X', '+', '*', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', 'X', 'X', 'X', 'X', 'X', '+', 'X', 'X', 'X', 'X', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '*', 'X', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', 'X', '1']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '*', '*', 'X', 'X', 'X', '+', '*', 'X', 'X', 'X', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', 'X', 'X', 'X', 'X', '+', '*', 'X', 'X', 'X', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', 'X', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '-', '+', '+', '1']
+        actual:     ['-', '+', '+', 'X', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '+', 'X', 'X', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '-', '+', 'X', '1']
+        actual:     ['-', '+', '+', 'X', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '-', 'X', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '-', '-', '*', 'X', 'X', '1', '-', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', '1', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '*', '-', 'X', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', 'X', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '*', '-', '*', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '+', 'X', 'X', '1', 'X', '+', 'X', 'X', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '*', '*', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', '-', '-', 'X', 'X', 'X', '1', '-', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', 'X', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '*', '-', '-', 'X', 'X', 'X', '1', '-', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '*', '*', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', 'X', 'X', '+', 'X', 'X', 'X', '1']
+        actual:     ['-', '-', '*', 'N1', 'X', '*', 'N0', 'X', 'N2']
+        prediction: ['-', '+', '-', '-', '-', '*', 'X', 'X', '1', '-', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '*', '-', '-', '-', '*', 'X', 'X', '1', '-', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '-', '+', 'X', '1', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '-', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2', 'N1']
+        prediction: ['-', '+', '*', '-', '-', 'X', 'X', 'X', '1', '-', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '-', '-', 'X', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '-', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2', 'N1']
+        prediction: ['-', '+', '-', '-', 'X', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+loss: 1.9644700799669539
+train accuracy 0.52113476252582
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '*', 'X', '1']
+        actual:     ['-', '-', 'X', 'N1', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '-', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '-', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N0']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N3']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', 'X', '1', '1', '-', 'X']
+        actual:     ['-', '*', '*', 'N0', 'N1', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'N2', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1', 'X']
+        actual:     ['-', '+', 'X', '-', 'X', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '*', 'X', '1']
+        actual:     ['-', '-', 'X', 'Y', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '*', 'X', '1', '1', '1']
+        actual:     ['-', '-', '*', 'N2', 'X', 'N1', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1', 'N2']
+        prediction: ['-', '+', '-', '*', 'X', '1', '1']
+        actual:     ['-', '+', 'N1', '*', 'N2', 'X', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N4']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N3', 'Y', 'N2', 'X']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'N0', 'N0', 'X']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '-', '*', '-', '*', '*']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '-', 'X', '1', 'X', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '-', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '*', 'X', 'N0', 'N3', 'Y']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '-', '-', '*', '*', '*']
+        actual:     ['-', '+', '+', 'X', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', 'X', '1', 'X', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '*', 'X', '1', '1', '1']
+        actual:     ['-', '-', '*', 'N2', 'Y', 'N3', 'X']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '-', '*', '*']
+        actual:     ['-', '+', 'X', 'Y', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N0', 'Y', 'N2', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '-', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '*', 'N3', 'Y', 'N2', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '-', '*', '*']
+        actual:     ['-', '+', 'Y', 'X', 'N0']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N1', 'X', 'N2', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '-', '*', '*']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N3', 'X', 'Y', 'N4']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '*', 'X', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'N2', '*', 'N3', 'Y', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '-', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'Y', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'N2', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'N1', 'Y', 'X']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '*', 'X', '1']
+        actual:     ['-', '-', 'X', 'N1', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'X', 'N0', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'X', 'Y', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '*', 'N3', 'X', 'N2', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '-', '*', '*']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'Y', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '-', 'X', '1', 'X', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '-', '*', 'X']
+        actual:     ['-', '+', 'Y', 'N0', 'X']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'N3', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '-', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '-', '-', 'X', '1', 'X', '+', 'X', '1', '1', 'X', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '*', '2', '-', 'X', '1', '*', 'N1', 'X', '*', 'N0', '+', 'X', '1', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', 'X', '1', '1', '+', 'X']
+        actual:     ['-', '-', '*', 'N2', 'X', 'N0', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N4']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'X', 'Y', 'N0']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'Y', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '-', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '-', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'N2', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '-', '*', '*']
+        actual:     ['-', '+', 'Y', '1', 'X']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '*', 'N2', 'X', 'N3', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '-', 'X', '1', 'X', '1']
+        actual:     ['-', '+', '*', '2', 'X', 'N1', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '-', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N0', 'Y', 'X', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', 'X', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'N2', '*', 'N3', 'X', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', 'X', '1', '1']
+        actual:     ['-', '-', 'X', 'N1', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '-', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', 'X', '1', '1', '-', 'X']
+        actual:     ['-', '*', '*', 'N0', 'N0', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '-', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '-', '*', 'X', '1', '1']
+        actual:     ['-', '+', 'N1', '*', '2', 'Y', 'X']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'X', 'Y', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '-', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'Y', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '*', '*', '*']
+        actual:     ['-', '-', 'X', 'N0', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', '1', 'X']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N0']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', '*', 'N2', 'Y', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '-', 'X', '1', 'X', '1']
+        actual:     ['-', '+', '*', '2', 'X', 'N1', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '-', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N4', 'Y', 'X', 'N3']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '-', '-', '*', 'X', '1']
+        actual:     ['-', '+', '+', 'X', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+loss: 6.568467948747718
+eval accuracy 0.31307189542483654
+------------------------------------------------------
+fold: 1
+epoch: 4
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '-', '*', '1', 'X', '+', '*', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '-', '-', '*', 'X', 'X', '1', '-', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '-', '-', '*', 'X', 'X', '1', '+', '*', 'X', 'X', 'X', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '*', '-', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '-', '-', '*', '1', 'X', '+', '*', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '*', 'X', 'X', '1', '+', '*', 'X', 'X', 'X', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '-', '-', '-', '*', 'X', 'X', '1', '+', 'X', 'X', '+', 'X', 'X', 'X', '+', '1']
+        actual:     ['-', '+', '+', '+', '+', '-', '*', '2', 'X', '1', '*', '2', 'X', '1', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '-', '-', '-', '*', 'X', 'X', '1', '-', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', '1', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '+', 'X', 'X', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '-', 'X', 'X', 'X', 'X', 'X', '*', '1', '1']
+        actual:     ['-', '+', '*', 'N0', 'X', '*', 'N2', '+', 'X', '1', 'N3']
+        prediction: ['-', '+', '+', 'X', 'X', 'X', 'X', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '*', 'N0', 'X', '*', 'N1', '+', 'X', '1', 'N2']
+        prediction: ['-', '+', '+', '-', '*', '1', 'X', '+', '*', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '*', 'X', 'X', 'X', '+', '+', 'X', 'X', '1', '+', 'X', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '+', 'X', 'X', '1', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '-', '*', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '-', '-', '*', 'X', 'X', '1', '-', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '+', '-', '*', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '-', '-', 'X', 'X', 'X', '1', '-', '+', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '+', '1', 'X', '1']
+        actual:     ['-', '+', '+', 'X', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', 'X', 'X', 'X', '1', '+', '+', 'X', 'X', 'X', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '*', 'X', 'X', 'N1', 'X', 'X', '1']
+        actual:     ['-', '-', '*', 'N1', 'X', '*', 'N0', 'X', 'N2']
+        prediction: ['-', '+', '+', '-', '-', '+', '*', 'X', 'X', '1', '+', 'X', 'X', 'X', '+', 'X', 'X', '+', '1']
+        actual:     ['-', '+', '+', '+', '+', '-', '*', '2', 'X', '1', '*', '2', 'X', '1', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '*', '1', 'X', '+', '*', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '-', '+', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '+', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2', 'N1']
+        prediction: ['-', '+', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', 'X', 'X', '*', 'X', 'X', '*', '1', '1']
+        actual:     ['-', '+', '*', 'N0', 'X', '*', 'N1', '+', 'X', '1', 'N2']
+        prediction: ['-', '+', '*', 'X', 'X', 'X', 'X', 'X', 'N1']
+        actual:     ['-', '-', '*', 'N1', 'X', '*', 'N0', 'X', 'N2']
+        prediction: ['-', '+', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '-', '*', 'X', 'X', '1', '-', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '+', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '+', 'X', 'X', '1', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', '1', 'X']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '+', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2', 'N1']
+        prediction: ['-', '+', '+', '+', '*', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '+', '*', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', 'X', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', 'X', 'X', 'X', '1', '+', 'X', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '-', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', '1', '1']
+        actual:     ['-', '+', 'X', '+', 'X', 'N0', 'N1']
+        prediction: ['-', '+', '+', 'X', 'X', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', 'X', 'X', '1', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', 'X', 'X', '1', 'N1']
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', 'X', 'X', '*', 'X', 'X', '*', '1', 'N2']
+        actual:     ['-', '+', '*', 'N1', 'X', '*', 'N2', '+', 'X', '1', 'N3']
+        prediction: ['-', '+', '+', 'X', 'X', '*', 'X', '+', '*', '1', '1']
+        actual:     ['-', '+', '*', 'N1', 'X', '*', 'N2', '+', 'X', '1', 'N3']
+        prediction: ['-', '+', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '-', '-', '*', 'X', 'X', '1', '-', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '-', '-', '-', '*', 'X', 'X', '1', '-', '*', 'X', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', '*', '2', 'X', '3', '-', '*', '2', 'X', '1', '+', '*', '2', 'X', '1', '+', '*', '2', 'X', '3', 'N1']
+        prediction: ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '-', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '+', '-', '*', '2', 'X', 'N1', '+', '*', '2', 'X', 'N1', '+', '*', '2', 'X', 'N0', '1']
+        prediction: ['-', '+', '-', '*', 'X', 'X', '1', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '+', '-', '*', 'N0', 'X', '1', '+', '*', 'N0', 'X', '1', 'N1']
+        prediction: ['-', '+', '+', '+', 'X', '1', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+        prediction: ['-', '+', '-', '-', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '1', '1']
+        actual:     ['-', '+', '+', '+', '-', 'X', '1', 'X', '+', 'X', '1', '+', 'X', '2', 'N1']
+loss: 1.653219188962664
+train accuracy 0.6687261464736398
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', '1', 'X']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1', 'N2']
+        prediction: ['-', '+', '+', '*', 'X', 'X', '1']
+        actual:     ['-', '+', 'N1', '*', 'N2', 'X', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N4']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '*', '*']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N3', 'X', 'Y', 'N4']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N4', 'Y', 'X', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', 'N2', '*', 'N3', 'Y', 'X']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '*', 'X', '1']
+        actual:     ['-', '-', 'X', 'N0', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '-', '*', 'N2', 'X', 'N1', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N3']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'N0', 'N0', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '*', 'X', '1']
+        actual:     ['-', '-', 'X', 'Y', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1', 'X', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'Y', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '*', '2', 'X', '1']
+        actual:     ['-', '+', 'N1', '*', '2', 'Y', 'X']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'X', 'Y', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '-', '*', 'N2', 'X', 'N0', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N4']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '*', 'X']
+        actual:     ['-', '+', 'N1', 'Y', 'X']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'N2', 'Y']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', 'X', '1', 'X', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '*', '*']
+        actual:     ['-', '+', 'X', 'N0', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '*', 'X']
+        actual:     ['-', '+', 'Y', 'N0', 'X']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '*', 'X', '1']
+        actual:     ['-', '-', 'X', 'N1', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'Y', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', 'X', '1', 'X', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', 'X', '1', 'X', '1']
+        actual:     ['-', '+', 'X', '+', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '*', '*', 'N0', 'N1', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '*', 'X', 'X', '1', '1']
+        actual:     ['-', '-', '*', 'N2', 'Y', 'N3', 'X']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '*', '*']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N0', 'Y', 'X', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1', 'X', '1']
+        actual:     ['-', '+', '*', '2', 'X', 'N1', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'Y', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '*', 'X']
+        actual:     ['-', '+', 'X', 'Y', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N0', 'Y', 'N2', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'X', 'Y', 'N0']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'Y', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', 'X', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '*', '*']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '*', 'N2', 'X', 'N3', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', '1', 'X']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N0']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', 'X', '+', 'X', '1', '1']
+        actual:     ['-', '*', '*', 'N0', 'N0', 'X', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '-', 'X', '1', 'X']
+        actual:     ['-', '+', '+', 'X', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N3', 'Y', 'N2', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N0']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', 'X', '1', '1']
+        actual:     ['-', '-', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'N2', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '*', 'X', '1']
+        actual:     ['-', '-', 'X', 'N1', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', 'N2', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '*', '*', 'X']
+        actual:     ['-', '-', 'X', 'N1', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'N3', 'X']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', 'X', '1']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '-', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '*', '*']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', 'X', '*', 'N2', 'Y', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '*', '*', '*']
+        actual:     ['-', '+', 'X', '-', 'X', 'Y']
+        prediction: ['X', '1', 'X', 'X', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N2']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', '-', 'X', '1', 'X', '+', '*', 'X', 'X', '1', '1', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '+', '*', '2', '-', 'X', '1', '*', 'N1', 'X', '*', 'N0', '+', 'X', '1', 'N3']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0']
+        prediction: ['-', '+', '+', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '*', 'X', 'N0', 'N3', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '*', 'N3', 'Y', 'N2', 'X']
+
+predicted num x mse: 1, actual: 1
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2']
+        prediction: ['-', '+', '+', '-', 'X', '1', 'X']
+        actual:     ['-', '+', '+', 'X', 'X', '1', 'N1']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', '*', 'X']
+        actual:     ['-', '+', 'Y', 'X', 'N0']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '-', '*', 'N1', 'X', 'N2', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3', 'N0', 'N1']
+        prediction: ['-', '+', '+', '*', 'X']
+        actual:     ['-', '+', 'X', 'Y', 'N1']
+        prediction: ['X', '1', 'X', 'X', 'X', 'X', 'X']
+        actual:     ['-', '+', '*', 'N3', 'X', 'N2', 'Y']
+
+predicted num x mse: 1, actual: 2
+avail tokens ['-', '*', 'X', 'Y', '0', '1', '2', '3']
+        prediction: ['-', '+', '+', 'X', '1', 'X', '1']
+        actual:     ['-', '+', '*', '2', 'X', 'N1', 'Y']
