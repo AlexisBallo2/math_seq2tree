@@ -280,7 +280,7 @@ class NumOrOpp(nn.Module):
 
         self.em_dropout = nn.Dropout(dropout)
         self.out = nn.Linear(hidden_size, 2)
-        self.out2 = nn.Linear(hidden_size * 2, 2)
+        self.out2 = nn.Linear(hidden_size * 2, 3)
         self.padding_hidden = torch.FloatTensor([0.0 for _ in range(hidden_size)])
 
         self.k = nn.Linear(hidden_size, hidden_size)
@@ -377,7 +377,7 @@ class Prediction(nn.Module):
         self.irr = TokenIrrevalant(hidden_size, 2, dropout)
 
     # @line_profiler.profile  
-    def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, xs, seq_mask, mask_nums, useCustom, debug, useSeperateVars, all_q):
+    def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, xs, seq_mask, mask_nums, useCustom, debug, useSeperateVars,all_q, useVarsAsNums):
         # node_stacks: [TreeNodes] for each node containing the hidden state for the node
         # left_childs: [] of 
         # encoder_outputs: token embeddings: max_len x num_batches x hidden state 
@@ -464,9 +464,9 @@ class Prediction(nn.Module):
         # batch_size x (2 + number of numbers we have encodings for) x hidden_dim
         # batch_size is the embeddings of the numbers
         #   batch_size x nums_count x hidden_dim
-        if useCustom and useSeperateVars:
-            embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
-            # embedding_weight = torch.cat((embedding_weight1, xs, num_pades), dim=1)  # B x O x N
+        if useCustom and useSeperateVars and useVarsAsNums:
+            # embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
+            embedding_weight = torch.cat((embedding_weight1, xs, num_pades), dim=1)  # B x O x N
         else:
             embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
 
@@ -512,7 +512,10 @@ class Prediction(nn.Module):
         # get the predicted operation (classification)
         # batch_size x num_ops 
         op = self.ops(leaf_input)
-        var = self.var(leaf_input)
+        if useVarsAsNums:
+            var = None
+        else:
+            var = self.var(leaf_input)
 
         # return p_leaf, num_score, op, current_embeddings, current_attn
 
@@ -783,8 +786,9 @@ class XToQ(nn.Module):
                 smqkt = nn.functional.softmax(qkt)
                 output = torch.sigmoid(torch.matmul(smqkt, self.V(hidden2[i])))
                 # qs.append(output)
-                output_zeros = torch.zeros(output.size()).to(output.device)
-                qs.append(output_zeros)
+                # output_zeros = torch.zeros(output.size()).to(output.device)
+                qs.append(output)
+                # qs.append(output_zeros)
                 # qs.append(problem_q[i])
             # need to change later
             qs = torch.stack(qs)#.transpose(0,1)

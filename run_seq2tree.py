@@ -51,8 +51,9 @@ beam_size = 5
 n_layers = 2
 
 # num_obs = 20
-num_obs = 50
+# num_obs = 50
 # num_obs = 100
+num_obs = 200
 # num_obs = 600 
 # num_obs = 1000 
 # num_obs = None 
@@ -71,18 +72,27 @@ useSubMethod = True
 useSemanticAlignment = True
 # useSemanticAlignment = False
 
+# combine all equations into one
 # useOneEquation = True
 useOneEquation = False
 
+# take vars out of the vocab (control where they go)
 useSeperateVars = True
 # useSeperateVars = False
 
-useOpScaling = True
-# useOpScaling = False
+# weight the choosing of op vs var vs num
+# useOpScaling = True
+useOpScaling = False
 
 # decide if we must be able to solve equation
 useEquSolutions = True
 # useEquSolutions = False 
+
+# use vars as numbers
+# useVarsAsNums = True
+useVarsAsNums = False
+
+
 title = f"{num_obs} Observations, {n_epochs} Epochs, Dataset = {setName}, Custom = {useCustom} "
 config = {
     "batch_size": batch_size,
@@ -366,7 +376,7 @@ for fold in range(num_folds):
             loss, acc, num_x_mse, comparison, op_right = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
-                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling)
+                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums)
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             train_comparison.append(comparison)
@@ -406,7 +416,7 @@ for fold in range(num_folds):
             batch_eval_comparison = []
             for test_batch in test_pairs:
                 start = time.perf_counter()
-                test_res, pred_num_x = evaluate_tree(test_batch['input_cell'], test_batch['input_len'], generate_num_ids, models, input_lang, output_lang, test_batch['num_pos'], vars, useCustom, debug, useSemanticAlignment, useSeperateVars, useOpScaling, beam_size=beam_size)
+                test_res, pred_num_x = evaluate_tree(test_batch['input_cell'], test_batch['input_len'], generate_num_ids, models, input_lang, output_lang, test_batch['num_pos'], vars, useCustom, debug, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, beam_size=beam_size)
                 end = time.perf_counter()
                 test_time_array.append([1, end - start])
                 lengths = 0
