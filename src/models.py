@@ -260,7 +260,7 @@ class TokenIrrevalant(nn.Module):
         self.out = nn.Linear(hidden_size * 2 , 1)
     def forward(self, hidden, goal_vect):
         # hidden = batch_size x num embeddings x hidden_size 
-        hidden = self.em_dropout(hidden)
+        # hidden = self.em_dropout(hidden)
 
         # g_expanded = goal_vect.unsqueeze(0).unsqueeze(0).expand(hidden.shape[0], hidden.shape[1], hidden.shape[2])
         g_expanded = goal_vect.unsqueeze(1).repeat(1, hidden.shape[1], 1)
@@ -468,6 +468,7 @@ class Prediction(nn.Module):
             # embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
             # embedding_weight = torch.cat((embedding_weight1, xs, num_pades), dim=1)  # B x O x N
              embedding_weight = torch.cat((xs, embedding_weight1, num_pades), dim=1)  # B x O x N
+            #  embedding_weight = torch.cat((xs, embedding_weight1, num_pades), dim=1)  # B x O x N
         else:
             embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
 
@@ -641,7 +642,7 @@ class PredictNumX(nn.Module):
 
 
     def forward(self, goal_vect, eval = False):
-        goal_vect = self.em_dropout(goal_vect)
+        # goal_vect = self.em_dropout(goal_vect)
         temp = self.fc1(goal_vect)
         temp2 = self.relu(temp)
         temp3 = self.fc2(temp2)
@@ -739,7 +740,8 @@ class GenerateXs(nn.Module):
             xs = []
             nums_to_gen = num_xs
             # nums_to_gen = max(int(num_xs.tolist()), 1)
-            goal_vect = self.em_dropout(problem_q[i])
+            # goal_vect = self.em_dropout(problem_q[i])
+            goal_vect = problem_q[i]
             kt = self.K(hidden2[i]).transpose(0,1)
             v = self.V(hidden2[i])
             # for each number to gen
@@ -752,7 +754,8 @@ class GenerateXs(nn.Module):
                     qkt = torch.matmul(xs[j-1], kt)
                     smqkt = nn.functional.softmax(qkt)
                     # output: hidden_size
-                    outAttention = torch.sigmoid(torch.matmul(smqkt, v))
+                    # outAttention = torch.sigmoid(torch.matmul(smqkt, v))
+                    outAttention = torch.matmul(smqkt, v)
                     xs.append(outAttention)
             out.append(torch.stack(xs))
         final = torch.stack(out)
@@ -787,7 +790,7 @@ class XToQ(nn.Module):
                 # # for each x for the batch
                 # # xk^T
                 qkt = torch.matmul(xs[j], self.K(hidden2[i]).transpose(0,1))
-                qkt = self.em_dropout(qkt)
+                # qkt = self.em_dropout(qkt)
                 smqkt = nn.functional.softmax(qkt)
                 output = torch.sigmoid(torch.matmul(smqkt, self.V(hidden2[i])))
                 # qs.append(output)
@@ -919,3 +922,44 @@ class SNI(nn.Module):
         return classified
 
         print()
+
+
+
+class FixT(nn.Module):
+    def __init__(self, hidden_size, dropout=0.5):
+        super(FixT, self).__init__()
+
+        self.linear = nn.Linear(hidden_size * 2, hidden_size)
+        self.goal_encoder = nn.Linear(hidden_size, hidden_size)
+        self.t_encoder = nn.Linear(hidden_size, hidden_size)
+
+        self.goal_forward = nn.Linear(hidden_size, hidden_size)
+        self.emb_fowarard = nn.Linear(hidden_size, hidden_size)
+        self.new_gen = nn.Linear(hidden_size * 2, hidden_size)
+
+
+    def forward(self,  ith_goal, t_embs):
+        t_vects = []
+        for item in t_embs:
+            if item is None:
+                t_vects.append(torch.zeros(512))
+            else:
+                t_vects.append(item[0].embedding.squeeze(0))
+            # item[0].embedding = self.linear(item[0].embedding.squeeze(0))
+        # t_vects = [item[0].embedding.squeeze(0) for item in t_embs]
+        stacked = torch.stack(t_vects)
+        stack_forward = torch.relu(self.goal_forward(ith_goal))
+        t_forward = torch.relu(self.t_encoder(stacked))
+        
+        # concatted = torch.cat((ith_goal, stacked), 1)
+        concatt = torch.cat((t_forward, stack_forward), 1)
+        out = self.new_gen(concatt)
+        # encoder_states: 7 x 512
+        # goal_enc = self.goal_encoder(goal_vect)
+        # t_enc = self.t_encoder(t)
+        # concatted = torch.cat((goal_vect, t), 1)
+        # out = self.linear(concatted)
+
+        # return goal_vect, t
+        # return goal_enc, t_enc
+        return out 

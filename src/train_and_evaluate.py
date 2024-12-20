@@ -134,12 +134,13 @@ class TreeBeam:  # the class save the beam node
 
 
 class TreeEmbedding:  # the class save the tree
-    def __init__(self, embedding, terminal=False):
+    def __init__(self, embedding, terminal=False, goal_vect = None):
         self.embedding = embedding
         self.terminal = terminal
+        self.goal_vect = goal_vect
 
 # @line_profiler.profile
-def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets, var_pos, batch_sni, useCustom, all_vars,  debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, inTraining, english=False):
+def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets, var_pos, batch_sni, useCustom, all_vars,  debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, useFixT, inTraining, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -246,6 +247,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
     else:
         pred_num_equations = 0
+        num_equations_mse.append(0)
 
     # 0s where the numbers are from input, 1s where not in input
     num_mask = []
@@ -306,12 +308,12 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             num_mask.append([0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
     num_mask = torch.ByteTensor(num_mask)
 
-    for t_batch in num_mask:
-        avail_tokens = []
-        for i, isIn in enumerate(t_batch):
-            if isIn == 0:
-                avail_tokens.append(output_lang.index2word[i + output_lang.num_start])
-        print("avail tokens", avail_tokens)
+    # for t_batch in num_mask:
+    #     avail_tokens = []
+    #     for i, isIn in enumerate(t_batch):
+    #         if isIn == 0:
+    #             avail_tokens.append(output_lang.index2word[i + output_lang.num_start])
+    #     print("avail tokens", avail_tokens)
 
 
     if USE_CUDA:
@@ -369,7 +371,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         padding = torch.zeros(qs.size(0), len(all_vars) - max_pred_num_equations, 512)
         qs = torch.cat((qs, padding.to(device)), dim=1).to(device)
         xs = torch.cat((xs, padding.to(device)), dim=1).to(device)
-    if max_pred_num_equations > len(all_vars):
+    if useCustom and max_pred_num_equations > len(all_vars):
         qs = qs[:, :len(all_vars), :]
         xs = xs[:, :len(all_vars), :]
     op_occurances = 0
@@ -381,6 +383,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # else:
     #     num_equations_to_do = max(pred_num_equations.argmax().item(),len(all_vars))
 
+    updated_qs = None
+
     for cur_equation in range(num_equations_to_do):
         # select the ith equation in each obs
         ith_equation_target = deepcopy(target[:, cur_equation, :].transpose(0,1))
@@ -391,7 +395,11 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         ith_equation_target_lengths = deepcopy(target_length[:, cur_equation])
         # it_equation_solution 
         if useCustom:
-            ith_equation_goal = qs[:, cur_equation, :]
+            if cur_equation == 0:
+                ith_equation_goal = qs[:, cur_equation, :]
+            # updated qs is the goal vector for the next equation
+            else:
+                ith_equation_goal = updated_qs
             node_stacks = [[TreeNode(_)] for _ in ith_equation_goal.split(1, dim=0)]
         else:
             ith_equation_goal = problem_output
@@ -412,6 +420,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         pred_equ_solutions = [None for _ in range(batch_size)]
 
         all_sa_outputs = []
+        all_t_alignment_outputs = []
         all_num_opp_scale = []
         actuct_num_or_opp = []
 
@@ -573,7 +582,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                     node_stack.append(TreeNode(l, left_flag=True))
                     # save the embedding of the operator 
                     # terminal means a leaf node
-                    o.append(TreeEmbedding(node_label[idx].unsqueeze(0), False))
+                    o.append(TreeEmbedding(node_label[idx].unsqueeze(0), False, current_embeddings[idx].unsqueeze(0)))
                     #print("saving node embedding to o (non terminal node), and r, and l to node_stack. o now of size", len(o), "node_stack of size", len(node_stack))
                 else:
                     #print(current_token, "is not an operator")
@@ -600,10 +609,13 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                         op = o.pop()
                         # contains equation (13)
                         # this combines a left and right tree along with a node
+                        # current_num = op.goal_vect.squeeze(0)
                         current_num = models['merge'](op.embedding, sub_stree.embedding, current_num)
                         temp_encoder_outputs = encoder_outputs.transpose(0,1)
                         encoder_mapping, decoder_mapping = models['semantic_alignment'](current_num, temp_encoder_outputs[idx])
+                        # goal_out, t_out = models['fix_t'](op, current_num)
                         all_sa_outputs.append((encoder_mapping, decoder_mapping))
+                        # all_t_alignment_outputs.append((goal_out, t_out))
                         #print('merged. o now of size', len(o))
                     # then re-add the node back to the stack
                     #print("adding current_num to o (terminal node)")
@@ -616,6 +628,15 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                     pred_equ_solutions[idx] = [o[-1]]
                 else:
                     left_childs.append(None)
+                # if pred_equ_solutions[idx] is None:
+                #     pred_equ_solutions[idx] = [o[-1]]
+        # done equation
+        # get next goal vector
+        if useCustom:
+            if cur_equation < num_equations_to_do - 1:
+                qs = models['fix_t'](ith_equation_goal, pred_equ_solutions)
+                updated_qs = qs
+
 
 
         # loss for the classifier of the operator and number tokens
@@ -636,7 +657,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             classify_loss = torch.nn.CrossEntropyLoss(reduction="none")(stacked_got.view(-1, stacked_got.size(2)), stacked_actual.view(-1).to(device)).mean() 
             # classify_loss = 0
         else:
-            classify_loss = 0
+            classify_loss = torch.tensor(0)
         # actuct_num_or_opp
         # all_num_opp_scale
 
@@ -660,7 +681,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             print()
         else:
             sni_acc = 0
-            sni_loss = 0
+            sni_loss = torch.tensor(0)
 
 
 
@@ -746,65 +767,32 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
         if useSemanticAlignment: 
             semantic_alignment_loss = nn.MSELoss()
-            total_semanti_alognment_loss = 0
+            total_semanti_alognment_loss = torch.tensor(0, dtype=torch.float32)
             sa_len = len(all_sa_outputs)
             for sa_pair in all_sa_outputs:
-                total_semanti_alognment_loss += semantic_alignment_loss(sa_pair[0],sa_pair[1])
+                total_semanti_alognment_loss += semantic_alignment_loss(sa_pair[0],sa_pair[1]) * 10
             # print(total_semanti_alognment_loss)
             try:
-                total_semanti_alognment_loss = total_semanti_alognment_loss / sa_len
+                total_semanti_alognment_loss = total_semanti_alognment_loss / sa_len * 10
             except:
-                total_semanti_alognment_loss = 0
-            # print(total_semanti_alognment_loss)
+                total_semanti_alognment_loss = torch.tensor(0, dtype=torch.float32)            
+        else:
+            total_semanti_alognment_loss = torch.tensor(0, dtype=torch.float32)
+        
 
 
-        # for i, batch in enumerate(all_node_outputs2):
-        #     vals = []
-        #     # print('coming equ length', equ_length)
-        #     for j, probs in enumerate(batch):
-        #         if j == equ_length:
-        #             break
-        #         max_val = torch.argmax(probs)
-        #         # lengths += 1
-        #         # if max_val == ith_equation_target[i][j]:
-        #         #     same += 1
-
-        # if useCustom and setName == "DRAW":
-        # # if False:
-        #     # we masked some of the equations (they are 0s) so the model predicted all left nodes.
-        #     # so in pred_equ_solutions they are all None
-        #     # fill these with 0s. 
-        #     for i in range(len(pred_equ_solutions)):
-        #         if pred_equ_solutions[i] == None:
-        #             pred_equ_solutions[i] = [TreeEmbedding(torch.zeros(1, models['predict'].hidden_size).to(device), True)]
-        #     num_score, op, current_embeddings, current_context, current_nums_embeddings = models['predict_output'](pred_equ_solutions, [None for i in range(len(pred_equ_solutions))], encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug)
-
-        #     prediction = torch.cat((op, num_score), 1)
-
-        #     tokenPredictions = prediction.argmax(dim = 1)
-        #     for token, target_t in zip(tokenPredictions, ith_equation_solution):
-        #         print(f'predicted: {output_lang.index2word[token.item()]} actual: {output_lang.index2word[target_t.item()]}')
-        #         lengths += 1
-        #         if token == target_t:
-        #             same += 1
-        #     mask_solutions = ith_equation_solution != 0
-            # equation_prediction_loss_temp = torch.nn.CrossEntropyLoss(reduction="none")(prediction, ith_equation_solution.to(device)) * mask_solutions
-            # equation_prediction_loss = equation_prediction_loss_temp.mean()
-            # if total_loss != None:
-            #     total_loss += equation_prediction_loss
-            # else:
-            #     total_loss = equation_prediction_loss
-
-            # print('acc', cur_same/cur_len)
+        semantic_alignment_loss_weight = 0.1
         if total_loss != None:
             if useSemanticAlignment:
-                total_loss += current_equation_loss + 0.01 * total_semanti_alognment_loss
+                total_loss += current_equation_loss + semantic_alignment_loss_weight * total_semanti_alognment_loss 
+                #+ total_t_alignment_loss 
             else:
                 total_loss += current_equation_loss
             # total_loss += current_equation_loss_before.mean()
         else:
             if useSemanticAlignment:
-                total_loss = current_equation_loss + 0.01 * total_semanti_alognment_loss
+                total_loss = current_equation_loss + semantic_alignment_loss_weight * total_semanti_alognment_loss 
+                #+ total_t_alignment_loss
             else:
                 total_loss = current_equation_loss
             # total_loss = current_equation_loss_before.mean()
@@ -819,11 +807,36 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
         # predict a solution token for the tree 
         # actual_target = 
-    # if inTraining:
-    total_loss.backward()
+    if inTraining:
+        total_loss.backward()
+
+    if len(total_acc) == 1:
+        equ_1_acc = total_acc[0]
+        equ_2_acc = 0
+        equ_3_acc = 0
+    elif len(total_acc) == 2:
+        equ_1_acc = total_acc[0]
+        equ_2_acc = total_acc[1]
+        equ_3_acc = 0
+    elif len(total_acc) == 3:
+        equ_1_acc = total_acc[0]
+        equ_2_acc = total_acc[1]
+        equ_3_acc = total_acc[2]
+
+    
+    loss_dict = {
+        'total_loss': total_loss.item(),
+        'equation_loss': current_equation_loss.item(),
+        'classify_loss': classify_loss.item(),
+        'sni_loss': sni_loss.item(),
+        'semantic_alignment_loss': total_semanti_alognment_loss.item(),
+        'equ_1_acc': equ_1_acc,
+        'equ_2_acc': equ_2_acc,
+        'equ_3_acc': equ_3_acc,
+        }
 
     # Update parameters with optimizers
-    return total_loss.item(), sum(total_acc)/len(total_acc), sum(num_equations_mse)/len(num_equations_mse), comparison, op_right/op_occurances, sni_acc 
+    return total_loss.item(), sum(total_acc)/len(total_acc), sum(num_equations_mse)/len(num_equations_mse), comparison, op_right/op_occurances, sni_acc , loss_dict, total_acc
 
 # @line_profiler.profile
 def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, output_lang, num_pos, vars, useCustom, debug, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, equation_lengths, useSNIMask, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):

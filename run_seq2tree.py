@@ -22,7 +22,7 @@ if "-id" in args:
 else:
     run_id = "0"
 
-# sys.stdout = open('output.txt','wt')
+sys.stdout = open('output.txt','wt')
 
 
 # batch_size = 64
@@ -35,16 +35,15 @@ else:
 # np.random.seed(10)
 
 # batch_size = 1 
-batch_size = 10
-# batch_size = 20
+# batch_size = 10
+batch_size = 20
 # batch_size = 30 
 # batch_size = 64 
 embedding_size = 128
 hidden_size = 512
 # n_epochs = 5 
-n_epochs = 10 
 # n_epochs = 10 
-# n_epochs = 20 
+n_epochs = 20 
 # n_epochs = 40 
 # learning_rate = 1e-2 
 learning_rate = 1e-3 
@@ -54,7 +53,7 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
-num_obs = 20
+# num_obs = 20
 # num_obs = 50
 # num_obs = 100
 # num_obs = 200
@@ -64,11 +63,11 @@ num_obs = 20
 
 # torch.autograd.set_detect_anomaly(True)
 
-useCustom = True
-# useCustom = False 
+# useCustom = True
+useCustom = False 
 
-# setName = "MATH"
-setName = "DRAW"
+setName = "MATH"
+# setName = "DRAW"
 
 useSubMethod = True
 # useSubMethod = False
@@ -93,12 +92,15 @@ useEquSolutions = True
 # useEquSolutions = False 
 
 # use vars as numbers
+# do scoring versus do in neural net seperately
 useVarsAsNums = True
 # useVarsAsNums = False
 
 # useSNIMask = True
 useSNIMask = False
 
+# useTFix = True
+useTFix = False
 
 title = f"{num_obs} Observations, {n_epochs} Epochs, Dataset = {setName}, Custom = {useCustom} "
 config = {
@@ -136,6 +138,8 @@ if num_obs:
 # }'
 
 pairs, generate_nums, copy_nums, vars = transfer_num(data, setName, useCustom, useEquSolutions, useSubMethod, useSeperateVars)
+# pairs.shuffle()
+random.shuffle(pairs)
 if num_obs:
     pairs = pairs[0:num_obs]
 # pairs: list of tuples:
@@ -198,6 +202,7 @@ for fold in range(num_folds):
         "train_op_right": [],
         "train_sni_acc": [],
         "train_losses" : [],
+        'train_loss_dict': [],
 
         "eval_token": [],
         "eval_soln": [],
@@ -205,6 +210,7 @@ for fold in range(num_folds):
         "eval_op_right": [],
         "eval_sni_acc": [],
         "eval_losses" : [],
+        'eval_loss_dict': [],
 
         "loss" : []
     }
@@ -260,6 +266,7 @@ for fold in range(num_folds):
     sementic_alignment = Seq2TreeSemanticAlignment(encoder_hidden_size=hidden_size, decoder_hidden_size=hidden_size, hidden_size=hidden_size)
     num_or_opp = NumOrOpp(512)
     sni = SNI(hidden_size=hidden_size)
+    fix_t = FixT(hidden_size=hidden_size)
 
 
 
@@ -275,7 +282,8 @@ for fold in range(num_folds):
         "q_to_x": x_to_q,
         "semantic_alignment": sementic_alignment,
         "num_or_opp": num_or_opp,
-        "sni": sni
+        "sni": sni,
+        "fix_t": fix_t
     }
 
     debug = {
@@ -296,6 +304,7 @@ for fold in range(num_folds):
     sementic_alignment_optimizer = torch.optim.Adam(sementic_alignment.parameters(), lr=learning_rate, weight_decay=weight_decay)
     num_or_opp_optimizer = torch.optim.Adam(num_or_opp.parameters(), lr=learning_rate, weight_decay=weight_decay)
     sni_optimizer = torch.optim.Adam(sni.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    fix_t_optimizer = torch.optim.Adam(fix_t.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
 
     optimizers = [
@@ -310,7 +319,8 @@ for fold in range(num_folds):
         x_to_q_optimizer,
         sementic_alignment_optimizer,
         num_or_opp_optimizer,
-        sni_optimizer
+        sni_optimizer,
+        fix_t_optimizer
     ]
 
     encoder_scheduler = torch.optim.lr_scheduler.StepLR(encoder_optimizer, step_size=20, gamma=0.5)
@@ -325,6 +335,7 @@ for fold in range(num_folds):
     sementic_alignment_scheduler = torch.optim.lr_scheduler.StepLR(sementic_alignment_optimizer, step_size=20, gamma=0.5)
     num_or_opp_scheduler = torch.optim.lr_scheduler.StepLR(num_or_opp_optimizer, step_size=20, gamma=0.5)
     sni_scheduler = torch.optim.lr_scheduler.StepLR(sni_optimizer, step_size=20, gamma=0.5)
+    fix_t_scheduler = torch.optim.lr_scheduler.StepLR(fix_t_optimizer, step_size=20, gamma=0.5)
 
     schedulers = [
         encoder_scheduler,
@@ -338,7 +349,8 @@ for fold in range(num_folds):
         x_to_q_scheduler,
         sementic_alignment_scheduler,
         num_or_opp_scheduler,
-        sni_scheduler
+        sni_scheduler,
+        fix_t_scheduler
     ]
 
     # Move models to GPU
@@ -377,6 +389,7 @@ for fold in range(num_folds):
             "train_op_right": [],
             "train_sni_acc": [],
             "train_total_loss": 0,
+            "train_loss_dict": [],
 
 
             "eval_token": [],
@@ -384,7 +397,8 @@ for fold in range(num_folds):
             "eval_op_right": [],
             "eval_num_x_mse": [],
             "eval_sni_acc": [],
-            "eval_total_loss": 0 
+            "eval_total_loss": 0, 
+            "eval_loss_dict": []
         } 
         start = time.time()
         for idx in range(len(input_lengths)):
@@ -398,10 +412,10 @@ for fold in range(num_folds):
 
             input_batch_len = len(input_batches[idx])
             start = time.perf_counter()
-            loss, acc, num_x_mse, comparison, op_right, sni_acc = train_tree(
+            loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
-                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, True)
+                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, useTFix, True)
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             train_comparison.append(comparison)
@@ -411,6 +425,7 @@ for fold in range(num_folds):
             batch_accuricies["train_op_right"].append(op_right)
             batch_accuricies["train_num_x_mse"].append(num_x_mse)
             batch_accuricies["train_sni_acc"].append(sni_acc)
+            batch_accuricies['train_loss_dict'].append(loss_dict)
             # train_accuracys.append(acc)
             
             # Step the optimizers
@@ -433,6 +448,7 @@ for fold in range(num_folds):
         fold_accuracies["train_op_right"].append(batch_train_op_right)
         fold_accuracies["train_num_x_mse"].append(batch_train_num_x_mse)
         fold_accuracies["train_sni_acc"].append(batch_train_sni_acc)
+        fold_accuracies["train_loss_dict"].append(batch_accuricies['train_loss_dict'])
 
 
         if True:
@@ -450,7 +466,7 @@ for fold in range(num_folds):
                     v.eval()
                 input_batch_len = len(input_batches[idx])
                 start = time.perf_counter()
-                loss, acc, num_x_mse, comparison, op_right, sni_acc = train_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, False) 
+                loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list = train_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, useTFix, False) 
                 print()
                 end = time.perf_counter()
                 test_time_array.append([input_batch_len,end - start])
@@ -460,12 +476,18 @@ for fold in range(num_folds):
                 batch_accuricies["eval_op_right"].append(op_right)
                 batch_accuricies["eval_num_x_mse"].append(num_x_mse)
                 batch_accuricies["eval_sni_acc"].append(sni_acc)
+                batch_accuricies['eval_loss_dict'].append(loss_dict)
+                if acc == 1:
+                    batch_accuricies["eval_soln"].append(1)
+                else:
+                    batch_accuricies["eval_soln"].append(0)
 
             batch_loss = batch_accuricies['eval_total_loss'] / len(input_lengths)
             batch_eval_acc = sum(batch_accuricies["eval_token"]) / len(batch_accuricies["eval_token"])
             batch_eval_op_right = sum(batch_accuricies["eval_op_right"]) / len(batch_accuricies["eval_op_right"])
             batch_eval_num_x_mse = sum(batch_accuricies["eval_num_x_mse"]) / len(batch_accuricies["eval_num_x_mse"])
             batch_eval_sni_acc = sum(batch_accuricies["eval_sni_acc"]) / len(batch_accuricies["eval_sni_acc"])
+            batch_eval_soln_acc = sum(batch_accuricies["eval_soln"]) / len(batch_accuricies["eval_soln"])
 
             print("loss:", batch_loss)
             print("eval accuracy", batch_eval_acc)
@@ -475,6 +497,8 @@ for fold in range(num_folds):
             fold_accuracies["eval_op_right"].append(batch_eval_op_right)
             fold_accuracies["eval_num_x_mse"].append(batch_eval_num_x_mse)
             fold_accuracies["eval_sni_acc"].append(batch_eval_sni_acc)
+            fold_accuracies["eval_soln"].append(batch_eval_soln_acc)
+            fold_accuracies["eval_loss_dict"].append(batch_accuricies['eval_loss_dict'])
             # eval_acc = sum(batch_accuricies["eval_token"]) / len(batch_accuricies["eval_token"])
             # # eval_soln_acc = sum(batch_accuricies["eval_soln"]) / len(batch_accuricies["eval_soln"])
             # eval_loss = batch_accuricies['eval_total_loss'] / len(input_lengths)
@@ -497,6 +521,7 @@ for fold in range(num_folds):
 
     all_train_loss.append(fold_accuracies["train_losses"])
     all_eval_loss.append(fold_accuracies["eval_losses"])
+    all_soln_eval_accuracys.append(fold_accuracies["eval_soln"])
 
     # all_soln_eval_accuracys.append(fold_accuracies["eval_soln"])
 
@@ -514,7 +539,7 @@ for fold in range(num_folds):
     make_eval_graph(
         [fold_accuracies["train_losses"], fold_accuracies["eval_losses"]], 
         ['Train', "Eval"],
-        f"src/post/loss-{time.time()}-{run_id}.png", "HERE",
+        f"src/post/loss-{time.time()}-{run_id}.png", title,
         "Epoch", "Loss By Epoch", None 
         )
     make_eval_graph(
@@ -528,6 +553,7 @@ for fold in range(num_folds):
     print('All TRAIN ACC', all_train_accuracys)
     print('ALL EVAL ACC', all_eval_accuracys)
     print('ALL EVAL SOLN ACC', all_soln_eval_accuracys)
+    process_loss_dicts(fold_accuracies['train_loss_dict'], fold_accuracies['eval_loss_dict'])
     break 
 
 # a, b, c = 0, 0, 0
