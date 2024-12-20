@@ -1,0 +1,666 @@
+* * N0 - + 1 * 2 N0 1 0.5
++ * N1 - * N0 X 1 + * N0 X 1
++ + * N0 X 1 * N1 - * N0 X 1
++ X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * N0 X 1 + * N0 X 1 + * N0 X 3
++ N0 * 2 Y
+- X Y
+- X Y
++ N2 * N0 Y
++ + * N0 X * N0 X N0
++ * N0 X + * N0 X N0
++ * N0 X + * N0 X N0
++ * N0 X + * N0 X N0
++ * N0 X + * N0 X N0
++ * N0 X + * N0 X N0
++ * N0 X + * N0 X N0
++ * N0 X + * N0 X N0
++ + * N0 X * N0 X N0
++ + * N0 X * N0 X N0
++ * N0 X + * N0 X N0
++ * N0 X * N2 + X 1
++ * N0 X * N2 + X 1
++ * N0 X * N2 + X 1
++ * N0 X * N2 + X 1
++ * N1 X * N2 + X N1
+- * 2 X N0
+- * N0 X N1
+- * N1 X N0
+- * 2 X N0
+- * 2 X N0
+- * 2 X N0
++ * N0 X * N2 Y
+- * N0 X Y
+- * N1 X Y
++ * N0 Y * N3 X
++ * 2 X * N0 Y
+- * N0 X Y
+* X   N1
+* X     N0  
+* f     N1
++ N1 X
++ * N0 g X
++ + - * 2 X 1 * 2 + * 2 X 1 * N0 + * 2 X N0
+* N1 X
++ X Y
+* N1 Y
++ X Y
+* N1 Y
++ X Y
+* N1 Y
++ X Y
+* N1 X
++ X Y
+* N1 X
++ X Y
++ X Y
+* N3 Y
+* N1 X
++ X Y
++ X Y
+* N3 Y
++ X Y
+* N0 Y
++ X Y
+* N0 Y
++ - * 2 X 1 + * 2 X N0
++ - * 2 X 1 + * 2 X N0
++ + - * 2 X 1 * 2 X 1
++ + X Z Y
++ * N3 X N2
+- * N0 X N4
+* N0 + X N1
+* N0 + N1 X
+* N0 + X N1
+* 2 + X N0
+* N0 + X N1
+* N0 + X N1
++ N0 * N1 X
++ * N1 X N0
++ * N1 X N0
++ N1 * N0 X
+- N0 * N1 X
++ * N1 X N0
++ * N0 X N1
++ * 2 X N0
++ N0 * N0 X
++ X Y
+- * N2 X * N0 Y
+- - - * * 2 2 X * 2   2 * 2 X 2
++ - + * * 2 2 X * 2   2 * 2 X 2
++ + + + - X 2 - X 1 X + X 1 + X 2
++ + + + - X 2 - X 1 X + X 1 + X 2
++ + + + + - + - X 2 X 1 X X 1 X 2
++ * N0 X * N0 + * N0 X N0
++ * N0 X * N1 + * N0 X N0
++ * N0 X * N1 + * N0 X N0
++ Y X
+- Y X
+- Y N1
++ X Y
++ N1 X
++ X Y
++ X Y
++ X * N0 Y
++ X Y
++ X * N0 Y
++ + + - * 2 X 3 - * 2 X 1 + * 2 X 1 + * 2 X 3
++ + X * 2 + X 1 * N0 + X 2
++ + X + X 1 + X 2
++ + + + X X 1 X 2
++ + X + X 1 + X 2
++ + X + X 1 + X 2
++ + X + X 1 + X 2
++ + + + + + * 2 X * 2 X 2 * 2 X N0 * 2 X 6
++ + + + + + * 2 X * 2 X 2 * 2 X N0 * 2 X 6
++ - * N0 X 1 + * N0 X 1
++ + + + + * 2 X 2 * 2 X 4 * 2 X 6
++ + + * 2 X 1 + * 2 X N0 + * 2 X 5
++ + + + + * 2 X 1 * 2 X N0 * 2 X 5
++ + + + + * 2 X 1 * 2 X N0 * 2 X 5
+* + + + + X X N1 X 2 0.5
++ + + + * 2 X 1 + * 2 X 3 + * 2 X 5 + * 2 X 7
++ + + + * 2 X 1 + * 2 X 3 + * 2 X 5 + * 2 X 7
++ * 2 X * 3 X
++ * N0 X * N1 X
++ * * X N2 N0 *   N1 N0
+- * X UNK * X UNK
++ + + + * 2 X 1 + * 2 X 3 + * 2 X 5 + * 2 X 7
++ + + + * 2 X 1 + * 2 X 3 + * 2 X 5 + * 2 X 7
++ X Y
++ * N0 X * N2 Y
+- X Y
++ * N3 X * N1 Y
++ N1 Y
++ * 2 X * N2 Y
+- X N0
++ * N1 Y * N0 X
++ X N1
++ * 2 Y * N2 X
+- X Y
+- * N2 Y * N1 X
++ Y N1
+- * N2 Y * N3 X
++ Y N1
++ X * 2 Y
++ Y N1
++ Y * N3 X
++ N1 Y
++ Y * N3 X
++ + + * N0 X 1 * N0 X 3
++ + * N0 X 1 + * N0 X 3
++ * N1 Y * N2 X
+- * N4 Y * N0 X
+* N0 + X Y
+* N0 - X Y
+- X N1
+- Z N2
+* 2 Y
+- X N1
+- Z N3
+* 2 Y
+- X N1
+- Z N2
+* 2 Y
+* * 0.01 N0 X
+* UNK X
+* UNK X
++ N1 X
+- * N0 X N0
++ N4 Z
+- + + + + + X 1 X 2 X N1 * 2 X
+- + + + X 1 + X 2 + X N1 * 2 X
+- N0 X
+- N0 X
+- - + * N4 X Y * N4 Y X
++ X Y
+- X Y
+- * N3 Y N2
++ -   * 1 X N0
++ X * N0 X
++ X * N0 X
+- + 1 * N0     2 * 1 2
++ * * Y N0 0.5   *   N0     0.5
+- + 1 * N0 2 * 1 2
++ * * Y N0 0.5   *   N0     0.5
+* * UNK 0.01 X
+* * X 0.01 N0
+* * N0 0.01 X
+* * N1 0.01 X
+* * X 0.01 N0
+* * N1 0.01 X
+* * N0 0.01 X
+* * N0 0.01 X
+* * X 0.01 N0
+* N0 N1
+* * N0 UNK N2
+* * N0 5 4
+* * 2 N0 2
+* * X 0.01 N0
+* * 0.01 X N0
++ X 2
++ Z 2
++ + X Z Y
++ X 1
++ Z 1
++ + X Z Y
+* UNK UNK
+* UNK 5
++ X 1
++ Z 1
++ + X Z Y
++ X 1
++ Z 1
++ + X Z Y
++ X 1
++ Z 1
++ + X Z Y
++ X 1
++ Z 1
++ + X Z Y
++ X Y
+- X Y
++ X Y
+- X Y
++ X Y
+- X Y
++ X Y
+- X Y
++ X Y
+- X Y
++ X Y
+- Y X
+- X Y
++ X Y
+- X Y
++ X Y
+- X N0
++ Y X
++ X Y
+- Y * N0 X
++ X Y
++ N2 * N3 Y
+* N0 * N0 X
++ X Y
+- - + * 10 X Y X * 10 Y
++ X Y
+- * N4 Y N3
+- * N3 Y N1
++ X Y
++ X + X 1
++ - * N0 X 1 + * N0 X 1
++ * N1 X * N0 + X 1
++ * N1 X * N2 + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + + - X 2 X X 2
++ + + - X 2 X X 2
++ + + - * 2 X 3 - * 2 X 1 + * 2 X 1 + * 2 X 3
++ + + + - * 2 X 1 * 2 X 1 * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 2 * 2 X + * 2 X 2
++ + - * 2 X 2 * 2 X + * 2 X 2
++ + * N1 - * 2 X 2 * N2 * 2 X * N3 + * 2 X 2
++ + * N0 X N0 * N0 * N0 X
++ + * N0 X N0 * N1 * N0 X
++ + * * N0 N0 X * N0 X N0
+* N1 X
+- Y X
+- - * 2 - * 2 X 1 * 2 X 1
+* N1 Y
++ X Y
++ X Y
+* N3 Y
+- * + X N1 N2 * N1 X
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ X * N0 + X 1
++ + + - X 1 X + X 1 + X 2
++ + + - X 2 X X 2
++ - X N0
++ * N0 X + * N0 X N0
++ + - * 2 X 1 * 2 + * 2 X 1 * N0 + * 2 X N0
++ X Y
+* N2 Y
+* 2 Y
++ X Y
+* N0 X
++ X Y
++ + X Z Y
++ N2 * N3 X
+- * N0 X N4
+* 2 + X N0
++ X Y
+- X Y
++ + + + - + - * 2 X 3 * 2 X 1 * 2 X 1 * 2 X 3
++ + X * N2 + X N2 * N0 + X 4
++ + X + X 1 + X 2
++ + X + X 2 + X 4
++ + X X 1
++ + X X 1
++ + + + + * 2 X 1 * 2 X N0 * 2 X 5
+* X + 1 * 0.01 N0
++ * N0 X * 2 X
++ X Y
++ * N0 X * N2 Y
+- X Y
++ * N2 X * 2 Y
+- X Y
++ * N0 Y * N2 X
+- Y X
++ * N0 Y * N2 X
+- Y N1
+- * N2 X * N3 Y
++ N1 X
++ X * N2 Y
++ * N0 X * N1 Y
+- * N3 X * N3 Y
++ * N0 X * N1 Y
+- * N3 X * N4 Y
+* N0 X
+* * 0.01 N1 X
++ - * 2 X X N0
+- X Y
+- * N3 X N2
+- * N0 X N1
+* N1 X
+* * N1 0.01 X
+* * N0 0.01 N1
+* + 1 * N0 0.01 X
+* + 1 * N0 0.01 X
+- N1 N0
++ N0 * - N3 1 d
++ * * N0 N3 0.5   * *   N3 0.5   Y
++ N0 * UNK X
++ X 1
++ Z 1
++ + X Z Y
++ X Y
+- X Y
++ X Y
+- X Y
+- X Y
++ X Y
++ X Y
+- X Y
++ X Y
+- X Y
++ X Y
+- X Y
+- Y X
++ X Y
++ X Y
+- X Y
++ Y X
+- Y X
++ Y N0
++ X Y
++ Y - 6
++ X Y
++ X Y
+- X Y
++ X Y
+- X Y
++ X Y
+- X Y
++ X Y
+- X N3
++ X Y
+- X N2
++ X Y
+- Y X
++ X N0
++ X Y
++ X Y
+- X Y
++ X Y
+- Y N2
++ X Y
+- Y N2
++ X Y
+- Y X
++ X Y
+- Y X
+- Y N1
++ X Y
+- Y N1
++ X Y
++ X Y
+- X Y
++ X 1
++ X Y
++ N1 X
++ X Y
++ X Y
+- X Y
++ X Y
+- X Y
++ X Y
+- X Y
++ X Y
+- X Y
++ X 1
++ X Y
++ X Y
+- X Y
++ X Y
+- X Y
++ Y X
+- Y X
+- X Y
++ X Y
+- Y N1
++ X Y
++ X Y
++ * N3 X N2
++ N1 * 2 Y
++ X Y
++ X Y
+- Y * N2 X
++ X Y
++ N2 * N3 Y
++ * 2 Y N1
++ X Y
++ * 2 Y N1
++ X Y
++ X Y
++ * Y N0 N3
++ X Y
++ * N3 X N2
++ Y X
++ N2 * N3 Y
++ N1 * N2 Y
++ X Y
++ Y X
++ * N2 X N3
+- X N0
++ N0 N0
++ + * 2 - X 1 * N1 X * N0 + X 1
+* * N0 N1 X
+* * N0 N0 X
++ X Y
+- * N3 X N2
++ X Y
+- * N4 X Y
+- * N2 Y N1
++ X Y
+- * N2 X N3
++ X Y
++ X Y
+- * N0 X Y
+- * N2 Y N0
++ X Y
++ X Y
+- * N0 Y N2
++ X Y
+- * N3 Y X
++ X Y
+- * N1 Y N2
++ + X X 1
++ X + X 1
++ + X X 1
++ X + X 1
++ X + X 1
++ X + X 1
++ X + X 1
++ + X X 1
++ X + X 1
++ + X X 1
++ X + X 1
++ X + X 1
++ X + X 1
++ X + X 1
++ X + X N0
++ X + X 1
++ - * N0 X 1 + * N0 X 1
++ - * N0 X 1 + * N0 X 1
++ - * N0 X 1 + * N0 X 1
++ - * N0 X 1 + * N0 X 1
++ - * N0 X 1 + * N0 X 1
++ - * N0 X 1 + * N0 X 1
++ - * N0 X 1 + * N0 X 1
++ - * N0 X 1 + * N0 X 1
++ - * N0 X 1 + * N0 X 1
++ - * N0 X 1 + * N0 X 1
++ - * N0 X 1 + * N0 X 1
++ - * N0 X 1 + * N0 X 1
++ - * N0 X 1 + * N0 X 1
++ * N1 X * N2 + X 1
++ * N0 X * N2 + X 1
++ * N1 X * N2 + X 1
++ * N0 X * N1 + X 1
++ * N0 X * N1 + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + + - * 2 X 3 - * 2 X 1 + * 2 X 1 + * 2 X 3
++ + + - * 2 X 3 - * 2 X 1 + * 2 X 1 + * 2 X 3
++ + + - * 2 X 3 - * 2 X 1 + * 2 X 1 + * 2 X 3
++ + + - * 2 X 3 - * 2 X 1 + * 2 X 1 + * 2 X 3
++ + + - * 2 X 3 - * 2 X 1 + * 2 X 1 + * 2 X 3
++ + + - * 2 X 3 - * 2 X 1 + * 2 X 1 + * 2 X 3
++ + + - * 2 X 3 - * 2 X 1 + * 2 X 1 + * 2 X 3
++ + + - X 1 X + X 1 + X 2
++ + + - X 1 X + X 1 + X 2
++ + + - X 1 X + X 1 + X 2
++ + + - X 1 X + X 1 + X 2
+- * N1 X * N0 X
+- * N1 X * N0 X
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X N1 + * 2 X N1 + * 2 X N0
++ + + + - * 2 X 1 * 2 X 1 * 2 X N0
++ + + + - * 2 X 1 * 2 X 1 * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + + - * 2 X 2 * 2 X + * 2 X 2 + * 2 X N0
++ + + - * 2 X 2 * 2 X + * 2 X 2 + * 2 X N0
++ + + - * 2 X 2 * 2 X + * 2 X 2 + * 2 X N0
++ + + + + - * 2 X 2 * 2 X * 2 X 2 * 2 X N0
++ X * N0 + X 1
++ X * N1 + X 1
++ X * N1 + X 1
++ X * N0 + X 1
++ X * N1 + X 1
++ X * N0 + X 1
++ X * N0 + X 1
++ X * N1 + X 1
++ X * 3 + X 1
++ X * N1 + X 1
++ + - * 2 X 2 * 2 X + * 2 X 2
++ + + - * 2 X 2 * 2 X * 2 X 2
++ + - * 2 X 2 * 2 X + * 2 X 2
++ + - * 2 X 2 * 2 X + * 2 X 2
++ + - * 2 X 2 * 2 X + * 2 X 2
++ + - * 2 X 2 * 2 X + * 2 X 2
++ + - * 2 X 2 * 2 X + * 2 X 2
++ + - * 2 X 2 * 2 X + * 2 X 2
+- + * 2 + * 2 X 1 * N2 + * 2 X N0 * N1 - * 2 X 1
++ + * N0 X N0 * N1 * N0 X
++ + * N0 X N0 * * N1 N0 X
+- X Y
+* + X Y 0.5
+* + X Y 0.5
+- X Y
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ + * 2 X N0 * 2 - * 2 X 1
++ + * 2 X N0 * 2 - * 2 X 1
+* N1 Y
+- X Y
+- X Y
+* N3 Y
+* N1 Y
+- X Y
+* N1 X
+- Y X
+- Y X
+* N3 X
+* N1 X
+- Y X
+* 2 Y
++ N1 Y
+* 2 Y
++ N1 Y
+* 3 X
++ Y N1
+* N1 Y
++ X Y
++ X Y
+* N2 X
+* N1 X
++ X Y
+* N1 X
++ Y X
++ - X N0 + X N0
++ - X 1 + X 1
++ - X 1 + X 1
++ + - X 2 X 2
++ - X 1 + X 1
++ - X 1 + X 1
++ - X 1 + X 1
++ - X 1 + X 1
++ - + * * N0 2 X * N0     2 * * 2 2 X * 2     2
++ N1 * N2 X
++ Y X
++ X Y
++ N2 * N0 Y
++ * N2 X N1
++ X Y
++ X Y
++ * N0 X N3
+- * N1 + X 1 * N2 X
+- * N1 + X 1 * N2 X
+- * N1 + X 1 * N2 X
++ + + + - * 2 X 1 * 2 X 1 * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + - * 2 X 1 + * 2 X 1 + * 2 X N0
++ + + + - * 2 X 1 * 2 X 1 * 2 X N0
++ X * N0 + X 1
++ - * N1 + * N0 X 1 * N0 X 1
+- * N1 + X 1 * N0 X
+- - * N0 - * N0 X 1 * N0 X 1
+- - - * * N1 N0 X N1 * N0 X 1
+- - - * * N1 N0 X N1 * N0 X 1
++ + + + - X 2 - X 1 X + X 1 + X 2
++ + + + - X 2 - X N1 X + X N1 + X 2
++ + + + - X 2 - X 1 X + X 1 + X 2
++ + + + - X 2 - X 1 X + X 1 + X 2
++ + + - X 1 X + X 1 + X 2
++ + + - X 1 X + X 1 + X 2
++ + * 2 X * N1 X N0
++ + * N0 X * N1 X N2
++ + - X 1 X + X 1
++ + - X 1 X + X 1
++ - * 2 X 1 * N1 + * 2 X N0
++ - * 2 X 1 * N1 + * 2 X N0
++ - * 2 X 1 * N1 + * 2 X N0
+- - - * * N0 N0 X N0 * * N1 N0 X * N1   N1
++ + + - X 1 X + X 1 + X 2
++ + + - X 1 X + X 1 + X 2
++ + + - X 1 X + X 1 + X 2
++ X * N0 X
++ * * N0 0.01 X X
++ + + + - * 2 X 3 - * 2 X 1 + * 2 X 1 + * 2 X 3 + * 2 X N0
++ + + + - * 2 X 3 - * 2 X 1 + * 2 X 1 + * 2 X 3 + * 2 X N0
+* * - + 1 * 2 N0 1 N0 0.5

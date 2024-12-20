@@ -5,9 +5,30 @@ import json
 import copy
 import re
 from src.expressions_transfer import *
+import sympy as sp
+from sympy.solvers import solve
+import math
+import inflect
+
 
 
 PAD_token = 0 
+
+p = inflect.engine()
+replace = {}
+
+replace['zero'] = 0
+replace['thirty nine'] = 39
+replace['sixteen'] = 39
+replace['eighteen'] = 18
+replace["4teen"] = 14
+replace['fourteen'] = 14
+replace['306,000'] = 306000
+replace['8,200'] = 8200 
+for i in range(1, 101):
+    word = p.number_to_words(i)
+    replace[word] = i
+
 
 
 class Lang:
@@ -144,152 +165,152 @@ def load_raw_data(filename):  # load the json data to list(dict()) for MATH 23K
     return data
 
 
-# remove the superfluous brackets
-def remove_brackets(x):
-    y = x
-    if x[0] == "(" and x[-1] == ")":
-        x = x[1:-1]
-        flag = True
-        count = 0
-        for s in x:
-            if s == ")":
-                count -= 1
-                if count < 0:
-                    flag = False
-                    break
-            elif s == "(":
-                count += 1
-        if flag:
-            return x
-    return y
+# # remove the superfluous brackets
+# def remove_brackets(x):
+#     y = x
+#     if x[0] == "(" and x[-1] == ")":
+#         x = x[1:-1]
+#         flag = True
+#         count = 0
+#         for s in x:
+#             if s == ")":
+#                 count -= 1
+#                 if count < 0:
+#                     flag = False
+#                     break
+#             elif s == "(":
+#                 count += 1
+#         if flag:
+#             return x
+#     return y
 
 
-def load_mawps_data(filename):  # load the json data to list(dict()) for MAWPS
-    print("Reading lines...")
-    f = open(filename, encoding="utf-8")
-    data = json.load(f)
-    out_data = []
-    for d in data:
-        if "lEquations" not in d or len(d["lEquations"]) != 1:
-            continue
-        x = d["lEquations"][0].replace(" ", "")
+# def load_mawps_data(filename):  # load the json data to list(dict()) for MAWPS
+#     print("Reading lines...")
+#     f = open(filename, encoding="utf-8")
+#     data = json.load(f)
+#     out_data = []
+#     for d in data:
+#         if "lEquations" not in d or len(d["lEquations"]) != 1:
+#             continue
+#         x = d["lEquations"][0].replace(" ", "")
 
-        if "lQueryVars" in d and len(d["lQueryVars"]) == 1:
-            v = d["lQueryVars"][0]
-            if v + "=" == x[:len(v)+1]:
-                xt = x[len(v)+1:]
-                if len(set(xt) - set("0123456789.+-*/()")) == 0:
-                    temp = d.copy()
-                    temp["lEquations"] = xt
-                    out_data.append(temp)
-                    continue
+#         if "lQueryVars" in d and len(d["lQueryVars"]) == 1:
+#             v = d["lQueryVars"][0]
+#             if v + "=" == x[:len(v)+1]:
+#                 xt = x[len(v)+1:]
+#                 if len(set(xt) - set("0123456789.+-*/()")) == 0:
+#                     temp = d.copy()
+#                     temp["lEquations"] = xt
+#                     out_data.append(temp)
+#                     continue
 
-            if "=" + v == x[-len(v)-1:]:
-                xt = x[:-len(v)-1]
-                if len(set(xt) - set("0123456789.+-*/()")) == 0:
-                    temp = d.copy()
-                    temp["lEquations"] = xt
-                    out_data.append(temp)
-                    continue
+#             if "=" + v == x[-len(v)-1:]:
+#                 xt = x[:-len(v)-1]
+#                 if len(set(xt) - set("0123456789.+-*/()")) == 0:
+#                     temp = d.copy()
+#                     temp["lEquations"] = xt
+#                     out_data.append(temp)
+#                     continue
 
-        if len(set(x) - set("0123456789.+-*/()=xX")) != 0:
-            continue
+#         if len(set(x) - set("0123456789.+-*/()=xX")) != 0:
+#             continue
 
-        if x[:2] == "x=" or x[:2] == "X=":
-            if len(set(x[2:]) - set("0123456789.+-*/()")) == 0:
-                temp = d.copy()
-                temp["lEquations"] = x[2:]
-                out_data.append(temp)
-                continue
-        if x[-2:] == "=x" or x[-2:] == "=X":
-            if len(set(x[:-2]) - set("0123456789.+-*/()")) == 0:
-                temp = d.copy()
-                temp["lEquations"] = x[:-2]
-                out_data.append(temp)
-                continue
-    return out_data
+#         if x[:2] == "x=" or x[:2] == "X=":
+#             if len(set(x[2:]) - set("0123456789.+-*/()")) == 0:
+#                 temp = d.copy()
+#                 temp["lEquations"] = x[2:]
+#                 out_data.append(temp)
+#                 continue
+#         if x[-2:] == "=x" or x[-2:] == "=X":
+#             if len(set(x[:-2]) - set("0123456789.+-*/()")) == 0:
+#                 temp = d.copy()
+#                 temp["lEquations"] = x[:-2]
+#                 out_data.append(temp)
+#                 continue
+#     return out_data
 
 
-def load_roth_data(filename):  # load the json data to dict(dict()) for roth data
-    print("Reading lines...")
-    f = open(filename, encoding="utf-8")
-    data = json.load(f)
-    out_data = {}
-    for d in data:
-        if "lEquations" not in d or len(d["lEquations"]) != 1:
-            continue
-        x = d["lEquations"][0].replace(" ", "")
+# def load_roth_data(filename):  # load the json data to dict(dict()) for roth data
+#     print("Reading lines...")
+#     f = open(filename, encoding="utf-8")
+#     data = json.load(f)
+#     out_data = {}
+#     for d in data:
+#         if "lEquations" not in d or len(d["lEquations"]) != 1:
+#             continue
+#         x = d["lEquations"][0].replace(" ", "")
 
-        if "lQueryVars" in d and len(d["lQueryVars"]) == 1:
-            v = d["lQueryVars"][0]
-            if v + "=" == x[:len(v)+1]:
-                xt = x[len(v)+1:]
-                if len(set(xt) - set("0123456789.+-*/()")) == 0:
-                    temp = d.copy()
-                    temp["lEquations"] = remove_brackets(xt)
-                    y = temp["sQuestion"]
-                    seg = y.strip().split(" ")
-                    temp_y = ""
-                    for s in seg:
-                        if len(s) > 1 and (s[-1] == "," or s[-1] == "." or s[-1] == "?"):
-                            temp_y += s[:-1] + " " + s[-1:] + " "
-                        else:
-                            temp_y += s + " "
-                    temp["sQuestion"] = temp_y[:-1]
-                    out_data[temp["iIndex"]] = temp
-                    continue
+#         if "lQueryVars" in d and len(d["lQueryVars"]) == 1:
+#             v = d["lQueryVars"][0]
+#             if v + "=" == x[:len(v)+1]:
+#                 xt = x[len(v)+1:]
+#                 if len(set(xt) - set("0123456789.+-*/()")) == 0:
+#                     temp = d.copy()
+#                     temp["lEquations"] = remove_brackets(xt)
+#                     y = temp["sQuestion"]
+#                     seg = y.strip().split(" ")
+#                     temp_y = ""
+#                     for s in seg:
+#                         if len(s) > 1 and (s[-1] == "," or s[-1] == "." or s[-1] == "?"):
+#                             temp_y += s[:-1] + " " + s[-1:] + " "
+#                         else:
+#                             temp_y += s + " "
+#                     temp["sQuestion"] = temp_y[:-1]
+#                     out_data[temp["iIndex"]] = temp
+#                     continue
 
-            if "=" + v == x[-len(v)-1:]:
-                xt = x[:-len(v)-1]
-                if len(set(xt) - set("0123456789.+-*/()")) == 0:
-                    temp = d.copy()
-                    temp["lEquations"] = remove_brackets(xt)
-                    y = temp["sQuestion"]
-                    seg = y.strip().split(" ")
-                    temp_y = ""
-                    for s in seg:
-                        if len(s) > 1 and (s[-1] == "," or s[-1] == "." or s[-1] == "?"):
-                            temp_y += s[:-1] + " " + s[-1:] + " "
-                        else:
-                            temp_y += s + " "
-                    temp["sQuestion"] = temp_y[:-1]
-                    out_data[temp["iIndex"]] = temp
-                    continue
+#             if "=" + v == x[-len(v)-1:]:
+#                 xt = x[:-len(v)-1]
+#                 if len(set(xt) - set("0123456789.+-*/()")) == 0:
+#                     temp = d.copy()
+#                     temp["lEquations"] = remove_brackets(xt)
+#                     y = temp["sQuestion"]
+#                     seg = y.strip().split(" ")
+#                     temp_y = ""
+#                     for s in seg:
+#                         if len(s) > 1 and (s[-1] == "," or s[-1] == "." or s[-1] == "?"):
+#                             temp_y += s[:-1] + " " + s[-1:] + " "
+#                         else:
+#                             temp_y += s + " "
+#                     temp["sQuestion"] = temp_y[:-1]
+#                     out_data[temp["iIndex"]] = temp
+#                     continue
 
-        if len(set(x) - set("0123456789.+-*/()=xX")) != 0:
-            continue
+#         if len(set(x) - set("0123456789.+-*/()=xX")) != 0:
+#             continue
 
-        if x[:2] == "x=" or x[:2] == "X=":
-            if len(set(x[2:]) - set("0123456789.+-*/()")) == 0:
-                temp = d.copy()
-                temp["lEquations"] = remove_brackets(x[2:])
-                y = temp["sQuestion"]
-                seg = y.strip().split(" ")
-                temp_y = ""
-                for s in seg:
-                    if len(s) > 1 and (s[-1] == "," or s[-1] == "." or s[-1] == "?"):
-                        temp_y += s[:-1] + " " + s[-1:] + " "
-                    else:
-                        temp_y += s + " "
-                temp["sQuestion"] = temp_y[:-1]
-                out_data[temp["iIndex"]] = temp
-                continue
-        if x[-2:] == "=x" or x[-2:] == "=X":
-            if len(set(x[:-2]) - set("0123456789.+-*/()")) == 0:
-                temp = d.copy()
-                temp["lEquations"] = remove_brackets(x[2:])
-                y = temp["sQuestion"]
-                seg = y.strip().split(" ")
-                temp_y = ""
-                for s in seg:
-                    if len(s) > 1 and (s[-1] == "," or s[-1] == "." or s[-1] == "?"):
-                        temp_y += s[:-1] + " " + s[-1:] + " "
-                    else:
-                        temp_y += s + " "
-                temp["sQuestion"] = temp_y[:-1]
-                out_data[temp["iIndex"]] = temp
-                continue
-    return out_data
+#         if x[:2] == "x=" or x[:2] == "X=":
+#             if len(set(x[2:]) - set("0123456789.+-*/()")) == 0:
+#                 temp = d.copy()
+#                 temp["lEquations"] = remove_brackets(x[2:])
+#                 y = temp["sQuestion"]
+#                 seg = y.strip().split(" ")
+#                 temp_y = ""
+#                 for s in seg:
+#                     if len(s) > 1 and (s[-1] == "," or s[-1] == "." or s[-1] == "?"):
+#                         temp_y += s[:-1] + " " + s[-1:] + " "
+#                     else:
+#                         temp_y += s + " "
+#                 temp["sQuestion"] = temp_y[:-1]
+#                 out_data[temp["iIndex"]] = temp
+#                 continue
+#         if x[-2:] == "=x" or x[-2:] == "=X":
+#             if len(set(x[:-2]) - set("0123456789.+-*/()")) == 0:
+#                 temp = d.copy()
+#                 temp["lEquations"] = remove_brackets(x[2:])
+#                 y = temp["sQuestion"]
+#                 seg = y.strip().split(" ")
+#                 temp_y = ""
+#                 for s in seg:
+#                     if len(s) > 1 and (s[-1] == "," or s[-1] == "." or s[-1] == "?"):
+#                         temp_y += s[:-1] + " " + s[-1:] + " "
+#                     else:
+#                         temp_y += s + " "
+#                 temp["sQuestion"] = temp_y[:-1]
+#                 out_data[temp["iIndex"]] = temp
+#                 continue
+#     return out_data
 
 # for testing equation
 # def out_equation(test, num_list):
@@ -312,7 +333,7 @@ def load_roth_data(filename):  # load the json data to dict(dict()) for roth dat
 #     return test_str
 
 variableHierarchy = ['X', 'Y', 'Z']
-def transfer_num(data, setName, useCustom):  # transfer num into "NUM"
+def transfer_num(data, setName, useCustom, useEqunSolutions):  # transfer num into "NUM"
     print("Transfer numbers...")
     # number regex
     # pattern = re.compile("\d*\(\d+/\d+\)\d*|\d+\.\d+%?|\d+%?")
@@ -324,6 +345,7 @@ def transfer_num(data, setName, useCustom):  # transfer num into "NUM"
     vars = []
     copy_nums = 0
     for d in data:
+        pairNumMapping = {}
         # current_equation_vars = ['X']
         # numbers in this problem's text
         nums = []
@@ -335,7 +357,7 @@ def transfer_num(data, setName, useCustom):  # transfer num into "NUM"
         else: 
 
             seg = d["sQuestion"].strip()
-            replace = { "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10 }
+            # replace = { "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven" : 11 }
             seg = seg.lower()
             for k,v in replace.items():
                 seg = seg.replace(k, str(v))
@@ -343,9 +365,44 @@ def transfer_num(data, setName, useCustom):  # transfer num into "NUM"
 
         # strip "x=" from the equation
         if setName == "MATH":
-            equations = [d["equation"][2:]]
+            equ = d["equation"]
+            equations = [equ[2:]]
+            if useEqunSolutions:
+                try:
+                    targets = []
+                except:
+                    targets = []
+                    # continue
+            else:
+                targets = ['disabled'] 
+            print(targets)
+
         else:
             equations = d["lEquations"]
+            # spEqs = []
+            if useEqunSolutions:
+                targets = d['lSolutions']
+                # try:
+                #     for equ in equations:
+                #         sympy_eq = sp.simplify("Eq(" + equ.replace("=", ",") + ")")
+                #         spEqs.append(sympy_eq)   
+                #     solved = solve(spEqs, dict=True)
+                #     targets = [round(i) for i in list(solved[0].values())]
+                #     act_solns = list(round(i) for i in d['lSolutions'])
+                #     same = 0
+                #     for i, equ in enumerate(targets):
+                #         if equ in act_solns:
+                #             same += 1
+                #     if same != len(targets):
+                #         continue
+                # except:
+                    # continue
+            else:
+                targets = ['disabled'] 
+
+
+
+
 
 
         for s in seg:
@@ -397,6 +454,8 @@ def transfer_num(data, setName, useCustom):  # transfer num into "NUM"
                         res += seg_and_tag(st[:p_start])
                     # if this fraction is in the input text, append it as "N#"
                     if nums.count(n) == 1:
+                        # pairNumMapping[n] = "N"+str(nums.index(n))
+                        pairNumMapping["N"+str(nums.index(n))] = n
                         res.append("N"+str(nums.index(n)))
                     # if not, leave as variable
                     else:
@@ -419,8 +478,10 @@ def transfer_num(data, setName, useCustom):  # transfer num into "NUM"
                 st_num = st[p_start:p_end]
                 if st_num[-2:] == ".0":
                     st_num = st_num[:-2]
-                if nums.count(st_num) == 1:
+                if nums.count(st_num) > 0:
                     # same as fractions, append as "N#" if in the input text 
+                    # pairNumMapping[st_num] = "N"+str(nums.index(st_num))
+                    pairNumMapping["N"+str(nums.index(st_num))] = st_num
                     res.append("N"+str(nums.index(st_num)))
                 else:
                     # if 
@@ -436,7 +497,7 @@ def transfer_num(data, setName, useCustom):  # transfer num into "NUM"
             return res
 
         # replace variables with X, Y, Z to be consistent
-        varPattern = r'((x)|(y)|(z)|(a)|(b)|(c)|(k)|(n)|(m))'
+        varPattern = r'((x)|(y)|(z)|(a)|(b)|(c)|(d)|(e)|(f)|(g)|(h)|(i)|(j)|(k)|(n)|(m)|(o)|(p)|(q)|(r)|(s)|(t)|(u)|(v)|(w))'
         if setName == "MATH":
             allVars = ["X"]
         else:
@@ -468,6 +529,7 @@ def transfer_num(data, setName, useCustom):  # transfer num into "NUM"
         # tag the equation (replace numbers (only ones that are in the input text), in the equation with "N#")
         # ex: ['(', 'N1', '-', '1', ')', '*', 'N0']
         # out_seq = [seg_and_tag(equ) for equ in newEquations]
+        print('newEquations', newEquations)
         out_seq = [seg_and_tag(equ) for equ in newEquations]
 
         # for each elem in equation sequence 
@@ -513,7 +575,19 @@ def transfer_num(data, setName, useCustom):  # transfer num into "NUM"
         # out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
         # nums: list of numbers in the text
         # num_pos: list of positions of the numbers in the text
-        pairs.append((input_seq, final_out_seq_list, nums, num_pos, allVars))
+        # if "14" in equationTargetVars:
+        #     print()
+        # pairs.append((input_seq, final_out_seq_list, nums, num_pos, allVars, equationTargetVars, targets, pairNumMapping))
+        pairs.append({
+            "input_seq": input_seq,
+            "equations": final_out_seq_list,
+            "nums": nums,
+            "num_pos": num_pos,
+            "allVars": allVars,
+            "equationTargetVars": equationTargetVars,
+            "solution": targets,
+            "pairNumMapping": pairNumMapping
+        })
 
     temp_g = []
     for g in generate_nums:
@@ -811,23 +885,32 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
 
     print("Indexing words...")
     for pair in pairs_trained:
-        if not tree or pair[-1]:
-            # add input sentence to vocab
-            input_lang.add_sen_to_vocab(pair[0])
-            # vocab for the equations. note that this does not add numbers or num tokens
-            # to the lang
-            for equ in pair[1]:
-                output_lang.add_sen_to_vocab(equ)
-            # for equ in pair[1]:
-            #     if equ == "+":
-            #         print()
+        # if not tree or pair[-1]:
+        # add input sentence to vocab
+        input_lang.add_sen_to_vocab(pair['input_seq'])
+        # vocab for the equations. note that this does not add numbers or num tokens
+        # to the lang
+        for equ in pair['equations']:
+            output_lang.add_sen_to_vocab(equ)
+        # for equ in pair[1]:
+        #     if equ == "+":
+        #         print()
+        # add outputs to lang
+        # for tok in pair['equationTargetVars']:
+        if useCustom:
+            output_lang.add_sen_to_vocab(pair['equationTargetVars'])
     # this is hard coded at 5
     # cuts off words that appear less than 5 times 
     input_lang.build_input_lang(trim_min_count)
 
+
     # remove the variable tokens. we want to control where they go
-    for var in vars:
-        output_lang.remove_token_from_vocab(var)
+    if useCustom:
+        for var in vars:
+            output_lang.remove_token_from_vocab(var)
+
+    # add vars to input lang so we can pass them through encoder
+    # input_lang.add_sen_to_vocab(vars)
     # hard coded to true
     if tree:
         # lang is the current lang + generate_nums array + N{i} (for each copy_num)
@@ -844,7 +927,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
 
         # if its not in the nums list, then have that val in equation come from ALL
         # the numbers
-        for equ in pair[1]:
+        for equ in pair['equations']:
             num_stack = []
             for word in equ:
                 temp_num = []
@@ -854,7 +937,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
                 if word not in output_lang.index2word:
                     flag_not = False
                     # for each in nums list
-                    for i, j in enumerate(pair[2]):
+                    for i, j in enumerate(pair['nums']):
                         if j == word:
                             temp_num.append(i)
 
@@ -864,16 +947,21 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
                     num_stack.append(temp_num)
                 if not flag_not and len(temp_num) == 0:
                     # if no nums in both, let all numbers be in both??
-                    num_stack.append([_ for _ in range(len(pair[2]))])
+                    num_stack.append([_ for _ in range(len(pair['nums']))])
 
             # ???
             num_stack.reverse()
             num_stacks.append(num_stack)
 
         # convert input sentence and equation into the vocab tokens
-        input_cell = indexes_from_sentence(input_lang, pair[0])
-        output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair[1]]
-        # pair:
+        input_cell = indexes_from_sentence(input_lang, pair['input_seq'])
+        output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair['equations']]
+        if useCustom:
+            equation_target = [output_lang.word2index[equ] for equ in pair['equationTargetVars']]
+        else: 
+            equation_target = pair['equationTargetVars']
+        # equation_target = ["" for equ in pair[5]]
+        # pair
         #   input: sentence with all numbers masked as NUM
         #   length of input
         #   output: prefix equation. Numbers from input as N{i}, non input as constants
@@ -881,36 +969,62 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         #   nums: numbers from the input text
         #   loc nums: where nums are in the text
         #   [[] of where each token in the equation is found in the nums array]
-        train_pairs.append((input_cell, len(input_cell), output_cell, [len(equ) for equ in output_cell],
-                            pair[2], pair[3], num_stacks, pair[4]))
+        # train_pairs.append((input_cell, len(input_cell), output_cell, [len(equ) for equ in output_cell],
+        #                     pair[2], pair[3], num_stacks, pair[4], equation_target, pair[6], pair[7]))
+        train_pairs.append({
+            "input_cell": input_cell,
+            "input_len": len(input_cell),
+            "equations" : output_cell,
+            "equation_lens": [len(equ) for equ in output_cell],
+            "nums": pair['nums'],
+            "num_pos": pair['num_pos'],
+            "num_stack": num_stacks,
+            "allVars": pair['allVars'],
+            "equationTargetVars": equation_target,
+            "solution":  pair['solution'],
+            "pairNumMapping": pair['pairNumMapping']
+        })
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
     print('Number of training data %d' % (len(train_pairs)))
     for pair in pairs_tested:
         num_stacks = []
-        for equ in pair[1]:
+        for equ in pair['equations']:
             num_stack = []
             for word in equ: 
                 temp_num = []
                 flag_not = True
                 if word not in output_lang.index2word:
                     flag_not = False
-                    for i, j in enumerate(pair[2]):
+                    for i, j in enumerate(pair['nums']):
                         if j == word:
                             temp_num.append(i)
 
                 if not flag_not and len(temp_num) != 0:
                     num_stack.append(temp_num)
                 if not flag_not and len(temp_num) == 0:
-                    num_stack.append([_ for _ in range(len(pair[2]))])
+                    num_stack.append([_ for _ in range(len(pair['nums']))])
 
             num_stack.reverse()
             num_stacks.append(num_stack)
-        input_cell = indexes_from_sentence(input_lang, pair[0])
-        output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair[1]]
+        input_cell = indexes_from_sentence(input_lang, pair['input_seq'])
+        output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair['equations']]
         # train_pairs.append((input_cell, len(input_cell), output_cell, len(output_cell),
         #                     pair[2], pair[3], num_stack, pair[4]))
-        test_pairs.append((input_cell, len(input_cell), output_cell, [len(equ) for equ in output_cell],
-                           pair[2], pair[3], num_stacks, pair[4]))
+        # test_pairs.append((input_cell, len(input_cell), output_cell, [len(equ) for equ in output_cell],
+        #                    pair[2], pair[3], num_stacks, pair[4], pair[5]))
+        test_pairs.append({
+            "input_cell": input_cell,
+            "input_len": len(input_cell),
+            "equations": output_cell,
+            "equation_lens": [len(equ) for equ in output_cell],
+            "nums": pair['nums'],
+            "num_pos": pair['num_pos'],
+            "num_stack": num_stacks,
+            "allVars": pair['allVars'],
+            "equationTargetVars": pair['equationTargetVars'],
+            "solution": pair['solution'],
+            "pairNumMapping": pair['pairNumMapping'],
+        })
     print('Number of testind data %d' % (len(test_pairs)))
     return input_lang, output_lang, train_pairs, test_pairs
 
@@ -1015,13 +1129,15 @@ def pad_seq(seq, seq_len, max_length):
 
 
 # prepare the batches
-def prepare_train_batch(pairs_to_batch, batch_size, vars):
+def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lang):
     pairs = copy.deepcopy(pairs_to_batch)
     random.shuffle(pairs)  # shuffle the pairs
     pos = 0
     input_lengths = []
     output_lengths = []
     nums_batches = []
+    total_output_solutions = []
+    total_targets = []
     batches = []
     input_batches = []
     output_batches = []
@@ -1029,19 +1145,25 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars):
     num_pos_batches = []
     num_size_batches = []
     output_vars_batches = []
+
+    var_pos_in_input = []
+    var_size_in_input = []
+
     while pos + batch_size < len(pairs):
         batches.append(pairs[pos:pos+batch_size])
         pos += batch_size
     batches.append(pairs[pos:])
 
     for batch in batches:
-        batch = sorted(batch, key=lambda tp: tp[1], reverse=True)
+        batch = sorted(batch, key=lambda tp: tp['input_len'], reverse=True)
         input_length = []
         output_length = []
         output_vars = []
+        output_var_solutions = []
         max_equ_length = 0
         # for each item in a pair
         input_len_max = 0
+        targets = []
         input_batch = []
         output_batch = []
         num_batch = []
@@ -1050,35 +1172,55 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars):
         num_size_batch = []
         # get max number of eqautions in the batch:
         max_num_equ = 0
-        for i, li, j, lj, num, num_pos, num_stack, var_list in batch:
-            max_num_equ = max(max_num_equ, len(j))
-            max_equ_length = max(max_equ_length, max(lj))
+        input_len_max = 0
+        targets_len_max = 0
+        var_pos_in_inputs = []
 
-        for i, li, j, lj, num, num_pos, num_stack, var_list in batch:
+        # for i, li, j, lj, num, num_pos, num_stack, var_list, equ_targets, var_solns, num_mapping in batch:
+        for pair in batch:
+            max_num_equ = max(max_num_equ, len(pair['equations']))
+            max_equ_length = max(max_equ_length, max(pair['equation_lens']))
+            # input_len_max = max(input_len_max, li + len(vars))
+            input_len_max = max(input_len_max, pair['input_len'])
+            targets_len_max = max(targets_len_max, len(pair['equationTargetVars']))
+
+        # for i, li, j, lj, num, num_pos, num_stack, var_list, equ_targets, var_solns, num_mapping in batch:
+        for pair in batch:
             # i = length if input in pair
-            input_length.append(li)
-            input_len_max = max(input_len_max, li)
+            input_length.append(pair['input_len'])
             # j = length of output in pair
-            output_length.append(lj + [0] * (max_num_equ - len(lj)))
+            output_length.append(pair['equation_lens'] + [0] * (max_num_equ - len(pair['equation_lens'])))
             
-            max_equ_length = max(max_equ_length, max(lj))
+            # max_equ_length = max(max_equ_length, max(lj))
 
-            num_batch.append(len(num))
+            num_batch.append(len(pair['nums']))
             # input batch: padded input text
-            input_batch.append(pad_seq(i, li, input_len_max))
+            # inputs_with_vars_appended = i + [input_lang.word2index[i] for i in vars]
+            # input_batch.append(pad_seq(inputs_with_vars_appended, li + len(vars), input_len_max))
+            input_batch.append(pad_seq(pair['input_cell'], pair['input_len'], input_len_max))
+
+            # var_pos = [li + i for i in range(len(var_list))]
+            var_pos = [pair['input_len'] + i for i in range(len(pair['allVars']))]
+            var_size = len(pair['allVars'])
+            var_pos_in_inputs.append(var_pos)
+
+
+
             # output batch: padded output text
-            output_temp = [pad_seq(equ, le, max_equ_length) for equ, le in zip(j, lj)]
-            output_batch.append(output_temp + [pad_seq([], 0, max_equ_length) for _ in range(max_num_equ - len(j))])
+            output_temp = [pad_seq(equ, le, max_equ_length) for equ, le in zip(pair['equations'], pair['equation_lens'])]
+            output_batch.append(output_temp + [pad_seq([], 0, max_equ_length) for _ in range(max_num_equ - len(pair['equations']))])
             # the corresponding arrays
-            num_stack_batch.append(num_stack + [[] for _ in range(max_num_equ - len(num_stack))])
+            num_stack_batch.append(pair['num_stack'] + [[] for _ in range(max_num_equ - len(pair['num_stack']))])
             # positions of numbers
-            num_pos_batch.append(num_pos)
+            num_pos_batch.append(pair['num_pos'])
             # size of numbers from input
-            num_size_batch.append(len(num_pos))
+            num_size_batch.append(len(pair['nums']))
+            output_var_solutions.append(pair['solution'])
+            targets.append(pair['equationTargetVars'] + [0 for _ in range(targets_len_max - len(pair['equationTargetVars']))])
 
             cur_vars = []
             for var in vars:
-                if var in var_list:
+                if var in pair['allVars']:
                     cur_vars.append(1)
                 else:
                     cur_vars.append(0)
@@ -1093,6 +1235,9 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars):
         num_stack_batches.append(num_stack_batch)
         num_pos_batches.append(num_pos_batch)
         num_size_batches.append(num_size_batch)
+        total_output_solutions.append(output_var_solutions)
+        total_targets.append(targets)
+        var_pos_in_input.append(var_pos_in_inputs)
     # input_batches: padded inputs
     # input_lengths: length of the inputs (without padding)
     # output_batches: padded outputs
@@ -1101,7 +1246,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars):
     # num_stack_batches: the corresponding nums lists
     # num_pos_batches: positions of the numbers lists
     # num_size_batches: number of numbers from the input text
-    return input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_vars_batches
+    return input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_vars_batches, total_output_solutions, total_targets, var_pos_in_input
 
 
 def get_num_stack(eq, output_lang, num_pos):
