@@ -36,8 +36,8 @@ sys.stdout = open('output.txt','wt')
 
 # batch_size = 1 
 # batch_size = 10
-batch_size = 20
-# batch_size = 30 
+# batch_size = 20
+batch_size = 30 
 # batch_size = 64 
 embedding_size = 128
 hidden_size = 512
@@ -59,15 +59,15 @@ n_layers = 2
 # num_obs = 200
 # num_obs = 600 
 # num_obs = 1000 
-# num_obs = None 
+num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
 # useCustom = True
 useCustom = False 
 
-setName = "MATH"
-# setName = "DRAW"
+# setName = "MATH"
+setName = "DRAW"
 
 useSubMethod = True
 # useSubMethod = False

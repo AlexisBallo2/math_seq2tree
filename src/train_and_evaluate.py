@@ -634,7 +634,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         # get next goal vector
         if useCustom:
             if cur_equation < num_equations_to_do - 1:
-                qs = models['fix_t'](ith_equation_goal, pred_equ_solutions)
+                qs = models['fix_t'](ith_equation_goal, pred_equ_solutions, encoder_outputs, problem_output)
                 updated_qs = qs
 
 

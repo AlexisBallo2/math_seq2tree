@@ -937,23 +937,33 @@ class FixT(nn.Module):
         self.emb_fowarard = nn.Linear(hidden_size, hidden_size)
         self.new_gen = nn.Linear(hidden_size * 2, hidden_size)
 
+        self.encoder_linear1 = nn.Linear(hidden_size, hidden_size)
+        self.encoder_linear2 = nn.Linear(hidden_size, hidden_size)
 
-    def forward(self,  ith_goal, t_embs):
-        t_vects = []
-        for item in t_embs:
-            if item is None:
-                t_vects.append(torch.zeros(512))
-            else:
-                t_vects.append(item[0].embedding.squeeze(0))
-            # item[0].embedding = self.linear(item[0].embedding.squeeze(0))
-        # t_vects = [item[0].embedding.squeeze(0) for item in t_embs]
-        stacked = torch.stack(t_vects)
-        stack_forward = torch.relu(self.goal_forward(ith_goal))
-        t_forward = torch.relu(self.t_encoder(stacked))
+        self.attn = Attn2(hidden_size,batch_first=True,bidirectional_encoder=False)
+
+    def forward(self,  ith_goal, t_embs, encoder_outputs, goal_vect_global):
+        attn_weights = self.attn(ith_goal, encoder_outputs, None)
+        # if self.batch_first:
+        align_context = attn_weights.bmm(encoder_outputs) # B x 1 x H
+        encoder_linear1 = torch.tanh(self.encoder_linear1(align_context))
+        encoder_linear2 = self.encoder_linear2(encoder_linear1)
+        return encoder_linear2
+        # t_vects = []
+        # for item in t_embs:
+        #     if item is None:
+        #         t_vects.append(torch.zeros(512))
+        #     else:
+        #         t_vects.append(item[0].embedding.squeeze(0))
+        #     # item[0].embedding = self.linear(item[0].embedding.squeeze(0))
+        # # t_vects = [item[0].embedding.squeeze(0) for item in t_embs]
+        # stacked = torch.stack(t_vects)
+        # stack_forward = torch.relu(self.goal_forward(ith_goal))
+        # t_forward = torch.relu(self.t_encoder(stacked))
         
-        # concatted = torch.cat((ith_goal, stacked), 1)
-        concatt = torch.cat((t_forward, stack_forward), 1)
-        out = self.new_gen(concatt)
+        # # concatted = torch.cat((ith_goal, stacked), 1)
+        # concatt = torch.cat((t_forward, stack_forward), 1)
+        # out = self.new_gen(concatt)
         # encoder_states: 7 x 512
         # goal_enc = self.goal_encoder(goal_vect)
         # t_enc = self.t_encoder(t)
@@ -962,4 +972,5 @@ class FixT(nn.Module):
 
         # return goal_vect, t
         # return goal_enc, t_enc
-        return out 
+        # return out 
+        return ith_goal 
