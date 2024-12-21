@@ -941,14 +941,36 @@ class FixT(nn.Module):
         self.encoder_linear2 = nn.Linear(hidden_size, hidden_size)
 
         self.attn = Attn2(hidden_size,batch_first=True,bidirectional_encoder=False)
+        self.dropout = nn.Dropout(dropout)
+        self.concat_l = nn.Linear(hidden_size, hidden_size)
+        self.concat_lg = nn.Linear(hidden_size, hidden_size)
+        self.generate_l = nn.Linear(hidden_size * 3, hidden_size)
 
     def forward(self,  ith_goal, t_embs, encoder_outputs, goal_vect_global):
-        attn_weights = self.attn(ith_goal, encoder_outputs, None)
-        # if self.batch_first:
-        align_context = attn_weights.bmm(encoder_outputs) # B x 1 x H
-        encoder_linear1 = torch.tanh(self.encoder_linear1(align_context))
-        encoder_linear2 = self.encoder_linear2(encoder_linear1)
-        return encoder_linear2
+        l_child = torch.tanh(self.generate_l(torch.cat((ith_goal, t_embs), 1)))
+        # o_l = sigmoid( W_ol [q c e(\hat y | P)] ) 
+        l_child_g = torch.sigmoid(self.generate_lg(torch.cat((ith_goal, t_embs), 1)))
+        # h_l = o_1 * C_l
+        l_child = l_child * l_child_g
+        c = self.dropout(l_child)
+        g = torch.tanh(self.concat_l(c))
+        t = torch.sigmoid(self.concat_lg(c))
+        out = g * t
+        return out
+
+
+
+
+
+        # attn_weights = self.attn(ith_goal, encoder_outputs, None)
+        # # if self.batch_first:
+        # align_context = attn_weights.bmm(encoder_outputs) # B x 1 x H
+        # encoder_linear1 = torch.tanh(self.encoder_linear1(align_context))
+        # encoder_linear2 = self.encoder_linear2(encoder_linear1)
+        # return encoder_linear2
+
+
+
         # t_vects = []
         # for item in t_embs:
         #     if item is None:

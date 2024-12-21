@@ -553,7 +553,7 @@ for fold in range(num_folds):
     print('All TRAIN ACC', all_train_accuracys)
     print('ALL EVAL ACC', all_eval_accuracys)
     print('ALL EVAL SOLN ACC', all_soln_eval_accuracys)
-    process_loss_dicts(fold_accuracies['train_loss_dict'], fold_accuracies['eval_loss_dict'])
+    process_loss_dicts(fold_accuracies['train_loss_dict'], fold_accuracies['eval_loss_dict'], f"src/post/loss-dict-{time.time()}-{run_id}.png")
     break 
 
 # a, b, c = 0, 0, 0

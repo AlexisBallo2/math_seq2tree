@@ -812,12 +812,12 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
     if len(total_acc) == 1:
         equ_1_acc = total_acc[0]
-        equ_2_acc = 0
-        equ_3_acc = 0
+        equ_2_acc = -1 
+        equ_3_acc = -1 
     elif len(total_acc) == 2:
         equ_1_acc = total_acc[0]
         equ_2_acc = total_acc[1]
-        equ_3_acc = 0
+        equ_3_acc = -1 
     elif len(total_acc) == 3:
         equ_1_acc = total_acc[0]
         equ_2_acc = total_acc[1]
