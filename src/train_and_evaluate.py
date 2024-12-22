@@ -628,8 +628,9 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                     pred_equ_solutions[idx] = o[-1].embedding[0]
                 else:
                     left_childs.append(None)
-                # if pred_equ_solutions[idx] is None:
-                #     pred_equ_solutions[idx] = [o[-1]]
+                if pred_equ_solutions[idx] is None:
+                    # add random
+                    pred_equ_solutions[idx] = padding_hidden.squeeze(0)
         # done equation
         # get next goal vector
         if useCustom:
