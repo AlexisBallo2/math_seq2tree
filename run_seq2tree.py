@@ -36,10 +36,9 @@ sys.stdout = open('output.txt','wt')
 
 # batch_size = 1 
 # batch_size = 10
-# batch_size = 20
-batch_size = 30 
+batch_size = 20
+# batch_size = 30 
 # batch_size = 64 
-embedding_size = 128
 hidden_size = 512
 # n_epochs = 5 
 # n_epochs = 10 
@@ -101,6 +100,25 @@ useSNIMask = False
 
 # useTFix = True
 useTFix = False
+
+useBertEmbeddings = True 
+
+if useBertEmbeddings:
+    embedding_size = 768
+else:
+    embedding_size = 128
+
+# abalations = {
+#     "useSubMethod" : True,
+#     "useSemanticAlignment" : False,
+#     "useOneEquation" : False,
+#     "useSeperateVars" : True,
+#     "useOpScaling" : False,
+#     "useEquSolutions": True,
+#     "useVarsAsNums" : True,
+#     "useSNIMask": False,
+#     "useTFix" : False
+# }
 
 title = f"{num_obs} Observations, {n_epochs} Epochs, Dataset = {setName}, Custom = {useCustom} "
 config = {
@@ -226,7 +244,7 @@ for fold in range(num_folds):
         else:
             pairs_trained += fold_pairs[fold_t]
 
-    input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums, copy_nums, vars, useCustom, useSeperateVars, tree=True)
+    input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums, copy_nums, vars, useCustom, useSeperateVars, useBertEmbeddings, tree=True)
     # all_pairs = train_pairs + test_pairs
     # out = []
     # for pair in all_pairs:
@@ -247,8 +265,8 @@ for fold in range(num_folds):
     #   loc nums: where nums are in the text
     #   [[] of where each number in the equation (that is not in the output lang) is found in the nums array]
     # Initialize models
-    encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,n_layers=n_layers)
-    encoder_var = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,n_layers=n_layers)
+    encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,n_layers=n_layers, useBertEmbeddings = useBertEmbeddings, input_lang=input_lang)
+    encoder_var = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,n_layers=n_layers, useBertEmbeddings = useBertEmbeddings, input_lang=input_lang)
     if useSeperateVars:
         op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars)
     else:

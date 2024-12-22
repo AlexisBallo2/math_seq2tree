@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 from torch_kmeans import KMeans
 import matplotlib.pyplot as plt
+from transformers import BertTokenizer, BertModel
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -189,7 +190,7 @@ class TreeAttn(nn.Module):
 
 
 class EncoderSeq(nn.Module):
-    def __init__(self, input_size, embedding_size, hidden_size, n_layers=2, dropout=0.5):
+    def __init__(self, input_size, embedding_size, hidden_size, useBertEmbeddings = False, input_lang = None, n_layers=2, dropout=0.5):
         super(EncoderSeq, self).__init__()
 
         self.input_size = input_size
@@ -198,15 +199,55 @@ class EncoderSeq(nn.Module):
         self.n_layers = n_layers
         self.dropout = dropout
 
+        model_name = 'bert-base-uncased'
+        self.input_lang = input_lang
+        self.tokenizer = BertTokenizer.from_pretrained(model_name)
+        self.model = BertModel.from_pretrained(model_name)
+
+        # Text to embed
+        # text = "This is a sample sentence."
+
+        # Tokenize input text
+        # encoded_input = tokenizer(text, return_tensors='pt')
+        self.useBertEmbeddings = useBertEmbeddings
+
         self.embedding = nn.Embedding(input_size, embedding_size, padding_idx=0)
         self.em_dropout = nn.Dropout(dropout)
         self.gru_pade = nn.GRU(embedding_size, hidden_size, n_layers, dropout=dropout, bidirectional=True)
+
+    def getEmbeddings(self, input_seqs):
+            output = []
+            input_per_batch = input_seqs.transpose(0, 1)
+            for each_batch in input_per_batch:
+                string = [self.input_lang.index2word[i] for i in each_batch.tolist()]
+                input_ids = [self.tokenizer.encode(word, add_special_tokens=True) for word in string]
+                input_ids_padded = torch.nn.utils.rnn.pad_sequence([torch.tensor(x) for x in input_ids], batch_first=True)
+                with torch.no_grad():
+                    outputs = self.model(input_ids_padded)
+                last_hidden_states = outputs.last_hidden_state
+
+                # To get a single embedding per word, typically the first token's (CLS) vector of each word's encoding is used.
+                embeddings = [state[0] for state in last_hidden_states]
+                embs = torch.stack(embeddings)
+                output.append(embs)
+            stacked_output = torch.stack(output)
+            # make original shape: batch_size x max_len x hidden_size
+            final = stacked_output.transpose(0, 1)
+            return final
+
+
 
     def forward(self, input_seqs, input_lengths, hidden=None):
         # input_seqs: max_len x batch_size
         # max_len comes from longest in the batch
         # embedded = max_len x num_batches x embedding_dim
-        embedded1 = self.embedding(input_seqs)  # S x B x E
+        # 32 x 20 x 128
+        # embedded1 = self.embedding(input_seqs)  # S x B x E
+        if self.useBertEmbeddings:
+            embedded1 = self.getEmbeddings(input_seqs)
+        else:
+            embedded1 = self.embedding(input_seqs)
+        # embedded1 = self.tokenizer(input_seqs, return_tensors='pt')
         embedded = self.em_dropout(embedded1)
         # packed = lengths x embedding
         # with multiple batches it seems to concatenate the padded 

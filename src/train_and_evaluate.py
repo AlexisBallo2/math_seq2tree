@@ -655,6 +655,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         # loss
         if useOpScaling:
             classify_loss = torch.nn.CrossEntropyLoss(reduction="none")(stacked_got.view(-1, stacked_got.size(2)), stacked_actual.view(-1).to(device)).mean() 
+            print()
             # classify_loss = 0
         else:
             classify_loss = torch.tensor(0)
@@ -767,17 +768,20 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
         if useSemanticAlignment: 
             semantic_alignment_loss = nn.MSELoss()
-            total_semanti_alognment_loss = torch.tensor(0, dtype=torch.float32)
+            total_semanti_alognment_loss = torch.tensor(-1e-3, dtype=torch.float32)
             sa_len = len(all_sa_outputs)
             for sa_pair in all_sa_outputs:
                 total_semanti_alognment_loss += semantic_alignment_loss(sa_pair[0],sa_pair[1]) * 10
             # print(total_semanti_alognment_loss)
+            # print()
+            if sa_len == 0:
+                sa_len = 1
             try:
-                total_semanti_alognment_loss = total_semanti_alognment_loss / sa_len * 10
+                total_semanti_alognment_loss = total_semanti_alognment_loss / (sa_len)  * 10
             except:
-                total_semanti_alognment_loss = torch.tensor(0, dtype=torch.float32)            
+                total_semanti_alognment_loss = torch.tensor(-1e-3, dtype=torch.float32)            
         else:
-            total_semanti_alognment_loss = torch.tensor(0, dtype=torch.float32)
+            total_semanti_alognment_loss = torch.tensor(-1e-3, dtype=torch.float32)
         
 
 

@@ -923,7 +923,7 @@ def indexes_from_sentence(lang, sentence, tree=False):
     return res
 
 
-def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, copy_nums, vars, useCustom, useSeperateVars, tree=False):
+def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, copy_nums, vars, useCustom, useSeperateVars, useBertEmbeddings, tree=False):
     input_lang = Lang()
     output_lang = Lang()
     train_pairs = []
@@ -1001,6 +1001,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
 
         # convert input sentence and equation into the vocab tokens
         input_cell = indexes_from_sentence(input_lang, pair['input_seq'])
+        # input_cell = pair['input_seq']
         output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair['equations']]
         if useCustom:
             equation_target = [output_lang.word2index[equ] for equ in pair['equationTargetVars']]
