@@ -1004,7 +1004,8 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         # input_cell = pair['input_seq']
         output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair['equations']]
         if useCustom:
-            equation_target = [output_lang.word2index[equ] for equ in pair['equationTargetVars']]
+            # equation_target = [output_lang.word2index[equ] for equ in pair['equationTargetVars']]
+            equation_target = indexes_from_sentence(output_lang, pair['equationTargetVars'], tree)
         else: 
             equation_target = pair['equationTargetVars']
         # equation_target = ["" for equ in pair[5]]
