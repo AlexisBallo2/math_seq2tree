@@ -985,12 +985,14 @@ class FixT(nn.Module):
         self.dropout = nn.Dropout(dropout)
         self.concat_l = nn.Linear(hidden_size, hidden_size)
         self.concat_lg = nn.Linear(hidden_size, hidden_size)
-        self.generate_l = nn.Linear(hidden_size * 3, hidden_size)
+        self.generate_l = nn.Linear(hidden_size * 2, hidden_size)
+        self.generate_lg = nn.Linear(hidden_size * 2, hidden_size)
 
     def forward(self,  ith_goal, t_embs, encoder_outputs, goal_vect_global):
-        l_child = torch.tanh(self.generate_l(torch.cat((ith_goal, t_embs), 1)))
+        stacked = torch.stack(t_embs)
+        l_child = torch.tanh(self.generate_l(torch.cat((ith_goal, stacked), 1)))
         # o_l = sigmoid( W_ol [q c e(\hat y | P)] ) 
-        l_child_g = torch.sigmoid(self.generate_lg(torch.cat((ith_goal, t_embs), 1)))
+        l_child_g = torch.sigmoid(self.generate_lg(torch.cat((ith_goal, stacked), 1)))
         # h_l = o_1 * C_l
         l_child = l_child * l_child_g
         c = self.dropout(l_child)

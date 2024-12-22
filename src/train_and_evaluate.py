@@ -625,7 +625,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                     # left_childs is a running vector of the sub tree embeddings "t" 
                     # need this for generation of the right q
                     left_childs.append(o[-1].embedding)
-                    pred_equ_solutions[idx] = [o[-1]]
+                    pred_equ_solutions[idx] = o[-1].embedding[0]
                 else:
                     left_childs.append(None)
                 # if pred_equ_solutions[idx] is None:
@@ -831,9 +831,12 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     loss_dict = {
         'total_loss': total_loss.item(),
         'equation_loss': current_equation_loss.item(),
-        'classify_loss': classify_loss.item(),
-        'sni_loss': sni_loss.item(),
-        'semantic_alignment_loss': total_semanti_alognment_loss.item(),
+        'num_x_loss': num_x_loss.item(),
+        'accuracy': sum(total_acc)/len(total_acc),
+        'soln_accuracy': 1 if sum(total_acc)/len(total_acc) == 1 else 0, 
+        # 'classify_loss': classify_loss.item(),
+        # 'sni_loss': sni_loss.item(),
+        # 'semantic_alignment_loss': total_semanti_alognment_loss.item(),
         'equ_1_acc': equ_1_acc,
         'equ_2_acc': equ_2_acc,
         'equ_3_acc': equ_3_acc,

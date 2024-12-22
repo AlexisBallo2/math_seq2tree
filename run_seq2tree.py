@@ -62,8 +62,8 @@ num_obs = None
 
 # torch.autograd.set_detect_anomaly(True)
 
-# useCustom = True
-useCustom = False 
+useCustom = True
+# useCustom = False 
 
 # setName = "MATH"
 setName = "DRAW"
