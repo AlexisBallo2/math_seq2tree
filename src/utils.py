@@ -201,3 +201,20 @@ def make_general_graph(dict, title = "Losses"):
 # loaded = json.loads(string)
 
 # make_general_graph(loaded)
+
+def getUniqueEquationCounts():
+    with open("src/post/datasetEquations.txt", "r") as f:
+        data = f.readlines()
+        all_data = []
+        for line in data:
+            line = line.strip("\n")
+            all_data.append(line)
+        # print(all_data)
+    occs = Counter(all_data)
+    values = list(occs.values())
+    total = sum(values)
+    print(total)
+    print(occs.values())
+    # print(occs)
+
+getUniqueEquationCounts()

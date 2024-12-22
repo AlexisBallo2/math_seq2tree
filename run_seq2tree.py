@@ -26,13 +26,13 @@ else:
 
 
 # batch_size = 64
-# torch.manual_seed(10)
-# torch.use_deterministic_algorithms(True)
-# torch.backends.cudnn.deterministic = True
-# torch.backends.cudnn.benchmark = False
-# random.seed(10)
-# torch.cuda.manual_seed_all(2)
-# np.random.seed(10)
+torch.manual_seed(10)
+torch.use_deterministic_algorithms(True)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+random.seed(10)
+torch.cuda.manual_seed_all(2)
+np.random.seed(10)
 
 # batch_size = 1 
 # batch_size = 10
@@ -68,8 +68,8 @@ useCustom = True
 # setName = "MATH"
 setName = "DRAW"
 
-useSubMethod = True
-# useSubMethod = False
+# useSubMethod = True
+useSubMethod = False
 
 # useSemanticAlignment = True
 useSemanticAlignment = False

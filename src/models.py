@@ -680,11 +680,23 @@ class PredictNumX(nn.Module):
         self.fc2 = nn.Linear(hidden_size, 4)
         self.softmax = nn.Softmax(dim=-1)
 
+        self.attn = TreeAttn(hidden_size, hidden_size)
 
 
-    def forward(self, goal_vect, eval = False):
-        # goal_vect = self.em_dropout(goal_vect)
-        temp = self.fc1(goal_vect)
+
+    # def forward(self, goal_vect, eval = False):
+    def forward(self, encoder, hidden, eval = False):
+
+        # enc2 = encoder.transpose(0,1)
+        # attn = self.attn(hidden.unsqueeze(0), encoder, None)
+        # current_context = attn.bmm(enc2).squeeze(1)  # B x 1 x N
+        # out = self.fc1(current_context)
+        # return out
+
+
+
+        # # goal_vect = self.em_dropout(goal_vect)
+        temp = self.fc1(hidden)
         temp2 = self.relu(temp)
         temp3 = self.fc2(temp2)
 
@@ -696,6 +708,7 @@ class PredictNumX(nn.Module):
 
         # hidden will be a list of unknown length with embed dimension of 512. 
 
+        # hidden = hidden.unsqueeze(0)
         # if eval == False:
         #     zeroList = [[[0.0] * 512] for _ in range(hidden.size(1))]
         # else:
@@ -734,7 +747,6 @@ class PredictNumX(nn.Module):
         # out[:, 0] = 0
         # softmax = torch.nn.Softmax(dim=-1)
         # return softmax(out)
-        # return abs(out) 
 
 class GenerateXs(nn.Module):
     def __init__(self, hidden_size, output_size, batch_size, dropout=0.5):

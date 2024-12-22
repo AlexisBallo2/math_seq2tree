@@ -239,7 +239,9 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
     num_equations_mse = []
     if useCustom:
-        pred_num_equations = models['num_x_predict'](problem_output)
+        pred_num_equations = models['num_x_predict'](encoder_outputs, problem_output)
+        # pred_num_equations = models['num_x_predict'](encoder_outputs)
+        # pred_num_equations = models['num_x_predict'](problem_output)
         max_pred_num_equations = max(pred_num_equations.argmax(dim = 1).tolist())
         for i, num in enumerate(num_equations_per_obs):
             print(f'predicted num x mse: {pred_num_equations[i].argmax().item()}, actual: {num.item()}')
@@ -378,12 +380,12 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     op_right = 0
 
     # do equations one at a time
-    if inTraining:
-        num_equations_to_do = max(num_equations_per_obs)
-    else:
-        num_equations_to_do = min(pred_num_equations.argmax().item(), max(num_equations_per_obs))
+    # if inTraining:
+    num_equations_to_do = max(num_equations_per_obs)
+    # else:
+    #     num_equations_to_do = min(pred_num_equations.argmax().item(), max(num_equations_per_obs))
 
-    updated_qs = None
+    # updated_qs = None
 
     for cur_equation in range(num_equations_to_do):
         # select the ith equation in each obs
@@ -808,6 +810,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # if False:
         num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs.to(device))
         total_loss += num_x_loss + classify_loss + sni_loss
+        # total_loss = num_x_loss
         # total_loss += equation_prediction_loss
 
         # predict a solution token for the tree 
