@@ -55,10 +55,10 @@ n_layers = 2
 # num_obs = 20
 # num_obs = 50
 # num_obs = 100
-num_obs = 200
+# num_obs = 200
 # num_obs = 600 
 # num_obs = 1000 
-# num_obs = None 
+num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 

@@ -378,10 +378,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     op_right = 0
 
     # do equations one at a time
-    # if inTraining:
-    num_equations_to_do = max(num_equations_per_obs)
-    # else:
-    #     num_equations_to_do = max(pred_num_equations.argmax().item(),len(all_vars))
+    if inTraining:
+        num_equations_to_do = max(num_equations_per_obs)
+    else:
+        num_equations_to_do = min(pred_num_equations.argmax().item(), max(num_equations_per_obs))
 
     updated_qs = None
 
