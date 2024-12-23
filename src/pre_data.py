@@ -137,14 +137,17 @@ class Lang:
             output.append(self.index2word[i])
         return output
 
-def load_DRAW_data(filename):  # load the json data to list(dict()) for MATH 23K
+def load_DRAW_data(filename, filter = None):  # load the json data to list(dict()) for MATH 23K
     print("Reading file...")
     f = open(filename, encoding="utf-8")
     data = json.loads(f.read())
+    if filter:
+        data = [d for d in data if d['dataset'] == filter]
     # finalData = []
     # for ele in data:
     #     if len(ele['lEquations']) == 1:
     #         finalData.append(ele)
+    
     return data
 
 def load_raw_data(filename):  # load the json data to list(dict()) for MATH 23K
@@ -1023,7 +1026,8 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         input_cell = indexes_from_sentence(input_lang, pair['input_seq'])
         output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair['equations']]
         if useCustom:
-            equation_target = [output_lang.word2index[equ] for equ in pair['equationTargetVars']]
+            # equation_target = [output_lang.word2index[equ] for equ in pair['equationTargetVars']]
+            equation_target = indexes_from_sentence(output_lang, pair['equationTargetVars'])
         else: 
             equation_target = pair['equationTargetVars']
         # equation_target = ["" for equ in pair[5]]
