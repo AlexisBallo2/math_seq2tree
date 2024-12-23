@@ -55,10 +55,10 @@ n_layers = 2
 # num_obs = 20
 # num_obs = 50
 # num_obs = 100
-# num_obs = 200
+num_obs = 200
 # num_obs = 600 
 # num_obs = 1000 
-num_obs = None 
+# num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
@@ -95,8 +95,8 @@ useEquSolutions = True
 useVarsAsNums = True
 # useVarsAsNums = False
 
-# useSNIMask = True
-useSNIMask = False
+useSNIMask = True
+# useSNIMask = False
 
 # useTFix = True
 useTFix = False
@@ -357,19 +357,19 @@ for fold in range(num_folds):
     fix_t_scheduler = torch.optim.lr_scheduler.StepLR(fix_t_optimizer, step_size=20, gamma=0.5)
 
     schedulers = [
-        encoder_scheduler,
-        encoder_var_scheduler,
-        predict_scheduler,
-        predict_output_scheduler,
-        generate_scheduler,
-        merge_scheduler,
+        # encoder_scheduler,
+        # encoder_var_scheduler,
+        # predict_scheduler,
+        # predict_output_scheduler,
+        # generate_scheduler,
+        # merge_scheduler,
         num_x_predict_scheduler,
-        x_generate_scheduler,
-        x_to_q_scheduler,
-        sementic_alignment_scheduler,
-        num_or_opp_scheduler,
-        sni_scheduler,
-        fix_t_scheduler
+        # x_generate_scheduler,
+        # x_to_q_scheduler,
+        # sementic_alignment_scheduler,
+        # num_or_opp_scheduler,
+        # sni_scheduler,
+        # fix_t_scheduler
     ]
 
     # Move models to GPU

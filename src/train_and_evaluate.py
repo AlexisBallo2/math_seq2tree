@@ -205,37 +205,37 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     encoder_var_outputs, var_output = models['encoder_var'](input_var, input_length) 
     # Prepare input and output variables
 
-    temp_encoder_outputs = encoder_outputs.transpose(0,1)
-    zero = torch.zeros(models['predict'].hidden_size)
-    if useSNIMask:
-        num_window = []
-        for batch_num,batch in enumerate(num_pos):
-            batch_windows = []
-            for num in batch:
-                num_emb_window = []
-                for i in range(num - 3, num+4):
-                    if i < 0 or i >= input_length[batch_num]:
-                        num_emb_window.append(zero)
-                    else:
-                        num_emb_window.append(temp_encoder_outputs[batch_num][i])
-                num_emb_window_stack = torch.stack(num_emb_window)
-                batch_windows.append(num_emb_window_stack)
-            stacked_batch = torch.stack(batch_windows)
-            num_window.append(stacked_batch)
-        # num_window = num_window
-        print() 
+    # temp_encoder_outputs = encoder_outputs.transpose(0,1)
+    # zero = torch.zeros(models['predict'].hidden_size)
+    # if useSNIMask:
+    #     num_window = []
+    #     for batch_num,batch in enumerate(num_pos):
+    #         batch_windows = []
+    #         for num in batch:
+    #             num_emb_window = []
+    #             for i in range(num - 3, num+4):
+    #                 if i < 0 or i >= input_length[batch_num]:
+    #                     num_emb_window.append(zero)
+    #                 else:
+    #                     num_emb_window.append(temp_encoder_outputs[batch_num][i])
+    #             num_emb_window_stack = torch.stack(num_emb_window)
+    #             batch_windows.append(num_emb_window_stack)
+    #         stacked_batch = torch.stack(batch_windows)
+    #         num_window.append(stacked_batch)
+    #     # num_window = num_window
+    #     print() 
 
-        # run through sni
-        is_sni_list = []
-        for i, batch in enumerate(num_window):
-            batch_is_sni = []
-            for j, num in enumerate(batch):
-                is_sni = models['sni'](num)
-                batch_is_sni.append(is_sni)
-            batch_is_sni = torch.stack(batch_is_sni).squeeze(1)
-            is_sni_list.append(batch_is_sni)
-        # is_sni_list = torch.stack(is_sni_list)
-    # number mask 
+    #     # run through sni
+    #     is_sni_list = []
+    #     for i, batch in enumerate(num_window):
+    #         batch_is_sni = []
+    #         for j, num in enumerate(batch):
+    #             is_sni = models['sni'](num)
+    #             batch_is_sni.append(is_sni)
+    #         batch_is_sni = torch.stack(batch_is_sni).squeeze(1)
+    #         is_sni_list.append(batch_is_sni)
+    #     # is_sni_list = torch.stack(is_sni_list)
+    # # number mask 
 
     num_equations_mse = []
     if useCustom:
@@ -252,564 +252,565 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         num_equations_mse.append(0)
 
     # 0s where the numbers are from input, 1s where not in input
-    num_mask = []
-    if useCustom and useSeperateVars:
-        # max_num_size = max(num_size_batch) + len(generate_nums)  
-        max_num_size = max(num_size_batch) + len(generate_nums) + len(all_vars) 
-    else:
-        max_num_size = max(num_size_batch) + len(generate_nums) 
+    # num_mask = []
+    # if useCustom and useSeperateVars:
+    #     # max_num_size = max(num_size_batch) + len(generate_nums)  
+    #     max_num_size = max(num_size_batch) + len(generate_nums) + len(all_vars) 
+    # else:
+    #     max_num_size = max(num_size_batch) + len(generate_nums) 
 
-    for i, num_size in enumerate(num_size_batch):
-        if useCustom and useSeperateVars:
-            d = num_size + len(generate_nums) + len(problem_vars[i].tolist())
-            # if useSNIMask:
-            #     cur_sni_list = is_sni_list[i].argmax(1)
-            #     # flip the mask
-            #     flipped = cur_sni_list == 0
-            #     flipped = flipped.type(torch.int)
-            #     flipped = flipped.tolist()
-            #     if inTraining:
-            #         num_mask.append(problem_vars[i].tolist() + [0] * len(generate_nums) + flipped + [1] * (max_num_size - d))
-            #     else:
-            #         num_vars_predicted = pred_num_equations.argmax().item()
-            #         if num_vars_predicted < len(all_vars):
-            #             problem_var_list = [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
-            #         else:
-            #             problem_var_list = [0] * len(all_vars)
-            #         num_mask.append(problem_var_list + [0] * len(generate_nums) + flipped + [1] * (max_num_size))
-            # else:
-            if inTraining:
-                # for problem_var in problem_vars[i].tolist():
-                #     print('can use var', output_lang.index2word[problem_var])
-                # for generate_num in generate_nums:
-                #     print('can use num', output_lang.index2word[generate_num])
-                # for num_t in range(num_size):
-                #     print('can use num', output_lang.index2word[len(problem_vars[i].tolist()) + len(generate_nums) + num_t])
+    # for i, num_size in enumerate(num_size_batch):
+    #     if useCustom and useSeperateVars:
+    #         d = num_size + len(generate_nums) + len(problem_vars[i].tolist())
+    #         # if useSNIMask:
+    #         #     cur_sni_list = is_sni_list[i].argmax(1)
+    #         #     # flip the mask
+    #         #     flipped = cur_sni_list == 0
+    #         #     flipped = flipped.type(torch.int)
+    #         #     flipped = flipped.tolist()
+    #         #     if inTraining:
+    #         #         num_mask.append(problem_vars[i].tolist() + [0] * len(generate_nums) + flipped + [1] * (max_num_size - d))
+    #         #     else:
+    #         #         num_vars_predicted = pred_num_equations.argmax().item()
+    #         #         if num_vars_predicted < len(all_vars):
+    #         #             problem_var_list = [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
+    #         #         else:
+    #         #             problem_var_list = [0] * len(all_vars)
+    #         #         num_mask.append(problem_var_list + [0] * len(generate_nums) + flipped + [1] * (max_num_size))
+    #         # else:
+    #         if inTraining:
+    #             # for problem_var in problem_vars[i].tolist():
+    #             #     print('can use var', output_lang.index2word[problem_var])
+    #             # for generate_num in generate_nums:
+    #             #     print('can use num', output_lang.index2word[generate_num])
+    #             # for num_t in range(num_size):
+    #             #     print('can use num', output_lang.index2word[len(problem_vars[i].tolist()) + len(generate_nums) + num_t])
 
-                current_mask =  problem_vars[i].tolist() + [0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d)
-                num_mask.append(current_mask)
-                # for temp, indiv_mask in enumerate(current_mask):
-                #     if indiv_mask == 0:
-                #         print("mask", output_lang.index2word[temp + output_lang.num_start])
-                #     else:
-                #         print("NOT", output_lang.index2word[temp + output_lang.num_start])
-                # print()
-            else:
-                num_vars_predicted = pred_num_equations[i].argmax().item()
-                if num_vars_predicted < len(all_vars):
-                    problem_var_list = [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
-                else:
-                    problem_var_list = [0] * len(all_vars)
-                num_mask.append(problem_var_list + [0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
+    #             current_mask =  problem_vars[i].tolist() + [0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d)
+    #             num_mask.append(current_mask)
+    #             # for temp, indiv_mask in enumerate(current_mask):
+    #             #     if indiv_mask == 0:
+    #             #         print("mask", output_lang.index2word[temp + output_lang.num_start])
+    #             #     else:
+    #             #         print("NOT", output_lang.index2word[temp + output_lang.num_start])
+    #             # print()
+    #         else:
+    #             num_vars_predicted = pred_num_equations[i].argmax().item()
+    #             if num_vars_predicted < len(all_vars):
+    #                 problem_var_list = [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
+    #             else:
+    #                 problem_var_list = [0] * len(all_vars)
+    #             num_mask.append(problem_var_list + [0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
 
-            # num_mask.append([0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
-            # d = num_size + len(problem_vars[i].tolist()) + len(generate_nums)
-            # num_mask.append([0] * len(generate_nums) + problem_vars[i].tolist() + [0] * num_size + [1] * (max_num_size - d))
-        else:
-            d = num_size + len(generate_nums)
-            num_mask.append([0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
-    num_mask = torch.ByteTensor(num_mask)
+    #         # num_mask.append([0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
+    #         # d = num_size + len(problem_vars[i].tolist()) + len(generate_nums)
+    #         # num_mask.append([0] * len(generate_nums) + problem_vars[i].tolist() + [0] * num_size + [1] * (max_num_size - d))
+    #     else:
+    #         d = num_size + len(generate_nums)
+    #         num_mask.append([0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
+    # num_mask = torch.ByteTensor(num_mask)
 
-    # for t_batch in num_mask:
-    #     avail_tokens = []
-    #     for i, isIn in enumerate(t_batch):
-    #         if isIn == 0:
-    #             avail_tokens.append(output_lang.index2word[i + output_lang.num_start])
-    #     print("avail tokens", avail_tokens)
+    # # for t_batch in num_mask:
+    # #     avail_tokens = []
+    # #     for i, isIn in enumerate(t_batch):
+    # #         if isIn == 0:
+    # #             avail_tokens.append(output_lang.index2word[i + output_lang.num_start])
+    # #     print("avail tokens", avail_tokens)
 
 
-    if USE_CUDA:
-        input_var = input_var.cuda()
-        seq_mask = seq_mask.cuda()
-        padding_hidden = padding_hidden.cuda()
-        num_mask = num_mask.cuda()
-    batch_size = len(input_length)
+    # if USE_CUDA:
+    #     input_var = input_var.cuda()
+    #     seq_mask = seq_mask.cuda()
+    #     padding_hidden = padding_hidden.cuda()
+    #     num_mask = num_mask.cuda()
+    # batch_size = len(input_length)
 
-    total_loss = None
-    total_acc = [] 
+    # total_loss = None
+    # total_acc = [] 
 
             
 
     
-    # array of len of numbers that must be copied from the input text
-    copy_num_len = [len(_) for _ in num_pos]
-    # max nums to copy
-    num_size = max(copy_num_len)
+    # # array of len of numbers that must be copied from the input text
+    # copy_num_len = [len(_) for _ in num_pos]
+    # # max nums to copy
+    # num_size = max(copy_num_len)
 
-    var_num_len = [len(_) for _ in var_pos]
-    # max nums to copy
-    var_size = max(var_num_len)
+    # var_num_len = [len(_) for _ in var_pos]
+    # # max nums to copy
+    # var_size = max(var_num_len)
 
-    # get the embeddings of the numbers
-    # num_batches x num_size x hidden_size that correspond to the embeddings of the numbers
-    all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_size, models['encoder'].hidden_size)
-
-
-
-    # index in the language where the special (operators) tokens end and input/output text begins
-    num_start = output_lang.num_start
+    # # get the embeddings of the numbers
+    # # num_batches x num_size x hidden_size that correspond to the embeddings of the numbers
+    # all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_size, models['encoder'].hidden_size)
 
 
-    if useCustom:
-        # node that max(num_equations_per_obs) should be the same as the lenth of vars
-        # xs: batch_size x num_vars x hidden_size
-        if inTraining:
-            qs = models['q_generate'](len(all_vars), encoder_outputs, problem_output)
-        else:
-            qs = models['q_generate'](max_pred_num_equations, encoder_outputs, problem_output)
-        # xs = get_all_number_encoder_outputs(encoder_outputs, var_pos, batch_size, var_size, models['encoder'].hidden_size)
-        # xs = torch.zeros(batch_size, len(all_vars), 512)
-    else: 
-        qs = problem_output
-    if useCustom:
-        # qs: batch_size x num_vars x hidden_size
-        xs = models['q_to_x'](encoder_var_outputs, qs, var_output)
-    else:
-        xs = None 
 
-    # pad xs and qs
-    # pred_num_equations_val = pred_num_equations.argmax().item()
-    if qs.size(1) < len(all_vars):
-        padding = torch.zeros(qs.size(0), len(all_vars) - max_pred_num_equations, 512)
-        qs = torch.cat((qs, padding.to(device)), dim=1).to(device)
-        xs = torch.cat((xs, padding.to(device)), dim=1).to(device)
-    if useCustom and max_pred_num_equations > len(all_vars):
-        qs = qs[:, :len(all_vars), :]
-        xs = xs[:, :len(all_vars), :]
-    op_occurances = 0
-    op_right = 0
+    # # index in the language where the special (operators) tokens end and input/output text begins
+    # num_start = output_lang.num_start
 
-    # do equations one at a time
-    # if inTraining:
-    num_equations_to_do = max(num_equations_per_obs)
+
+    # if useCustom:
+    #     # node that max(num_equations_per_obs) should be the same as the lenth of vars
+    #     # xs: batch_size x num_vars x hidden_size
+    #     if inTraining:
+    #         qs = models['q_generate'](len(all_vars), encoder_outputs, problem_output)
+    #     else:
+    #         qs = models['q_generate'](max_pred_num_equations, encoder_outputs, problem_output)
+    #     # xs = get_all_number_encoder_outputs(encoder_outputs, var_pos, batch_size, var_size, models['encoder'].hidden_size)
+    #     # xs = torch.zeros(batch_size, len(all_vars), 512)
+    # else: 
+    #     qs = problem_output
+    # if useCustom:
+    #     # qs: batch_size x num_vars x hidden_size
+    #     xs = models['q_to_x'](encoder_var_outputs, qs, var_output)
     # else:
-    #     num_equations_to_do = min(pred_num_equations.argmax().item(), max(num_equations_per_obs))
+    #     xs = None 
 
-    # updated_qs = None
+    # # pad xs and qs
+    # # pred_num_equations_val = pred_num_equations.argmax().item()
+    # if qs.size(1) < len(all_vars):
+    #     padding = torch.zeros(qs.size(0), len(all_vars) - max_pred_num_equations, 512)
+    #     qs = torch.cat((qs, padding.to(device)), dim=1).to(device)
+    #     xs = torch.cat((xs, padding.to(device)), dim=1).to(device)
+    # if useCustom and max_pred_num_equations > len(all_vars):
+    #     qs = qs[:, :len(all_vars), :]
+    #     xs = xs[:, :len(all_vars), :]
+    # op_occurances = 0
+    # op_right = 0
 
-    for cur_equation in range(num_equations_to_do):
-        # select the ith equation in each obs
-        ith_equation_target = deepcopy(target[:, cur_equation, :].transpose(0,1))
-        # if useCustom:
-        #     # ith_equation_solution = deepcopy(equation_targets_tensor[:, cur_equation])
+    # # do equations one at a time
+    # # if inTraining:
+    # num_equations_to_do = max(num_equations_per_obs)
+    # # else:
+    # #     num_equations_to_do = min(pred_num_equations.argmax().item(), max(num_equations_per_obs))
+
+    # # updated_qs = None
+
+    # for cur_equation in range(num_equations_to_do):
+    #     # select the ith equation in each obs
+    #     ith_equation_target = deepcopy(target[:, cur_equation, :].transpose(0,1))
+    #     # if useCustom:
+    #     #     # ith_equation_solution = deepcopy(equation_targets_tensor[:, cur_equation])
+    #     # else:
+    #     #     ith_equation_solution = None
+    #     ith_equation_target_lengths = deepcopy(target_length[:, cur_equation])
+    #     # it_equation_solution 
+    #     if useCustom:
+    #         if cur_equation == 0:
+    #             ith_equation_goal = qs[:, cur_equation, :]
+    #         # updated qs is the goal vector for the next equation
+    #         else:
+    #             ith_equation_goal = updated_qs
+    #         node_stacks = [[TreeNode(_)] for _ in ith_equation_goal.split(1, dim=0)]
+    #     else:
+    #         ith_equation_goal = problem_output
+    #         node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
+
+    #     ith_equation_target_lengths = torch.Tensor(target_length)[:, cur_equation]
+    #     ith_equation_num_stacks = []
+    #     for stack in nums_stack_batch:
+    #         ith_equation_num_stacks.append(stack[cur_equation])
+
+    #     # max_target_length = int(max(ith_equation_target_lengths.tolist()))
+    #     max_target_length = len(ith_equation_target)
+
+    #     all_node_outputs = []
+    #     embeddings_stacks = [[] for _ in range(batch_size)]
+    #     left_childs = [None for _ in range(batch_size)]
+
+    #     pred_equ_solutions = [None for _ in range(batch_size)]
+
+    #     all_sa_outputs = []
+    #     all_t_alignment_outputs = []
+    #     all_num_opp_scale = []
+    #     actuct_num_or_opp = []
+
+    #     for t in range(max_target_length):
+
+    #         # predict gets the encodings and embeddings for the current node 
+    #         #   num_score: batch_size x num_length
+    #         #       likliehood prediction of each number
+    #         #   op: batch_size x num_ops
+    #         #       likliehood of the operator tokens
+    #         #   current_embeddings: batch_size x 1 x hidden_size
+    #         #       goal vector (q) for the current node 
+    #         #   current_context: batch_size x 1 x hidden_size
+    #         #       context vector (c) for the subtree
+    #         #   embedding_weight: batch_size x num_length x hidden_size
+    #         #       embeddings of the generate and copy numbers
+
+    #         num_score, op, var, current_embeddings, current_context, current_nums_embeddings = models['predict'](node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug, useSeperateVars, ith_equation_goal, useVarsAsNums)
+
+
+    #         # # this is mainly what we want to train
+    #         # outputs = torch.cat((op, num_score), 1)
+
+
+    #         # num_score = 2 x 5
+    #         # op = 2 x 4
+
+
+    #         if useOpScaling:
+    #             num_or_opp_weight = models['num_or_opp'](encoder_outputs,current_context, ith_equation_goal)
+    #             opps_weight = num_or_opp_weight[:, 0].unsqueeze(1)#.transpose(0, -1)#.repeat(1, op.size(1))
+
+    #             vars_weight = num_or_opp_weight[:, 1].unsqueeze(1)#.transpose(0, -1)#.repeat(1, op.size(1))
+
+    #             nums_weight = num_or_opp_weight[:, 2].unsqueeze(1) #.repeat(1, num_score.size(1))
+    #             # op_mean = op.mean(dim=1).unsqueeze(1)
+    #             # num_mean = num_score.mean(dim=1).unsqueeze(1)
+    #             # num_or_opp_weight = torch.cat((op_mean, num_mean), 1)
+    #             all_num_opp_scale.append(num_or_opp_weight)
+    #             scaled_num_score = num_score * nums_weight * 10
+    #             scaled_op = op * opps_weight * 10
+    #             if useVarsAsNums:
+    #                 scaled_var = None
+    #             else:
+    #                 scaled_var = var * vars_weight * 10
+
+    #             if useVarsAsNums:
+    #                 outputs = torch.cat((scaled_op, scaled_num_score), 1)
+    #             else:
+    #                 if useSeperateVars:
+    #                     outputs = torch.cat((scaled_op, scaled_var, scaled_num_score), 1)
+    #                 else:
+    #                     outputs = torch.cat((scaled_op, scaled_num_score), 1)
+    #             # outputs = torch.cat((scaled_op, scaled_var, scaled_num_score), 1)
+    #         else:
+    #             num_or_opp_weight_op = op.max(dim=1) 
+    #             num_or_opp_weight_num = num_score.max(dim=1) 
+    #             num_or_opp_weight = torch.cat((num_or_opp_weight_op.values, num_or_opp_weight_num.values), 0)
+    #             all_num_opp_scale.append(num_or_opp_weight)
+
+    #             if useVarsAsNums:
+    #                 outputs = torch.cat((op, num_score), 1)
+    #             else:
+    #                 if useSeperateVars:
+    #                     outputs = torch.cat((op, var, num_score), 1)
+    #                 else:
+    #                     outputs = torch.cat((op, num_score), 1)
+
+
+
+
+
+    #         # plt.plot(outputs[0].tolist())
+    #         # plt.clf()
+    #         # plt.imshow(outputs.detach().numpy())
+    #         all_node_outputs.append(outputs)
+
+    #         # target[t] is the equation character at index t for each batch
+    #         #    target[t] = 1 x num_batches
+    #         # outputs is the strength of operators or a number token
+    #         # num_stack_batch is the cooresponding num lists
+    #         # num_start is where non-operators begin
+    #         # unk is unknown token
+    #         # returns
+    #         #   for position t in each equation
+    #         #       target_t: actual equation value
+    #         #       generate_input: equation value if its an operator
+    #         target_t, generate_input = generate_tree_input(ith_equation_target[t].tolist(), outputs, ith_equation_num_stacks, num_start, unk)
+    #         ith_equation_target[t] = target_t
+    #         op_or_num = target_t.clone().detach() # < num_start
+    #         for i, num in enumerate(target_t):
+    #             if num < num_start:
+    #                 op_or_num[i] = 0
+    #             elif num < num_start + len(all_vars):
+    #                 op_or_num[i] = 1 
+    #             else:
+    #                 op_or_num[i] = 2 
+    #         # opp range: < num_start
+    #         # var range: num_start to num_start + len(all_vars)
+    #         # num range: num_start + len(all_vars) to num_start + len(all_vars) + len(generate_nums)
+
+    #         # if op_or_num[0] == 1:
+    #         #     print('act op')
+    #         # else:
+    #         #     print('act num')
+    #         # ones_zeros_tensor = op_or_num.type(target.dtype)
+
+    #         actuct_num_or_opp.append(op_or_num)
+
+    #         if USE_CUDA:
+    #             generate_input = generate_input.cuda()
+
+    #         # takes:
+    #         #     generate a left and right child node with a label
+    #         #     current_embeddings: q : batch_size x 1 x hidden_dim
+    #         #     generate_input: [operator tokens at position t]
+    #         #     current_context: c : batch_size x 1 x hidden_dim
+    #         # returns
+    #         #     l_child: batch_size x hidden_dim
+    #         #          hidden state h_l:
+    #         #     r_child: batch_size x hidden_dim
+    #         #          hidden state h_r:
+    #         #     node_label_ : batch_size x embedding_size 
+    #         #          basically the context vector (c)
+    #         # the node generation takes the first half of equations (10) and (11) 
+    #         left_child, right_child, node_label = models['generate'](current_embeddings, generate_input, current_context)
+    #         left_childs = []
+    #         if inTraining:
+    #             target_list = ith_equation_target[t].tolist()  
+    #             # preds = outputs.argmax(dim=1).tolist()
+    #         else:
+    #             target_list = outputs.argmax(dim=1).tolist()
+    #         for idx, l, r, node_stack, i, o in zip(range(batch_size), left_child.split(1), right_child.split(1),
+    #                                             node_stacks, target_list, embeddings_stacks):
+    #             # current_token = output_lang.ids_to_tokens([i])
+    #             # current_equation = output_lang.ids_to_tokens(target.transpose(0,1)[idx])
+    #             #print("at token", current_token, "in", current_equation)
+    #             #print("current node_stack length", len(node_stack))
+    #             # for 
+    #             #   batch_num
+    #             #   the left child: h_l 
+    #             #   the right child: h_r
+    #             # print('current token', output_lang.index2word[i])
+    #             # if inTraining:
+    #             #     print('actually predicted', output_lang.index2word[preds[idx]])
+    #             if len(node_stack) != 0:
+    #                 node = node_stack.pop()
+    #                 #print("removed last from node_stack, now", len(node_stack), "elems")
+    #             else:
+    #                 left_childs.append(None)
+    #                 continue
+
+    #             # i is the num in language of where that specific language token is
+    #             # if i is an operator
+    #             if i < num_start:
+    #                 #print(current_token, "is an operator, making a left and right node")
+    #                 # make a left and right tree node
+    #                 node_stack.append(TreeNode(r))
+    #                 node_stack.append(TreeNode(l, left_flag=True))
+    #                 # save the embedding of the operator 
+    #                 # terminal means a leaf node
+    #                 o.append(TreeEmbedding(node_label[idx].unsqueeze(0), False, current_embeddings[idx].unsqueeze(0)))
+    #                 #print("saving node embedding to o (non terminal node), and r, and l to node_stack. o now of size", len(o), "node_stack of size", len(node_stack))
+    #             else:
+    #                 #print(current_token, "is not an operator")
+    #                 # otherwise its either a number from the input equation or a copy number
+    #                 # we have a list (o) of the current nodes in the tree
+    #                 # if we have a leaf node at the top of the stack, get it.
+    #                 # next element in the stack must be an operator, so get it 
+    #                 # and combine the new node, operator, and other element
+
+    #                 # current_nums_embedding: batch_size x num_length x hidden_size
+    #                 # current_num = num_embedding of the number selected
+    #                 # if useSeperateVars:
+    #                 #     if i < num_start + len(all_vars):
+    #                 #         current_num = xs[idx, i - num_start].unsqueeze(0)
+    #                 #     else:
+    #                 #         current_num = current_nums_embeddings[idx, i - (num_start + len(all_vars))].unsqueeze(0)
+    #                 # else:
+    #                 current_num = current_nums_embeddings[idx, i - num_start].unsqueeze(0)
+    #                 # while there are tokens in the embedding stack and the last element IS a leaf node
+    #                 while len(o) > 0 and o[-1].terminal:
+    #                     #print("terminal element in o, getting terminal element and operator, and merging")
+    #                     # get the two elements from it
+    #                     sub_stree = o.pop()
+    #                     op = o.pop()
+    #                     # contains equation (13)
+    #                     # this combines a left and right tree along with a node
+    #                     # current_num = op.goal_vect.squeeze(0)
+    #                     current_num = models['merge'](op.embedding, sub_stree.embedding, current_num)
+    #                     temp_encoder_outputs = encoder_outputs.transpose(0,1)
+    #                     encoder_mapping, decoder_mapping = models['semantic_alignment'](current_num, temp_encoder_outputs[idx])
+    #                     # goal_out, t_out = models['fix_t'](op, current_num)
+    #                     all_sa_outputs.append((encoder_mapping, decoder_mapping))
+    #                     # all_t_alignment_outputs.append((goal_out, t_out))
+    #                     #print('merged. o now of size', len(o))
+    #                 # then re-add the node back to the stack
+    #                 #print("adding current_num to o (terminal node)")
+    #                 o.append(TreeEmbedding(current_num, True))
+    #             if len(o) > 0 and o[-1].terminal:
+    #                 #print("terminal element in o, adding to left child")
+    #                 # left_childs is a running vector of the sub tree embeddings "t" 
+    #                 # need this for generation of the right q
+    #                 left_childs.append(o[-1].embedding)
+    #                 pred_equ_solutions[idx] = o[-1].embedding[0]
+    #             else:
+    #                 left_childs.append(None)
+    #             if pred_equ_solutions[idx] is None:
+    #                 # add random
+    #                 pred_equ_solutions[idx] = padding_hidden.squeeze(0)
+    #     # done equation
+    #     # get next goal vector
+    #     if useCustom:
+    #         if cur_equation < num_equations_to_do - 1:
+    #             qs = models['fix_t'](ith_equation_goal, pred_equ_solutions, encoder_outputs, problem_output)
+    #             updated_qs = qs
+
+
+
+    #     # loss for the classifier of the operator and number tokens
+    #     stacked_actual = torch.stack(actuct_num_or_opp)  # B x S x 2
+    #     stacked_got = torch.stack(all_num_opp_scale)  # B x S x 2
+
+    #     for i, batch in enumerate(stacked_actual):
+    #         for j, probs in enumerate(batch):
+    #             # print('predicted', stacked_got[i][j].argmax().item(), 'actual op value', probs.item())
+    #             op_occurances += 1
+    #             if stacked_got[i][j].argmax() == probs.item():
+    #                 op_right += 1
+    #             # print(j, probs)
+    #             # print(j, stacked_got[i][j])
+    #             # print()
+    #     # loss
+    #     if useOpScaling:
+    #         classify_loss = torch.nn.CrossEntropyLoss(reduction="none")(stacked_got.view(-1, stacked_got.size(2)), stacked_actual.view(-1).to(device)).mean() 
+    #         print()
+    #         # classify_loss = 0
+    #     else:
+    #         classify_loss = torch.tensor(0)
+    #     # actuct_num_or_opp
+    #     # all_num_opp_scale
+
+
+    #     # loss the sni
+    #     sni_occurances = 0
+    #     sni_right = 0
+    #     sni_loss = 0
+    #     if useSNIMask:
+    #         for i, indiv_sni_batch in enumerate(is_sni_list):
+    #             sni_loss += torch.nn.CrossEntropyLoss()(indiv_sni_batch, torch.tensor(batch_sni[i]))
+    #             for j, sni in enumerate(indiv_sni_batch):
+    #                 # sni_loss += torch.nn.CrossEntropyLoss()(sni, batch_sni[i][j])
+    #                 # print('predicted', sni.argmax().item(), 'actual sni', batch_sni[i][j])
+    #                 if sni.argmax() == batch_sni[i][j]:
+    #                     sni_right += 1
+    #                     # op_right += 1
+    #                 sni_occurances += 1
+    #         sni_acc = sni_right/sni_occurances
+    #         print("sni:", sni_right/sni_occurances)
+    #         print()
+    #     else:
+    #         sni_acc = 0
+    #         sni_loss = torch.tensor(0)
+
+
+
+    #     # all_leafs = torch.stack(all_leafs, dim=1)  # B x S x 2
+        
+    #     # all_node_outputs:  for each token in the equation:
+    #     #   the current scoring of nums for each batch
+    #     # 
+    #     # transform to 
+    #     # all_node_outputs2: for each batch:
+    #     #   the current scoring of nums for each token in equation
+    #     # = batch_size x max_len x num_nums
+    #     all_node_outputs2 = torch.stack(all_node_outputs, dim=1)  # B x S x N
+
+    #     # batch_size x max_len x num_nums
+    #     ith_equation_target = ith_equation_target.transpose(0, 1).contiguous()
+    #     if USE_CUDA:
+    #         # all_leafs = all_leafs.cuda()
+    #         all_node_outputs2 = all_node_outputs2.cuda()
+    #         ith_equation_target = ith_equation_target.cuda()
+
+    #     # for batch in target:
+    #     #     print([output_lang.index2word[_] for _ in batch])
+    #     #print('done equation')
+    #     current_equation_loss = masked_cross_entropy(all_node_outputs2, ith_equation_target, ith_equation_target_lengths )
+    #     # current_equation_loss = torch.nn.CrossEntropyLoss(reduction="none")(all_node_outputs2.view(-1, all_node_outputs2.size(2)), ith_equation_target.view(-1).to(device)).mean()
+
+        
+    #     # # batch_size x max_len 
+    #     # as_equations = current_equation_loss_before.view(all_node_outputs2.size(0), -1)
+
+
+    #     # # generate a mask for tokens that WE FILLED 
+    #     # n = len(ith_equation_target_lengths)
+    #     # max_length_t =len(as_equations[0])
+    #     # index = torch.arange(max_length_t).unsqueeze(0).repeat(n, 1)  # Create a 2D index tensor with shape (n, max_length)
+    #     # mask_t = (index < ith_equation_target_lengths.unsqueeze(1)).float()  # Expand lengths tensor & compare with index tensor, then cast to float
+
+    #     # as_equations = as_equations * mask_t.to(device)
+    #     # current_equation_loss = as_equations.view(-1).mean()
+        
+    #     # print(mask)
+
+    #     # remove the lengths we dont care about
+
+    #     same = 0
+    #     lengths = 0
+    #     # print(f'Equation {cur_equation}')
+
+    #     comparison = []
+    #     for i, batch in enumerate(all_node_outputs2):
+    #         # cur_len = 0
+    #         # cur_same = 0
+    #         equ_length = int(ith_equation_target_lengths[i].item())
+    #         vals = []
+    #         for j, probs in enumerate(batch):
+    #             if j < equ_length:
+    #                 lengths += 1
+    #                 # cur_len += 1
+    #                 max_val = torch.argmax(probs)
+    #                 vals.append(max_val)
+    #                 if max_val == ith_equation_target[i][j]:
+    #                     same += 1
+    #                     # cur_same += 1
+    #         print(f"        prediction: {[output_lang.index2word[_] for _ in vals[0:equ_length]]}")
+    #         print(f"        actual:     {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
+    #         comparison.append({
+    #             'prediction': [output_lang.index2word[_] for _ in vals[0:equ_length]],
+    #             'actual': [output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]
+    #         })
+    #         # print('same', cur_same, 'length', cur_len)
+
+
+    #     if USE_CUDA:
+    #         # all_leafs = all_leafs.cuda()
+    #         # all_node_outputs = all_node_outputs.cuda()
+    #         # target = target.cuda()
+    #         new_all_sa_outputs = []
+    #         for sa_pair in all_sa_outputs:
+    #             new_all_sa_outputs.append((sa_pair[0].cuda(),sa_pair[1].cuda()))
+    #         all_sa_outputs = new_all_sa_outputs
+
+
+        # if useSemanticAlignment: 
+        #     semantic_alignment_loss = nn.MSELoss()
+        #     total_semanti_alognment_loss = torch.tensor(-1e-3, dtype=torch.float32)
+        #     sa_len = len(all_sa_outputs)
+        #     for sa_pair in all_sa_outputs:
+        #         total_semanti_alognment_loss += semantic_alignment_loss(sa_pair[0],sa_pair[1]) * 10
+        #     # print(total_semanti_alognment_loss)
+        #     # print()
+        #     if sa_len == 0:
+        #         sa_len = 1
+        #     try:
+        #         total_semanti_alognment_loss = total_semanti_alognment_loss / (sa_len)  * 10
+        #     except:
+        #         total_semanti_alognment_loss = torch.tensor(-1e-3, dtype=torch.float32)            
         # else:
-        #     ith_equation_solution = None
-        ith_equation_target_lengths = deepcopy(target_length[:, cur_equation])
-        # it_equation_solution 
-        if useCustom:
-            if cur_equation == 0:
-                ith_equation_goal = qs[:, cur_equation, :]
-            # updated qs is the goal vector for the next equation
-            else:
-                ith_equation_goal = updated_qs
-            node_stacks = [[TreeNode(_)] for _ in ith_equation_goal.split(1, dim=0)]
-        else:
-            ith_equation_goal = problem_output
-            node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
-
-        ith_equation_target_lengths = torch.Tensor(target_length)[:, cur_equation]
-        ith_equation_num_stacks = []
-        for stack in nums_stack_batch:
-            ith_equation_num_stacks.append(stack[cur_equation])
-
-        # max_target_length = int(max(ith_equation_target_lengths.tolist()))
-        max_target_length = len(ith_equation_target)
-
-        all_node_outputs = []
-        embeddings_stacks = [[] for _ in range(batch_size)]
-        left_childs = [None for _ in range(batch_size)]
-
-        pred_equ_solutions = [None for _ in range(batch_size)]
-
-        all_sa_outputs = []
-        all_t_alignment_outputs = []
-        all_num_opp_scale = []
-        actuct_num_or_opp = []
-
-        for t in range(max_target_length):
-
-            # predict gets the encodings and embeddings for the current node 
-            #   num_score: batch_size x num_length
-            #       likliehood prediction of each number
-            #   op: batch_size x num_ops
-            #       likliehood of the operator tokens
-            #   current_embeddings: batch_size x 1 x hidden_size
-            #       goal vector (q) for the current node 
-            #   current_context: batch_size x 1 x hidden_size
-            #       context vector (c) for the subtree
-            #   embedding_weight: batch_size x num_length x hidden_size
-            #       embeddings of the generate and copy numbers
-
-            num_score, op, var, current_embeddings, current_context, current_nums_embeddings = models['predict'](node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug, useSeperateVars, ith_equation_goal, useVarsAsNums)
-
-
-            # # this is mainly what we want to train
-            # outputs = torch.cat((op, num_score), 1)
-
-
-            # num_score = 2 x 5
-            # op = 2 x 4
-
-
-            if useOpScaling:
-                num_or_opp_weight = models['num_or_opp'](encoder_outputs,current_context, ith_equation_goal)
-                opps_weight = num_or_opp_weight[:, 0].unsqueeze(1)#.transpose(0, -1)#.repeat(1, op.size(1))
-
-                vars_weight = num_or_opp_weight[:, 1].unsqueeze(1)#.transpose(0, -1)#.repeat(1, op.size(1))
-
-                nums_weight = num_or_opp_weight[:, 2].unsqueeze(1) #.repeat(1, num_score.size(1))
-                # op_mean = op.mean(dim=1).unsqueeze(1)
-                # num_mean = num_score.mean(dim=1).unsqueeze(1)
-                # num_or_opp_weight = torch.cat((op_mean, num_mean), 1)
-                all_num_opp_scale.append(num_or_opp_weight)
-                scaled_num_score = num_score * nums_weight * 10
-                scaled_op = op * opps_weight * 10
-                if useVarsAsNums:
-                    scaled_var = None
-                else:
-                    scaled_var = var * vars_weight * 10
-
-                if useVarsAsNums:
-                    outputs = torch.cat((scaled_op, scaled_num_score), 1)
-                else:
-                    if useSeperateVars:
-                        outputs = torch.cat((scaled_op, scaled_var, scaled_num_score), 1)
-                    else:
-                        outputs = torch.cat((scaled_op, scaled_num_score), 1)
-                # outputs = torch.cat((scaled_op, scaled_var, scaled_num_score), 1)
-            else:
-                num_or_opp_weight_op = op.max(dim=1) 
-                num_or_opp_weight_num = num_score.max(dim=1) 
-                num_or_opp_weight = torch.cat((num_or_opp_weight_op.values, num_or_opp_weight_num.values), 0)
-                all_num_opp_scale.append(num_or_opp_weight)
-
-                if useVarsAsNums:
-                    outputs = torch.cat((op, num_score), 1)
-                else:
-                    if useSeperateVars:
-                        outputs = torch.cat((op, var, num_score), 1)
-                    else:
-                        outputs = torch.cat((op, num_score), 1)
-
-
-
-
-
-            # plt.plot(outputs[0].tolist())
-            # plt.clf()
-            # plt.imshow(outputs.detach().numpy())
-            all_node_outputs.append(outputs)
-
-            # target[t] is the equation character at index t for each batch
-            #    target[t] = 1 x num_batches
-            # outputs is the strength of operators or a number token
-            # num_stack_batch is the cooresponding num lists
-            # num_start is where non-operators begin
-            # unk is unknown token
-            # returns
-            #   for position t in each equation
-            #       target_t: actual equation value
-            #       generate_input: equation value if its an operator
-            target_t, generate_input = generate_tree_input(ith_equation_target[t].tolist(), outputs, ith_equation_num_stacks, num_start, unk)
-            ith_equation_target[t] = target_t
-            op_or_num = target_t.clone().detach() # < num_start
-            for i, num in enumerate(target_t):
-                if num < num_start:
-                    op_or_num[i] = 0
-                elif num < num_start + len(all_vars):
-                    op_or_num[i] = 1 
-                else:
-                    op_or_num[i] = 2 
-            # opp range: < num_start
-            # var range: num_start to num_start + len(all_vars)
-            # num range: num_start + len(all_vars) to num_start + len(all_vars) + len(generate_nums)
-
-            # if op_or_num[0] == 1:
-            #     print('act op')
-            # else:
-            #     print('act num')
-            # ones_zeros_tensor = op_or_num.type(target.dtype)
-
-            actuct_num_or_opp.append(op_or_num)
-
-            if USE_CUDA:
-                generate_input = generate_input.cuda()
-
-            # takes:
-            #     generate a left and right child node with a label
-            #     current_embeddings: q : batch_size x 1 x hidden_dim
-            #     generate_input: [operator tokens at position t]
-            #     current_context: c : batch_size x 1 x hidden_dim
-            # returns
-            #     l_child: batch_size x hidden_dim
-            #          hidden state h_l:
-            #     r_child: batch_size x hidden_dim
-            #          hidden state h_r:
-            #     node_label_ : batch_size x embedding_size 
-            #          basically the context vector (c)
-            # the node generation takes the first half of equations (10) and (11) 
-            left_child, right_child, node_label = models['generate'](current_embeddings, generate_input, current_context)
-            left_childs = []
-            if inTraining:
-                target_list = ith_equation_target[t].tolist()  
-                # preds = outputs.argmax(dim=1).tolist()
-            else:
-                target_list = outputs.argmax(dim=1).tolist()
-            for idx, l, r, node_stack, i, o in zip(range(batch_size), left_child.split(1), right_child.split(1),
-                                                node_stacks, target_list, embeddings_stacks):
-                # current_token = output_lang.ids_to_tokens([i])
-                # current_equation = output_lang.ids_to_tokens(target.transpose(0,1)[idx])
-                #print("at token", current_token, "in", current_equation)
-                #print("current node_stack length", len(node_stack))
-                # for 
-                #   batch_num
-                #   the left child: h_l 
-                #   the right child: h_r
-                # print('current token', output_lang.index2word[i])
-                # if inTraining:
-                #     print('actually predicted', output_lang.index2word[preds[idx]])
-                if len(node_stack) != 0:
-                    node = node_stack.pop()
-                    #print("removed last from node_stack, now", len(node_stack), "elems")
-                else:
-                    left_childs.append(None)
-                    continue
-
-                # i is the num in language of where that specific language token is
-                # if i is an operator
-                if i < num_start:
-                    #print(current_token, "is an operator, making a left and right node")
-                    # make a left and right tree node
-                    node_stack.append(TreeNode(r))
-                    node_stack.append(TreeNode(l, left_flag=True))
-                    # save the embedding of the operator 
-                    # terminal means a leaf node
-                    o.append(TreeEmbedding(node_label[idx].unsqueeze(0), False, current_embeddings[idx].unsqueeze(0)))
-                    #print("saving node embedding to o (non terminal node), and r, and l to node_stack. o now of size", len(o), "node_stack of size", len(node_stack))
-                else:
-                    #print(current_token, "is not an operator")
-                    # otherwise its either a number from the input equation or a copy number
-                    # we have a list (o) of the current nodes in the tree
-                    # if we have a leaf node at the top of the stack, get it.
-                    # next element in the stack must be an operator, so get it 
-                    # and combine the new node, operator, and other element
-
-                    # current_nums_embedding: batch_size x num_length x hidden_size
-                    # current_num = num_embedding of the number selected
-                    # if useSeperateVars:
-                    #     if i < num_start + len(all_vars):
-                    #         current_num = xs[idx, i - num_start].unsqueeze(0)
-                    #     else:
-                    #         current_num = current_nums_embeddings[idx, i - (num_start + len(all_vars))].unsqueeze(0)
-                    # else:
-                    current_num = current_nums_embeddings[idx, i - num_start].unsqueeze(0)
-                    # while there are tokens in the embedding stack and the last element IS a leaf node
-                    while len(o) > 0 and o[-1].terminal:
-                        #print("terminal element in o, getting terminal element and operator, and merging")
-                        # get the two elements from it
-                        sub_stree = o.pop()
-                        op = o.pop()
-                        # contains equation (13)
-                        # this combines a left and right tree along with a node
-                        # current_num = op.goal_vect.squeeze(0)
-                        current_num = models['merge'](op.embedding, sub_stree.embedding, current_num)
-                        temp_encoder_outputs = encoder_outputs.transpose(0,1)
-                        encoder_mapping, decoder_mapping = models['semantic_alignment'](current_num, temp_encoder_outputs[idx])
-                        # goal_out, t_out = models['fix_t'](op, current_num)
-                        all_sa_outputs.append((encoder_mapping, decoder_mapping))
-                        # all_t_alignment_outputs.append((goal_out, t_out))
-                        #print('merged. o now of size', len(o))
-                    # then re-add the node back to the stack
-                    #print("adding current_num to o (terminal node)")
-                    o.append(TreeEmbedding(current_num, True))
-                if len(o) > 0 and o[-1].terminal:
-                    #print("terminal element in o, adding to left child")
-                    # left_childs is a running vector of the sub tree embeddings "t" 
-                    # need this for generation of the right q
-                    left_childs.append(o[-1].embedding)
-                    pred_equ_solutions[idx] = o[-1].embedding[0]
-                else:
-                    left_childs.append(None)
-                if pred_equ_solutions[idx] is None:
-                    # add random
-                    pred_equ_solutions[idx] = padding_hidden.squeeze(0)
-        # done equation
-        # get next goal vector
-        if useCustom:
-            if cur_equation < num_equations_to_do - 1:
-                qs = models['fix_t'](ith_equation_goal, pred_equ_solutions, encoder_outputs, problem_output)
-                updated_qs = qs
-
-
-
-        # loss for the classifier of the operator and number tokens
-        stacked_actual = torch.stack(actuct_num_or_opp)  # B x S x 2
-        stacked_got = torch.stack(all_num_opp_scale)  # B x S x 2
-
-        for i, batch in enumerate(stacked_actual):
-            for j, probs in enumerate(batch):
-                # print('predicted', stacked_got[i][j].argmax().item(), 'actual op value', probs.item())
-                op_occurances += 1
-                if stacked_got[i][j].argmax() == probs.item():
-                    op_right += 1
-                # print(j, probs)
-                # print(j, stacked_got[i][j])
-                # print()
-        # loss
-        if useOpScaling:
-            classify_loss = torch.nn.CrossEntropyLoss(reduction="none")(stacked_got.view(-1, stacked_got.size(2)), stacked_actual.view(-1).to(device)).mean() 
-            print()
-            # classify_loss = 0
-        else:
-            classify_loss = torch.tensor(0)
-        # actuct_num_or_opp
-        # all_num_opp_scale
-
-
-        # loss the sni
-        sni_occurances = 0
-        sni_right = 0
-        sni_loss = 0
-        if useSNIMask:
-            for i, indiv_sni_batch in enumerate(is_sni_list):
-                sni_loss += torch.nn.CrossEntropyLoss()(indiv_sni_batch, torch.tensor(batch_sni[i]))
-                for j, sni in enumerate(indiv_sni_batch):
-                    # sni_loss += torch.nn.CrossEntropyLoss()(sni, batch_sni[i][j])
-                    # print('predicted', sni.argmax().item(), 'actual sni', batch_sni[i][j])
-                    if sni.argmax() == batch_sni[i][j]:
-                        sni_right += 1
-                        # op_right += 1
-                    sni_occurances += 1
-            sni_acc = sni_right/sni_occurances
-            print("sni:", sni_right/sni_occurances)
-            print()
-        else:
-            sni_acc = 0
-            sni_loss = torch.tensor(0)
-
-
-
-        # all_leafs = torch.stack(all_leafs, dim=1)  # B x S x 2
-        
-        # all_node_outputs:  for each token in the equation:
-        #   the current scoring of nums for each batch
-        # 
-        # transform to 
-        # all_node_outputs2: for each batch:
-        #   the current scoring of nums for each token in equation
-        # = batch_size x max_len x num_nums
-        all_node_outputs2 = torch.stack(all_node_outputs, dim=1)  # B x S x N
-
-        # batch_size x max_len x num_nums
-        ith_equation_target = ith_equation_target.transpose(0, 1).contiguous()
-        if USE_CUDA:
-            # all_leafs = all_leafs.cuda()
-            all_node_outputs2 = all_node_outputs2.cuda()
-            ith_equation_target = ith_equation_target.cuda()
-
-        # for batch in target:
-        #     print([output_lang.index2word[_] for _ in batch])
-        #print('done equation')
-        current_equation_loss = masked_cross_entropy(all_node_outputs2, ith_equation_target, ith_equation_target_lengths )
-        # current_equation_loss = torch.nn.CrossEntropyLoss(reduction="none")(all_node_outputs2.view(-1, all_node_outputs2.size(2)), ith_equation_target.view(-1).to(device)).mean()
-
-        
-        # # batch_size x max_len 
-        # as_equations = current_equation_loss_before.view(all_node_outputs2.size(0), -1)
-
-
-        # # generate a mask for tokens that WE FILLED 
-        # n = len(ith_equation_target_lengths)
-        # max_length_t =len(as_equations[0])
-        # index = torch.arange(max_length_t).unsqueeze(0).repeat(n, 1)  # Create a 2D index tensor with shape (n, max_length)
-        # mask_t = (index < ith_equation_target_lengths.unsqueeze(1)).float()  # Expand lengths tensor & compare with index tensor, then cast to float
-
-        # as_equations = as_equations * mask_t.to(device)
-        # current_equation_loss = as_equations.view(-1).mean()
-        
-        # print(mask)
-
-        # remove the lengths we dont care about
-
-        same = 0
-        lengths = 0
-        # print(f'Equation {cur_equation}')
-
-        comparison = []
-        for i, batch in enumerate(all_node_outputs2):
-            # cur_len = 0
-            # cur_same = 0
-            equ_length = int(ith_equation_target_lengths[i].item())
-            vals = []
-            for j, probs in enumerate(batch):
-                if j < equ_length:
-                    lengths += 1
-                    # cur_len += 1
-                    max_val = torch.argmax(probs)
-                    vals.append(max_val)
-                    if max_val == ith_equation_target[i][j]:
-                        same += 1
-                        # cur_same += 1
-            print(f"        prediction: {[output_lang.index2word[_] for _ in vals[0:equ_length]]}")
-            print(f"        actual:     {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
-            comparison.append({
-                'prediction': [output_lang.index2word[_] for _ in vals[0:equ_length]],
-                'actual': [output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]
-            })
-            # print('same', cur_same, 'length', cur_len)
-
-
-        if USE_CUDA:
-            # all_leafs = all_leafs.cuda()
-            # all_node_outputs = all_node_outputs.cuda()
-            # target = target.cuda()
-            new_all_sa_outputs = []
-            for sa_pair in all_sa_outputs:
-                new_all_sa_outputs.append((sa_pair[0].cuda(),sa_pair[1].cuda()))
-            all_sa_outputs = new_all_sa_outputs
-
-
-        if useSemanticAlignment: 
-            semantic_alignment_loss = nn.MSELoss()
-            total_semanti_alognment_loss = torch.tensor(-1e-3, dtype=torch.float32)
-            sa_len = len(all_sa_outputs)
-            for sa_pair in all_sa_outputs:
-                total_semanti_alognment_loss += semantic_alignment_loss(sa_pair[0],sa_pair[1]) * 10
-            # print(total_semanti_alognment_loss)
-            # print()
-            if sa_len == 0:
-                sa_len = 1
-            try:
-                total_semanti_alognment_loss = total_semanti_alognment_loss / (sa_len)  * 10
-            except:
-                total_semanti_alognment_loss = torch.tensor(-1e-3, dtype=torch.float32)            
-        else:
-            total_semanti_alognment_loss = torch.tensor(-1e-3, dtype=torch.float32)
+        #     total_semanti_alognment_loss = torch.tensor(-1e-3, dtype=torch.float32)
         
 
 
-        semantic_alignment_loss_weight = 0.1
-        if total_loss != None:
-            if useSemanticAlignment:
-                total_loss += current_equation_loss + semantic_alignment_loss_weight * total_semanti_alognment_loss 
-                #+ total_t_alignment_loss 
-            else:
-                total_loss += current_equation_loss
-            # total_loss += current_equation_loss_before.mean()
-        else:
-            if useSemanticAlignment:
-                total_loss = current_equation_loss + semantic_alignment_loss_weight * total_semanti_alognment_loss 
-                #+ total_t_alignment_loss
-            else:
-                total_loss = current_equation_loss
-            # total_loss = current_equation_loss_before.mean()
-        total_acc += [same/lengths]
+        # semantic_alignment_loss_weight = 0.1
+        # if total_loss != None:
+        #     if useSemanticAlignment:
+        #         total_loss += current_equation_loss + semantic_alignment_loss_weight * total_semanti_alognment_loss 
+        #         #+ total_t_alignment_loss 
+        #     else:
+        #         total_loss += current_equation_loss
+        #     # total_loss += current_equation_loss_before.mean()
+        # else:
+        #     if useSemanticAlignment:
+        #         total_loss = current_equation_loss + semantic_alignment_loss_weight * total_semanti_alognment_loss 
+        #         #+ total_t_alignment_loss
+        #     else:
+        #         total_loss = current_equation_loss
+        #     # total_loss = current_equation_loss_before.mean()
+        # total_acc += [same/lengths]
     
     # add the loss of number equations
     if useCustom:
     # if False:
         num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs.to(device))
-        total_loss += num_x_loss + classify_loss + sni_loss
+        total_loss = num_x_loss
+        # total_loss += num_x_loss + classify_loss + sni_loss
         # total_loss = num_x_loss
         # total_loss += equation_prediction_loss
 
@@ -818,36 +819,43 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     if inTraining:
         total_loss.backward()
 
-    if len(total_acc) == 1:
-        equ_1_acc = total_acc[0]
-        equ_2_acc = -1 
-        equ_3_acc = -1 
-    elif len(total_acc) == 2:
-        equ_1_acc = total_acc[0]
-        equ_2_acc = total_acc[1]
-        equ_3_acc = -1 
-    elif len(total_acc) == 3:
-        equ_1_acc = total_acc[0]
-        equ_2_acc = total_acc[1]
-        equ_3_acc = total_acc[2]
+    # if len(total_acc) == 1:
+    #     # equ_1_acc = total_acc[0]
+    #     equ_1_acc =  -1
+    #     equ_2_acc = -1 
+    #     equ_3_acc = -1 
+    # elif len(total_acc) == 2:
+    #     equ_1_acc =  -1
+    #     equ_2_acc = -1 
+    #     equ_3_acc = -1 
+    #     # equ_1_acc = total_acc[0]
+    #     # equ_2_acc = total_acc[1]
+    #     # equ_3_acc = -1 
+    # elif len(total_acc) == 3:
+    #     equ_1_acc =  -1
+    #     equ_2_acc = -1 
+    #     equ_3_acc = -1 
+    #     # equ_1_acc = total_acc[0]
+    #     # equ_2_acc = total_acc[1]
+    #     # equ_3_acc = total_acc[2]
 
     
     loss_dict = {
         'total_loss': total_loss.item(),
-        'equation_loss': current_equation_loss.item(),
+        'equation_loss': 0, #current_equation_loss.item(),
         'num_x_loss': num_x_loss.item(),
-        'accuracy': sum(total_acc)/len(total_acc),
-        'soln_accuracy': 1 if sum(total_acc)/len(total_acc) == 1 else 0, 
+        'accuracy': 0, #sum(total_acc)/len(total_acc),
+        'soln_accuracy': 0, #1 if sum(total_acc)/len(total_acc) == 1 else 0, 
         # 'classify_loss': classify_loss.item(),
         # 'sni_loss': sni_loss.item(),
         # 'semantic_alignment_loss': total_semanti_alognment_loss.item(),
-        'equ_1_acc': equ_1_acc,
-        'equ_2_acc': equ_2_acc,
-        'equ_3_acc': equ_3_acc,
+        'equ_1_acc': 0,# equ_1_acc,
+        'equ_2_acc': 0,# equ_2_acc,
+        'equ_3_acc': 0,#equ_3_acc,
         }
 
     # Update parameters with optimizers
-    return total_loss.item(), sum(total_acc)/len(total_acc), sum(num_equations_mse)/len(num_equations_mse), comparison, op_right/op_occurances, sni_acc , loss_dict, total_acc
+    return total_loss.item(), 0, sum(num_equations_mse)/len(num_equations_mse), 0, 0 ,0 , loss_dict, 0, 
 
 # @line_profiler.profile
 def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, output_lang, num_pos, vars, useCustom, debug, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, equation_lengths, useSNIMask, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):

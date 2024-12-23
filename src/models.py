@@ -687,24 +687,24 @@ class PredictNumX(nn.Module):
     # def forward(self, goal_vect, eval = False):
     def forward(self, encoder, hidden, eval = False):
 
-        # enc2 = encoder.transpose(0,1)
-        # attn = self.attn(hidden.unsqueeze(0), encoder, None)
-        # current_context = attn.bmm(enc2).squeeze(1)  # B x 1 x N
-        # out = self.fc1(current_context)
-        # return out
+        enc2 = encoder.transpose(0,1)
+        attn = self.attn(hidden.unsqueeze(0), encoder, None)
+        current_context = attn.bmm(enc2).squeeze(1)  # B x 1 x N
+        out = self.fc1(current_context)
+        return out
 
 
 
-        # # goal_vect = self.em_dropout(goal_vect)
-        temp = self.fc1(hidden)
-        temp2 = self.relu(temp)
-        temp3 = self.fc2(temp2)
+        # # # goal_vect = self.em_dropout(goal_vect)
+        # temp = self.fc1(hidden)
+        # temp2 = self.relu(temp)
+        # temp3 = self.fc2(temp2)
 
-        mask = torch.tensor([0, 1, 1, 1]).to(device)
+        # mask = torch.tensor([0, 1, 1, 1]).to(device)
 
-        temp4 = self.relu(temp3) * mask
-        out = self.softmax(temp4) * mask
-        return out 
+        # temp4 = self.relu(temp3) * mask
+        # out = self.softmax(temp4) * mask
+        # return out 
 
         # hidden will be a list of unknown length with embed dimension of 512. 
 
