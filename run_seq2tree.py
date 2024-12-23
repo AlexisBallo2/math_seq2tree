@@ -66,7 +66,7 @@ useCustom = True
 # useCustom = False 
 
 # setName = "MATH"
-setName = "DRAW"
+# setName = "DRAW"
 
 # useSubMethod = True
 useSubMethod = False
@@ -85,6 +85,8 @@ useSeperateVars = True
 # weight the choosing of op vs var vs num
 # useOpScaling = True
 useOpScaling = False
+setName = "PEN"
+# setName = "DRAW"
 
 # decide if we must be able to solve equation
 useEquSolutions = True
@@ -142,6 +144,8 @@ print("CONFIG \n", config)
 os.makedirs("models", exist_ok=True)
 if setName == "DRAW":
     data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
+elif setName == "PEN":
+    data = load_DRAW_data("data/PEN.json", "alg514")
 else:
     data = load_raw_data("data/Math_23K.json")
 if num_obs:

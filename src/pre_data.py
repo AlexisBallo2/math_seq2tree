@@ -22,6 +22,21 @@ replace['thirty nine'] = 39
 replace['sixteen'] = 39
 replace['eighteen'] = 18
 replace["4teen"] = 14
+replace['twice'] = 2
+replace['quarter'] = 0.25
+replace['thrice'] = 3
+replace['half'] = 0.5
+replace['first'] = 1
+replace['triple'] = 3
+replace['dozen'] = 12
+replace['double'] = 2
+replace['thirds'] = 0.33
+replace['4ths'] = 0.25
+replace['4th'] = 0.25
+# replace['1-4th'] = 0.25
+replace['fourths'] = 0.25
+replace['fifth'] = 0.2
+replace['third'] = 0.33
 replace['fourteen'] = 14
 replace['306,000'] = 306000
 replace['8,200'] = 8200 
@@ -123,14 +138,17 @@ class Lang:
             output.append(self.index2word[i])
         return output
 
-def load_DRAW_data(filename):  # load the json data to list(dict()) for MATH 23K
+def load_DRAW_data(filename, filter = None):  # load the json data to list(dict()) for MATH 23K
     print("Reading file...")
     f = open(filename, encoding="utf-8")
     data = json.loads(f.read())
+    if filter:
+        data = [d for d in data if d['dataset'] == filter]
     # finalData = []
     # for ele in data:
     #     if len(ele['lEquations']) == 1:
     #         finalData.append(ele)
+    
     return data
 
 def load_raw_data(filename):  # load the json data to list(dict()) for MATH 23K
@@ -333,7 +351,7 @@ def load_raw_data(filename):  # load the json data to list(dict()) for MATH 23K
 #             test_str += c
 #     return test_str
 
-variableHierarchy = ['X', 'Y', 'Z']
+variableHierarchy = ['X', 'Y', 'Z', 'A', 'B']
 def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSeperateVars):  # transfer num into "NUM"
     print("Transfer numbers...")
     # number regex
@@ -355,6 +373,9 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
         # break up segmented text into each word
         if setName == "MATH":
             seg = d["segmented_text"].strip().split(" ")
+        elif setName == "PEN":
+            # seg = d["oldText"].strip().split(" ")
+            seg = d["text"].strip().split(" ")
         else: 
 
             seg = d["sQuestion"].strip()
@@ -378,6 +399,50 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
                 targets = ['disabled'] 
             print(targets)
 
+        elif setName == "PEN":
+            equations = d["equations"]
+            mapNums = {}
+            tempVars = ['X', 'Y', 'Z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+            for k,v in d['answers'][0].items():
+                mapNums[k] = tempVars.pop(0)
+            for number in d['numbers']:
+                replacements = [" ", "%", '-inch', '-dollar', '-point', '-pound', '-foot', '-feet', '-mile', '-yard', '-ounce', '-pint', '-quart', '-gallon', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', "ths", "-cent", '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', "-kilogram", '-peso', "-gallon", "gallon", "-page", "-legged", "-old"]
+                temp = number['token'][0].lower()
+                for r in replacements:
+                    temp = temp.replace(r, "")
+
+                mapNums[number['key']] = temp
+
+            finalEquations = []
+            for equation in equations:
+                finalEqu = []
+                splitEqu = equation.split(" ")
+                for token in splitEqu:
+                    if token in mapNums:
+                        finalEqu.append(mapNums[token])
+                    else:
+                        finalEqu.append(token)
+                almost = "".join(finalEqu).lower()
+                for k,v in replace.items():
+                    almost = almost.replace(k, str(v))
+                almost = almost.replace("1-4th", "0.25")
+                almost = almost.replace("4th", "0.25")
+                finalEquations.append(almost)
+            equations = finalEquations
+            # equTemps = d["oldFormula"]
+            # if type(equTemps) == str:
+            #     equTemps = [equTemps]
+            # equations = []
+            # for equation in equTemps:
+            #     equations.append("".join([i for i in equation if i != " " and i != ""]))
+            if useEqunSolutions:
+                try:
+                    targets = [round(float(d["oldAnswer"][0]))]
+                except:
+                    targets = []
+                    # continue
+            else:
+                targets = ['disabled']
         else:
             equations = d["lEquations"]
             # spEqs = []
@@ -1005,7 +1070,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair['equations']]
         if useCustom:
             # equation_target = [output_lang.word2index[equ] for equ in pair['equationTargetVars']]
-            equation_target = indexes_from_sentence(output_lang, pair['equationTargetVars'], tree)
+            equation_target = indexes_from_sentence(output_lang, pair['equationTargetVars'])
         else: 
             equation_target = pair['equationTargetVars']
         # equation_target = ["" for equ in pair[5]]
