@@ -9,6 +9,7 @@ import sympy as sp
 from sympy.solvers import solve
 import math
 import inflect
+from src.utils import *
 
 
 
@@ -40,6 +41,7 @@ replace['third'] = 0.33
 replace['fourteen'] = 14
 replace['306,000'] = 306000
 replace['8,200'] = 8200 
+# replace[','] = ""
 for i in range(1, 101):
     word = p.number_to_words(i)
     replace[word] = i
@@ -379,6 +381,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
         else: 
 
             seg = d["sQuestion"].strip()
+            # seg = d["text"].strip().split(" ")
             # replace = { "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven" : 11 }
             seg = seg.lower()
             for k,v in replace.items():
@@ -444,7 +447,8 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             else:
                 targets = ['disabled']
         else:
-            equations = d["lEquations"]
+            # equations = d["lEquations"]
+            equations = read_draw_alignment(d)
             # spEqs = []
             if useEqunSolutions:
                 targets = d['lSolutions']
@@ -652,6 +656,14 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             final_out_seq_list = out_seq
         else:
             for outputEquation in out_seq:
+                if "," in outputEquation:
+                    outputEquation = [i for i in outputEquation if i != ","]
+                    if len(outputEquation) == 1:
+                        continue
+                if "." in outputEquation:
+                    outputEquation = [i for i in outputEquation if i != "."]
+                    if len(outputEquation) == 1:
+                        continue
                 # only want equations in this form
                 if outputEquation[-2] == "=":
                     # outputEquation += ["-", outputEquation[-1]]
@@ -676,9 +688,20 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
                         final_out_seq_list.append(outputEquation[2:])
 
                 else:
-                    continue
-            if len(equationTargetVars) != len(out_seq):
+                    # if it is a+b = n+z
+                    equals_index = outputEquation.index("=")
+                    equ_1 = outputEquation[:equals_index]
+                    final_out_seq_list.append(equ_1)
+                    equ_2 = outputEquation[equals_index+1:]
+                    final_out_seq_list.append(equ_2)
+                    var = "Y" if "Y" not in equ_1 else "X"
+                    equationTargetVars.append(var)
+            if len(final_out_seq_list) > 3:
+                # 1 with 4, ignore it 
                 continue
+            # if len(equationTargetVars) != len(final_out_seq_list):
+            #     print()
+            #     continue
         # input_seq: masked text
         # out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
         # nums: list of numbers in the text

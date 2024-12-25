@@ -219,3 +219,26 @@ def getUniqueEquationCounts():
     # print(occs)
 
 # getUniqueEquationCounts()
+
+
+def read_draw_alignment(observation):
+    templates = observation['Template']
+    alignment = observation['Alignment']
+    mapping = {}
+    for i, align in enumerate(alignment):
+        item = align['coeff']
+        value = align['Value']
+        mapping[item] = value
+    finals = []
+    for template in templates:
+        final_single = ""
+        for token in template:
+            if token in mapping:
+                final_single += str(mapping[token])
+            elif token == " ":
+                continue
+            else:
+                final_single += token
+        finals.append(final_single)
+    return finals
+        

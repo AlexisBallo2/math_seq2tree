@@ -41,8 +41,8 @@ batch_size = 10
 # batch_size = 64 
 hidden_size = 512
 # n_epochs = 5 
-# n_epochs = 10 
-n_epochs = 20 
+n_epochs = 10 
+# n_epochs = 20 
 # n_epochs = 80 
 # learning_rate = 1e-2 
 learning_rate = 1e-3 
@@ -65,8 +65,6 @@ num_obs = None
 useCustom = True
 # useCustom = False 
 
-setName = "MATH"
-# setName = "DRAW"
 
 useSubMethod = True
 # useSubMethod = False
@@ -86,7 +84,8 @@ useSeperateVars = True
 # useOpScaling = True
 useOpScaling = False
 # setName = "PEN"
-# setName = "DRAW"
+# setName = "MATH"
+setName = "DRAW"
 
 # decide if we must be able to solve equation
 useEquSolutions = True
@@ -143,14 +142,19 @@ config = {
 print("CONFIG \n", config)
 os.makedirs("models", exist_ok=True)
 if setName == "DRAW":
-    data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
+    data = load_DRAW_data("data/DRAW/draw.json")
+    # data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
+    # data = load_DRAW_data("data/PEN.json", "draw")
 elif setName == "PEN":
-    data = load_DRAW_data("data/PEN.json", "alg514")
+    # data = load_DRAW_data("data/PEN.json", "alg514")
+    data = load_DRAW_data("data/PEN.json", "draw")
 else:
     data = load_raw_data("data/Math_23K.json")
 if num_obs:
     data = data[0:num_obs]
 
+# print(len(data))
+# print()
 # data format:
 # {
 # "id":"10431",
@@ -186,7 +190,8 @@ for p in pairs:
 # pairs = temp_pairs
 
 
-num_folds = 5 
+# num_folds = 5 
+num_folds = 2 
 fold_size = int(len(pairs) * 1/num_folds)
 fold_pairs = []
 for split_fold in range(num_folds - 1):
@@ -577,6 +582,8 @@ for fold in range(num_folds):
     print('ALL EVAL ACC', all_eval_accuracys)
     print('ALL EVAL SOLN ACC', all_soln_eval_accuracys)
     process_loss_dicts(fold_accuracies['train_loss_dict'], fold_accuracies['eval_loss_dict'], f"src/post/loss-dict-{time.time()}-{run_id}-fold_{fold}.png")
+    if num_folds == 2:
+        break
     # break 
 
 # a, b, c = 0, 0, 0
