@@ -242,3 +242,31 @@ def read_draw_alignment(observation):
         finals.append(final_single)
     return finals
         
+
+def read_pen_alignment(observation):
+    vars = ['m', 'n', 'o', 'p', 'q', 'r']
+    mapVars = list(observation['answers'][0].keys())
+    mapVarDict = {}
+    for i, var in enumerate(mapVars):
+        mapVarDict[var] = vars[i]
+    templates = observation['equations']
+    alignment = observation['numbers']
+    mapping = {}
+    for i, align in enumerate(alignment):
+        item = align['key']
+        value = align['value']
+        mapping[item] = value
+    finals = []
+    for template in templates:
+        final_single = ""
+        for token in template.split(" "):
+            if token in mapping:
+                final_single += str(mapping[token])
+            elif token in mapVarDict:
+                final_single += mapVarDict[token]
+            elif token == " ":
+                continue
+            else:
+                final_single += token
+        finals.append(final_single)
+    return finals

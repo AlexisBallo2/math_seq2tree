@@ -403,41 +403,42 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             print(targets)
 
         elif setName == "PEN":
-            equations = d["equations"]
-            mapNums = {}
-            tempVars = ['X', 'Y', 'Z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
-            for k,v in d['answers'][0].items():
-                mapNums[k] = tempVars.pop(0)
-            for number in d['numbers']:
-                replacements = [" ", "%", '-inch', '-dollar', '-point', '-pound', '-foot', '-feet', '-mile', '-yard', '-ounce', '-pint', '-quart', '-gallon', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', "ths", "-cent", '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', "-kilogram", '-peso', "-gallon", "gallon", "-page", "-legged", "-old"]
-                temp = number['token'][0].lower()
-                for r in replacements:
-                    temp = temp.replace(r, "")
+            equations = read_pen_alignment(d)
+            # equations = d["equations"]
+            # mapNums = {}
+            # tempVars = ['X', 'Y', 'Z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+            # for k,v in d['answers'][0].items():
+            #     mapNums[k] = tempVars.pop(0)
+            # for number in d['numbers']:
+            #     replacements = [" ", "%", '-inch', '-dollar', '-point', '-pound', '-foot', '-feet', '-mile', '-yard', '-ounce', '-pint', '-quart', '-gallon', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', "ths", "-cent", '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', '-liter', '-ton', '-pound', '-inch', '-foot', '-yard', '-mile', '-hour', '-minute', '-second', '-week', '-month', '-year', '-day', '-century', '-decade', '-millennium', '-score', '-dozen', '-gross', '-acre', '-cent', '-kilometer', '-meter', '-gram', "-kilogram", '-peso', "-gallon", "gallon", "-page", "-legged", "-old"]
+            #     temp = number['token'][0].lower()
+            #     for r in replacements:
+            #         temp = temp.replace(r, "")
 
-                mapNums[number['key']] = temp
+            #     mapNums[number['key']] = temp
 
-            finalEquations = []
-            for equation in equations:
-                finalEqu = []
-                splitEqu = equation.split(" ")
-                for token in splitEqu:
-                    if token in mapNums:
-                        finalEqu.append(mapNums[token])
-                    else:
-                        finalEqu.append(token)
-                almost = "".join(finalEqu).lower()
-                for k,v in replace.items():
-                    almost = almost.replace(k, str(v))
-                almost = almost.replace("1-4th", "0.25")
-                almost = almost.replace("4th", "0.25")
-                finalEquations.append(almost)
-            equations = finalEquations
-            # equTemps = d["oldFormula"]
-            # if type(equTemps) == str:
-            #     equTemps = [equTemps]
-            # equations = []
-            # for equation in equTemps:
-            #     equations.append("".join([i for i in equation if i != " " and i != ""]))
+            # finalEquations = []
+            # for equation in equations:
+            #     finalEqu = []
+            #     splitEqu = equation.split(" ")
+            #     for token in splitEqu:
+            #         if token in mapNums:
+            #             finalEqu.append(mapNums[token])
+            #         else:
+            #             finalEqu.append(token)
+            #     almost = "".join(finalEqu).lower()
+            #     for k,v in replace.items():
+            #         almost = almost.replace(k, str(v))
+            #     almost = almost.replace("1-4th", "0.25")
+            #     almost = almost.replace("4th", "0.25")
+            #     finalEquations.append(almost)
+            # equations = finalEquations
+            # # equTemps = d["oldFormula"]
+            # # if type(equTemps) == str:
+            # #     equTemps = [equTemps]
+            # # equations = []
+            # # for equation in equTemps:
+            # #     equations.append("".join([i for i in equation if i != " " and i != ""]))
             if useEqunSolutions:
                 try:
                     targets = [round(float(d["oldAnswer"][0]))]
@@ -625,7 +626,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
         # tag the equation (replace numbers (only ones that are in the input text), in the equation with "N#")
         # ex: ['(', 'N1', '-', '1', ')', '*', 'N0']
         # out_seq = [seg_and_tag(equ) for equ in newEquations]
-        print('newEquations', newEquations)
+        # print('newEquations', newEquations)
         out_seq = [seg_and_tag(equ) for equ in newEquations]
 
         # for each elem in equation sequence 
@@ -698,6 +699,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
                     equationTargetVars.append(var)
             if len(final_out_seq_list) > 3:
                 # 1 with 4, ignore it 
+                print()
                 continue
             # if len(equationTargetVars) != len(final_out_seq_list):
             #     print()
