@@ -43,7 +43,7 @@ hidden_size = 512
 # n_epochs = 5 
 # n_epochs = 10 
 # n_epochs = 20 
-n_epochs = 40 
+n_epochs = 80 
 # learning_rate = 1e-2 
 learning_rate = 1e-3 
 # learning_rate = 1e-3 
@@ -53,12 +53,12 @@ beam_size = 5
 n_layers = 2
 
 # num_obs = 20
-# num_obs = 50
+num_obs = 50
 # num_obs = 100
 # num_obs = 200
 # num_obs = 600 
 # num_obs = 1000 
-num_obs = None 
+# num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
@@ -68,8 +68,8 @@ useCustom = True
 # setName = "MATH"
 # setName = "DRAW"
 
-# useSubMethod = True
-useSubMethod = False
+useSubMethod = True
+# useSubMethod = False
 
 # useSemanticAlignment = True
 useSemanticAlignment = False
