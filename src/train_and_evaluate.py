@@ -604,7 +604,12 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                     #     else:
                     #         current_num = current_nums_embeddings[idx, i - (num_start + len(all_vars))].unsqueeze(0)
                     # else:
-                    current_num = current_nums_embeddings[idx, i - num_start].unsqueeze(0)
+                    if i - num_start > len(all_vars) + len(generate_nums) + max(copy_num_len):
+                        # print('unknown token, use the padd')
+                        current_num = padding_hidden
+                    else:
+                        current_num = current_nums_embeddings[idx, i - num_start].unsqueeze(0)
+
                     # while there are tokens in the embedding stack and the last element IS a leaf node
                     while len(o) > 0 and o[-1].terminal:
                         #print("terminal element in o, getting terminal element and operator, and merging")
