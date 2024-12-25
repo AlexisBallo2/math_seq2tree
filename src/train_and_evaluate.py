@@ -873,7 +873,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         'equation_loss': current_equation_loss.item(),
         'num_x_loss': num_x_loss.item(),
         'accuracy': sum(total_acc)/len(total_acc),
-        'soln_accuracy': 1 if sum(total_acc)/len(total_acc) == 1 else 0, 
+        # 'soln_accuracy': 1 if sum(total_acc)/len(total_acc) == 1 else 0, 
         # 'classify_loss': classify_loss.item(),
         # 'sni_loss': sni_loss.item(),
         # 'semantic_alignment_loss': total_semanti_alognment_loss.item(),

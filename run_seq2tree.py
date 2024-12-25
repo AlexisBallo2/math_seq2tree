@@ -42,8 +42,8 @@ batch_size = 10
 hidden_size = 512
 # n_epochs = 5 
 # n_epochs = 10 
-# n_epochs = 20 
-n_epochs = 80 
+n_epochs = 20 
+# n_epochs = 80 
 # learning_rate = 1e-2 
 learning_rate = 1e-3 
 # learning_rate = 1e-3 
@@ -53,19 +53,19 @@ beam_size = 5
 n_layers = 2
 
 # num_obs = 20
-num_obs = 50
+# num_obs = 50
 # num_obs = 100
 # num_obs = 200
 # num_obs = 600 
 # num_obs = 1000 
-# num_obs = None 
+num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
 useCustom = True
 # useCustom = False 
 
-# setName = "MATH"
+setName = "MATH"
 # setName = "DRAW"
 
 useSubMethod = True
@@ -86,7 +86,7 @@ useSeperateVars = True
 # useOpScaling = True
 useOpScaling = False
 # setName = "PEN"
-setName = "DRAW"
+# setName = "DRAW"
 
 # decide if we must be able to solve equation
 useEquSolutions = True
@@ -186,7 +186,7 @@ for p in pairs:
 # pairs = temp_pairs
 
 
-num_folds = 2
+num_folds = 5 
 fold_size = int(len(pairs) * 1/num_folds)
 fold_pairs = []
 for split_fold in range(num_folds - 1):
@@ -562,13 +562,13 @@ for fold in range(num_folds):
     make_eval_graph(
         [fold_accuracies["train_losses"], fold_accuracies["eval_losses"]], 
         ['Train', "Eval"],
-        f"src/post/loss-{time.time()}-{run_id}.png", title,
+        f"src/post/loss-{time.time()}-{run_id}-fold_{fold}.png", title,
         "Epoch", "Loss By Epoch", None 
         )
     make_eval_graph(
         [fold_accuracies["train_token"], fold_accuracies["eval_token"]], 
         ['Train', "Eval"],
-        f"src/post/accuracy-{time.time()}-{run_id}.png", title,
+        f"src/post/accuracy-{time.time()}-{run_id}-fold_{fold}.png", title,
         "Epoch", "Accuracy By Epoch", [0, 1]
         )
     print('fold train accuracy', fold_accuracies["train_token"])
@@ -576,8 +576,8 @@ for fold in range(num_folds):
     print('All TRAIN ACC', all_train_accuracys)
     print('ALL EVAL ACC', all_eval_accuracys)
     print('ALL EVAL SOLN ACC', all_soln_eval_accuracys)
-    process_loss_dicts(fold_accuracies['train_loss_dict'], fold_accuracies['eval_loss_dict'], f"src/post/loss-dict-{time.time()}-{run_id}.png")
-    break 
+    process_loss_dicts(fold_accuracies['train_loss_dict'], fold_accuracies['eval_loss_dict'], f"src/post/loss-dict-{time.time()}-{run_id}-fold_{fold}.png")
+    # break 
 
 # a, b, c = 0, 0, 0
 # for bl in range(len(best_acc_fold)):

@@ -192,6 +192,7 @@ def make_general_graph(dict, title = "Losses"):
     # plt.title("Losses")
     plt.savefig(f"src/post/loss-{time.time()}-{0}.png")
     plt.show()
+    plt.clf()
 
 
 # string = """
