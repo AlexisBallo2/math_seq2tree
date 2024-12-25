@@ -1137,6 +1137,11 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             num_stacks.append(num_stack)
         input_cell = indexes_from_sentence(input_lang, pair['input_seq'])
         output_cell = [indexes_from_sentence(output_lang, equ, tree) for equ in pair['equations']]
+        if useCustom:
+            # equation_target = [output_lang.word2index[equ] for equ in pair['equationTargetVars']]
+            equation_target = indexes_from_sentence(output_lang, pair['equationTargetVars'])
+        else: 
+            equation_target = pair['equationTargetVars']
         
         nums_sni = []
         for num in pair['nums']:
@@ -1165,7 +1170,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             "num_pos": pair['num_pos'],
             "num_stack": num_stacks,
             "allVars": pair['allVars'],
-            "equationTargetVars": pair['equationTargetVars'],
+            "equationTargetVars": equation_target,
             "solution": pair['solution'],
             "pairNumMapping": pair['pairNumMapping'],
         })
@@ -1293,6 +1298,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
     var_pos_in_input = []
     var_size_in_input = []
     batches_sni = []
+    pair_mappings = []
 
     while pos + batch_size < len(pairs):
         batches.append(pairs[pos:pos+batch_size])
@@ -1321,6 +1327,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
         targets_len_max = 0
         var_pos_in_inputs = []
         batch_snis = []
+        pair_mappings_batch = []
 
         # for i, li, j, lj, num, num_pos, num_stack, var_list, equ_targets, var_solns, num_mapping in batch:
         for pair in batch:
@@ -1365,6 +1372,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
             targets.append(pair['equationTargetVars'] + [0 for _ in range(targets_len_max - len(pair['equationTargetVars']))])
 
             batch_snis.append(pair['nums_sni'])
+            pair_mappings_batch.append(pair['pairNumMapping'])
 
             cur_vars = []
             for var in vars:
@@ -1387,6 +1395,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
         total_targets.append(targets)
         var_pos_in_input.append(var_pos_in_inputs)
         batches_sni.append(batch_snis)
+        pair_mappings.append(pair_mappings_batch)
     # input_batches: padded inputs
     # input_lengths: length of the inputs (without padding)
     # output_batches: padded outputs
@@ -1395,7 +1404,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
     # num_stack_batches: the corresponding nums lists
     # num_pos_batches: positions of the numbers lists
     # num_size_batches: number of numbers from the input text
-    return input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_vars_batches, total_output_solutions, total_targets, var_pos_in_input, batches_sni
+    return input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_vars_batches, total_output_solutions, total_targets, var_pos_in_input, batches_sni, pair_mappings
 
 
 def get_num_stack(eq, output_lang, num_pos):

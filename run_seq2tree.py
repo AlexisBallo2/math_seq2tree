@@ -35,15 +35,15 @@ torch.cuda.manual_seed_all(2)
 np.random.seed(10)
 
 # batch_size = 1 
-# batch_size = 10
-batch_size = 20
+batch_size = 10
+# batch_size = 20
 # batch_size = 30 
 # batch_size = 64 
 hidden_size = 512
 # n_epochs = 5 
 # n_epochs = 10 
-n_epochs = 20 
-# n_epochs = 40 
+# n_epochs = 20 
+n_epochs = 40 
 # learning_rate = 1e-2 
 learning_rate = 1e-3 
 # learning_rate = 1e-3 
@@ -85,8 +85,8 @@ useSeperateVars = True
 # weight the choosing of op vs var vs num
 # useOpScaling = True
 useOpScaling = False
-setName = "PEN"
-# setName = "DRAW"
+# setName = "PEN"
+setName = "DRAW"
 
 # decide if we must be able to solve equation
 useEquSolutions = True
@@ -399,7 +399,7 @@ for fold in range(num_folds):
         # num_stack_batches: the corresponding nums lists
         # num_pos_batches: positions of the numbers lists
         # num_size_batches: number of numbers from the input text
-        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni = prepare_train_batch(train_pairs, batch_size, vars, output_lang, input_lang)
+        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni, pair_mapping = prepare_train_batch(train_pairs, batch_size, vars, output_lang, input_lang)
         # generate temp x vectors
 
         print("fold:", fold + 1)
@@ -435,10 +435,10 @@ for fold in range(num_folds):
 
             input_batch_len = len(input_batches[idx])
             start = time.perf_counter()
-            loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list = train_tree(
+            loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list, acc_soln = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
-                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, useTFix, True)
+                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx], output_var_solutions[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, useTFix, True)
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             train_comparison.append(comparison)
@@ -481,7 +481,7 @@ for fold in range(num_folds):
             # }
             batch_eval_comparison = []
             # for test_batch in test_pairs:
-            input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni = prepare_train_batch(test_pairs, 1, vars, output_lang, input_lang)
+            input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni, pair_mapping = prepare_train_batch(test_pairs, 1, vars, output_lang, input_lang)
             for idx in range(len(input_lengths)):
                 for optimizer in optimizers:
                     optimizer.zero_grad()
@@ -489,7 +489,7 @@ for fold in range(num_folds):
                     v.eval()
                 input_batch_len = len(input_batches[idx])
                 start = time.perf_counter()
-                loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list = train_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, useTFix, False) 
+                loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list, acc_soln = train_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx],output_var_solutions[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, useTFix, False) 
                 print()
                 end = time.perf_counter()
                 test_time_array.append([input_batch_len,end - start])

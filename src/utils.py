@@ -217,4 +217,4 @@ def getUniqueEquationCounts():
     print(occs.values())
     # print(occs)
 
-getUniqueEquationCounts()
+# getUniqueEquationCounts()

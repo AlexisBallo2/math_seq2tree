@@ -4,6 +4,7 @@
 from src.masked_cross_entropy import *
 from src.pre_data import *
 from src.expressions_transfer import *
+from src.utils import *
 from src.models import *
 import math
 import torch
@@ -140,7 +141,7 @@ class TreeEmbedding:  # the class save the tree
         self.goal_vect = goal_vect
 
 # @line_profiler.profile
-def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets, var_pos, batch_sni, useCustom, all_vars,  debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, useFixT, inTraining, english=False):
+def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets, var_pos, batch_sni, pair_mapping, solutions, useCustom, all_vars,  debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, useFixT, inTraining, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -387,6 +388,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
     # updated_qs = None
 
+    all_comparisons = []
     for cur_equation in range(num_equations_to_do):
         # select the ith equation in each obs
         ith_equation_target = deepcopy(target[:, cur_equation, :].transpose(0,1))
@@ -756,6 +758,9 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 'prediction': [output_lang.index2word[_] for _ in vals[0:equ_length]],
                 'actual': [output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]
             })
+        print("\n")
+
+        all_comparisons.append(comparison)
             # print('same', cur_same, 'length', cur_len)
 
 
@@ -831,6 +836,37 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         equ_2_acc = total_acc[1]
         equ_3_acc = total_acc[2]
 
+
+    # if using equation solutions:
+    if True:
+        solved_accs = []
+        for i, num_equations in enumerate(num_equations_per_obs):
+            equation_set = []
+            equation_targts_specific = [output_lang.index2word[j] for j in equation_targets[i]]
+            replaced_targs = replace_nums(pair_mapping[i], equation_targts_specific)
+
+            print()
+            for each_equation in range(num_equations):
+                # first equation
+                # for j in range(len(all_comparisons)):
+                equation = all_comparisons[each_equation][i].get("prediction", "NA") #+ [" = ", equation_targts_specific[each_equation]]
+                replace = replace_nums(pair_mapping[i], equation)
+                updated = from_prefix_to_infix(replace) 
+                equation_set.append("".join(updated) + " = " + replaced_targs[each_equation])
+            print('equation set', equation_set)
+            solved = solve_equation(equation_set, solutions[i])
+            solved_accs.append(1 if solved else 0)
+            # print('solved', solved)
+            # print()
+    
+
+        # num_equations = len(all_comparisons)
+        # for equ in len(all_comparisons[0]):
+        #     # first equation
+        #     equation_set = []
+        #     for i in range(num_equations):
+        #         equation_set.append(all_comparisons[i][equ])
+
     
     loss_dict = {
         'total_loss': total_loss.item(),
@@ -844,10 +880,12 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         'equ_1_acc': equ_1_acc,
         'equ_2_acc': equ_2_acc,
         'equ_3_acc': equ_3_acc,
+        'acc_solutions' : sum(solved_accs)/len(solved_accs),
         }
 
+
     # Update parameters with optimizers
-    return total_loss.item(), sum(total_acc)/len(total_acc), sum(num_equations_mse)/len(num_equations_mse), comparison, op_right/op_occurances, sni_acc , loss_dict, total_acc
+    return total_loss.item(), sum(total_acc)/len(total_acc), sum(num_equations_mse)/len(num_equations_mse), comparison, op_right/op_occurances, sni_acc , loss_dict, total_acc, sum(solved_accs)/len(solved_accs)
 
 # @line_profiler.profile
 def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, output_lang, num_pos, vars, useCustom, debug, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, equation_lengths, useSNIMask, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
