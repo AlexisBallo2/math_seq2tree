@@ -26,23 +26,24 @@ else:
 
 
 # batch_size = 64
-torch.manual_seed(10)
-torch.use_deterministic_algorithms(True)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-random.seed(10)
-torch.cuda.manual_seed_all(2)
-np.random.seed(10)
+# torch.manual_seed(10)
+# torch.use_deterministic_algorithms(True)
+# torch.backends.cudnn.deterministic = True
+# torch.backends.cudnn.benchmark = False
+# random.seed(10)
+# torch.cuda.manual_seed_all(2)
+# np.random.seed(10)
 
 # batch_size = 1 
-batch_size = 10
-# batch_size = 20
+# batch_size = 10
+# # batch_size = 20
 # batch_size = 30 
-# batch_size = 64 
+batch_size = 64 
 hidden_size = 512
 # n_epochs = 5 
 # n_epochs = 10 
-n_epochs = 20 
+# n_epochs = 20 
+n_epochs = 80 
 # n_epochs = 80 
 # learning_rate = 1e-2 
 learning_rate = 1e-3 
@@ -83,8 +84,8 @@ useSeperateVars = True
 # weight the choosing of op vs var vs num
 # useOpScaling = True
 useOpScaling = False
-setName = "PEN"
-# setName = "MATH"
+# setName = "PEN"
+setName = "MATH"
 # setName = "DRAW"
 
 # decide if we must be able to solve equation

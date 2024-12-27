@@ -757,12 +757,12 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                     if max_val == ith_equation_target[i][j]:
                         same += 1
                         # cur_same += 1
-            print(f"        prediction: {[output_lang.index2word[_] for _ in vals[0:equ_length]]}")
-            print(f"        actual:     {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
-            comparison.append({
-                'prediction': [output_lang.index2word[_] for _ in vals[0:equ_length]],
-                'actual': [output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]
-            })
+            # print(f"        prediction: {[output_lang.index2word[_] for _ in vals[0:equ_length]]}")
+            # print(f"        actual:     {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
+            # comparison.append({
+            #     'prediction': [output_lang.index2word[_] for _ in vals[0:equ_length]],
+            #     'actual': [output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]
+            # })
         print("\n")
 
         all_comparisons.append(comparison)
