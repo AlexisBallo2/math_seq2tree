@@ -41,9 +41,9 @@ else:
 batch_size = 64 
 hidden_size = 512
 # n_epochs = 5 
-# n_epochs = 10 
+n_epochs = 10 
 # n_epochs = 20 
-n_epochs = 80 
+# n_epochs = 80 
 # n_epochs = 80 
 # learning_rate = 1e-2 
 learning_rate = 1e-3 
@@ -56,10 +56,10 @@ n_layers = 2
 # num_obs = 20
 # num_obs = 50
 # num_obs = 100
-# num_obs = 200
+num_obs = 200
 # num_obs = 600 
 # num_obs = 1000 
-num_obs = None 
+# num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
@@ -85,8 +85,8 @@ useSeperateVars = True
 # useOpScaling = True
 useOpScaling = False
 # setName = "PEN"
-setName = "MATH"
-# setName = "DRAW"
+# setName = "MATH"
+setName = "DRAW"
 
 # decide if we must be able to solve equation
 useEquSolutions = True
@@ -103,8 +103,8 @@ useSNIMask = False
 # useTFix = True
 useTFix = False
 
-# useBertEmbeddings = True 
-useBertEmbeddings = False 
+useBertEmbeddings = True 
+# useBertEmbeddings = False 
 
 if useBertEmbeddings:
     embedding_size = 768
@@ -143,9 +143,9 @@ config = {
 print("CONFIG \n", config)
 os.makedirs("models", exist_ok=True)
 if setName == "DRAW":
-    # data = load_DRAW_data("data/DRAW/draw.json")
+    data = load_DRAW_data("data/DRAW/draw.json")
     # data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
-    data = load_DRAW_data("data/PEN.json", "draw")
+    # data = load_DRAW_data("data/PEN.json", "draw")
 elif setName == "PEN":
     # data = load_DRAW_data("data/PEN.json", "alg514")
     data = load_DRAW_data("data/PEN.json")

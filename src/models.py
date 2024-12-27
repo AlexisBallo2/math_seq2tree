@@ -222,8 +222,8 @@ class EncoderSeq(nn.Module):
                 string = [self.input_lang.index2word[i] for i in each_batch.tolist()]
                 input_ids = [self.tokenizer.encode(word, add_special_tokens=True) for word in string]
                 input_ids_padded = torch.nn.utils.rnn.pad_sequence([torch.tensor(x) for x in input_ids], batch_first=True)
-                with torch.no_grad():
-                    outputs = self.model(input_ids_padded)
+                # with torch.no_grad():
+                outputs = self.model(input_ids_padded)
                 last_hidden_states = outputs.last_hidden_state
 
                 # To get a single embedding per word, typically the first token's (CLS) vector of each word's encoding is used.
