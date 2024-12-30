@@ -855,13 +855,18 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 # first equation
                 # for j in range(len(all_comparisons)):
                 equation = all_comparisons[each_equation][i].get("prediction", "NA") #+ [" = ", equation_targts_specific[each_equation]]
+                # equation = all_comparisons[each_equation][i].get("actual", "NA") #+ [" = ", equation_targts_specific[each_equation]]
+                # print()
                 replace = replace_nums(pair_mapping[i], equation)
                 updated = from_prefix_to_infix(replace) 
                 equation_set.append("".join(updated) + " = 0 " )#+ replaced_targs[each_equation])
             print('equation set', equation_set)
             solved = solve_equation(equation_set, solutions[i])
             solved_accs.append(1 if solved else 0)
-            # print('solved', solved)
+            if solved:
+                print('solved true')
+            else:
+                print('solved false')
             # print()
     
 

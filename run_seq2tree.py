@@ -34,17 +34,17 @@ else:
 # torch.cuda.manual_seed_all(2)
 # np.random.seed(10)
 
-# batch_size = 1 
+batch_size = 1 
 # batch_size = 10
-# # batch_size = 20
+# batch_size = 20
 # batch_size = 30 
-batch_size = 64 
+# batch_size = 64 
 hidden_size = 512
 # n_epochs = 5 
-n_epochs = 10 
+# n_epochs = 10 
 # n_epochs = 20 
-# n_epochs = 80 
-# n_epochs = 80 
+# n_epochs = 40 
+n_epochs = 80 
 # learning_rate = 1e-2 
 learning_rate = 1e-3 
 # learning_rate = 1e-3 
@@ -53,13 +53,14 @@ weight_decay = 1e-5
 beam_size = 5
 n_layers = 2
 
+# num_obs = 2 
 # num_obs = 20
 # num_obs = 50
 # num_obs = 100
-num_obs = 200
+# num_obs = 200
 # num_obs = 600 
 # num_obs = 1000 
-# num_obs = None 
+num_obs = None 
 
 # torch.autograd.set_detect_anomaly(True)
 
@@ -85,8 +86,8 @@ useSeperateVars = True
 # useOpScaling = True
 useOpScaling = False
 # setName = "PEN"
-# setName = "MATH"
-setName = "DRAW"
+setName = "MATH"
+# setName = "DRAW"
 
 # decide if we must be able to solve equation
 useEquSolutions = True
@@ -103,8 +104,8 @@ useSNIMask = False
 # useTFix = True
 useTFix = False
 
-useBertEmbeddings = True 
-# useBertEmbeddings = False 
+# useBertEmbeddings = True 
+useBertEmbeddings = False 
 
 if useBertEmbeddings:
     embedding_size = 768
@@ -498,7 +499,6 @@ for fold in range(num_folds):
                 input_batch_len = len(input_batches[idx])
                 start = time.perf_counter()
                 loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list, acc_soln = train_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx],output_var_solutions[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, useTFix, False) 
-                print()
                 end = time.perf_counter()
                 test_time_array.append([input_batch_len,end - start])
                 # testc.append(comparison)
@@ -508,7 +508,7 @@ for fold in range(num_folds):
                 batch_accuricies["eval_num_x_mse"].append(num_x_mse)
                 batch_accuricies["eval_sni_acc"].append(sni_acc)
                 batch_accuricies['eval_loss_dict'].append(loss_dict)
-                if acc == 1:
+                if acc_soln == 1:
                     batch_accuricies["eval_soln"].append(1)
                 else:
                     batch_accuricies["eval_soln"].append(0)

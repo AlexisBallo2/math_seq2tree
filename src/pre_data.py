@@ -391,12 +391,10 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
         # strip "x=" from the equation
         if setName == "MATH":
             equ = d["equation"]
-            equations = [equ[2:]]
+            # equations = [equ[2:] + "=X"]
+            equations = [equ]
             if useEqunSolutions:
-                try:
-                    targets = []
-                except:
-                    targets = []
+                targets = [d['ans']]
                     # continue
             else:
                 targets = ['disabled'] 
@@ -441,7 +439,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             # #     equations.append("".join([i for i in equation if i != " " and i != ""]))
             if useEqunSolutions:
                 try:
-                    targets = [round(float(d["oldAnswer"][0]))]
+                    targets = [round(float(i)) for i in d["oldAnswer"][0]]
                 except:
                     targets = []
                     # continue
@@ -595,10 +593,10 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
 
         # replace variables with X, Y, Z to be consistent
         varPattern = r'((x)|(y)|(z)|(a)|(b)|(c)|(d)|(e)|(f)|(g)|(h)|(i)|(j)|(k)|(n)|(m)|(o)|(p)|(q)|(r)|(s)|(t)|(u)|(v)|(w))'
-        if setName == "MATH":
-            allVars = ["X"]
-        else:
-            allVars = []
+        # if setName == "MATH":
+        #     allVars = ["X"]
+        # else:
+        allVars = []
         allVarsMappings = []
         for eq in equations:
             matches = re.findall(varPattern, eq)
@@ -618,10 +616,10 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
                 eq = eq.replace(mapping["var"], mapping["mapping"])
             newEquations.append(eq)
 
-        if setName == "MATH":
-            allVars = ["X"]
-        else:
-            allVars = list([item['mapping'] for item in allVarsMappings])
+        # if setName == "MATH":
+        #     allVars = ["X"]
+        # else:
+        allVars = list([item['mapping'] for item in allVarsMappings])
 
         # tag the equation (replace numbers (only ones that are in the input text), in the equation with "N#")
         # ex: ['(', 'N1', '-', '1', ')', '*', 'N0']
@@ -652,51 +650,51 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
 
         final_out_seq_list = []
         equationTargetVars = []
-        if setName == "MATH":
-            equationTargetVars = ['X']
-            final_out_seq_list = out_seq
-        else:
-            for outputEquation in out_seq:
-                if "," in outputEquation:
-                    outputEquation = [i for i in outputEquation if i != ","]
-                    if len(outputEquation) == 1:
-                        continue
-                if "." in outputEquation:
-                    outputEquation = [i for i in outputEquation if i != "."]
-                    if len(outputEquation) == 1:
-                        continue
-                # only want equations in this form
-                if outputEquation[-2] == "=":
-                    # outputEquation += ["-", outputEquation[-1]]
-                    # outputEquation.append()
+        # if setName == "MATH":
+        #     equationTargetVars = ['X']
+        #     final_out_seq_list = out_seq
+        # else:
+        for outputEquation in out_seq:
+            if "," in outputEquation:
+                outputEquation = [i for i in outputEquation if i != ","]
+                if len(outputEquation) == 1:
+                    continue
+            if "." in outputEquation:
+                outputEquation = [i for i in outputEquation if i != "."]
+                if len(outputEquation) == 1:
+                    continue
+            # only want equations in this form
+            if outputEquation[-2] == "=":
+                # outputEquation += ["-", outputEquation[-1]]
+                # outputEquation.append()
 
-                    # equationTargetVars.append(outputEquation[-1])
-                    if useSubMethod:
-                        equationTargetVars.append("0")
-                        final_out_seq_list.append(outputEquation[:-2] + ["-", outputEquation[-1]])
-                    else:
-                        equationTargetVars.append(outputEquation[-1])
-                        final_out_seq_list.append(outputEquation[:-2])
-
-                elif outputEquation[1] == "=":
-
-                    # equationTargetVars.append(outputEquation[0])
-                    if useSubMethod:
-                        equationTargetVars.append("0")
-                        final_out_seq_list.append(outputEquation[2:] + ["-", outputEquation[0]])
-                    else:
-                        equationTargetVars.append(outputEquation[0])
-                        final_out_seq_list.append(outputEquation[2:])
-
+                # equationTargetVars.append(outputEquation[-1])
+                if useSubMethod:
+                    equationTargetVars.append("0")
+                    final_out_seq_list.append(outputEquation[:-2] + ["-", outputEquation[-1]])
                 else:
-                    # if it is a+b = n+z
-                    equals_index = outputEquation.index("=")
-                    equ_1 = outputEquation[:equals_index]
-                    final_out_seq_list.append(equ_1)
-                    equ_2 = outputEquation[equals_index+1:]
-                    final_out_seq_list.append(equ_2)
-                    var = "Y" if "Y" not in equ_1 else "X"
-                    equationTargetVars.append(var)
+                    equationTargetVars.append(outputEquation[-1])
+                    final_out_seq_list.append(outputEquation[:-2])
+
+            elif outputEquation[1] == "=":
+
+                # equationTargetVars.append(outputEquation[0])
+                if useSubMethod:
+                    equationTargetVars.append("0")
+                    final_out_seq_list.append(outputEquation[2:] + ["-", outputEquation[0]])
+                else:
+                    equationTargetVars.append(outputEquation[0])
+                    final_out_seq_list.append(outputEquation[2:])
+
+            else:
+                # if it is a+b = n+z
+                equals_index = outputEquation.index("=")
+                equ_1 = outputEquation[:equals_index]
+                final_out_seq_list.append(equ_1)
+                equ_2 = outputEquation[equals_index+1:]
+                final_out_seq_list.append(equ_2)
+                var = "Y" if "Y" not in equ_1 else "X"
+                equationTargetVars.append(var)
             if len(final_out_seq_list) > 3:
                 # 1 with 4, ignore it 
                 print()

@@ -5,6 +5,7 @@ import json
 from collections import Counter
 import matplotlib.pyplot as plt
 import time
+import re
 
 def solve_equation(equations, solutions):
     # convert prefix to infix
@@ -14,11 +15,12 @@ def solve_equation(equations, solutions):
     try:
         spEqs = []
         for equ in equations:
-            sympy_eq = sp.simplify("Eq(" + equ.replace("=", ",") + ")")
+            temp = "Eq(" + equ.replace("=", ",") + ")"
+            sympy_eq = sp.simplify(temp)
             spEqs.append(sympy_eq)   
         solved = solve(spEqs, dict=True)
         cur_targets = [round(i) for i in list(solved[0].values())]
-        act_solns = list(round(i) for i in solutions)
+        act_solns = list(round(list(obj.values())[0]) for obj in solved)
         same = 0
         for i, equ in enumerate(cur_targets):
             if equ in act_solns:
@@ -270,3 +272,38 @@ def read_pen_alignment(observation):
                 final_single += token
         finals.append(final_single)
     return finals
+
+
+# def read_fold(fold):
+#     keys = list(fold[0].keys())
+#     dicts = {}
+#     for obs in fold:
+#         for key in keys:
+#             if key not in dicts:
+#                 dicts[key] = []
+#             dicts[key].append(obs[key])
+#     for k, v in dicts.items():
+#         print(k, v)
+#         print()
+
+
+
+# def read_loss_dicts():
+#     matches = r"eval_loss_dict"
+#     with open("/Users/home/Downloads/hello_world-205.out", "r") as f:
+#         raw = f.readlines()
+#         # print(raw)
+#     for line in raw:
+#         matched = re.search(matches, line)
+#         if matched:
+#             # print(line[0:100])
+#             subbed = re.sub(matches, "", line).strip()
+#             subbed = subbed.replace("'", '"')
+#             evaled = json.loads(subbed)
+#             for one in evaled:
+#                 read_fold(one)
+#             return 
+#         # print("\n")
+
+
+# read_loss_dicts()
