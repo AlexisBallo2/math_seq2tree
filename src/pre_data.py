@@ -721,7 +721,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
     temp_g = []
     for g in generate_nums:
         # only keep generated numbers if they are common in the text
-        if generate_nums_dict[g] >= 5:
+        if generate_nums_dict[g] >= 1000:
             temp_g.append(g)
 
     # copy_nums: max length of numbers
@@ -1081,6 +1081,8 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
                     num_stack.append(temp_num)
                 if not flag_not and len(temp_num) == 0:
                     # if no nums in both, let all numbers be in both??
+                    if len(pair['nums']) == 0:
+                        print()
                     num_stack.append([_ for _ in range(len(pair['nums']))])
 
             # ???
