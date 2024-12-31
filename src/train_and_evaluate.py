@@ -840,6 +840,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         equ_1_acc = total_acc[0]
         equ_2_acc = total_acc[1]
         equ_3_acc = total_acc[2]
+    elif len(total_acc) == 4:
+        equ_1_acc = total_acc[0]
+        equ_2_acc = total_acc[1]
+        equ_3_acc = total_acc[2]
 
 
     # if using equation solutions:

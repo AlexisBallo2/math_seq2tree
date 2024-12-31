@@ -677,7 +677,7 @@ class PredictNumX(nn.Module):
 
         self.fc1 = nn.Linear(hidden_size, hidden_size)
         self.relu = nn.ReLU()
-        self.fc2 = nn.Linear(hidden_size, 4)
+        self.fc2 = nn.Linear(hidden_size, output_size)
         self.softmax = nn.Softmax(dim=-1)
 
         self.attn = TreeAttn(hidden_size, hidden_size)
@@ -700,7 +700,7 @@ class PredictNumX(nn.Module):
         temp2 = self.relu(temp)
         temp3 = self.fc2(temp2)
 
-        mask = torch.tensor([0, 1, 1, 1]).to(device)
+        mask = torch.tensor([0] + [1] * (self.output_size - 1)).to(device)
 
         temp4 = self.relu(temp3) * mask
         out = self.softmax(temp4) * mask

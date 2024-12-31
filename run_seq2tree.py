@@ -34,9 +34,9 @@ else:
 # torch.cuda.manual_seed_all(2)
 # np.random.seed(10)
 
-batch_size = 1 
+# batch_size = 1 
 # batch_size = 10
-# batch_size = 20
+batch_size = 20
 # batch_size = 30 
 # batch_size = 64 
 hidden_size = 512
@@ -85,8 +85,8 @@ useSeperateVars = True
 # weight the choosing of op vs var vs num
 # useOpScaling = True
 useOpScaling = False
-# setName = "PEN"
-setName = "MATH"
+setName = "PEN"
+# setName = "MATH"
 # setName = "DRAW"
 
 # decide if we must be able to solve equation
@@ -291,7 +291,7 @@ for fold in range(num_folds):
     generate = GenerateNode(hidden_size=hidden_size, op_nums=op_nums, embedding_size=embedding_size)
     merge = Merge(hidden_size=hidden_size, embedding_size=embedding_size)
 
-    num_x_predict = PredictNumX(hidden_size=hidden_size, output_size=4, batch_size=batch_size)
+    num_x_predict = PredictNumX(hidden_size=hidden_size, output_size=5, batch_size=batch_size)
     x_generate = GenerateXs(hidden_size=hidden_size, output_size=5, batch_size=batch_size)
     x_to_q = XToQ(hidden_size=hidden_size)
 
