@@ -478,6 +478,11 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # for batch in target:
     #     print([output_lang.index2word[_] for _ in batch])
     #print('done equation')
+    unk_token = output_lang.word2index["UNK"]
+    for i, batch in enumerate(target.transpose(0, 1)):
+        for j, tok in enumerate(batch):
+            if tok == unk_token:
+                print("UNK token in target")
     loss = masked_cross_entropy(all_node_outputs2, target, target_length)
     same = 0
     lengths = 0
