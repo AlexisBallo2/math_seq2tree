@@ -41,6 +41,14 @@ replace['third'] = 0.33
 replace['fourteen'] = 14
 replace['306,000'] = 306000
 replace['8,200'] = 8200 
+replace['Two-thirds'] = 0.66666
+replace['three-fourths'] = 0.75
+replace['five-thirds'] = 1.66666
+replace['eight'] = 8
+replace['two'] = 2
+replace['two-thirds'] = 0.66666
+
+
 # replace[','] = ""
 for i in range(1, 101):
     word = p.number_to_words(i)
@@ -377,7 +385,12 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             seg = d["segmented_text"].strip().split(" ")
         elif setName == "PEN":
             # seg = d["oldText"].strip().split(" ")
-            seg = d["text"].strip().split(" ")
+            seg = d["text"]
+            seg = seg.lower()
+            for k,v in replace.items():
+                seg = seg.replace(k, str(v))
+            seg = seg.split(" ")
+
         else: 
 
             seg = d["sQuestion"].strip()
@@ -654,6 +667,9 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
         #     equationTargetVars = ['X']
         #     final_out_seq_list = out_seq
         # else:
+        # out_len = len(out_seq)
+        # if out_len > 3:
+        #     print()
         for outputEquation in out_seq:
             if "," in outputEquation:
                 outputEquation = [i for i in outputEquation if i != ","]
@@ -689,12 +705,25 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             else:
                 # if it is a+b = n+z
                 equals_index = outputEquation.index("=")
+                # equ_1 = outputEquation[:equals_index]
+                # final_out_seq_list.append(equ_1)
+                # equ_2 = outputEquation[equals_index+1:]
+                # final_out_seq_list.append(equ_2)
+                # var = "Y" if "Y" not in equ_1 else "X"
                 equ_1 = outputEquation[:equals_index]
-                final_out_seq_list.append(equ_1)
                 equ_2 = outputEquation[equals_index+1:]
-                final_out_seq_list.append(equ_2)
                 var = "Y" if "Y" not in equ_1 else "X"
-                equationTargetVars.append(var)
+                if useSubMethod:
+                    final_out_seq_list.append(equ_1 + ["-", var])
+                    final_out_seq_list.append(equ_2 + ["-", var])
+                    equationTargetVars.append("0")
+                    equationTargetVars.append("0")
+
+                else:
+                    final_out_seq_list.append(equ_1)
+                    final_out_seq_list.append(equ_2)
+                    equationTargetVars.append(var)
+                    equationTargetVars.append(var)
             if len(final_out_seq_list) > 3:
                 # 1 with 4, ignore it 
                 print()
@@ -721,7 +750,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
     temp_g = []
     for g in generate_nums:
         # only keep generated numbers if they are common in the text
-        if generate_nums_dict[g] >= 1000:
+        if generate_nums_dict[g] >= 5:
             temp_g.append(g)
 
     # copy_nums: max length of numbers

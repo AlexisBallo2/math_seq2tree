@@ -514,14 +514,14 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             #   for position t in each equation
             #       target_t: actual equation value
             #       generate_input: equation value if its an operator
-            hasUnk = False
-            if output_lang.word2index['UNK'] in ith_equation_target[t].tolist():
-                print('unk token')
-                hasUnk = True
+            # hasUnk = False
+            # if output_lang.word2index['UNK'] in ith_equation_target[t].tolist():
+                # print('unk token')
+                # hasUnk = True
             target_t, generate_input = generate_tree_input(ith_equation_target[t].tolist(), outputs, ith_equation_num_stacks, num_start, unk)
 
-            if output_lang.word2index['UNK'] in target_t.tolist():
-                print('unk token')
+            # if output_lang.word2index['UNK'] in target_t.tolist():
+            #     print('unk token')
             ith_equation_target[t] = target_t
             op_or_num = target_t.clone().detach() # < num_start
             for i, num in enumerate(target_t):

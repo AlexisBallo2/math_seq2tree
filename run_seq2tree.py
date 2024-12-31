@@ -182,9 +182,12 @@ if num_obs:
 # copy_nums:  max length of numbers
 
 temp_pairs = []
+# pairs_len = []
 for p in pairs:
     # input_seq, prefixed equation, nums, num_pos
     p['equations'] = [from_infix_to_prefix(equ) for equ in p['equations']]
+    # lenof = len(p['equations'])
+    # pairs_len.append(lenof)
     if useOneEquation:
         equ_with_equals = []
         for equ in p['equations']:
@@ -192,7 +195,7 @@ for p in pairs:
         p['equations'] = [equ_with_equals]
         p['equationTargetVars'] = ["0"]
 # pairs = temp_pairs
-
+# print(Counter(pairs_len))
 
 # num_folds = 5 
 num_folds = 2 
@@ -291,7 +294,7 @@ for fold in range(num_folds):
     generate = GenerateNode(hidden_size=hidden_size, op_nums=op_nums, embedding_size=embedding_size)
     merge = Merge(hidden_size=hidden_size, embedding_size=embedding_size)
 
-    num_x_predict = PredictNumX(hidden_size=hidden_size, output_size=5, batch_size=batch_size)
+    num_x_predict = PredictNumX(hidden_size=hidden_size, output_size=6, batch_size=batch_size)
     x_generate = GenerateXs(hidden_size=hidden_size, output_size=5, batch_size=batch_size)
     x_to_q = XToQ(hidden_size=hidden_size)
 
