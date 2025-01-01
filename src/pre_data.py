@@ -381,9 +381,10 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
         # text after masking
         input_seq = []
         # break up segmented text into each word
+        # get inputs
         if setName == "MATH":
             seg = d["segmented_text"].strip().split(" ")
-        elif setName == "PEN":
+        elif setName == "PEN" or setName == "DRAW":
             # seg = d["oldText"].strip().split(" ")
             seg = d["text"]
             seg = seg.lower()
@@ -401,6 +402,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
                 seg = seg.replace(k, str(v))
             seg = seg.split(" ")
 
+        # get equations
         # strip "x=" from the equation
         if setName == "MATH":
             equ = d["equation"]
@@ -413,7 +415,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
                 targets = ['disabled'] 
             print(targets)
 
-        elif setName == "PEN":
+        elif setName == "PEN" or setName == "DRAW":
             equations = read_pen_alignment(d)
             # equations = d["equations"]
             # mapNums = {}

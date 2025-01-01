@@ -85,9 +85,9 @@ useSeperateVars = True
 # weight the choosing of op vs var vs num
 # useOpScaling = True
 useOpScaling = False
-setName = "PEN"
+# setName = "PEN"
 # setName = "MATH"
-# setName = "DRAW"
+setName = "DRAW"
 
 # decide if we must be able to solve equation
 useEquSolutions = True
@@ -144,9 +144,9 @@ config = {
 print("CONFIG \n", config)
 os.makedirs("models", exist_ok=True)
 if setName == "DRAW":
-    data = load_DRAW_data("data/DRAW/draw.json")
+    # data = load_DRAW_data("data/DRAW/draw.json")
     # data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
-    # data = load_DRAW_data("data/PEN.json", "draw")
+    data = load_DRAW_data("data/PEN.json", "draw")
 elif setName == "PEN":
     # data = load_DRAW_data("data/PEN.json", "alg514")
     data = load_DRAW_data("data/PEN.json")
