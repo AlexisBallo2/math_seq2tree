@@ -86,8 +86,8 @@ useSeperateVars = True
 # useOpScaling = True
 useOpScaling = False
 # setName = "PEN"
-# setName = "MATH"
-setName = "DRAW"
+setName = "MATH"
+# setName = "DRAW"
 
 # decide if we must be able to solve equation
 useEquSolutions = True
