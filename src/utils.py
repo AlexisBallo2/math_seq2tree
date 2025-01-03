@@ -22,7 +22,7 @@ def solve_equation(equations, solutions):
         cur_targets = [round(i) for i in list(solved[0].values())]
         act_solns = list(round(list(obj.values())[0]) for obj in solved)
         same = 0
-        for i, equ in enumerate(cur_targets):
+        for i, equ in enumerate(solutions):
             if equ in act_solns:
                 same += 1
         if same != len(cur_targets):

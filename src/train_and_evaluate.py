@@ -857,7 +857,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         for i, num_equations in enumerate(num_equations_per_obs):
             equation_set = []
             equation_targts_specific = [output_lang.index2word[j] for j in equation_targets[i]]
-            replaced_targs = replace_nums(pair_mapping[i], equation_targts_specific)
+            # replaced_targs = replace_nums(pair_mapping[i], equation_targts_specific)
 
             # print()
             for each_equation in range(num_equations):
