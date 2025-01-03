@@ -197,8 +197,8 @@ for p in pairs:
 # pairs = temp_pairs
 # print(Counter(pairs_len))
 
-# num_folds = 5 
-num_folds = 2 
+num_folds = 5 
+# num_folds = 2 
 fold_size = int(len(pairs) * 1/num_folds)
 fold_pairs = []
 for split_fold in range(num_folds - 1):
