@@ -12,8 +12,8 @@ import sympy as sp
 from sympy.solvers import solve
 
 
-use_save = True 
-# use_save = False 
+# use_save = True 
+use_save = False 
 
 
 import sys
@@ -525,26 +525,26 @@ for fold in range(folds_to_do):
     for k, v in fold_accuracies.items():
         print(k, v)
         print("\n")
-    # print('COMPARISONS', train_comparison, eval_comparison)
-    # write_comparison(train_comparison, eval_comparison)
-    # print('fold accuracies', fold_accuracies)
+    print('COMPARISONS', train_comparison, eval_comparison)
+    write_comparison(train_comparison, eval_comparison)
+    print('fold accuracies', fold_accuracies)
     # make_loss_graph(
     #     fold_accuracies['loss'], 
-    #     f"src/post/loss-{time.time()}-{run_id}.png", title,
+    #     f"src/post/loss-{time.time()}-{run_id}.png", config['title'],
     #     "Epoch", "Loss By Epoch"
-    #     )
-    # make_eval_graph(
-    #     [fold_accuracies["train_losses"], fold_accuracies["eval_losses"]], 
-    #     ['Train', "Eval"],
-    #     f"src/post/loss-{time.time()}-{run_id}-fold_{fold}.png", config['title'],
-    #     "Epoch", "Loss By Epoch", None 
-    #     )
-    # make_eval_graph(
-    #     [fold_accuracies["train_token"], fold_accuracies["eval_token"]], 
-    #     ['Train', "Eval"],
-    #     f"src/post/accuracy-{time.time()}-{run_id}-fold_{fold}.png", config['title'],
-    #     "Epoch", "Accuracy By Epoch", [0, 1]
-    #     )
+        # )
+    make_eval_graph(
+        [fold_accuracies["train_losses"], fold_accuracies["eval_losses"]], 
+        ['Train', "Eval"],
+        f"src/post/loss-{time.time()}-{run_id}-fold_{fold}.png", config['title'],
+        "Epoch", "Loss By Epoch", None 
+        )
+    make_eval_graph(
+        [fold_accuracies["train_token"], fold_accuracies["eval_token"]], 
+        ['Train', "Eval"],
+        f"src/post/accuracy-{time.time()}-{run_id}-fold_{fold}.png", config['title'],
+        "Epoch", "Accuracy By Epoch", [0, 1]
+        )
     print('fold train accuracy', fold_accuracies["train_token"])
     print('fold eval accuracy', fold_accuracies['eval_token'])
     print('All TRAIN ACC', all_train_accuracys)
