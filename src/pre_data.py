@@ -67,6 +67,13 @@ class Lang:
         self.n_words = 0  # Count word tokens
         self.num_start = 0
 
+    def toJSON(self):
+        return json.dumps(
+            self,
+            default=lambda o: o.__dict__, 
+            sort_keys=True,
+            indent=4)
+
     def add_sen_to_vocab(self, sentence):  # add words of sentence to vocab
         for word in sentence:
             # if word == "^":

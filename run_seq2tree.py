@@ -12,6 +12,9 @@ import sympy as sp
 from sympy.solvers import solve
 
 
+use_save = True 
+# use_save = False 
+
 
 import sys
 args = sys.argv
@@ -22,6 +25,8 @@ if "-id" in args:
 else:
     run_id = "0"
 
+save_folder = f"saves/{run_id}"
+os.makedirs(save_folder, exist_ok=True)
 # sys.stdout = open('output.txt','wt')
 
 
@@ -34,200 +39,158 @@ else:
 # torch.cuda.manual_seed_all(2)
 # np.random.seed(10)
 
-# batch_size = 1 
-# batch_size = 10
-batch_size = 20
-# batch_size = 30 
-# batch_size = 64 
-hidden_size = 512
-# n_epochs = 5 
-# n_epochs = 10 
-# n_epochs = 20 
-# n_epochs = 40 
-n_epochs = 80 
-# learning_rate = 1e-2 
-learning_rate = 1e-3 
-# learning_rate = 1e-3 
-# learning_rate = 1e-3 
-weight_decay = 1e-5
-beam_size = 5
-n_layers = 2
 
-# num_obs = 2 
-# num_obs = 20
-# num_obs = 50
-# num_obs = 100
-# num_obs = 200
-# num_obs = 600 
-# num_obs = 1000 
-num_obs = None 
-
-# torch.autograd.set_detect_anomaly(True)
-
-useCustom = True
-# useCustom = False 
-
-
-useSubMethod = True
-# useSubMethod = False
-
-# useSemanticAlignment = True
-useSemanticAlignment = False
-
-# combine all equations into one
-# useOneEquation = True
-useOneEquation = False
-
-# take vars out of the vocab (control where they go)
-useSeperateVars = True
-# useSeperateVars = False
-
-# weight the choosing of op vs var vs num
-# useOpScaling = True
-useOpScaling = False
-# setName = "PEN"
-# setName = "MATH"
-setName = "DRAW"
-
-# decide if we must be able to solve equation
-useEquSolutions = True
-# useEquSolutions = False 
-
-# use vars as numbers
-# do scoring versus do in neural net seperately
-useVarsAsNums = True
-# useVarsAsNums = False
-
-# useSNIMask = True
-useSNIMask = False
-
-# useTFix = True
-useTFix = False
-
-# useBertEmbeddings = True 
-useBertEmbeddings = False 
-
-if useBertEmbeddings:
-    embedding_size = 768
+if use_save:
+    # config = json.load(open(f"{save_folder}/config.json"))
+    load = read_state(save_folder)
+    config = load['config']
+    print("CONFIG \n", config)
+    data = load['pairs']
+    pairs = data
+    generate_nums = load['generate_nums']
+    copy_nums = load['copy_nums']
+    vars = load['vars']
+    input_lang = load['input_lang']
+    output_lang = load['output_lang']
+    train_pairs = load['train_pairs']
+    test_pairs = load['test_pairs']
+    generate_num_ids = load['generate_num_ids']
+    fold_accuracies = load['fold_accuracies']
+    fold = load['fold']
+    fold_pairs = load['fold_pairs']
+    models = load['models']
+    optimizers = load['optimizers']
+    schedulers = load['schedulers']
+    train_comparison = load['train_comparison']
+    eval_comparison = load['eval_comparison']
+    all_train_accuracys = load['all_train_accuracys']
+    all_train_loss = load['all_train_loss']
+    all_eval_loss = load['all_eval_loss']
+    all_eval_accuracys = load['all_eval_accuracys']
+    all_soln_eval_accuracys = load['all_soln_eval_accuracys']
+    total_training_time = load['total_training_time']
+    total_inference_time = load['total_inference_time']
+    train_time_array = load['train_time_array']
+    test_time_array = load['test_time_array']
+    full_start = load['full_start']
 else:
-    embedding_size = 128
-
-# abalations = {
-#     "useSubMethod" : True,
-#     "useSemanticAlignment" : False,
-#     "useOneEquation" : False,
-#     "useSeperateVars" : True,
-#     "useOpScaling" : False,
-#     "useEquSolutions": True,
-#     "useVarsAsNums" : True,
-#     "useSNIMask": False,
-#     "useTFix" : False
-# }
-
-title = f"{num_obs} Observations, {n_epochs} Epochs, Dataset = {setName}, Custom = {useCustom} "
-config = {
-    "batch_size": batch_size,
-    "embedding_size": embedding_size,
-    "hidden_size": hidden_size,
-    "n_epochs": n_epochs,
-    "learning_rate": learning_rate,
-    "weight_decay": weight_decay,
-    "beam_size": beam_size,
-    "n_layers": n_layers,
-    "useCustom": useCustom,
-    "setName" : setName,
-    "title" : title,
-    "useSubMethod": useSubMethod,
-    "useSemanticAlignment": useSemanticAlignment,
-    "useOneEquation": useOneEquation
-}
-print("CONFIG \n", config)
-os.makedirs("models", exist_ok=True)
-if setName == "DRAW":
-    # data = load_DRAW_data("data/DRAW/draw.json")
-    # data = load_DRAW_data("data/DRAW/dolphin_t2_final.json")
-    data = load_DRAW_data("data/PEN.json", "draw")
-elif setName == "PEN":
-    # data = load_DRAW_data("data/PEN.json", "alg514")
-    data = load_DRAW_data("data/PEN.json")
-else:
-    data = load_raw_data("data/Math_23K.json")
-if num_obs:
-    data = data[0:num_obs]
+    config = {
+        "batch_size": 5,
+        "embedding_size": 128,
+        "hidden_size": 512,
+        "n_epochs": 2,
+        "learning_rate": 1e-3,
+        "weight_decay": 1e-5,
+        "beam_size": 5,
+        "n_layers": 2,
+        "useCustom": True,
+        "setName" : "DRAW",
+        "useSubMethod": True,
+        "useEquSolutions": True,
+        "useSeperateVars": True,
+        "useSemanticAlignment": False,
+        'useVarsAsNums' : True,
+        "useOpScaling" : False,
+        'useSNIMask' : False,
+        "useOneEquation": False,
+        'useBertEmbeddings': False,
+        'useTFix' : False,
+        "num_folds" : 5,
+        "num_obs": 10,   
+    }
+    config['title'] = f"{config['num_obs']} Observations, {config['n_epochs']} Epochs, Dataset = {config['setName']}, Custom = {config['useCustom']} ",
+    if config['useBertEmbeddings']:
+        config['embedding_size ']= 768
 
 
-print("len data", len(data))
-# print()
-# data format:
-# {
-# "id":"10431",
-# "original_text":"The speed of a car is 80 kilometers per hour. It can be written as: how much. Speed ​​* how much = distance.",
-# "segmented_text":"The speed of a car is 80 kilometers per hour, which can be written as: how much. speed * how much = distance. ",
-# "equation":"x=80",
-# "ans":"80"
-# }'
-
-pairs, generate_nums, copy_nums, vars = transfer_num(data, setName, useCustom, useEquSolutions, useSubMethod, useSeperateVars)
-print("len pairs", len(pairs))
-# pairs.shuffle()
-random.shuffle(pairs)
-if num_obs:
-    pairs = pairs[0:num_obs]
-# pairs: list of tuples:
-#   input_seq: masked text
-#   out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
-#   nums: list of numbers in the text
-#   num_pos: list of positions of the numbers in the text
-# generate_nums: list of common numbers not in input text (ex constants)
-# copy_nums:  max length of numbers
-
-temp_pairs = []
-# pairs_len = []
-for p in pairs:
-    # input_seq, prefixed equation, nums, num_pos
-    p['equations'] = [from_infix_to_prefix(equ) for equ in p['equations']]
-    # lenof = len(p['equations'])
-    # pairs_len.append(lenof)
-    if useOneEquation:
-        equ_with_equals = []
-        for equ in p['equations']:
-            equ_with_equals += equ
-        p['equations'] = [equ_with_equals]
-        p['equationTargetVars'] = ["0"]
-# pairs = temp_pairs
-# print(Counter(pairs_len))
-
-num_folds = 5 
-# num_folds = 2 
-fold_size = int(len(pairs) * 1/num_folds)
-fold_pairs = []
-for split_fold in range(num_folds - 1):
-    fold_start = fold_size * split_fold
-    fold_end = fold_size * (split_fold + 1)
-    fold_pairs.append(pairs[fold_start:fold_end])
-fold_pairs.append(pairs[(fold_size * (num_folds-1)):])
-
-best_acc_fold = []
-
-all_train_accuracys = []
-all_train_loss = []
-all_eval_loss = []
-all_eval_accuracys = []
-all_soln_eval_accuracys = []
-
-total_training_time = 0
-total_inference_time = 0
-
-train_time_array = []
-test_time_array = []
+    print("CONFIG \n", config)
+    if config['setName']== "DRAW":
+        data = load_DRAW_data("data/PEN.json", "draw")
+    elif config['setName']== "PEN":
+        data = load_DRAW_data("data/PEN.json")
+    else:
+        data = load_raw_data("data/Math_23K.json")
+    if config['num_obs']:
+        data = data[0:config['num_obs']]
 
 
-train_comparison = []
-eval_comparison = []
+    print("len data", len(data))
+    # print()
+    # data format:
+    # {
+    # "id":"10431",
+    # "original_text":"The speed of a car is 80 kilometers per hour. It can be written as: how much. Speed ​​* how much = distance.",
+    # "segmented_text":"The speed of a car is 80 kilometers per hour, which can be written as: how much. speed * how much = distance. ",
+    # "equation":"x=80",
+    # "ans":"80"
+    # }'
+
+    pairs, generate_nums, copy_nums, vars = transfer_num(data, config['setName'], config['useCustom'], config['useEquSolutions'], config['useSubMethod'], config['useSeperateVars'])
+    print("len pairs", len(pairs))
+    # pairs.shuffle()
+    random.shuffle(pairs)
+    if config['num_obs']:
+        pairs = pairs[0:config['num_obs']]
+    # pairs: list of tuples:
+    #   input_seq: masked text
+    #   out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
+    #   nums: list of numbers in the text
+    #   num_pos: list of positions of the numbers in the text
+    # generate_nums: list of common numbers not in input text (ex constants)
+    # copy_nums:  max length of numbers
+
+    temp_pairs = []
+    # pairs_len = []
+    for p in pairs:
+        # input_seq, prefixed equation, nums, num_pos
+        p['equations'] = [from_infix_to_prefix(equ) for equ in p['equations']]
+        # lenof = len(p['equations'])
+        # pairs_len.append(lenof)
+        if config['useOneEquation']:
+            equ_with_equals = []
+            for equ in p['equations']:
+                equ_with_equals += equ
+            p['equations'] = [equ_with_equals]
+            p['equationTargetVars'] = ["0"]
+    # pairs = temp_pairs
+    # print(Counter(pairs_len))
+
+    fold_size = int(len(pairs) * 1/config['num_folds'])
+    fold_pairs = []
+    for split_fold in range(config['num_folds'] - 1):
+        fold_start = fold_size * split_fold
+        fold_end = fold_size * (split_fold + 1)
+        fold_pairs.append(pairs[fold_start:fold_end])
+    fold_pairs.append(pairs[(fold_size * (config['num_folds']-1)):])
+
+    best_acc_fold = []
+
+    all_train_accuracys = []
+    all_train_loss = []
+    all_eval_loss = []
+    all_eval_accuracys = []
+    all_soln_eval_accuracys = []
+
+    total_training_time = 0
+    total_inference_time = 0
+
+    train_time_array = []
+    test_time_array = []
+
+
+    train_comparison = []
+    eval_comparison = []
 
 full_start = time.time()
-for fold in range(num_folds):
+
+if use_save:
+    folds_to_do = config['num_folds'] - fold
+else:
+    folds_to_do = config['num_folds']
+
+for fold in range(folds_to_do):
     pairs_tested = []
+    # pairs_tested = 
     pairs_trained = []
 
     fold_accuracies = {
@@ -255,13 +218,13 @@ for fold in range(num_folds):
     fold_eval_accuracy = []
     fold_soln_eval_accuracy = []
     # train on current fold, test on other folds
-    for fold_t in range(num_folds):
+    for fold_t in range(config["num_folds"]):
         if fold_t == fold:
             pairs_tested += fold_pairs[fold_t]
         else:
             pairs_trained += fold_pairs[fold_t]
 
-    input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums, copy_nums, vars, useCustom, useSeperateVars, useBertEmbeddings, tree=True)
+    input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums, copy_nums, vars, config['useCustom'], config['useSeperateVars'], config['useBertEmbeddings'], tree=True)
     # all_pairs = train_pairs + test_pairs
     # out = []
     # for pair in all_pairs:
@@ -282,26 +245,26 @@ for fold in range(num_folds):
     #   loc nums: where nums are in the text
     #   [[] of where each number in the equation (that is not in the output lang) is found in the nums array]
     # Initialize models
-    encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,n_layers=n_layers, useBertEmbeddings = useBertEmbeddings, input_lang=input_lang)
-    encoder_var = EncoderSeq(input_size=input_lang.n_words, embedding_size=embedding_size, hidden_size=hidden_size,n_layers=n_layers, useBertEmbeddings = useBertEmbeddings, input_lang=input_lang)
-    if useSeperateVars:
+    encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=config['embedding_size'], hidden_size=config['hidden_size'],n_layers=config['n_layers'], useBertEmbeddings = config['useBertEmbeddings'], input_lang=input_lang)
+    encoder_var = EncoderSeq(input_size=input_lang.n_words, embedding_size=config["embedding_size"], hidden_size=config['hidden_size'],n_layers=config['n_layers'], useBertEmbeddings = config['useBertEmbeddings'], input_lang=input_lang)
+    if config['useSeperateVars']:
         op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars)
     else:
         op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums)
 
-    predict = Prediction(hidden_size=hidden_size, op_nums=op_nums, input_size=len(generate_nums), num_vars=len(vars))
-    predict_output = Prediction(hidden_size=hidden_size, op_nums=op_nums, input_size=len(generate_nums), num_vars=len(vars))
-    generate = GenerateNode(hidden_size=hidden_size, op_nums=op_nums, embedding_size=embedding_size)
-    merge = Merge(hidden_size=hidden_size, embedding_size=embedding_size)
+    predict = Prediction(hidden_size=config['hidden_size'], op_nums=op_nums, input_size=len(generate_nums), num_vars=len(vars))
+    predict_output = Prediction(hidden_size=config['hidden_size'], op_nums=op_nums, input_size=len(generate_nums), num_vars=len(vars))
+    generate = GenerateNode(hidden_size=config['hidden_size'], op_nums=op_nums, embedding_size=config['embedding_size'])
+    merge = Merge(hidden_size=config['hidden_size'], embedding_size=config['embedding_size'])
 
-    num_x_predict = PredictNumX(hidden_size=hidden_size, output_size=6, batch_size=batch_size)
-    x_generate = GenerateXs(hidden_size=hidden_size, output_size=5, batch_size=batch_size)
-    x_to_q = XToQ(hidden_size=hidden_size)
+    num_x_predict = PredictNumX(hidden_size=config['hidden_size'], output_size=6, batch_size=config['batch_size'])
+    x_generate = GenerateXs(hidden_size=config['hidden_size'], output_size=5, batch_size=config['batch_size'])
+    x_to_q = XToQ(hidden_size=config['hidden_size'])
 
-    sementic_alignment = Seq2TreeSemanticAlignment(encoder_hidden_size=hidden_size, decoder_hidden_size=hidden_size, hidden_size=hidden_size)
+    sementic_alignment = Seq2TreeSemanticAlignment(encoder_hidden_size=config['hidden_size'], decoder_hidden_size=config['hidden_size'], hidden_size=config['hidden_size'])
     num_or_opp = NumOrOpp(512)
-    sni = SNI(hidden_size=hidden_size)
-    fix_t = FixT(hidden_size=hidden_size)
+    sni = SNI(hidden_size=config['hidden_size'])
+    fix_t = FixT(hidden_size=config['hidden_size'])
 
 
 
@@ -327,19 +290,19 @@ for fold in range(num_folds):
     }
     # the embedding layer is  only for generated number embeddings, operators, and paddings
 
-    encoder_optimizer = torch.optim.Adam(encoder.parameters(), lr=learning_rate, weight_decay=weight_decay)
-    encoder_var_optimizer = torch.optim.Adam(encoder_var.parameters(), lr=learning_rate, weight_decay=weight_decay)
-    predict_optimizer = torch.optim.Adam(predict.parameters(), lr=learning_rate, weight_decay=weight_decay)
-    predict_output_optimizer = torch.optim.Adam(predict_output.parameters(), lr=learning_rate, weight_decay=weight_decay)
-    generate_optimizer = torch.optim.Adam(generate.parameters(), lr=learning_rate, weight_decay=weight_decay)
-    merge_optimizer = torch.optim.Adam(merge.parameters(), lr=learning_rate, weight_decay=weight_decay)
-    num_x_predict_optimizer = torch.optim.Adam(num_x_predict.parameters(), lr=learning_rate, weight_decay=weight_decay)
-    x_generate_optimizer = torch.optim.Adam(x_generate.parameters(), lr=learning_rate, weight_decay=weight_decay)
-    x_to_q_optimizer = torch.optim.Adam(x_to_q.parameters(), lr=learning_rate, weight_decay=weight_decay)
-    sementic_alignment_optimizer = torch.optim.Adam(sementic_alignment.parameters(), lr=learning_rate, weight_decay=weight_decay)
-    num_or_opp_optimizer = torch.optim.Adam(num_or_opp.parameters(), lr=learning_rate, weight_decay=weight_decay)
-    sni_optimizer = torch.optim.Adam(sni.parameters(), lr=learning_rate, weight_decay=weight_decay)
-    fix_t_optimizer = torch.optim.Adam(fix_t.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    encoder_optimizer = torch.optim.Adam(encoder.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
+    encoder_var_optimizer = torch.optim.Adam(encoder_var.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
+    predict_optimizer = torch.optim.Adam(predict.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
+    predict_output_optimizer = torch.optim.Adam(predict_output.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
+    generate_optimizer = torch.optim.Adam(generate.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
+    merge_optimizer = torch.optim.Adam(merge.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
+    num_x_predict_optimizer = torch.optim.Adam(num_x_predict.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
+    x_generate_optimizer = torch.optim.Adam(x_generate.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
+    x_to_q_optimizer = torch.optim.Adam(x_to_q.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
+    sementic_alignment_optimizer = torch.optim.Adam(sementic_alignment.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
+    num_or_opp_optimizer = torch.optim.Adam(num_or_opp.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
+    sni_optimizer = torch.optim.Adam(sni.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
+    fix_t_optimizer = torch.optim.Adam(fix_t.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
 
 
     optimizers = [
@@ -397,7 +360,7 @@ for fold in range(num_folds):
     for num in generate_nums:
         generate_num_ids.append(output_lang.word2index[num])
 
-    for epoch in range(n_epochs):
+    for epoch in range(config['n_epochs']):
         for scheduler in schedulers:
             scheduler.step()
         # for scheduler in schedulers:
@@ -411,7 +374,7 @@ for fold in range(num_folds):
         # num_stack_batches: the corresponding nums lists
         # num_pos_batches: positions of the numbers lists
         # num_size_batches: number of numbers from the input text
-        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni, pair_mapping = prepare_train_batch(train_pairs, batch_size, vars, output_lang, input_lang)
+        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni, pair_mapping = prepare_train_batch(train_pairs, config['batch_size'], vars, output_lang, input_lang)
         # generate temp x vectors
 
         print("fold:", fold + 1)
@@ -450,7 +413,7 @@ for fold in range(num_folds):
             loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list, acc_soln = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
-                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx], output_var_solutions[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, useTFix, True)
+                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx], output_var_solutions[idx], config['useCustom'], vars, debug, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useVarsAsNums'], config['useSNIMask'], config['useTFix'], True)
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             train_comparison.append(comparison)
@@ -501,7 +464,7 @@ for fold in range(num_folds):
                     v.eval()
                 input_batch_len = len(input_batches[idx])
                 start = time.perf_counter()
-                loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list, acc_soln = train_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx],output_var_solutions[idx], useCustom, vars, debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, useTFix, False) 
+                loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list, acc_soln = train_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx],output_var_solutions[idx], config['useCustom'], vars, debug, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useVarsAsNums'], config['useSNIMask'], config['useTFix'], False) 
                 end = time.perf_counter()
                 test_time_array.append([input_batch_len,end - start])
                 # testc.append(comparison)
@@ -570,26 +533,57 @@ for fold in range(num_folds):
     #     f"src/post/loss-{time.time()}-{run_id}.png", title,
     #     "Epoch", "Loss By Epoch"
     #     )
-    make_eval_graph(
-        [fold_accuracies["train_losses"], fold_accuracies["eval_losses"]], 
-        ['Train', "Eval"],
-        f"src/post/loss-{time.time()}-{run_id}-fold_{fold}.png", title,
-        "Epoch", "Loss By Epoch", None 
-        )
-    make_eval_graph(
-        [fold_accuracies["train_token"], fold_accuracies["eval_token"]], 
-        ['Train', "Eval"],
-        f"src/post/accuracy-{time.time()}-{run_id}-fold_{fold}.png", title,
-        "Epoch", "Accuracy By Epoch", [0, 1]
-        )
+    # make_eval_graph(
+    #     [fold_accuracies["train_losses"], fold_accuracies["eval_losses"]], 
+    #     ['Train', "Eval"],
+    #     f"src/post/loss-{time.time()}-{run_id}-fold_{fold}.png", config['title'],
+    #     "Epoch", "Loss By Epoch", None 
+    #     )
+    # make_eval_graph(
+    #     [fold_accuracies["train_token"], fold_accuracies["eval_token"]], 
+    #     ['Train', "Eval"],
+    #     f"src/post/accuracy-{time.time()}-{run_id}-fold_{fold}.png", config['title'],
+    #     "Epoch", "Accuracy By Epoch", [0, 1]
+    #     )
     print('fold train accuracy', fold_accuracies["train_token"])
     print('fold eval accuracy', fold_accuracies['eval_token'])
     print('All TRAIN ACC', all_train_accuracys)
     print('ALL EVAL ACC', all_eval_accuracys)
     print('ALL EVAL SOLN ACC', all_soln_eval_accuracys)
-    process_loss_dicts(fold_accuracies['train_loss_dict'], fold_accuracies['eval_loss_dict'], f"src/post/loss-dict-{time.time()}-{run_id}-fold_{fold}.png")
-    if num_folds == 2:
+    # process_loss_dicts(fold_accuracies['train_loss_dict'], fold_accuracies['eval_loss_dict'], f"src/post/loss-dict-{time.time()}-{run_id}-fold_{fold}.png")
+    if config["num_folds"] == 2:
         break
+    save_state(save_folder, {
+        "models": models,
+        "optimizers": optimizers,
+        "schedulers": schedulers,
+        "config": config,
+        "fold_accuracies": fold_accuracies,
+        "fold": fold,
+        "fold_pairs": fold_pairs,
+        "pairs": pairs,
+        "generate_nums": generate_nums,
+        "copy_nums": copy_nums,
+        "vars": vars,
+        "input_lang": input_lang,
+        "output_lang": output_lang,
+        "train_pairs": train_pairs,
+        "test_pairs": test_pairs,
+        "generate_num_ids": generate_num_ids,
+        "fold_accuracies": fold_accuracies,
+        "train_comparison": train_comparison,
+        "eval_comparison": eval_comparison,
+        "all_train_accuracys": all_train_accuracys,
+        "all_train_loss": all_train_loss,
+        "all_eval_loss": all_eval_loss,
+        "all_eval_accuracys": all_eval_accuracys,
+        "all_soln_eval_accuracys": all_soln_eval_accuracys,
+        "total_training_time": total_training_time,
+        "total_inference_time": total_inference_time,
+        "train_time_array": train_time_array,
+        "test_time_array": test_time_array,
+        "full_start": full_start,
+    })
     # break 
 
 # a, b, c = 0, 0, 0

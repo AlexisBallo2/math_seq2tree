@@ -6,6 +6,9 @@ from collections import Counter
 import matplotlib.pyplot as plt
 import time
 import re
+import os
+import torch
+import pathlib
 
 def solve_equation(equations, solutions):
     # convert prefix to infix
@@ -307,3 +310,73 @@ def read_pen_alignment(observation):
 
 
 # read_loss_dicts()
+
+def save_state(path, state_dict):
+    for key, value in state_dict.items():
+        if key in ["models"]:
+            pathlib.Path(f"{path}/{key}").mkdir(exist_ok=True)
+            with open(f"{path}/{key}.json", "w") as f:
+                f.write(json.dumps(list(value.keys())))
+
+            for model in value:
+                torch.save(value[model], f"{path}/{key}/{model}.pth")
+        elif key in ['schedulers']:
+            torch.save(value, f"{path}/{key}.pth")
+        elif key in ['optimizers']:
+            torch.save(value, f"{path}/{key}.pth")
+        elif key in ['input_lang', 'output_lang']:
+            with open(f"{path}/{key}.json", "w") as f:
+                f.write(value.toJSON())
+        else:
+            with open(f"{path}/{key}.json", "w") as f:
+                f.write(json.dumps(value))
+
+def read_state(path):
+    state_dict = {
+        "models": [],
+        "optimizers":  [],
+        "schedulers": [],
+        "config": {},
+        "fold_accuracies": [],
+        "fold": 0,
+        "fold_pairs": [],
+        "pairs": [],
+        "generate_nums": [],
+        "copy_nums": [],
+        "vars": [],
+        "input_lang": {},
+        "output_lang": {},
+        "train_pairs": [],
+        "test_pairs": [],
+        "generate_num_ids": [],
+        "debug": {},
+        "fold_accuracies": [],
+        "train_comparison": [],
+        "eval_comparison": [],
+        "all_train_accuracys": [],
+        "all_train_loss": [],
+        "all_eval_loss": [],
+        "all_eval_accuracys": [],
+        "all_soln_eval_accuracys": [],
+        "total_training_time": [],
+        "total_inference_time": [],
+        "train_time_array": [],
+        "test_time_array": [],
+        "full_start": [],
+    }
+    for file in os.listdir(path):
+        print('file', file)
+        if file == "models":
+            state_dict["models"] = {} 
+            models = json.loads(open(f"{path}/models.json", "r").read())
+            for model in models:
+                model_act = torch.load(f"{path}/models/{model}.pth")
+                state_dict["models"][model] = model_act
+        elif file == "optimizers.pth":
+            state_dict["optimizers"] = torch.load(f"{path}/optimizers.pth")
+        elif file == "schedulers.pth":
+            state_dict["schedulers"] = torch.load(f"{path}/schedulers.pth")
+        else:
+            with open(f"{path}/{file}", "r") as f:
+                state_dict[file.replace(".json", "")] = json.loads(f.read())
+    return state_dict
