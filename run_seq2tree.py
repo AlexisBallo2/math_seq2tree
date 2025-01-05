@@ -75,10 +75,11 @@ if use_save:
     full_start = load['full_start']
 else:
     config = {
-        "batch_size": 5,
+        # "batch_size": 5,
+        "batch_size": 20,
         "embedding_size": 128,
         "hidden_size": 512,
-        "n_epochs": 2,
+        "n_epochs": 10,
         "learning_rate": 1e-3,
         "weight_decay": 1e-5,
         "beam_size": 5,
@@ -96,7 +97,9 @@ else:
         'useBertEmbeddings': False,
         'useTFix' : False,
         "num_folds" : 5,
-        "num_obs": 10,   
+        # "num_obs": 10,   
+        # "num_obs": 20,   
+        "num_obs": None,   
     }
     config['title'] = f"{config['num_obs']} Observations, {config['n_epochs']} Epochs, Dataset = {config['setName']}, Custom = {config['useCustom']} ",
     if config['useBertEmbeddings']:
@@ -550,7 +553,7 @@ for fold in range(folds_to_do):
     print('All TRAIN ACC', all_train_accuracys)
     print('ALL EVAL ACC', all_eval_accuracys)
     print('ALL EVAL SOLN ACC', all_soln_eval_accuracys)
-    # process_loss_dicts(fold_accuracies['train_loss_dict'], fold_accuracies['eval_loss_dict'], f"src/post/loss-dict-{time.time()}-{run_id}-fold_{fold}.png")
+    process_loss_dicts(fold_accuracies['train_loss_dict'], fold_accuracies['eval_loss_dict'], f"src/post/loss-dict-{time.time()}-{run_id}-fold_{fold}.png")
     if config["num_folds"] == 2:
         break
     save_state(save_folder, {
