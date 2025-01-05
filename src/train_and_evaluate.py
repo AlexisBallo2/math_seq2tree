@@ -869,13 +869,23 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 replace = replace_nums(pair_mapping[i], equation)
                 updated = from_prefix_to_infix(replace) 
                 equation_set.append("".join(updated) + " = 0 " )#+ replaced_targs[each_equation])
-            print('equation set', equation_set)
-            solved = solve_equation(equation_set, solutions[i])
-            solved_accs.append(1 if solved else 0)
-            if solved:
-                print('solved true')
+            print('equation_set', equation_set)
+            invalid = False
+            for eq in equation_set:
+                symbols = eq.split()
+                for symbol in symbols:
+                    if symbol[0] == 'N':
+                        invalid = True
+            if invalid:
+                print('invalid, equ')
+                solved_accs.append(0)
             else:
-                print('solved false')
+                solved = solve_equation(equation_set, solutions[i])
+                solved_accs.append(1 if solved else 0)
+                if solved:
+                    print('solved true')
+                else:
+                    print('solved false')
             # print()
     
 

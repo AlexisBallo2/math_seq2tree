@@ -696,6 +696,7 @@ class PredictNumX(nn.Module):
 
 
         # # goal_vect = self.em_dropout(goal_vect)
+        # "EPT-X paper"
         temp = self.fc1(hidden)
         temp2 = self.relu(temp)
         temp3 = self.fc2(temp2)
