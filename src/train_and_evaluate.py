@@ -854,6 +854,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # if using equation solutions:
     if True:
         solved_accs = []
+        solved_accs_lens = []
         for i, num_equations in enumerate(num_equations_per_obs):
             equation_set = []
             equation_targts_specific = [output_lang.index2word[j] for j in equation_targets[i]]
@@ -876,15 +877,17 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 for symbol in symbols:
                     if symbol[0] == 'N':
                         invalid = True
+            solved_accs_lens.append(num_equations.item())
             if invalid:
                 print('invalid, equ')
                 solved_accs.append(0)
             else:
                 solved = solve_equation(equation_set, solutions[i])
-                solved_accs.append(1 if solved else 0)
                 if solved:
+                    solved_accs.append(1)
                     print('solved true')
                 else:
+                    solved_accs.append(0)
                     print('solved false')
             # print()
     
@@ -910,6 +913,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         'equ_2_acc': equ_2_acc,
         'equ_3_acc': equ_3_acc,
         'acc_solutions' : sum(solved_accs)/len(solved_accs),
+        'acc_solutions_plain' : solved_accs,
+        'acc_solutions_lengths' : solved_accs_lens,
         }
 
 

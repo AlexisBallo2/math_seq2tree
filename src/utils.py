@@ -141,8 +141,19 @@ def process_loss_dicts(train, eval, title = "Losses"):
         train_each = []
         for epoch in train:
             vals = [item[key] for item in epoch]
-            avg = sum(vals)/len(vals)
-            train_each.append(avg)
+            if key == "acc_solutions_lengths":
+                length_values = vals
+                correct_ones = [item['acc_solutions_plain'] for item in epoch]
+                one_acc = list_to_counts(length_values, correct_ones, 1 )
+                two_acc = list_to_counts(length_values, correct_ones, 2 )
+                three_acc = list_to_counts(length_values, correct_ones, 3 )
+                train_each.append([one_acc, two_acc, three_acc])
+            elif key == "acc_solutions_plain":
+                continue
+            else:
+                avg = sum(vals)/len(vals)
+                train_each.append(avg)
+
         train_vals[key] = train_each 
 
         eval_each = []
@@ -151,21 +162,55 @@ def process_loss_dicts(train, eval, title = "Losses"):
             if len(vals) == 0:
                 eval_each.append(0)
                 continue
-            avg = sum(vals)/len(vals)
-            eval_each.append(avg)
+            if key == "acc_solutions_lengths":
+                length_values = vals
+                correct_ones = [item['acc_solutions_plain'] for item in epoch]
+                one_acc = list_to_counts(length_values, correct_ones, 1 )
+                two_acc = list_to_counts(length_values, correct_ones, 2 )
+                three_acc = list_to_counts(length_values, correct_ones, 3 )
+                train_each.append([one_acc, two_acc, three_acc])
+            elif key == "acc_solutions_plain":
+                continue
+            else:
+                avg = sum(vals)/len(vals)
+                eval_each.append(avg)
         eval_vals[key] = eval_each 
     
     final_dict = {}
     for key in keys:
-        final_dict[key] = (train_vals[key], eval_vals[key])
-        print(key)
-        print("train", train_vals[key])
-        print("eval", eval_vals[key])
-        print("\n")
+        if key != "acc_solutions_lengths":
+            final_dict[key] = (train_vals[key], eval_vals[key])
+            print(key)
+            print("train", train_vals[key])
+            print("eval", eval_vals[key])
+            print("\n")
+        else:
+            train_percent_solved = [[val[0] for val in train_vals[key]], [val[1] for val in train_vals[key]], [val[2] for val in train_vals[key]]]
+            eval_percent_solved = [[val[0] for val in eval_vals[key]], [val[1] for val in eval_vals[key]], [val[2] for val in eval_vals[key]]]
+            final_dict['sol_acc len 1'] = ([val[0] for val in train_vals[key]], [val[0] for val in eval_vals[key]])
+            final_dict['sol_acc len 2'] = ([val[1] for val in train_vals[key]], [val[1] for val in eval_vals[key]])
+            final_dict['sol_acc len 3'] = ([val[2] for val in train_vals[key]], [val[2] for val in eval_vals[key]])
+
 
     print(json.dumps(final_dict))
     make_general_graph(final_dict, title)
 
+
+def list_to_counts(lengths, corrects, goal):
+    flattened_lengths = [item for sublist in lengths for item in sublist]
+    flattened_corrects = [item for sublist in corrects for item in sublist]
+    zipped = list(zip(flattened_lengths, flattened_corrects))
+    correct = 0
+    total = 0
+    for correct, length in zipped:
+        if length == goal:
+            total += 1
+            if correct == goal:
+                correct += 1
+    if total == 0:
+        return 0
+    else:
+        return correct/total
 
 def make_general_graph(dict, title = "Losses"):
     keys = list(dict.keys())
