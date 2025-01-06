@@ -77,7 +77,7 @@ else:
     config = {
         # "batch_size": 5,
         # "batch_size": 1,
-        "batch_size": 20,
+        "batch_size": 2,
         "embedding_size": 128,
         "hidden_size": 512,
         # "n_epochs": 20,
@@ -94,14 +94,14 @@ else:
         "useSeperateVars": True,
         "useSemanticAlignment": False,
         'useVarsAsNums' : True,
-        # "useOpScaling" : False,
-        "useOpScaling" : True,
+        "useOpScaling" : False,
+        # "useOpScaling" : True,
         'useSNIMask' : False,
         "useOneEquation": False,
         'useBertEmbeddings': False,
         'useTFix' : False,
-        # "num_folds" : 2,
-        "num_folds" : 5,
+        "num_folds" : 2,
+        # "num_folds" : 5,
         # "num_obs": 10,   
         "num_obs": 100,   
         # "num_obs": None,   
@@ -477,6 +477,7 @@ for fold in range(folds_to_do):
                 test_time_array.append([input_batch_len,end - start])
                 # testc.append(comparison)
                 batch_accuricies['eval_total_loss'] += loss
+                eval_comparison.append(comparison)
                 batch_accuricies["eval_token"].append(acc)
                 batch_accuricies["eval_op_right"].append(op_right)
                 batch_accuricies["eval_num_x_mse"].append(num_x_mse)

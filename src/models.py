@@ -331,7 +331,8 @@ class NumOrOpp(nn.Module):
         self.upper = nn.Parameter(torch.randn(1, hidden_size))
     def forward(self, encoder_outputs, goal_vect, equation_goal):
         # batch size x hidden_size, 
-        squeezed_goals = goal_vect.squeeze(1)
+        squeezed_goals = equation_goal
+        # squeezed_goals = goal_vect.squeeze(1)
         concatted = torch.concat((squeezed_goals, equation_goal), 1)
         out = torch.relu(self.out2(concatted))
         return out
@@ -802,7 +803,13 @@ class GenerateXs(nn.Module):
             for j in range(nums_to_gen):
                 # leave the first vector
                 if len(xs) == 0:
-                    xs.append(goal_vect)
+                    # xs.append(goal_vect)
+                    qkt = torch.matmul(goal_vect, kt)
+                    smqkt = nn.functional.softmax(qkt)
+                    # output: hidden_size
+                    # outAttention = torch.sigmoid(torch.matmul(smqkt, v))
+                    outAttention = torch.matmul(smqkt, v)
+                    xs.append(outAttention)
                 else:
                     # generate the next one from the attention of previous
                     qkt = torch.matmul(xs[j-1], kt)

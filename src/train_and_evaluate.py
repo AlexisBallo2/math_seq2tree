@@ -456,12 +456,12 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
 
             if useOpScaling:
-                num_or_opp_weight = models['num_or_opp'](encoder_outputs,current_context, ith_equation_goal)
+                num_or_opp_weight = models['num_or_opp'](encoder_outputs, current_context, ith_equation_goal)
                 opps_weight = num_or_opp_weight[:, 0].unsqueeze(1)#.transpose(0, -1)#.repeat(1, op.size(1))
 
-                vars_weight = num_or_opp_weight[:, 1].unsqueeze(1)#.transpose(0, -1)#.repeat(1, op.size(1))
+                # vars_weight = num_or_opp_weight[:, 1].unsqueeze(1)#.transpose(0, -1)#.repeat(1, op.size(1))
 
-                nums_weight = num_or_opp_weight[:, 2].unsqueeze(1) #.repeat(1, num_score.size(1))
+                nums_weight = num_or_opp_weight[:, 1].unsqueeze(1) #.repeat(1, num_score.size(1))
                 # op_mean = op.mean(dim=1).unsqueeze(1)
                 # num_mean = num_score.mean(dim=1).unsqueeze(1)
                 # num_or_opp_weight = torch.cat((op_mean, num_mean), 1)
@@ -470,8 +470,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 scaled_op = op * opps_weight * 10
                 if useVarsAsNums:
                     scaled_var = None
-                else:
-                    scaled_var = var * vars_weight * 10
+                # else:
+                #     scaled_var = var * vars_weight * 10
 
                 if useVarsAsNums:
                     outputs = torch.cat((scaled_op, scaled_num_score), 1)
@@ -524,7 +524,13 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             #     print('unk token')
             ith_equation_target[t] = target_t
             op_or_num = target_t.clone().detach() # < num_start
-            for i, num in enumerate(target_t):
+            if useVarsAsNums:
+                for i, num in enumerate(target_t):
+                    if num < num_start:
+                        op_or_num[i] = 0
+                    else:
+                        op_or_num[i] = 2 
+            else:
                 if num < num_start:
                     op_or_num[i] = 0
                 elif num < num_start + len(all_vars):

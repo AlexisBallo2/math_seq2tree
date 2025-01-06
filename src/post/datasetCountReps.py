@@ -36,14 +36,17 @@ from collections import Counter
 # counting number of equations 
 
 # f = open('data/DRAW/dolphin_t2_final.json', encoding="utf-8")
-# f = open('data/PEN.json', encoding="utf-8")
-# data = json.loads(f.read())
-# lens = []
-# for one in data:
-#     lens.append(len(one['equations']))
+f = open('data/PEN.json', encoding="utf-8")
+data = json.loads(f.read())
+lens = {}
+for one in data:
+    if one['dataset'] not in lens:
+        lens[one['dataset']] = [len(one['equations'])]
+    else:
+        lens[one['dataset']].append(len(one['equations']))
 
-# total = Counter(lens)
-# print(total)
+for k,v in lens.items():
+    print(k, Counter(v))
 
 # # calculate percents
 # total_counts = sum([(v) for k,v in total.items()])
