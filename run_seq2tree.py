@@ -76,6 +76,7 @@ if use_save:
 else:
     config = {
         # "batch_size": 5,
+        # "batch_size": 1,
         "batch_size": 20,
         "embedding_size": 128,
         "hidden_size": 512,
@@ -97,8 +98,8 @@ else:
         "useOneEquation": False,
         'useBertEmbeddings': False,
         'useTFix' : False,
-        "num_folds" : 2,
-        # "num_folds" : 5,
+        # "num_folds" : 2,
+        "num_folds" : 5,
         # "num_obs": 10,   
         # "num_obs": 20,   
         "num_obs": None,   
