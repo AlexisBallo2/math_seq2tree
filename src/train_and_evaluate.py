@@ -390,6 +390,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
     # updated_qs = None
 
+    pred_equ_solutions = [None for _ in range(batch_size)]
     all_comparisons = []
     for cur_equation in range(num_equations_to_do):
         # select the ith equation in each obs
@@ -401,12 +402,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         ith_equation_target_lengths = deepcopy(target_length[:, cur_equation])
         # it_equation_solution 
         if useCustom:
-            if cur_equation == 0:
-                ith_equation_goal = qs[:, cur_equation, :]
-            # updated qs is the goal vector for the next equation
-            else:
-                ith_equation_goal = updated_qs
-            node_stacks = [[TreeNode(_)] for _ in ith_equation_goal.split(1, dim=0)]
+                ith_equation_goal_old = qs[:, cur_equation, :]
+                ith_equation_goal = models['fix_t'](ith_equation_goal_old, pred_equ_solutions, encoder_outputs, problem_output, cur_equation)
+
+                node_stacks = [[TreeNode(_)] for _ in ith_equation_goal.split(1, dim=0)]
         else:
             ith_equation_goal = problem_output
             node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
@@ -422,8 +421,6 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         all_node_outputs = []
         embeddings_stacks = [[] for _ in range(batch_size)]
         left_childs = [None for _ in range(batch_size)]
-
-        pred_equ_solutions = [None for _ in range(batch_size)]
 
         all_sa_outputs = []
         all_t_alignment_outputs = []
@@ -657,10 +654,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                     pred_equ_solutions[idx] = padding_hidden.squeeze(0)
         # done equation
         # get next goal vector
-        if useCustom:
-            if cur_equation < num_equations_to_do - 1:
-                qs = models['fix_t'](ith_equation_goal, pred_equ_solutions, encoder_outputs, problem_output)
-                updated_qs = qs
+        # if useCustom:
+        #     if cur_equation < num_equations_to_do - 1:
+        #         qs = models['fix_t'](ith_equation_goal, pred_equ_solutions, encoder_outputs, problem_output, cur_equation)
+        #         updated_qs = qs
 
 
 

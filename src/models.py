@@ -683,6 +683,8 @@ class PredictNumX(nn.Module):
 
         self.attn = TreeAttn(hidden_size, hidden_size)
 
+        
+
 
 
     # def forward(self, goal_vect, eval = False):
@@ -769,6 +771,17 @@ class GenerateXs(nn.Module):
         # self.oneK = KMeans(n_clusters=1)
         self.twoK = KMeans(n_clusters=2)
         self.threeK = KMeans(n_clusters=3)
+        
+
+        self.generate_1 = nn.Linear(hidden_size * 2, hidden_size)
+        self.generate_2 = nn.Linear(hidden_size * 2 , hidden_size)
+        self.generate_3 = nn.Linear(hidden_size * 2 , hidden_size)
+        self.generate_4 = nn.Linear(hidden_size * 2 , hidden_size)
+        self.generate_1g = nn.Linear(hidden_size * 2 , hidden_size)
+        self.generate_2g = nn.Linear(hidden_size * 2 , hidden_size)
+        self.generate_3g = nn.Linear(hidden_size * 2, hidden_size)
+        self.generate_4g = nn.Linear(hidden_size * 2, hidden_size)
+
 
 
 
@@ -800,28 +813,48 @@ class GenerateXs(nn.Module):
             kt = self.K(hidden2[i]).transpose(0,1)
             v = self.V(hidden2[i])
             # for each number to gen
+            qkt = torch.matmul(goal_vect, kt)
+            smqkt = nn.functional.softmax(qkt)
+            # output: hidden_size
+            # outAttention = torch.sigmoid(torch.matmul(smqkt, v))
+            outAttention = torch.matmul(smqkt, v)
+            # xs.append(outAttention)
             for j in range(nums_to_gen):
-                # leave the first vector
-                if len(xs) == 0:
-                    # xs.append(goal_vect)
-                    qkt = torch.matmul(goal_vect, kt)
-                    smqkt = nn.functional.softmax(qkt)
-                    # output: hidden_size
-                    # outAttention = torch.sigmoid(torch.matmul(smqkt, v))
-                    outAttention = torch.matmul(smqkt, v)
-                    xs.append(outAttention)
+                if j == 0:
+
+                    child = torch.tanh(self.generate_1(torch.cat((goal_vect, outAttention), 0)))
+                     # o_l = sigmoid( W_ol [q c e(\hat y | P)] ) 
+                    child_g = torch.sigmoid(self.generate_1g(torch.cat((goal_vect,outAttention), 0)))
+                    # h_l = o_1 * C_l
+                    l_child = child * child_g 
+                    xs.append(l_child)
+
+                elif j == 1:
+                    child = torch.tanh(self.generate_2(torch.cat((goal_vect, outAttention),0)))
+                     # o_l = sigmoid( W_ol [q c e(\hat y | P)] ) 
+                    child_g = torch.sigmoid(self.generate_2g(torch.cat((goal_vect,outAttention), 0)))
+                    # h_l = o_1 * C_l
+                    l_child = child * child_g 
+                    xs.append(l_child)
+
+                elif j == 2:
+                    child = torch.tanh(self.generate_3(torch.cat((goal_vect, outAttention),0)))
+                     # o_l = sigmoid( W_ol [q c e(\hat y | P)] ) 
+                    child_g = torch.sigmoid(self.generate_3g(torch.cat((goal_vect,outAttention), 0)))
+                    # h_l = o_1 * C_l
+                    l_child = child * child_g 
+                    xs.append(l_child)
+
                 else:
-                    # generate the next one from the attention of previous
-                    qkt = torch.matmul(xs[j-1], kt)
-                    smqkt = nn.functional.softmax(qkt)
-                    # output: hidden_size
-                    # outAttention = torch.sigmoid(torch.matmul(smqkt, v))
-                    outAttention = torch.matmul(smqkt, v)
-                    xs.append(outAttention)
+                    child = torch.tanh(self.generate_4(torch.cat((goal_vect, outAttention),0)))
+                     # o_l = sigmoid( W_ol [q c e(\hat y | P)] ) 
+                    child_g = torch.sigmoid(self.generate_4g(torch.cat((goal_vect,outAttention), 0)))
+                    # h_l = o_1 * C_l
+                    l_child = child * child_g 
+                    xs.append(l_child)
             out.append(torch.stack(xs))
         final = torch.stack(out)
         return final
-        # return xs
 
 
 class XToQ(nn.Module):
@@ -1004,22 +1037,42 @@ class FixT(nn.Module):
         self.attn = Attn2(hidden_size,batch_first=True,bidirectional_encoder=False)
         self.dropout = nn.Dropout(dropout)
         self.concat_l = nn.Linear(hidden_size, hidden_size)
+        self.concat_r = nn.Linear(hidden_size * 2, hidden_size)
         self.concat_lg = nn.Linear(hidden_size, hidden_size)
-        self.generate_l = nn.Linear(hidden_size * 2, hidden_size)
-        self.generate_lg = nn.Linear(hidden_size * 2, hidden_size)
+        self.concat_rg = nn.Linear(hidden_size * 2, hidden_size)
 
-    def forward(self,  ith_goal, t_embs, encoder_outputs, goal_vect_global):
-        stacked = torch.stack(t_embs)
-        l_child = torch.tanh(self.generate_l(torch.cat((ith_goal, stacked), 1)))
-        # o_l = sigmoid( W_ol [q c e(\hat y | P)] ) 
-        l_child_g = torch.sigmoid(self.generate_lg(torch.cat((ith_goal, stacked), 1)))
-        # h_l = o_1 * C_l
-        l_child = l_child * l_child_g
-        c = self.dropout(l_child)
-        g = torch.tanh(self.concat_l(c))
-        t = torch.sigmoid(self.concat_lg(c))
-        out = g * t
-        return out
+    def forward(self,  ith_goal, t_embs, encoder_outputs, goal_vect_global, cur_equation):
+        if cur_equation == 0:
+            c = self.dropout(ith_goal)
+            g = torch.tanh(self.concat_l(c))
+            t = torch.sigmoid(self.concat_lg(c))
+            out = g * t
+            return out
+        else:
+            outs = []
+            for i, batch in enumerate(t_embs):
+              # second half of equation (11)
+                ld = self.dropout(batch)
+                # ld = l
+                c = self.dropout(ith_goal[i])
+                g = torch.tanh(self.concat_r(torch.cat((ld, c), 0)))
+                t = torch.sigmoid(self.concat_rg(torch.cat((ld, c), 0)))
+                out = g * t
+                outs.append(out)
+            stacked = torch.stack(outs)
+            return stacked 
+
+        # stacked = torch.stack(t_embs)
+        # l_child = torch.tanh(self.generate_l(torch.cat((ith_goal, stacked), 1)))
+        # # o_l = sigmoid( W_ol [q c e(\hat y | P)] ) 
+        # l_child_g = torch.sigmoid(self.generate_lg(torch.cat((ith_goal, stacked), 1)))
+        # # h_l = o_1 * C_l
+        # l_child = l_child * l_child_g
+        # c = self.dropout(l_child)
+        # g = torch.tanh(self.concat_l(c))
+        # t = torch.sigmoid(self.concat_lg(c))
+        # out = g * t
+        # return out
 
 
 

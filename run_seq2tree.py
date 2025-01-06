@@ -80,8 +80,9 @@ else:
         "batch_size": 2,
         "embedding_size": 128,
         "hidden_size": 512,
+        "n_epochs": 80,
         # "n_epochs": 20,
-        "n_epochs": 10,
+        # "n_epochs": 10,
         "learning_rate": 1e-3,
         "weight_decay": 1e-5,
         "beam_size": 5,
@@ -100,11 +101,11 @@ else:
         "useOneEquation": False,
         'useBertEmbeddings': False,
         'useTFix' : False,
-        "num_folds" : 2,
-        # "num_folds" : 5,
+        # "num_folds" : 2,
+        "num_folds" : 5,
         # "num_obs": 10,   
-        "num_obs": 100,   
-        # "num_obs": None,   
+        # "num_obs": 100,   
+        "num_obs": None,   
     }
     config['title'] = f"{config['num_obs']} Observations, {config['n_epochs']} Epochs, Dataset = {config['setName']}, Custom = {config['useCustom']} ",
     if config['useBertEmbeddings']:
@@ -160,6 +161,9 @@ else:
                 equ_with_equals += equ
             p['equations'] = [equ_with_equals]
             p['equationTargetVars'] = ["0"]
+        if len(p['equations']) < 4:
+            temp_pairs.append(p)
+    pairs = temp_pairs
     # pairs = temp_pairs
     # print(Counter(pairs_len))
 
