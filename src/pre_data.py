@@ -745,6 +745,10 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
         # nums: list of numbers in the text
         # num_pos: list of positions of the numbers in the text
 
+        if setName == "PEN":
+            sepcificDataset = d['dataset']
+        else:
+            sepcificDataset = setName
         pairs.append({
             "input_seq": input_seq,
             "equations": final_out_seq_list,
@@ -753,7 +757,9 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             "allVars": allVars,
             "equationTargetVars": equationTargetVars,
             "solution": targets,
-            "pairNumMapping": pairNumMapping
+            "pairNumMapping": pairNumMapping,
+            "specificDataset": sepcificDataset
+
         })
 
     temp_g = []
@@ -1174,7 +1180,8 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             "allVars": pair['allVars'],
             "equationTargetVars": equation_target,
             "solution":  pair['solution'],
-            "pairNumMapping": pair['pairNumMapping']
+            "pairNumMapping": pair['pairNumMapping'],
+            "specificDataset": pair['specificDataset']
         })
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
     print('Number of training data %d' % (len(train_pairs)))
@@ -1236,6 +1243,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             "equationTargetVars": equation_target,
             "solution": pair['solution'],
             "pairNumMapping": pair['pairNumMapping'],
+            "specificDataset": pair['specificDataset']
         })
     print('Number of testind data %d' % (len(test_pairs)))
     return input_lang, output_lang, train_pairs, test_pairs
@@ -1362,6 +1370,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
     var_size_in_input = []
     batches_sni = []
     pair_mappings = []
+    datasets = []
 
     while pos + batch_size < len(pairs):
         batches.append(pairs[pos:pos+batch_size])
@@ -1391,6 +1400,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
         var_pos_in_inputs = []
         batch_snis = []
         pair_mappings_batch = []
+        batch_datasets = []
 
         # for i, li, j, lj, num, num_pos, num_stack, var_list, equ_targets, var_solns, num_mapping in batch:
         for pair in batch:
@@ -1436,6 +1446,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
 
             batch_snis.append(pair['nums_sni'])
             pair_mappings_batch.append(pair['pairNumMapping'])
+            batch_datasets.append(pair['specificDataset'])
 
             cur_vars = []
             for var in vars:
@@ -1459,6 +1470,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
         var_pos_in_input.append(var_pos_in_inputs)
         batches_sni.append(batch_snis)
         pair_mappings.append(pair_mappings_batch)
+        datasets.append(batch_datasets)
     # input_batches: padded inputs
     # input_lengths: length of the inputs (without padding)
     # output_batches: padded outputs
@@ -1467,7 +1479,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
     # num_stack_batches: the corresponding nums lists
     # num_pos_batches: positions of the numbers lists
     # num_size_batches: number of numbers from the input text
-    return input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_vars_batches, total_output_solutions, total_targets, var_pos_in_input, batches_sni, pair_mappings
+    return input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_vars_batches, total_output_solutions, total_targets, var_pos_in_input, batches_sni, pair_mappings, datasets
 
 
 def get_num_stack(eq, output_lang, num_pos):

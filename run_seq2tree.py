@@ -87,7 +87,8 @@ else:
         "beam_size": 5,
         "n_layers": 2,
         "useCustom": True,
-        "setName" : "DRAW",
+        "setName" : "PEN",
+        # "setName" : "DRAW",
         "useSubMethod": True,
         "useEquSolutions": True,
         "useSeperateVars": True,
@@ -380,7 +381,7 @@ for fold in range(folds_to_do):
         # num_stack_batches: the corresponding nums lists
         # num_pos_batches: positions of the numbers lists
         # num_size_batches: number of numbers from the input text
-        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni, pair_mapping = prepare_train_batch(train_pairs, config['batch_size'], vars, output_lang, input_lang)
+        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni, pair_mapping, datasets = prepare_train_batch(train_pairs, config['batch_size'], vars, output_lang, input_lang)
         # generate temp x vectors
 
         print("fold:", fold + 1)
@@ -419,7 +420,7 @@ for fold in range(folds_to_do):
             loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list, acc_soln = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
-                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx], output_var_solutions[idx], config['useCustom'], vars, debug, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useVarsAsNums'], config['useSNIMask'], config['useTFix'], True)
+                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx], output_var_solutions[idx], config['useCustom'], vars, debug, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useVarsAsNums'], config['useSNIMask'], config['useTFix'], datasets[idx], True)
             end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             train_comparison.append(comparison)
@@ -462,7 +463,7 @@ for fold in range(folds_to_do):
             # }
             batch_eval_comparison = []
             # for test_batch in test_pairs:
-            input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni, pair_mapping = prepare_train_batch(test_pairs, 1, vars, output_lang, input_lang)
+            input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni, pair_mapping, datasets = prepare_train_batch(test_pairs, 1, vars, output_lang, input_lang)
             for idx in range(len(input_lengths)):
                 for optimizer in optimizers:
                     optimizer.zero_grad()
@@ -470,7 +471,7 @@ for fold in range(folds_to_do):
                     v.eval()
                 input_batch_len = len(input_batches[idx])
                 start = time.perf_counter()
-                loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list, acc_soln = train_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx],output_var_solutions[idx], config['useCustom'], vars, debug, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useVarsAsNums'], config['useSNIMask'], config['useTFix'], False) 
+                loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list, acc_soln = train_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx],output_var_solutions[idx], config['useCustom'], vars, debug, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useVarsAsNums'], config['useSNIMask'], config['useTFix'], datasets[idx], False) 
                 end = time.perf_counter()
                 test_time_array.append([input_batch_len,end - start])
                 # testc.append(comparison)

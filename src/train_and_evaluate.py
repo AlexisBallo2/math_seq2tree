@@ -143,7 +143,7 @@ class TreeEmbedding:  # the class save the tree
         self.goal_vect = goal_vect
 
 # @line_profiler.profile
-def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets, var_pos, batch_sni, pair_mapping, solutions, useCustom, all_vars,  debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, useFixT, inTraining, english=False):
+def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets, var_pos, batch_sni, pair_mapping, solutions, useCustom, all_vars,  debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, useFixT, datasets, inTraining, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -890,6 +890,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 if solved:
                     solved_accs.append(1)
                     print('solved true')
+                    print('SOLVED:', datasets[i])
                 else:
                     solved_accs.append(0)
                     print('solved false')
