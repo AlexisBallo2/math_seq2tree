@@ -900,7 +900,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 else:
                     solved_accs.append(0)
                     print('solved false')
-            # print()
+            print()
     
 
         # num_equations = len(all_comparisons)

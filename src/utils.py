@@ -25,17 +25,12 @@ def solve_equation(equations, solutions):
         # cur_targets = [round(i) for i in list(solved[0].values())]
         act_solns = list(round(list(obj.values())[0]) for obj in solved)
 
-        for sol in solutions:
-            if sol not in act_solns:
-                return False
-        return True
-        # same = 0
-        # for i, equ in enumerate(solutions):
-        #     if equ in act_solns:
-        #         same += 1
-        # if same != len(cur_targets):
-        #     return False 
-        # return True
+        print("act", act_solns)
+        print("pred", solutions)
+        if Counter(act_solns) == Counter(solutions):
+            return True
+        else:
+            return False
     except:
         return False
 
