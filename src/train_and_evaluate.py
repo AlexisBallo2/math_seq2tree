@@ -428,6 +428,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         all_num_opp_scale = []
         actuct_num_or_opp = []
 
+        q_t = []
+
         for t in range(max_target_length):
 
             # predict gets the encodings and embeddings for the current node 
@@ -622,12 +624,14 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                     else:
                         current_num = current_nums_embeddings[idx, i - num_start].unsqueeze(0)
 
+                    cur_goal = current_embeddings[idx].unsqueeze(0) 
                     # while there are tokens in the embedding stack and the last element IS a leaf node
                     while len(o) > 0 and o[-1].terminal:
                         #print("terminal element in o, getting terminal element and operator, and merging")
                         # get the two elements from it
                         sub_stree = o.pop()
                         op = o.pop()
+                        cur_goal = op.goal_vect
                         # contains equation (13)
                         # this combines a left and right tree along with a node
                         # current_num = op.goal_vect.squeeze(0)
@@ -640,12 +644,13 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                         #print('merged. o now of size', len(o))
                     # then re-add the node back to the stack
                     #print("adding current_num to o (terminal node)")
-                    o.append(TreeEmbedding(current_num, True))
+                    o.append(TreeEmbedding(current_num, True, cur_goal))
                 if len(o) > 0 and o[-1].terminal:
                     #print("terminal element in o, adding to left child")
                     # left_childs is a running vector of the sub tree embeddings "t" 
                     # need this for generation of the right q
                     left_childs.append(o[-1].embedding)
+                    q_t.append([o[-1].embedding, o[-1].goal_vect.squeeze(0)])
                     pred_equ_solutions[idx] = o[-1].embedding[0]
                 else:
                     left_childs.append(None)
@@ -660,6 +665,21 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         #         updated_qs = qs
 
 
+
+        if True:
+            try:
+                q = [i[0] for i in q_t]
+                t = [i[1] for i in q_t]
+                stackedq = torch.stack(q)
+                stackedt = torch.stack(t)
+                qt_loss = torch.nn.MSELoss(reduction="mean")(stackedt, stackedq) * 100
+                print()
+            except:
+                qt_loss = torch.tensor(0)
+        else:
+            qt_loss = torch.tensor(0)
+
+        # print()
 
         # loss for the classifier of the operator and number tokens
         # stacked_actual = torch.stack(actuct_num_or_opp)  # B x S x 2
@@ -835,12 +855,13 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     if useCustom:
     # if False:
         num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs.to(device))
-        total_loss += num_x_loss + classify_loss + sni_loss
+        total_loss += num_x_loss + classify_loss + sni_loss + qt_loss
         # total_loss = num_x_loss
         # total_loss += equation_prediction_loss
 
         # predict a solution token for the tree 
         # actual_target = 
+
     if inTraining:
         total_loss.backward()
 

@@ -105,9 +105,9 @@ else:
         'useTFix' : False,
         "num_folds" : 2,
         # "num_folds" : 5,
-        "num_obs": 100,   
         # "num_obs": 100,   
-        # "num_obs": None,   
+        # "num_obs": 100,   
+        "num_obs": None,   
     }
     config['title'] = f"{config['num_obs']} Observations, {config['n_epochs']} Epochs, Dataset = {config['setName']}, Custom = {config['useCustom']} ",
     if config['useBertEmbeddings']:
