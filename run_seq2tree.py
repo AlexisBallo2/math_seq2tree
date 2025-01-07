@@ -30,14 +30,14 @@ os.makedirs(save_folder, exist_ok=True)
 # sys.stdout = open('output.txt','wt')
 
 
-# batch_size = 64
-# torch.manual_seed(10)
-# torch.use_deterministic_algorithms(True)
-# torch.backends.cudnn.deterministic = True
-# torch.backends.cudnn.benchmark = False
-# random.seed(10)
-# torch.cuda.manual_seed_all(2)
-# np.random.seed(10)
+batch_size = 64
+torch.manual_seed(10)
+torch.use_deterministic_algorithms(True)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+random.seed(10)
+torch.cuda.manual_seed_all(2)
+np.random.seed(10)
 
 
 if use_save:
@@ -82,8 +82,8 @@ else:
         "embedding_size": 128,
         "hidden_size": 512,
         # "n_epochs": 80,
-        "n_epochs": 20,
-        # "n_epochs": 10,
+        # "n_epochs": 20,
+        "n_epochs": 10,
         "learning_rate": 1e-3,
         "weight_decay": 1e-5,
         "beam_size": 5,
@@ -93,9 +93,10 @@ else:
         "setName" : "DRAW",
         "useSubMethod": True,
         "useEquSolutions": True,
+        # "useSeperateVars": False,
         "useSeperateVars": True,
         "useSemanticAlignment": False,
-        'useVarsAsNums' : True,
+        'useVarsAsNums' : False,
         "useOpScaling" : False,
         # "useOpScaling" : True,
         'useSNIMask' : False,
@@ -104,9 +105,9 @@ else:
         'useTFix' : False,
         "num_folds" : 2,
         # "num_folds" : 5,
-        # "num_obs": 50,   
+        "num_obs": 100,   
         # "num_obs": 100,   
-        "num_obs": None,   
+        # "num_obs": None,   
     }
     config['title'] = f"{config['num_obs']} Observations, {config['n_epochs']} Epochs, Dataset = {config['setName']}, Custom = {config['useCustom']} ",
     if config['useBertEmbeddings']:
@@ -540,9 +541,9 @@ for fold in range(folds_to_do):
     for k, v in fold_accuracies.items():
         print(k, v)
         print("\n")
-    print('COMPARISONS', train_comparison, eval_comparison)
+    # print('COMPARISONS', train_comparison, eval_comparison)
     write_comparison(train_comparison, eval_comparison)
-    print('fold accuracies', fold_accuracies)
+    # print('fold accuracies', fold_accuracies)
     # make_loss_graph(
     #     fold_accuracies['loss'], 
     #     f"src/post/loss-{time.time()}-{run_id}.png", config['title'],

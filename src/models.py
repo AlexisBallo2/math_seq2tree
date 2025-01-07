@@ -506,16 +506,17 @@ class Prediction(nn.Module):
         # batch_size x 2 x hidden_dim
         embedding_weight1 = self.embedding_weight.repeat(*repeat_dims)  # B x input_size x N
 
+        repeated = self.opsWeight.repeat(*repeat_dims)
         # batch_size x (2 + number of numbers we have encodings for) x hidden_dim
         # batch_size is the embeddings of the numbers
         #   batch_size x nums_count x hidden_dim
         if useCustom and useSeperateVars and useVarsAsNums:
             # embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
             # embedding_weight = torch.cat((embedding_weight1, xs, num_pades), dim=1)  # B x O x N
-             embedding_weight = torch.cat((xs, embedding_weight1, num_pades), dim=1)  # B x O x N
+             embedding_weight = torch.cat((repeated, xs, embedding_weight1, num_pades), dim=1)  # B x O x N
             #  embedding_weight = torch.cat((xs, embedding_weight1, num_pades), dim=1)  # B x O x N
         else:
-            embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
+            embedding_weight = torch.cat((repeated, xs, embedding_weight1, num_pades), dim=1)  # B x O x N
 
 
 
@@ -561,13 +562,15 @@ class Prediction(nn.Module):
         # repeated = self.opsWeight.unsqueeze(0).transpose(0,1).repeat(1, batch_size, 1)
         # op1 = self.opsAttn(current_node.transpose(0,1), repeated  )
         # op = op1.squeeze(1)
-        op = self.ops(leaf_input)
-        op = torch.relu(op)
-        op = self.ops2(op)
-        if useVarsAsNums:
-            var = None
-        else:
-            var = self.var(leaf_input)
+        # op = self.ops(leaf_input)
+        # op = torch.relu(op)
+        # op = self.ops2(op)
+        # if useVarsAsNums:
+        var = None
+        op = None
+        # else:
+        #     var = self.var(leaf_input)
+
         
 
         # return p_leaf, num_score, op, current_embeddings, current_attn
