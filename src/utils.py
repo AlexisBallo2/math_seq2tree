@@ -22,15 +22,20 @@ def solve_equation(equations, solutions):
             sympy_eq = sp.simplify(temp)
             spEqs.append(sympy_eq)   
         solved = solve(spEqs, dict=True)
-        cur_targets = [round(i) for i in list(solved[0].values())]
+        # cur_targets = [round(i) for i in list(solved[0].values())]
         act_solns = list(round(list(obj.values())[0]) for obj in solved)
-        same = 0
-        for i, equ in enumerate(solutions):
-            if equ in act_solns:
-                same += 1
-        if same != len(cur_targets):
-            return False 
+
+        for sol in solutions:
+            if sol not in act_solns:
+                return False
         return True
+        # same = 0
+        # for i, equ in enumerate(solutions):
+        #     if equ in act_solns:
+        #         same += 1
+        # if same != len(cur_targets):
+        #     return False 
+        # return True
     except:
         return False
 
@@ -82,7 +87,7 @@ def read_comparison():
     print(counter_dict)
     # return train, eval
 
-read_comparison()
+# read_comparison()
 
 
 opperators = ['+', '-', '*', '/']
