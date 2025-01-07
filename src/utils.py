@@ -61,7 +61,7 @@ def read_comparison():
     last_train = train[-1]
     last_eval = eval[-1]
 
-    total = last_train + last_eval
+    total = last_train + [i[0] for i in last_eval]
     all_tokens = []
     pairs = []
     for item in total:
@@ -82,7 +82,7 @@ def read_comparison():
     print(counter_dict)
     # return train, eval
 
-# read_comparison()
+read_comparison()
 
 
 opperators = ['+', '-', '*', '/']

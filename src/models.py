@@ -410,7 +410,10 @@ class Prediction(nn.Module):
         self.concat_lg = nn.Linear(hidden_size, hidden_size)
         self.concat_rg = nn.Linear(hidden_size * 2, hidden_size)
 
-        self.ops = nn.Linear(hidden_size * 2, op_nums)
+        self.ops = nn.Linear(hidden_size * 2, hidden_size * 2)
+        self.ops2 = nn.Linear(hidden_size * 2, op_nums)
+        self.opsWeight = nn.Parameter(torch.randn(op_nums, hidden_size))
+        self.opsAttn = TreeAttn(hidden_size, hidden_size)
         self.var = nn.Linear(hidden_size * 2, num_vars)
 
         self.attn = TreeAttn(hidden_size, hidden_size)
@@ -555,7 +558,12 @@ class Prediction(nn.Module):
 
         # get the predicted operation (classification)
         # batch_size x num_ops 
+        # repeated = self.opsWeight.unsqueeze(0).transpose(0,1).repeat(1, batch_size, 1)
+        # op1 = self.opsAttn(current_node.transpose(0,1), repeated  )
+        # op = op1.squeeze(1)
         op = self.ops(leaf_input)
+        op = torch.relu(op)
+        op = self.ops2(op)
         if useVarsAsNums:
             var = None
         else:

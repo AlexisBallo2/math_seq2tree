@@ -872,6 +872,9 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 # first equation
                 # for j in range(len(all_comparisons)):
                 equation = all_comparisons[each_equation][i].get("prediction", "NA") #+ [" = ", equation_targts_specific[each_equation]]
+                actual = all_comparisons[each_equation][i].get("actual", "NA")
+                print('actual', actual)
+                print('equation', equation)
                 # equation = all_comparisons[each_equation][i].get("actual", "NA") #+ [" = ", equation_targts_specific[each_equation]]
                 # print()
                 replace = replace_nums(pair_mapping[i], equation)

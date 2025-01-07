@@ -75,13 +75,14 @@ if use_save:
     full_start = load['full_start']
 else:
     config = {
-        # "batch_size": 5,
         # "batch_size": 1,
-        "batch_size": 2,
+        # "batch_size": 2,
+        # "batch_size": 5,
+        "batch_size": 20,
         "embedding_size": 128,
         "hidden_size": 512,
-        "n_epochs": 80,
-        # "n_epochs": 20,
+        # "n_epochs": 80,
+        "n_epochs": 20,
         # "n_epochs": 10,
         "learning_rate": 1e-3,
         "weight_decay": 1e-5,
@@ -101,9 +102,9 @@ else:
         "useOneEquation": False,
         'useBertEmbeddings': False,
         'useTFix' : False,
-        # "num_folds" : 2,
-        "num_folds" : 5,
-        # "num_obs": 10,   
+        "num_folds" : 2,
+        # "num_folds" : 5,
+        # "num_obs": 50,   
         # "num_obs": 100,   
         "num_obs": None,   
     }
@@ -481,7 +482,7 @@ for fold in range(folds_to_do):
                 test_time_array.append([input_batch_len,end - start])
                 # testc.append(comparison)
                 batch_accuricies['eval_total_loss'] += loss
-                eval_comparison.append(comparison)
+                batch_eval_comparison.append(comparison)
                 batch_accuricies["eval_token"].append(acc)
                 batch_accuricies["eval_op_right"].append(op_right)
                 batch_accuricies["eval_num_x_mse"].append(num_x_mse)
@@ -498,6 +499,7 @@ for fold in range(folds_to_do):
             batch_eval_num_x_mse = sum(batch_accuricies["eval_num_x_mse"]) / len(batch_accuricies["eval_num_x_mse"])
             batch_eval_sni_acc = sum(batch_accuricies["eval_sni_acc"]) / len(batch_accuricies["eval_sni_acc"])
             batch_eval_soln_acc = sum(batch_accuricies["eval_soln"]) / len(batch_accuricies["eval_soln"])
+            eval_comparison.append(batch_eval_comparison)
 
             print("loss:", batch_loss)
             print("eval accuracy", batch_eval_acc)
