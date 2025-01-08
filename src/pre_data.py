@@ -391,7 +391,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
         # get inputs
         if setName == "MATH":
             seg = d["segmented_text"].strip().split(" ")
-        elif setName == "PEN" or setName == "DRAW":
+        elif setName == "PEN" or setName == "DRAW" or setName == "MAWPS" or setName == "ALG":
             # seg = d["oldText"].strip().split(" ")
             seg = d["text"]
             seg = seg.lower()
@@ -422,7 +422,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
                 targets = ['disabled'] 
             print(targets)
 
-        elif setName == "PEN" or setName == "DRAW":
+        elif setName == "PEN" or setName == "DRAW" or setName == "MAWPS" or setName == "ALG":
             equations = read_pen_alignment(d)
             # equations = d["equations"]
             # mapNums = {}
@@ -721,18 +721,29 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
                 # var = "Y" if "Y" not in equ_1 else "X"
                 equ_1 = outputEquation[:equals_index]
                 equ_2 = outputEquation[equals_index+1:]
-                var = "Y" if "Y" not in equ_1 else "X"
+                if "Y" not in equ_1:
+                    var = "Y"
+                elif "X" not in equ_1:
+                    var = "X"
+                else:
+                    var = "Z"
                 if useSubMethod:
                     final_out_seq_list.append(equ_1 + ["-", var])
                     final_out_seq_list.append(equ_2 + ["-", var])
                     equationTargetVars.append("0")
                     equationTargetVars.append("0")
+                    allVars.append(var)
+                    allVars = list(set(allVars))
+                    vars += var
 
                 else:
                     final_out_seq_list.append(equ_1)
                     final_out_seq_list.append(equ_2)
                     equationTargetVars.append(var)
                     equationTargetVars.append(var)
+                    allVars.append(var)
+                    allVars = list(set(allVars))
+                    vars += var
             if len(final_out_seq_list) > 3:
                 # 1 with 4, ignore it 
                 print()

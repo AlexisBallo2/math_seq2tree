@@ -287,9 +287,9 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 else:
                     num_vars_predicted = pred_num_equations[i].argmax().item()
                     if num_vars_predicted < len(all_vars):
-                        problem_var_list = [0] * output_lang.num_start +  [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
+                        problem_var_list = [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
                     else:
-                        problem_var_list = [0] * output_lang.num_start +  [0] * len(all_vars)
+                        problem_var_list = [0] * len(all_vars)
                     num_mask.append([0] * output_lang.num_start + problem_var_list + [0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
         else:
             d = num_size + len(generate_nums)

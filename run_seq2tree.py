@@ -92,6 +92,8 @@ else:
         "useCustom": True,
         # "setName" : "PEN",
         "setName" : "DRAW",
+        # "setName" : "MAWPS",
+        # "setName" : "ALG",
         "useSubMethod": True,
         "useEquSolutions": True,
         # "useSeperateVars": False,
@@ -119,6 +121,10 @@ else:
         data = load_DRAW_data("data/PEN.json", "draw")
     elif config['setName']== "PEN":
         data = load_DRAW_data("data/PEN.json")
+    elif config['setName']== "MAWPS":
+        data = load_DRAW_data("data/PEN.json", 'mawps')
+    elif config['setName']== "ALG":
+        data = load_DRAW_data("data/PEN.json", 'alg514')
     else:
         data = load_raw_data("data/Math_23K.json")
     if config['num_obs']:

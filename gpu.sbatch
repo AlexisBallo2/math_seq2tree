@@ -8,7 +8,7 @@
 # Where to send mail
 #SBATCH --mail-type=ALL
 # Mail events (NONE, BEGIN, END, FAIL, ALL)
-#SBATCH --mem=100mb
+#SBATCH --mem=230gb
 # Job memory request 
 #SBATCH --partition=gpu-long
 # Partition (queue) 
