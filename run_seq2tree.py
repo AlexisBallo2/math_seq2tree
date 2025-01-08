@@ -99,7 +99,7 @@ else:
         "useSemanticAlignment": False,
         "useOpScaling" : False,
         # "useOpScaling" : True,
-        'useSNIMask' : True,
+        'useSNIMask' : False,
         "useOneEquation": False,
         'useBertEmbeddings': False,
         'useTFix' : False,
