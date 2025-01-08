@@ -79,7 +79,9 @@ def read_comparison():
         counter_dict[token] = Counter( [pair[1] for pair in current_pairs] )
     # print(all_tokens)
     # print(pairs)
-    print(counter_dict)
+    for k,v in counter_dict.items():
+        print(k, v)
+    # print(counter_dict)
     # return train, eval
 
 read_comparison()

@@ -143,7 +143,7 @@ class TreeEmbedding:  # the class save the tree
         self.goal_vect = goal_vect
 
 # @line_profiler.profile
-def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets, var_pos, batch_sni, pair_mapping, solutions, useCustom, all_vars,  debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, useSNIMask, useFixT, datasets, inTraining, english=False):
+def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets, var_pos, batch_sni, pair_mapping, solutions, useCustom, all_vars,  debug, setName, useSemanticAlignment, useSeperateVars, useOpScaling, useSNIMask, useFixT, datasets, inTraining, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -233,7 +233,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         for i, batch in enumerate(num_window):
             batch_is_sni = []
             for j, num in enumerate(batch):
-                is_sni = models['sni'](num)
+                is_sni = models['sni'](num, problem_output[i])
                 batch_is_sni.append(is_sni)
             batch_is_sni = torch.stack(batch_is_sni).squeeze(1)
             is_sni_list.append(batch_is_sni)
@@ -265,50 +265,32 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     for i, num_size in enumerate(num_size_batch):
         if useCustom and useSeperateVars:
             d = output_lang.num_start +  num_size + len(generate_nums) + len(problem_vars[i].tolist())
-            # if useSNIMask:
-            #     cur_sni_list = is_sni_list[i].argmax(1)
-            #     # flip the mask
-            #     flipped = cur_sni_list == 0
-            #     flipped = flipped.type(torch.int)
-            #     flipped = flipped.tolist()
-            #     if inTraining:
-            #         num_mask.append(problem_vars[i].tolist() + [0] * len(generate_nums) + flipped + [1] * (max_num_size - d))
-            #     else:
-            #         num_vars_predicted = pred_num_equations.argmax().item()
-            #         if num_vars_predicted < len(all_vars):
-            #             problem_var_list = [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
-            #         else:
-            #             problem_var_list = [0] * len(all_vars)
-            #         num_mask.append(problem_var_list + [0] * len(generate_nums) + flipped + [1] * (max_num_size))
-            # else:
-            if inTraining:
-                # for problem_var in problem_vars[i].tolist():
-                #     print('can use var', output_lang.index2word[problem_var])
-                # for generate_num in generate_nums:
-                #     print('can use num', output_lang.index2word[generate_num])
-                # for num_t in range(num_size):
-                #     print('can use num', output_lang.index2word[len(problem_vars[i].tolist()) + len(generate_nums) + num_t])
-
-                current_mask =  [0] * output_lang.num_start + problem_vars[i].tolist() + [0] * len(generate_nums) + [0] * num_size  + [1] * (max_num_size - d)
-                # + [1] * (max_num_size - d)
-                num_mask.append(current_mask)
-                # for temp, indiv_mask in enumerate(current_mask):
-                #     if indiv_mask == 0:
-                #         print("mask", output_lang.index2word[temp + output_lang.num_start])
-                #     else:
-                #         print("NOT", output_lang.index2word[temp + output_lang.num_start])
-                # print()
-            else:
-                num_vars_predicted = pred_num_equations[i].argmax().item()
-                if num_vars_predicted < len(all_vars):
-                    problem_var_list = [0] * output_lang.num_start +  [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
+            if useSNIMask:
+                cur_sni_list = is_sni_list[i].argmax(1)
+            # #     # flip the mask
+                flipped = cur_sni_list == 0
+                flipped = flipped.type(torch.int)
+                flipped = flipped.tolist()
+                if inTraining:
+                    num_mask.append([0] * output_lang.num_start + problem_vars[i].tolist() + [0] * len(generate_nums) + flipped + [1] * (max_num_size - d))
                 else:
-                    problem_var_list = [0] * output_lang.num_start +  [0] * len(all_vars)
-                num_mask.append(problem_var_list + [0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
-
-            # num_mask.append([0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
-            # d = num_size + len(probl em_vars[i].tolist()) + len(generate_nums)
-            # num_mask.append([0] * len(generate_nums) + problem_vars[i].tolist() + [0] * num_size + [1] * (max_num_size - d))
+                    num_vars_predicted = pred_num_equations.argmax().item()
+                    if num_vars_predicted < len(all_vars):
+                        problem_var_list = [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
+                    else:
+                        problem_var_list = [0] * len(all_vars)
+                    num_mask.append([0] * output_lang.num_start + problem_var_list + [0] * len(generate_nums) + flipped + [1] * (max_num_size - d))
+            else:
+            
+                if inTraining:
+                    num_mask.append([0] * output_lang.num_start + problem_vars[i].tolist() + [0] * len(generate_nums) + [0] * num_size  + [1] * (max_num_size - d))
+                else:
+                    num_vars_predicted = pred_num_equations[i].argmax().item()
+                    if num_vars_predicted < len(all_vars):
+                        problem_var_list = [0] * output_lang.num_start +  [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
+                    else:
+                        problem_var_list = [0] * output_lang.num_start +  [0] * len(all_vars)
+                    num_mask.append([0] * output_lang.num_start + problem_var_list + [0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
         else:
             d = num_size + len(generate_nums)
             num_mask.append([0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
@@ -444,7 +426,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             #   embedding_weight: batch_size x num_length x hidden_size
             #       embeddings of the generate and copy numbers
 
-            num_score, op, var, current_embeddings, current_context, current_nums_embeddings = models['predict'](node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug, useSeperateVars, ith_equation_goal, useVarsAsNums)
+            num_score, op, var, current_embeddings, current_context, current_nums_embeddings = models['predict'](node_stacks, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug, useSeperateVars, ith_equation_goal)
 
 
             # # this is mainly what we want to train
@@ -468,18 +450,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 all_num_opp_scale.append(num_or_opp_weight)
                 scaled_num_score = num_score * nums_weight * 10
                 scaled_op = op * opps_weight * 10
-                if useVarsAsNums:
-                    scaled_var = None
-                # else:
-                #     scaled_var = var * vars_weight * 10
-
-                if useVarsAsNums:
-                    outputs = torch.cat((scaled_op, scaled_num_score), 1)
-                else:
-                    if useSeperateVars:
-                        outputs = torch.cat((scaled_op, scaled_var, scaled_num_score), 1)
-                    else:
-                        outputs = torch.cat((scaled_op, scaled_num_score), 1)
+                outputs = torch.cat((scaled_op, scaled_num_score), 1)
                 # outputs = torch.cat((scaled_op, scaled_var, scaled_num_score), 1)
             else:
                 # num_or_opp_weight_op = op.max(dim=1) 
@@ -666,20 +637,21 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
 
 
-        if True:
-            try:
-                q = [i[0] for i in q_t]
-                t = [i[1] for i in q_t]
-                stackedq = torch.stack(q)
-                stackedt = torch.stack(t)
-                qt_loss = torch.nn.MSELoss(reduction="mean")(stackedt, stackedq) * 100
-                print()
-            except:
-                qt_loss = torch.tensor(0)
-        else:
-            qt_loss = torch.tensor(0)
+        # if True:
+        #     try:
+        #         q = [i[0] for i in q_t]
+        #         t = [i[1] for i in q_t]
+        #         stackedq = torch.stack(q)
+        #         stackedt = torch.stack(t)
+        #         # qt_loss = torch.nn.MSELoss(reduction="mean")(stackedt, stackedq) * 100
+        #         qt_loss = torch.tensor(0)
+        #         print()
+        #     except:
+        #         qt_loss = torch.tensor(0)
+        # else:
+        #     qt_loss = torch.tensor(0)
 
-        # print()
+        # # print()
 
         # loss for the classifier of the operator and number tokens
         # stacked_actual = torch.stack(actuct_num_or_opp)  # B x S x 2
@@ -855,7 +827,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     if useCustom:
     # if False:
         num_x_loss = torch.nn.CrossEntropyLoss()(pred_num_equations, num_equations_per_obs.to(device))
-        total_loss += num_x_loss + classify_loss + sni_loss + qt_loss
+        total_loss += num_x_loss + classify_loss + sni_loss #+ qt_loss
         # total_loss = num_x_loss
         # total_loss += equation_prediction_loss
 
@@ -940,7 +912,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         # 'soln_accuracy': 1 if sum(total_acc)/len(total_acc) == 1 else 0, 
         # 'classify_loss': classify_loss.item(),
         # 'classify_accuracy': op_right/op_occurances,
-        # 'sni_loss': sni_loss.item(),
+        'sni_loss': sni_loss.item(),
+        'sni_acc' : sni_acc,
         # 'semantic_alignment_loss': total_semanti_alognment_loss.item(),
         'equ_1_acc': equ_1_acc,
         'equ_2_acc': equ_2_acc,

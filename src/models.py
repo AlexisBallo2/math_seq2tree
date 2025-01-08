@@ -422,7 +422,7 @@ class Prediction(nn.Module):
         self.irr = TokenIrrevalant(hidden_size, 2, dropout)
 
     # @line_profiler.profile  
-    def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, xs, seq_mask, mask_nums, useCustom, debug, useSeperateVars,all_q, useVarsAsNums):
+    def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, xs, seq_mask, mask_nums, useCustom, debug, useSeperateVars,all_q):
         # node_stacks: [TreeNodes] for each node containing the hidden state for the node
         # left_childs: [] of 
         # encoder_outputs: token embeddings: max_len x num_batches x hidden state 
@@ -510,13 +510,17 @@ class Prediction(nn.Module):
         # batch_size x (2 + number of numbers we have encodings for) x hidden_dim
         # batch_size is the embeddings of the numbers
         #   batch_size x nums_count x hidden_dim
-        if useCustom and useSeperateVars and useVarsAsNums:
+        if useCustom:
+            if useSeperateVars:
             # embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
             # embedding_weight = torch.cat((embedding_weight1, xs, num_pades), dim=1)  # B x O x N
-             embedding_weight = torch.cat((repeated, xs, embedding_weight1, num_pades), dim=1)  # B x O x N
+                embedding_weight = torch.cat((repeated, xs, embedding_weight1, num_pades), dim=1)  # B x O x N
+            else:
+                embedding_weight = torch.cat((repeated, embedding_weight1, num_pades), dim=1)  # B x O x N
+
             #  embedding_weight = torch.cat((xs, embedding_weight1, num_pades), dim=1)  # B x O x N
         else:
-            embedding_weight = torch.cat((repeated, xs, embedding_weight1, num_pades), dim=1)  # B x O x N
+            embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
 
 
 
@@ -709,7 +713,7 @@ class PredictNumX(nn.Module):
 
 
 
-        # # goal_vect = self.em_dropout(goal_vect)
+        # goal_vect = self.em_dropout(goal_vect)
         # "EPT-X paper"
         temp = self.fc1(hidden)
         temp2 = self.relu(temp)
@@ -1014,19 +1018,35 @@ class SNI(nn.Module):
         self.c0 = torch.randn(1, 512, hidden_size)
 
         self.classifyer = torch.nn.Linear(512, 2)
+        self.attn = TreeAttn(hidden_size, hidden_size)
+        self.k = nn.Linear(hidden_size, hidden_size)
+        self.v = nn.Linear(hidden_size, hidden_size)
+        self.relu = nn.ReLU()
+        self.lc = nn.Linear(hidden_size, hidden_size)
 
 
-    def forward(self, encoder_states):
+    def forward(self, encoder_states, goal_vect):
+
+        qkt = torch.matmul(goal_vect, self.k(encoder_states).transpose(0,1))
+        smqkt = nn.functional.softmax(qkt)
+        outAttention = torch.matmul(smqkt, self.v(encoder_states))
+        lc = self.relu(self.lc(outAttention))
+        return lc
         # encoder_states: 7 x 512
-        encoder_states = encoder_states.unsqueeze(0)
+        # encoder_states = encoder_states.unsqueeze(0)
         # out = self.lstm(encoder_states, (self.h0, self.c0))
-        out, _ = self.lstm(encoder_states)
-        final_token_emb = torch.relu(out[:, -1])
-        classified = self.classifyer(final_token_emb)
+        # out, _ = self.lstm(encoder_states)
+        # final_token_emb = torch.relu(out[:, -1])
+        # classified = self.classifyer(final_token_emb)
+        # enc2 = encoder_states.transpose(0,1)
+        # attn = self.attn(goal_vect.unsqueeze(0).unsqueeze(0), encoder_states.unsqueeze(0), None)
+        # current_context = attn.bmm(enc2).squeeze(1)  # B x 1 x N
+        # out = self.fc1(current_context)
+        # return out
 
-        return classified
+        # return classified
 
-        print()
+        # print()
 
 
 
