@@ -23,7 +23,7 @@ def solve_equation(equations, solutions):
             spEqs.append(sympy_eq)   
         solved = solve(spEqs, dict=True)
         # cur_targets = [round(i) for i in list(solved[0].values())]
-        act_solns = list(round(list(obj.values())[0]) for obj in solved)
+        act_solns = [round(i) for i in (list(solved[0].values()))]
 
         print("act", act_solns)
         print("pred", solutions)
