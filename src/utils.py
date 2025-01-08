@@ -202,17 +202,17 @@ def list_to_counts(lengths, corrects, goal):
     flattened_lengths = [item for sublist in lengths for item in sublist]
     flattened_corrects = [item for sublist in corrects for item in sublist]
     zipped = list(zip(flattened_lengths, flattened_corrects))
-    correct = 0
+    total_correct = 0
     total = 0
-    for correct, length in zipped:
+    for length, correct in zipped:
         if length == goal:
             total += 1
-            if correct == goal:
-                correct += 1
+            if correct == 1:
+                total_correct += 1
     if total == 0:
         return 0
     else:
-        return correct/total
+        return total_correct/total
 
 def make_general_graph(dict, title = "Losses"):
     keys = list(dict.keys())

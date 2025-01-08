@@ -880,10 +880,11 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 for symbol in symbols:
                     if symbol[0] == 'N':
                         invalid = True
+            # solved_accs_lens.append(2)
             solved_accs_lens.append(num_equations.item())
             if invalid:
                 print('invalid, equ')
-                solved_accs.append(0)
+                solved_accs.append(1)
             else:
                 solved = solve_equation(equation_set, solutions[i])
                 if solved:

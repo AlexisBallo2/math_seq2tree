@@ -83,7 +83,8 @@ else:
         "hidden_size": 512,
         # "n_epochs": 80,
         # "n_epochs": 20,
-        "n_epochs": 20,
+        # "n_epochs": 10,
+        "n_epochs": 3,
         "learning_rate": 1e-3,
         "weight_decay": 1e-5,
         "beam_size": 5,
@@ -102,11 +103,11 @@ else:
         "useOneEquation": False,
         'useBertEmbeddings': False,
         'useTFix' : False,
-        "num_folds" : 2,
-        # "num_folds" : 5,
-        "num_obs": 20,   
+        # "num_folds" : 2,
+        "num_folds" : 5,
+        # "num_obs": 20,   
         # "num_obs": 100,   
-        # "num_obs": None,   
+        "num_obs": None,   
     }
     config['title'] = f"{config['num_obs']} Observations, {config['n_epochs']} Epochs, Dataset = {config['setName']}, Custom = {config['useCustom']} ",
     if config['useBertEmbeddings']:
@@ -499,6 +500,7 @@ for fold in range(folds_to_do):
             batch_eval_num_x_mse = sum(batch_accuricies["eval_num_x_mse"]) / len(batch_accuricies["eval_num_x_mse"])
             batch_eval_sni_acc = sum(batch_accuricies["eval_sni_acc"]) / len(batch_accuricies["eval_sni_acc"])
             batch_eval_soln_acc = sum(batch_accuricies["eval_soln"]) / len(batch_accuricies["eval_soln"])
+            print('epoch', epoch, 'fold', fold, 'batch eval soln', batch_eval_soln_acc)
             eval_comparison.append(batch_eval_comparison)
 
             print("loss:", batch_loss)
