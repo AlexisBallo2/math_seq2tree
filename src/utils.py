@@ -9,6 +9,8 @@ import re
 import os
 import torch
 import pathlib
+import shutil
+
 
 def solve_equation(equations, solutions):
     # convert prefix to infix
@@ -350,72 +352,157 @@ def read_pen_alignment(observation):
 
 # read_loss_dicts()
 
-def save_state(path, state_dict):
+def save_general_state(path, state_dict ):
+    pathlib.Path(f"{path}").mkdir(exist_ok=True)
+    full_path = f"{path}/general"
+    pathlib.Path(f"{full_path}").mkdir(exist_ok=True)
+    for key, value in state_dict.items():
+        with open(f"{full_path}/{key}.json", "w") as f:
+            f.write(json.dumps(value))
+
+def save_fold_state(path, state_dict):
+    full_path = f"{path}/fold-{state_dict['fold']}"
+    if os.path.exists(f"{path}/fold-{state_dict['fold'] - 1}"):
+        shutil.rmtree(f"{path}/fold-{state_dict['fold'] - 1}")
+
+    pathlib.Path(f"{full_path}").mkdir(exist_ok=True)
+    for key, value in state_dict.items():
+        if key in ['input_lang', 'output_lang']:
+            with open(f"{full_path}/{key}.json", "w") as f:
+                f.write(value.toJSON())
+        else:
+            with open(f"{full_path}/{key}", "w") as f:
+                f.write(json.dumps(value))
+
+
+def save_epoch_state(path, state_dict):
+    full_path = f"{path}/epoch-{state_dict['epoch']}"
+    if os.path.exists(f"{path}/epoch-{state_dict['epoch'] - 5}"):
+        shutil.rmtree(f"{path}/epoch-{state_dict['epoch'] - 5}")
+
+    pathlib.Path(f"{full_path}").mkdir(exist_ok=True)
     for key, value in state_dict.items():
         if key in ["models"]:
-            pathlib.Path(f"{path}/{key}").mkdir(exist_ok=True)
             with open(f"{path}/{key}.json", "w") as f:
                 f.write(json.dumps(list(value.keys())))
 
+            pathlib.Path(f"{full_path}/{key}/").mkdir(exist_ok=True)
             for model in value:
-                torch.save(value[model], f"{path}/{key}/{model}.pth")
+                torch.save(value[model], f"{full_path}/{key}/{model}.pth")
         elif key in ['schedulers']:
-            torch.save(value, f"{path}/{key}.pth")
+            torch.save(value, f"{full_path}/{key}.pth")
         elif key in ['optimizers']:
-            torch.save(value, f"{path}/{key}.pth")
-        elif key in ['input_lang', 'output_lang']:
-            with open(f"{path}/{key}.json", "w") as f:
-                f.write(value.toJSON())
+            torch.save(value, f"{full_path}/{key}.pth")
         else:
-            with open(f"{path}/{key}.json", "w") as f:
+            with open(f"{full_path}/{key}.json", "w") as f:
                 f.write(json.dumps(value))
 
-def read_state(path):
-    state_dict = {
-        "models": [],
-        "optimizers":  [],
-        "schedulers": [],
-        "config": {},
-        "fold_accuracies": [],
-        "fold": 0,
-        "fold_pairs": [],
-        "pairs": [],
-        "generate_nums": [],
-        "copy_nums": [],
-        "vars": [],
-        "input_lang": {},
-        "output_lang": {},
-        "train_pairs": [],
-        "test_pairs": [],
-        "generate_num_ids": [],
-        "debug": {},
-        "fold_accuracies": [],
-        "train_comparison": [],
-        "eval_comparison": [],
-        "all_train_accuracys": [],
-        "all_train_loss": [],
-        "all_eval_loss": [],
-        "all_eval_accuracys": [],
-        "all_soln_eval_accuracys": [],
-        "total_training_time": [],
-        "total_inference_time": [],
-        "train_time_array": [],
-        "test_time_array": [],
-        "full_start": [],
-    }
+
+# def read_general_state(path):
+#     state_dict = {
+#         "models": [],
+#         "optimizers":  [],
+#         "schedulers": [],
+#         "config": {},
+#         "fold_accuracies": [],
+#         "fold": 0,
+#         "fold_pairs": [],
+#         "pairs": [],
+#         "generate_nums": [],
+#         "copy_nums": [],
+#         "vars": [],
+#         "input_lang": {},
+#         "output_lang": {},
+#         "train_pairs": [],
+#         "test_pairs": [],
+#         "generate_num_ids": [],
+#         "debug": {},
+#         "fold_accuracies": [],
+#         "train_comparison": [],
+#         "eval_comparison": [],
+#         "all_train_accuracys": [],
+#         "all_train_loss": [],
+#         "all_eval_loss": [],
+#         "all_eval_accuracys": [],
+#         "all_soln_eval_accuracys": [],
+#         "total_training_time": [],
+#         "total_inference_time": [],
+#         "train_time_array": [],
+#         "test_time_array": [],
+#         "full_start": [],
+#     }
+#     for file in os.listdir(path):
+#         print('file', file)
+#         if file == "models":
+#             state_dict["models"] = {} 
+#             models = json.loads(open(f"{path}/models.json", "r").read())
+#             for model in models:
+#                 model_act = torch.load(f"{path}/models/{model}.pth")
+#                 state_dict["models"][model] = model_act
+#         elif file == "optimizers.pth":
+#             state_dict["optimizers"] = torch.load(f"{path}/optimizers.pth")
+#         elif file == "schedulers.pth":
+#             state_dict["schedulers"] = torch.load(f"{path}/schedulers.pth")
+#         else:
+#             with open(f"{path}/{file}", "r") as f:
+#                 state_dict[file.replace(".json", "")] = json.loads(f.read())
+#     return state_dict
+
+def read_general_state(path):
+    full_path = f"{path}/general"
+    state_dict = {}
+    for file in os.listdir(full_path):
+        with open(f"{full_path}/{file}", "r") as f:
+            state_dict[file.replace(".json", "")] = json.loads(f.read())
+    return state_dict
+
+def read_fold_state(path):
+    # full_path = f"{path}"
+    state_dict = {}
     for file in os.listdir(path):
-        print('file', file)
-        if file == "models":
-            state_dict["models"] = {} 
-            models = json.loads(open(f"{path}/models.json", "r").read())
-            for model in models:
-                model_act = torch.load(f"{path}/models/{model}.pth")
-                state_dict["models"][model] = model_act
-        elif file == "optimizers.pth":
-            state_dict["optimizers"] = torch.load(f"{path}/optimizers.pth")
-        elif file == "schedulers.pth":
-            state_dict["schedulers"] = torch.load(f"{path}/schedulers.pth")
-        else:
-            with open(f"{path}/{file}", "r") as f:
-                state_dict[file.replace(".json", "")] = json.loads(f.read())
+        if 'fold' in file:
+            for fold_file in os.listdir(f"{path}/{file}"):
+                with open(f"{path}/{file}/{fold_file}", "r") as f:
+                    state_dict[fold_file.replace(".json", "")] = json.loads(f.read())
+    return state_dict
+
+def read_epoch_state(path):
+    # full_path = f"{path}"
+    state_dict = {}
+    for dir_files in os.listdir(path):
+        if 'epoch' in dir_files:
+            for file in os.listdir(f"{path}/{dir_files}"):
+                if file == "models":
+                    state_dict["models"] = {} 
+                    models = json.loads(open(f"{path}/models.json", "r").read())
+                    for model in models:
+                        model_act = torch.load(f"{path}/{dir_files}/models/{model}.pth")
+                        state_dict["models"][model] = model_act
+                elif file == "optimizers.pth":
+                    state_dict["optimizers"] = torch.load(f"{path}/{dir_files}/optimizers.pth")
+                elif file == "schedulers.pth":
+                    state_dict["schedulers"] = torch.load(f"{path}/{dir_files}/schedulers.pth")
+                else:
+                    with open(f"{path}/{dir_files}/{file}", "r") as f:
+                        state_dict[file.replace(".json", "")] = json.loads(f.read())
+    return state_dict
+
+
+
+
+    # for file in os.listdir(path):
+    #     print('file', file)
+    #     if file == "models":
+    #         state_dict["models"] = {} 
+    #         models = json.loads(open(f"{path}/models.json", "r").read())
+    #         for model in models:
+    #             model_act = torch.load(f"{path}/models/{model}.pth")
+    #             state_dict["models"][model] = model_act
+    #     elif file == "optimizers.pth":
+    #         state_dict["optimizers"] = torch.load(f"{path}/optimizers.pth")
+    #     elif file == "schedulers.pth":
+    #         state_dict["schedulers"] = torch.load(f"{path}/schedulers.pth")
+    #     else:
+    #         with open(f"{path}/{file}", "r") as f:
+    #             state_dict[file.replace(".json", "")] = json.loads(f.read())
     return state_dict

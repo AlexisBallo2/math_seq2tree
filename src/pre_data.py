@@ -67,6 +67,12 @@ class Lang:
         self.n_words = 0  # Count word tokens
         self.num_start = 0
 
+    def fromJSON(self,data):
+        lang = Lang()
+        lang.__dict__ = data
+
+        return lang
+
     def toJSON(self):
         return json.dumps(
             self,

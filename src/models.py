@@ -422,7 +422,7 @@ class Prediction(nn.Module):
         self.irr = TokenIrrevalant(hidden_size, 2, dropout)
 
     # @line_profiler.profile  
-    def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, xs, seq_mask, mask_nums, useCustom, debug, useSeperateVars,all_q):
+    def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, xs, seq_mask, mask_nums, useCustom, useSeperateVars,all_q):
         # node_stacks: [TreeNodes] for each node containing the hidden state for the node
         # left_childs: [] of 
         # encoder_outputs: token embeddings: max_len x num_batches x hidden state 
