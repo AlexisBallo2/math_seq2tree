@@ -32,8 +32,12 @@ else:
 
 
 save_id = 0
-save_folder = f"saves/{save_id}"
-os.makedirs(save_folder, exist_ok=True)
+if use_save:
+    read_save_folder = f"saves/{save_id}"
+    os.makedirs(read_save_folder, exist_ok=True)
+if do_saves:
+    save_folder = f"saves/{run_id}"
+    os.makedirs(save_folder, exist_ok=True)
 # sys.stdout = open('output.txt','wt')
 
 
@@ -49,7 +53,7 @@ np.random.seed(10)
 
 if use_save:
     # config = json.load(open(f"{save_folder}/config.json"))
-    load = read_general_state(save_folder)
+    load = read_general_state(read_save_folder)
     config = load['config']
     print("CONFIG \n", config)
     data = load['pairs']
@@ -93,9 +97,9 @@ else:
         "embedding_size": 128,
         "hidden_size": 512,
         # "n_epochs": 15,
-        "n_epochs": 20,
+        # "n_epochs": 20,
         # "n_epochs": 10,
-        # "n_epochs": 3,
+        "n_epochs": 3,
         "learning_rate": 1e-3,
         "weight_decay": 1e-5,
         "beam_size": 5,
@@ -243,7 +247,7 @@ folds_to_do = config['num_folds']
 
 for fold in range(existing_fold, folds_to_do):
     if use_save and fold_save_completed == False:
-        fold_save = read_fold_state(save_folder)
+        fold_save = read_fold_state(read_save_folder)
         pairs_tested = fold_save['pairs_tested']
         pairs_trained = fold_save['pairs_trained']
         fold_accuracies = fold_save['fold_accuracies']
@@ -254,9 +258,6 @@ for fold in range(existing_fold, folds_to_do):
 
         input_lang = fold_save['input_lang']
         input_lang = Lang().fromJSON(input_lang)
-
-        train_pairs = fold_save['train_pairs']
-        test_pairs = fold_save['test_pairs']
 
     else:
         pairs_tested = []
@@ -297,22 +298,24 @@ for fold in range(existing_fold, folds_to_do):
         input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums, copy_nums, vars, config['useCustom'], config['useSeperateVars'], config['useBertEmbeddings'], tree=True)
         if do_saves:
             save_fold_state(save_folder, {
-                "pairs_tested": pairs_tested,
-                "pairs_trained": pairs_trained,
-                "fold_accuracies": fold_accuracies,
-                'fold_train_accuracy': fold_train_accuracy,
-                'fold_loss': fold_loss,
-                'fold_eval_accuracy': fold_eval_accuracy,
-                'fold_soln_eval_accuracy': fold_soln_eval_accuracy,
-                'fold_pairs': fold_pairs,
-                'input_lang': input_lang,
-                'output_lang': output_lang,
-                'fold' : fold,
+            "config": config,
+            "generate_nums": generate_nums,
+            "copy_nums": copy_nums,
+            "vars": vars,
+            "input_lang": input_lang,
+            "output_lang": output_lang,
+            'pairs_tested': pairs_tested,
+            'pairs_trained': pairs_trained,
+            "train_pairs": train_pairs,
+            "test_pairs": test_pairs,
+            "fold": fold,
+            "fold_pairs": fold_pairs,
+            "fold_accuracies": fold_accuracies,
             })
         
 
     if use_save and saved_epoch_completed == False:
-        epoch_load = read_epoch_state(save_folder)
+        epoch_load = read_epoch_state(read_save_folder)
 
         start_epoch = epoch_load['epoch']
 
@@ -577,7 +580,7 @@ for fold in range(existing_fold, folds_to_do):
 
             print("------------------------------------------------------")
 
-            if epoch % 4 == 0 and do_saves:
+            if (epoch + 1) % 5 == 0 and do_saves:
                 save_epoch_state(save_folder, {
                     "models": models,
                     "optimizers": optimizers,

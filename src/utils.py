@@ -172,7 +172,7 @@ def process_loss_dicts(train, eval, title = "Losses"):
                 one_acc = list_to_counts(length_values, correct_ones, 1 )
                 two_acc = list_to_counts(length_values, correct_ones, 2 )
                 three_acc = list_to_counts(length_values, correct_ones, 3 )
-                train_each.append([one_acc, two_acc, three_acc])
+                eval_each.append([one_acc, two_acc, three_acc])
             elif key == "acc_solutions_plain":
                 continue
             else:
