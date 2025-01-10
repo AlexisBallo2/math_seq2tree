@@ -12,8 +12,10 @@ import sympy as sp
 from sympy.solvers import solve
 
 
-use_save = True 
-# use_save = False 
+do_saves = True
+# do_saves = False 
+# use_save = True 
+use_save = False 
 
 saved_epoch_completed = False
 fold_save_completed = False
@@ -28,7 +30,9 @@ if "-id" in args:
 else:
     run_id = "0"
 
-save_folder = f"saves/{run_id}"
+
+save_id = 0
+save_folder = f"saves/{save_id}"
 os.makedirs(save_folder, exist_ok=True)
 # sys.stdout = open('output.txt','wt')
 
@@ -88,8 +92,8 @@ else:
         # "batch_size": 20,
         "embedding_size": 128,
         "hidden_size": 512,
-        "n_epochs": 15,
-        # "n_epochs": 20,
+        # "n_epochs": 15,
+        "n_epochs": 20,
         # "n_epochs": 10,
         # "n_epochs": 3,
         "learning_rate": 1e-3,
@@ -208,26 +212,27 @@ else:
     eval_comparison = []
     existing_fold = 0
 
-    save_general_state(save_folder, {
-        'config' : config,
-        "pairs": pairs,
-        "all_train_accuracys": all_train_accuracys,
-        "all_train_loss": all_train_loss,
-        "all_eval_loss": all_eval_loss,
-        "all_eval_accuracys": all_eval_accuracys,
-        "all_soln_eval_accuracys": all_soln_eval_accuracys,
-        "train_comparison": train_comparison,
-        "eval_comparison": eval_comparison,
-        "total_training_time": total_training_time,
-        "total_inference_time": total_inference_time,
-        "train_time_array": train_time_array,
-        "test_time_array": test_time_array,
-        "existing_fold": existing_fold,
-        'generate_nums': generate_nums,
-        'copy_nums': copy_nums,
-        'vars': vars,
-        # "full_start": full_start,
-    })
+    if do_saves:
+        save_general_state(save_folder, {
+            'config' : config,
+            "pairs": pairs,
+            "all_train_accuracys": all_train_accuracys,
+            "all_train_loss": all_train_loss,
+            "all_eval_loss": all_eval_loss,
+            "all_eval_accuracys": all_eval_accuracys,
+            "all_soln_eval_accuracys": all_soln_eval_accuracys,
+            "train_comparison": train_comparison,
+            "eval_comparison": eval_comparison,
+            "total_training_time": total_training_time,
+            "total_inference_time": total_inference_time,
+            "train_time_array": train_time_array,
+            "test_time_array": test_time_array,
+            "existing_fold": existing_fold,
+            'generate_nums': generate_nums,
+            'copy_nums': copy_nums,
+            'vars': vars,
+            # "full_start": full_start,
+        })
 
 
 # full_start = time.time()
@@ -290,19 +295,20 @@ for fold in range(existing_fold, folds_to_do):
                 pairs_trained += fold_pairs[fold_t]
 
         input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums, copy_nums, vars, config['useCustom'], config['useSeperateVars'], config['useBertEmbeddings'], tree=True)
-        save_fold_state(save_folder, {
-            "pairs_tested": pairs_tested,
-            "pairs_trained": pairs_trained,
-            "fold_accuracies": fold_accuracies,
-            'fold_train_accuracy': fold_train_accuracy,
-            'fold_loss': fold_loss,
-            'fold_eval_accuracy': fold_eval_accuracy,
-            'fold_soln_eval_accuracy': fold_soln_eval_accuracy,
-            'fold_pairs': fold_pairs,
-            'input_lang': input_lang,
-            'output_lang': output_lang,
-            'fold' : fold,
-        })
+        if do_saves:
+            save_fold_state(save_folder, {
+                "pairs_tested": pairs_tested,
+                "pairs_trained": pairs_trained,
+                "fold_accuracies": fold_accuracies,
+                'fold_train_accuracy': fold_train_accuracy,
+                'fold_loss': fold_loss,
+                'fold_eval_accuracy': fold_eval_accuracy,
+                'fold_soln_eval_accuracy': fold_soln_eval_accuracy,
+                'fold_pairs': fold_pairs,
+                'input_lang': input_lang,
+                'output_lang': output_lang,
+                'fold' : fold,
+            })
         
 
     if use_save and saved_epoch_completed == False:
@@ -571,7 +577,7 @@ for fold in range(existing_fold, folds_to_do):
 
             print("------------------------------------------------------")
 
-            if epoch % 5 == 0:
+            if epoch % 4 == 0 and do_saves:
                 save_epoch_state(save_folder, {
                     "models": models,
                     "optimizers": optimizers,
@@ -639,46 +645,47 @@ for fold in range(existing_fold, folds_to_do):
     if config["num_folds"] == 2:
         break
 
-    save_epoch_state(save_folder, {
-        "models": models,
-        "optimizers": optimizers,
-        "schedulers": schedulers,
-        "fold_accuracies": fold_accuracies,
-        'epoch': epoch,
-    })
-    save_general_state(save_folder, {
-        'config' : config,
-        "pairs": pairs,
-        "all_train_accuracys": all_train_accuracys,
-        "all_train_loss": all_train_loss,
-        "all_eval_loss": all_eval_loss,
-        "all_eval_accuracys": all_eval_accuracys,
-        "all_soln_eval_accuracys": all_soln_eval_accuracys,
-        "train_comparison": train_comparison,
-        "eval_comparison": eval_comparison,
-        "total_training_time": total_training_time,
-        "total_inference_time": total_inference_time,
-        "train_time_array": train_time_array,
-        "test_time_array": test_time_array,
-        "existing_fold": existing_fold,
-        # "full_start": full_start,
-    })
-    save_fold_state(save_folder, {
-        "config": config,
-        "generate_nums": generate_nums,
-        "copy_nums": copy_nums,
-        "vars": vars,
-        "input_lang": input_lang,
-        "output_lang": output_lang,
-        'pairs_tested': pairs_tested,
-        'pairs_trained': pairs_trained,
-        "train_pairs": train_pairs,
-        "test_pairs": test_pairs,
-        "generate_num_ids": generate_num_ids,
-        "fold": fold,
-        "fold_pairs": fold_pairs,
-        "fold_accuracies": fold_accuracies,
-    })
+    if do_saves:
+        save_epoch_state(save_folder, {
+            "models": models,
+            "optimizers": optimizers,
+            "schedulers": schedulers,
+            "fold_accuracies": fold_accuracies,
+            'epoch': epoch,
+        })
+        save_general_state(save_folder, {
+            'config' : config,
+            "pairs": pairs,
+            "all_train_accuracys": all_train_accuracys,
+            "all_train_loss": all_train_loss,
+            "all_eval_loss": all_eval_loss,
+            "all_eval_accuracys": all_eval_accuracys,
+            "all_soln_eval_accuracys": all_soln_eval_accuracys,
+            "train_comparison": train_comparison,
+            "eval_comparison": eval_comparison,
+            "total_training_time": total_training_time,
+            "total_inference_time": total_inference_time,
+            "train_time_array": train_time_array,
+            "test_time_array": test_time_array,
+            "existing_fold": existing_fold,
+            # "full_start": full_start,
+        })
+        save_fold_state(save_folder, {
+            "config": config,
+            "generate_nums": generate_nums,
+            "copy_nums": copy_nums,
+            "vars": vars,
+            "input_lang": input_lang,
+            "output_lang": output_lang,
+            'pairs_tested': pairs_tested,
+            'pairs_trained': pairs_trained,
+            "train_pairs": train_pairs,
+            "test_pairs": test_pairs,
+            "generate_num_ids": generate_num_ids,
+            "fold": fold,
+            "fold_pairs": fold_pairs,
+            "fold_accuracies": fold_accuracies,
+        })
     # break 
 
 # a, b, c = 0, 0, 0

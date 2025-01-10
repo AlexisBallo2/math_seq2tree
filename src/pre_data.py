@@ -18,6 +18,27 @@ PAD_token = 0
 p = inflect.engine()
 replace = {}
 
+replace['two-thirds'] = 0.66666
+replace['three-fourths'] = 0.75
+replace['five-thirds'] = 1.66666
+replace['two-thirds'] = 0.66666
+replace['three-fourth'] = 0.75
+replace['one-sixth'] = 0.16666
+replace['one-tenth'] = 0.1
+replace['one-third'] = 0.33333
+replace['one-fourth'] = 0.25
+replace['two-fifths'] = 0.4
+
+
+replace['one hundred sixty-two'] = 162
+replace['two hundred ninety-seven'] = 297
+replace['hundred sixty-two'] = 162
+replace['seventy-two'] = 72
+
+
+replace['7.5 m'] = 7500000
+replace['114.7 m'] = 114700000
+
 replace['zero'] = 0
 replace['thirty nine'] = 39
 replace['sixteen'] = 39
@@ -41,16 +62,31 @@ replace['third'] = 0.33
 replace['fourteen'] = 14
 replace['306,000'] = 306000
 replace['8,200'] = 8200 
-replace['Two-thirds'] = 0.66666
-replace['three-fourths'] = 0.75
-replace['five-thirds'] = 1.66666
 replace['eight'] = 8
 replace['two'] = 2
 replace['two-thirds'] = 0.66666
+replace[','] = ""
+replace['282.50'] = "282.5"
+replace['.10'] = ".1"
+replace['.20'] = ".2"
+replace['.30'] = ".3"
+replace['.40'] = ".4"
+replace['.50'] = ".5"
+replace['.60'] = ".6"
+replace['.70'] = ".7"
+replace['.80'] = ".8"
+replace['.90'] = ".9"
+replace['.00'] = ""
+
+
+
+
+def are_numbers_close(num1, num2, decimal_places=2):
+    return round(num1, decimal_places) == round(num2, decimal_places)
 
 
 # replace[','] = ""
-for i in range(1, 101):
+for i in range(101, 1, -1):
     word = p.number_to_words(i)
     replace[word] = i
 
@@ -401,8 +437,13 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             # seg = d["oldText"].strip().split(" ")
             seg = d["text"]
             seg = seg.lower()
+            seg1 = seg
+            if "seventy two" in seg:
+                print()
             for k,v in replace.items():
                 seg = seg.replace(k, str(v))
+            if "70-2" in seg:
+                print()
             seg = seg.split(" ")
 
         else: 
@@ -505,11 +546,15 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
         for s in seg:
             # search if its a number
             pos = re.search(pattern, s)
-
+            # if pos:
+            #     temp = s[pos.start(): pos.end()]
+            #     if temp == "-3":
+            #         print()
             # if its a number (pos is not None and the start of the number is at the start of the string)
             if pos and pos.start() == 0:
                 # appeend the captured number only (not surrounding text in the word)
-                nums.append(s[pos.start(): pos.end()])
+                temp = s[pos.start(): pos.end()]
+                nums.append(temp.replace("%", ""))  
                 # mask the number in the input sequence
                 input_seq.append("NUM")
                 # if there was trailing text after the num (ex "80km/h" -> "80") append text to seq (ex "km/h")
@@ -527,7 +572,8 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
         # for nums in this problem
         for num in nums:
             # capture it if it's a fraction
-            if re.search("\d*\(\d+/\d+\)\d*", num):
+            # if re.search("\d*\(\d+/\d+\)\d*", num):
+            if re.search("\d*\.?\d*\(\d+\.?\d*/\d+\.?\d*\)\d*\.?\d*", num):
                 nums_fraction.append(num)
 
         # sort the fractions by length (not magnitude?). longest first
@@ -563,11 +609,17 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
                     return res
             # if no fractions, or fractions are not in equation 
             # sequence and tag non fractions
+            # pos_st = re.search("\d+\.\d+%?|\d+%?", st)
+            # add negative
             pos_st = re.search("\d+\.\d+%?|\d+%?", st)
             # if have number
             if pos_st:
                 p_start = pos_st.start()
                 p_end = pos_st.end()
+                # if number is negative
+                if p_start > 2 and st[p_start-1] == "-" and st[p_start-2] in ["=", "(", "+", "-", "*", "/"]:
+                    p_start -= 1 
+
                 if p_start > 0:
                     # seq and tag text before number
                     res += seg_and_tag(st[:p_start])
@@ -575,6 +627,12 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
                 st_num = st[p_start:p_end]
                 if st_num[-2:] == ".0":
                     st_num = st_num[:-2]
+                # if st_num.endswith("666") or st_num.endswith("667") or st_num.endswith("333") or st_num.endswith("334"):
+                #     print()
+                for elem in nums:
+                    if are_numbers_close(float(elem), float(st_num)):
+                        st_num = elem
+                        break
                 if nums.count(st_num) > 0:
                     # same as fractions, append as "N#" if in the input text 
                     # pairNumMapping[st_num] = "N"+str(nums.index(st_num))
@@ -653,6 +711,8 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
         # ex: ['(', 'N1', '-', '1', ')', '*', 'N0']
         # out_seq = [seg_and_tag(equ) for equ in newEquations]
         # print('newEquations', newEquations)
+        if "=-3" in newEquations[0]:
+            print()
         out_seq = [seg_and_tag(equ) for equ in newEquations]
 
         # for each elem in equation sequence 
@@ -667,6 +727,9 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
                 # if (s[0].isdigit() or (s[0] in ["X", "Y", "Z"] and not useSeperateVars)) and s not in generate_nums and s not in nums:
                     generate_nums.append(s)
                     generate_nums_dict[s] = 0
+                    # if s in ["9", "99000", "282.5", "1.9", "3", "770"]:
+                    if s in ['0.4']:
+                        print()
                 if s in generate_nums and s not in nums:
                     generate_nums_dict[s] = generate_nums_dict[s] + 1
 

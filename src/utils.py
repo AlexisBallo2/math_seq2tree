@@ -296,6 +296,7 @@ def read_pen_alignment(observation):
     for i, var in enumerate(mapVars):
         mapVarDict[var] = vars[i]
     templates = observation['equations']
+    # templates = [i.replace("%", "") for i in templates]
     alignment = observation['numbers']
     mapping = {}
     for i, align in enumerate(alignment):

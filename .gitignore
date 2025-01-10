@@ -10,4 +10,4 @@ output.txt
 
 saves/*
 src/post/eval_results.json
-src/post/train_results.json
+src/post/train_results.json 
