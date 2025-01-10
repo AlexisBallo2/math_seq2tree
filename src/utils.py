@@ -196,7 +196,7 @@ def process_loss_dicts(train, eval, title = "Losses"):
             final_dict['sol_acc len 3'] = ([val[2] for val in train_vals[key]], [val[2] for val in eval_vals[key]])
 
 
-    print(json.dumps(final_dict))
+    print("FINAL", json.dumps(final_dict))
     make_general_graph(final_dict, title)
 
 
