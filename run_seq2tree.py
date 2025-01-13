@@ -12,8 +12,8 @@ import sympy as sp
 from sympy.solvers import solve
 
 
-do_saves = True
-# do_saves = False 
+# do_saves = True
+do_saves = False 
 # use_save = True 
 use_save = False 
 
@@ -92,21 +92,22 @@ else:
     config = {
         # "batch_size": 1,
         # "batch_size": 2,
-        "batch_size": 5,
-        # "batch_size": 20,
+        # "batch_size": 5,
+        "batch_size": 20,
         "embedding_size": 128,
         "hidden_size": 512,
         # "n_epochs": 15,
         # "n_epochs": 20,
         # "n_epochs": 10,
-        "n_epochs": 3,
+        # "n_epochs": 10,
+        "n_epochs" : 80,
         "learning_rate": 1e-3,
         "weight_decay": 1e-5,
         "beam_size": 5,
         "n_layers": 2,
         "useCustom": True,
-        # "setName" : "PEN",
-        "setName" : "DRAW",
+        "setName" : "PEN",
+        # "setName" : "DRAW",
         # "setName" : "MAWPS",
         # "setName" : "ALG",
         "useSubMethod": True,
@@ -122,9 +123,9 @@ else:
         'useTFix' : False,
         # "num_folds" : 2,
         "num_folds" : 5,
-        "num_obs": 10,   
+        # "num_obs": 20,   
         # "num_obs": 100,   
-        # "num_obs": None,   
+        "num_obs": None,   
     }
     config['title'] = f"{config['num_obs']} Observations, {config['n_epochs']} Epochs, Dataset = {config['setName']}, Custom = {config['useCustom']} ",
     if config['useBertEmbeddings']:

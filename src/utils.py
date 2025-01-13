@@ -152,6 +152,13 @@ def process_loss_dicts(train, eval, title = "Losses"):
                 two_acc = list_to_counts(length_values, correct_ones, 2 )
                 three_acc = list_to_counts(length_values, correct_ones, 3 )
                 train_each.append([one_acc, two_acc, three_acc])
+            elif key == "acc_solutions_set":
+                set_values = vals
+                correct_ones = [item['acc_solutions_plain'] for item in epoch]
+                draw = set_to_counts(set_values, correct_ones, "draw" )
+                alg514 = set_to_counts(set_values, correct_ones, 'alg514' )
+                mwaps = set_to_counts(set_values, correct_ones, 'mawps' )
+                train_each.append([draw, alg514, mwaps])
             elif key == "acc_solutions_plain":
                 continue
             else:
@@ -173,6 +180,13 @@ def process_loss_dicts(train, eval, title = "Losses"):
                 two_acc = list_to_counts(length_values, correct_ones, 2 )
                 three_acc = list_to_counts(length_values, correct_ones, 3 )
                 eval_each.append([one_acc, two_acc, three_acc])
+            elif key == "acc_solutions_set":
+                set_values = vals
+                correct_ones = [item['acc_solutions_plain'] for item in epoch]
+                draw = set_to_counts(set_values, correct_ones, 'draw' )
+                alg514 = set_to_counts(set_values, correct_ones, 'alg514' )
+                mwaps = set_to_counts(set_values, correct_ones, 'mawps' )
+                train_each.append([draw, alg514, mwaps])
             elif key == "acc_solutions_plain":
                 continue
             else:
@@ -182,22 +196,40 @@ def process_loss_dicts(train, eval, title = "Losses"):
     
     final_dict = {}
     for key in keys:
-        if key != "acc_solutions_lengths":
+        if key == "acc_solutions_lengths":
+            final_dict['sol_acc len 1'] = ([val[0] for val in train_vals[key]], [val[0] for val in eval_vals[key]])
+            final_dict['sol_acc len 2'] = ([val[1] for val in train_vals[key]], [val[1] for val in eval_vals[key]])
+            final_dict['sol_acc len 3'] = ([val[2] for val in train_vals[key]], [val[2] for val in eval_vals[key]])
+        if key == "acc_solutions_set":
+            final_dict['sol draw'] = ([val[0] for val in train_vals[key]], [val[0] for val in eval_vals[key]])
+            final_dict['sol alg'] = ([val[1] for val in train_vals[key]], [val[1] for val in eval_vals[key]])
+            final_dict['sol mwaps'] = ([val[2] for val in train_vals[key]], [val[2] for val in eval_vals[key]])
+        else:
             final_dict[key] = (train_vals[key], eval_vals[key])
             print(key)
             print("train", train_vals[key])
             print("eval", eval_vals[key])
             print("\n")
-        else:
-            train_percent_solved = [[val[0] for val in train_vals[key]], [val[1] for val in train_vals[key]], [val[2] for val in train_vals[key]]]
-            eval_percent_solved = [[val[0] for val in eval_vals[key]], [val[1] for val in eval_vals[key]], [val[2] for val in eval_vals[key]]]
-            final_dict['sol_acc len 1'] = ([val[0] for val in train_vals[key]], [val[0] for val in eval_vals[key]])
-            final_dict['sol_acc len 2'] = ([val[1] for val in train_vals[key]], [val[1] for val in eval_vals[key]])
-            final_dict['sol_acc len 3'] = ([val[2] for val in train_vals[key]], [val[2] for val in eval_vals[key]])
 
 
     print("FINAL", json.dumps(final_dict))
     make_general_graph(final_dict, title)
+
+def set_to_counts(lengths, corrects, goal):
+    flattened_lengths = [item for sublist in lengths for item in sublist]
+    flattened_corrects = [item for sublist in corrects for item in sublist]
+    zipped = list(zip(flattened_lengths, flattened_corrects))
+    total_correct = 0
+    total = 0
+    for length, correct in zipped:
+        if length == goal:
+            total += 1
+            if correct == 1:
+                total_correct += 1
+    if total == 0:
+        return 0
+    else:
+        return total_correct/total
 
 
 def list_to_counts(lengths, corrects, goal):
@@ -218,8 +250,8 @@ def list_to_counts(lengths, corrects, goal):
 
 def make_general_graph(dict, title = "Losses"):
     keys = list(dict.keys())
-    half = (len(keys) + 1) // 2
-    fig, axs = plt.subplots(2, half)
+    half = (len(keys) + 1) //3 
+    fig, axs = plt.subplots(3, half)
     # fig.suptitle('Vertically stacked subplots')
     i = 0
     j = 0

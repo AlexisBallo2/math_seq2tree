@@ -828,7 +828,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
         if setName == "PEN":
             sepcificDataset = d['dataset']
         else:
-            sepcificDataset = setName
+            sepcificDataset = setName.lower()
         pairs.append({
             "input_seq": input_seq,
             "equations": final_out_seq_list,
