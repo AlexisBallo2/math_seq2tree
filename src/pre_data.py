@@ -629,10 +629,11 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
                     st_num = st_num[:-2]
                 # if st_num.endswith("666") or st_num.endswith("667") or st_num.endswith("333") or st_num.endswith("334"):
                 #     print()
-                for elem in nums:
-                    if are_numbers_close(float(elem), float(st_num)):
-                        st_num = elem
-                        break
+                if setName != "MATH":
+                    for elem in nums:
+                        if are_numbers_close(float(elem), float(st_num)):
+                            st_num = elem
+                            break
                 if nums.count(st_num) > 0:
                     # same as fractions, append as "N#" if in the input text 
                     # pairNumMapping[st_num] = "N"+str(nums.index(st_num))

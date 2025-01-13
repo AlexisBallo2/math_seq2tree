@@ -86,7 +86,7 @@ def read_comparison():
     # print(counter_dict)
     # return train, eval
 
-read_comparison()
+# read_comparison()
 
 
 opperators = ['+', '-', '*', '/']
