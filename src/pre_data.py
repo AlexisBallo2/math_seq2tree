@@ -572,8 +572,8 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
         # for nums in this problem
         for num in nums:
             # capture it if it's a fraction
-            # if re.search("\d*\(\d+/\d+\)\d*", num):
-            if re.search("\d*\.?\d*\(\d+\.?\d*/\d+\.?\d*\)\d*\.?\d*", num):
+            if re.search("\d*\(\d+/\d+\)\d*", num):
+            # if re.search("\d*\.?\d*\(\d+\.?\d*/\d+\.?\d*\)\d*\.?\d*", num):
                 nums_fraction.append(num)
 
         # sort the fractions by length (not magnitude?). longest first

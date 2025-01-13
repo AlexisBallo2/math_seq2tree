@@ -410,7 +410,7 @@ class Prediction(nn.Module):
         self.concat_lg = nn.Linear(hidden_size, hidden_size)
         self.concat_rg = nn.Linear(hidden_size * 2, hidden_size)
 
-        self.ops = nn.Linear(hidden_size * 2, hidden_size * 2)
+        self.ops = nn.Linear(hidden_size * 2, op_nums)
         self.ops2 = nn.Linear(hidden_size * 2, op_nums)
         self.opsWeight = nn.Parameter(torch.randn(op_nums, hidden_size))
         self.opsAttn = TreeAttn(hidden_size, hidden_size)
@@ -571,7 +571,10 @@ class Prediction(nn.Module):
         # op = self.ops2(op)
         # if useVarsAsNums:
         var = None
-        op = None
+        if useCustom:
+            op = None
+        else:
+            op = self.ops(leaf_input)
         # else:
         #     var = self.var(leaf_input)
 

@@ -260,7 +260,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         # max_num_size = max(num_size_batch) + len(generate_nums)  
         max_num_size = output_lang.num_start + max(num_size_batch) + len(generate_nums) + len(all_vars) 
     else:
-        max_num_size = output_lang.num_start + max(num_size_batch) + len(generate_nums) 
+        max_num_size = max(num_size_batch) + len(generate_nums) 
 
     for i, num_size in enumerate(num_size_batch):
         if useCustom and useSeperateVars:
@@ -430,14 +430,13 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
 
             # # this is mainly what we want to train
-            # outputs = torch.cat((op, num_score), 1)
 
 
             # num_score = 2 x 5
             # op = 2 x 4
 
 
-            if useOpScaling:
+            if useCustom and useOpScaling:
                 num_or_opp_weight = models['num_or_opp'](encoder_outputs, current_context, ith_equation_goal)
                 opps_weight = num_or_opp_weight[:, 0].unsqueeze(1)#.transpose(0, -1)#.repeat(1, op.size(1))
 
@@ -458,7 +457,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 # num_or_opp_weight = torch.cat((num_or_opp_weight_op.values, num_or_opp_weight_num.values), 0)
                 # all_num_opp_scale.append(num_or_opp_weight)
 
-                outputs = num_score
+                if useCustom:
+                    outputs = num_score
+                else:
+                    outputs = torch.cat((op, num_score), 1)
                 # if useVarsAsNums:
                 #     outputs = torch.cat((num_score), 1)
                 # else:
@@ -858,8 +860,6 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         solved_accs_set = []
         for i, num_equations in enumerate(num_equations_per_obs):
             equation_set = []
-            equation_targts_specific = [output_lang.index2word[j] for j in equation_targets[i]]
-            # replaced_targs = replace_nums(pair_mapping[i], equation_targts_specific)
 
             # print()
             for each_equation in range(num_equations):
@@ -907,29 +907,50 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         #         equation_set.append(all_comparisons[i][equ])
 
     
-    loss_dict = {
-        'total_loss': total_loss.item(),
-        'equation_loss': current_equation_loss.item(),
-        'num_x_loss': num_x_loss.item(),
-        'accuracy': sum(total_acc)/len(total_acc),
-        # 'soln_accuracy': 1 if sum(total_acc)/len(total_acc) == 1 else 0, 
-        # 'classify_loss': classify_loss.item(),
-        # 'classify_accuracy': op_right/op_occurances,
-        'sni_loss': sni_loss.item(),
-        'sni_acc' : sni_acc,
-        # 'semantic_alignment_loss': total_semanti_alognment_loss.item(),
-        'equ_1_acc': equ_1_acc,
-        'equ_2_acc': equ_2_acc,
-        'equ_3_acc': equ_3_acc,
-        'acc_solutions' : sum(solved_accs)/len(solved_accs),
-        'acc_solutions_plain' : solved_accs,
-        'acc_solutions_set' : solved_accs_set,
-        'acc_solutions_lengths' : solved_accs_lens,
-        }
-
+    if useCustom:
+        loss_dict = {
+            'total_loss': total_loss.item(),
+            'equation_loss': current_equation_loss.item(),
+            'num_x_loss': num_x_loss.item(),
+            'accuracy': sum(total_acc)/len(total_acc),
+            # 'soln_accuracy': 1 if sum(total_acc)/len(total_acc) == 1 else 0, 
+            # 'classify_loss': classify_loss.item(),
+            # 'classify_accuracy': op_right/op_occurances,
+            'sni_loss': sni_loss.item(),
+            'sni_acc' : sni_acc,
+            # 'semantic_alignment_loss': total_semanti_alognment_loss.item(),
+            'equ_1_acc': equ_1_acc,
+            'equ_2_acc': equ_2_acc,
+            'equ_3_acc': equ_3_acc,
+            'acc_solutions' : sum(solved_accs)/len(solved_accs),
+            'acc_solutions_plain' : solved_accs,
+            'acc_solutions_set' : solved_accs_set,
+            'acc_solutions_lengths' : solved_accs_lens,
+            }
+        return total_loss.item(), sum(total_acc)/len(total_acc), sum(num_equations_mse)/len(num_equations_mse), comparison, 0 ,sni_acc , loss_dict, total_acc, sum(solved_accs)/len(solved_accs)
+    else:
+        loss_dict = {
+            'total_loss': total_loss.item(),
+            'equation_loss': current_equation_loss.item(),
+            'num_x_loss': 0, 
+            'accuracy': sum(total_acc)/len(total_acc),
+            # 'soln_accuracy': 1 if sum(total_acc)/len(total_acc) == 1 else 0, 
+            # 'classify_loss': classify_loss.item(),
+            # 'classify_accuracy': op_right/op_occurances,
+            'sni_loss': 0,
+            'sni_acc' : 0,
+            # 'semantic_alignment_loss': total_semanti_alognment_loss.item(),
+            'equ_1_acc': 0,
+            'equ_2_acc': 0,
+            'equ_3_acc': 0,
+            'acc_solutions' : sum(solved_accs)/len(solved_accs),
+            'acc_solutions_plain' : solved_accs,
+            'acc_solutions_set' : solved_accs_set,
+            'acc_solutions_lengths' : solved_accs_lens,
+            }
+        return total_loss.item(), sum(total_acc)/len(total_acc), sum(num_equations_mse)/len(num_equations_mse), comparison, 0 ,sni_acc , loss_dict, total_acc, sum(solved_accs)/len(solved_accs)
 
     # Update parameters with optimizers
-    return total_loss.item(), sum(total_acc)/len(total_acc), sum(num_equations_mse)/len(num_equations_mse), comparison, 0 ,sni_acc , loss_dict, total_acc, sum(solved_accs)/len(solved_accs)
 
 # @line_profiler.profile
 def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, output_lang, num_pos, vars, useCustom, debug, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, equation_lengths, useSNIMask, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
