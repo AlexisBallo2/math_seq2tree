@@ -107,8 +107,8 @@ else:
         "n_layers": 2,
         "useCustom": True,
         # "setName" : "PEN",
-        "setName" : "MATH",
-        # "setName" : "DRAW",
+        # "setName" : "MATH",
+        "setName" : "DRAW",
         # "setName" : "MAWPS",
         # "setName" : "ALG",
         "useSubMethod": True,
@@ -338,8 +338,8 @@ for fold in range(existing_fold, folds_to_do):
         generate = GenerateNode(hidden_size=config['hidden_size'], op_nums=op_nums, embedding_size=config['embedding_size'])
         merge = Merge(hidden_size=config['hidden_size'], embedding_size=config['embedding_size'])
 
-        num_x_predict = PredictNumX(hidden_size=config['hidden_size'], output_size=6, batch_size=config['batch_size'])
-        x_generate = GenerateXs(hidden_size=config['hidden_size'], output_size=5, batch_size=config['batch_size'])
+        num_x_predict = PredictNumX(hidden_size=config['hidden_size'], output_size=4, batch_size=config['batch_size'])
+        x_generate = GenerateXs(hidden_size=config['hidden_size'], output_size=4, batch_size=config['batch_size'])
         x_to_q = XToQ(hidden_size=config['hidden_size'])
 
         sementic_alignment = Seq2TreeSemanticAlignment(encoder_hidden_size=config['hidden_size'], decoder_hidden_size=config['hidden_size'], hidden_size=config['hidden_size'])

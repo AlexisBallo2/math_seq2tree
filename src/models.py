@@ -788,14 +788,14 @@ class GenerateXs(nn.Module):
         self.threeK = KMeans(n_clusters=3)
         
 
-        self.generate_1 = nn.Linear(hidden_size * 2, hidden_size)
-        self.generate_2 = nn.Linear(hidden_size * 2 , hidden_size)
-        self.generate_3 = nn.Linear(hidden_size * 2 , hidden_size)
-        self.generate_4 = nn.Linear(hidden_size * 2 , hidden_size)
-        self.generate_1g = nn.Linear(hidden_size * 2 , hidden_size)
-        self.generate_2g = nn.Linear(hidden_size * 2 , hidden_size)
-        self.generate_3g = nn.Linear(hidden_size * 2, hidden_size)
-        self.generate_4g = nn.Linear(hidden_size * 2, hidden_size)
+        self.generate_1 = nn.Linear(hidden_size, hidden_size)
+        self.generate_2 = nn.Linear(hidden_size , hidden_size)
+        self.generate_3 = nn.Linear(hidden_size , hidden_size)
+        self.generate_4 = nn.Linear(hidden_size , hidden_size)
+        self.generate_1g = nn.Linear(hidden_size , hidden_size)
+        self.generate_2g = nn.Linear(hidden_size , hidden_size)
+        self.generate_3g = nn.Linear(hidden_size, hidden_size)
+        self.generate_4g = nn.Linear(hidden_size, hidden_size)
 
 
 
@@ -837,33 +837,34 @@ class GenerateXs(nn.Module):
             for j in range(nums_to_gen):
                 if j == 0:
 
-                    child = torch.tanh(self.generate_1(torch.cat((goal_vect, outAttention), 0)))
+                    # child = torch.tanh(self.generate_1(torch.cat((goal_vect, outAttention), 0)))
+                    child = torch.tanh(self.generate_1(goal_vect))
                      # o_l = sigmoid( W_ol [q c e(\hat y | P)] ) 
-                    child_g = torch.sigmoid(self.generate_1g(torch.cat((goal_vect,outAttention), 0)))
+                    child_g = torch.sigmoid(self.generate_1g(goal_vect))
                     # h_l = o_1 * C_l
                     l_child = child * child_g 
                     xs.append(l_child)
 
                 elif j == 1:
-                    child = torch.tanh(self.generate_2(torch.cat((goal_vect, outAttention),0)))
+                    child = torch.tanh(self.generate_2(goal_vect))
                      # o_l = sigmoid( W_ol [q c e(\hat y | P)] ) 
-                    child_g = torch.sigmoid(self.generate_2g(torch.cat((goal_vect,outAttention), 0)))
+                    child_g = torch.sigmoid(self.generate_2g(goal_vect))
                     # h_l = o_1 * C_l
                     l_child = child * child_g 
                     xs.append(l_child)
 
                 elif j == 2:
-                    child = torch.tanh(self.generate_3(torch.cat((goal_vect, outAttention),0)))
+                    child = torch.tanh(self.generate_3(goal_vect))
                      # o_l = sigmoid( W_ol [q c e(\hat y | P)] ) 
-                    child_g = torch.sigmoid(self.generate_3g(torch.cat((goal_vect,outAttention), 0)))
+                    child_g = torch.sigmoid(self.generate_3g(goal_vect))
                     # h_l = o_1 * C_l
                     l_child = child * child_g 
                     xs.append(l_child)
 
                 else:
-                    child = torch.tanh(self.generate_4(torch.cat((goal_vect, outAttention),0)))
+                    child = torch.tanh(self.generate_4(goal_vect))
                      # o_l = sigmoid( W_ol [q c e(\hat y | P)] ) 
-                    child_g = torch.sigmoid(self.generate_4g(torch.cat((goal_vect,outAttention), 0)))
+                    child_g = torch.sigmoid(self.generate_4g(goal_vect))
                     # h_l = o_1 * C_l
                     l_child = child * child_g 
                     xs.append(l_child)
