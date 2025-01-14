@@ -11,6 +11,13 @@ import numpy as np
 import sympy as sp
 from sympy.solvers import solve
 
+if torch.backends.mps.is_available():
+    device = torch.device("mps")
+elif torch.cuda.is_available():
+    device = torch.device("cuda")
+else:
+    device = torch.device("cpu")
+
 
 # do_saves = True
 do_saves = False 
@@ -38,7 +45,8 @@ if use_save:
 if do_saves:
     save_folder = f"saves/{run_id}"
     os.makedirs(save_folder, exist_ok=True)
-# sys.stdout = open('output.txt','wt')
+
+sys.stdout = open('output.txt','wt')
 
 
 batch_size = 64
@@ -93,8 +101,8 @@ else:
         # "batch_size": 1,
         # "batch_size": 2,
         # "batch_size": 5,
-        # "batch_size": 20,
-        "batch_size": 64,
+        "batch_size": 20,
+        # "batch_size": 64,
         "embedding_size": 128,
         "hidden_size": 512,
         # "n_epochs": 15,
@@ -109,8 +117,8 @@ else:
         # "useCustom": True,
         "useCustom": False,
         # "setName" : "PEN",
-        "setName" : "MATH",
-        # "setName" : "DRAW",
+        # "setName" : "MATH",
+        "setName" : "DRAW",
         # "setName" : "MAWPS",
         # "setName" : "ALG",
         "useSubMethod": True,
@@ -437,9 +445,8 @@ for fold in range(existing_fold, folds_to_do):
 
 
     # Move models to GPU
-    if USE_CUDA:
-        for k,v in models.items():
-            v.cuda()
+    for k,v in models.items():
+        v.to(device)
 
     generate_num_ids = []
     for num in generate_nums:

@@ -16,7 +16,13 @@ MAX_OUTPUT_LENGTH = 45
 MAX_INPUT_LENGTH = 120
 USE_CUDA = torch.cuda.is_available()
 
-device = torch.device("cuda" if USE_CUDA else "cpu")
+if torch.backends.mps.is_available():
+    device = torch.device("mps")
+elif torch.cuda.is_available():
+    device = torch.device("cuda")
+else:
+    device = torch.device("cpu")
+
 
 
 class Beam:  # the class save the beam node
@@ -89,16 +95,15 @@ def get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_siz
         # full rest with 1s ([1s] signify that these locations are not from the input text)
         masked_index += [temp_1 for _ in range(len(num_pos[b]), num_size)]
     # size: b * num_size
-    indices = torch.LongTensor(indices)
+    indices = torch.LongTensor(indices).to(device)
     # size: b * (num_size x hidden_size)
     masked_index = torch.ByteTensor(masked_index)
     # flatten and convert to mask:
     #   masked_index = b x num_size x hidden_size
     masked_index = masked_index.view(batch_size, num_size, hidden_size)
     masked_index = masked_index.bool()
-    if USE_CUDA:
-        indices = indices.cuda()
-        masked_index = masked_index.cuda()
+    indices = indices.to(device)
+    masked_index = masked_index.to(device)
     # convert encoder format to be batch first to match mask
     # all_outputs: num_batches x max_length x hidden_size 
     all_outputs = encoder_outputs.transpose(0, 1).contiguous()
@@ -156,10 +161,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
 
     # Turn padded arrays into (batch_size x max_len) tensors, transpose into (max_len x batch_size)
-    input_var = torch.LongTensor(input_batch).transpose(0, 1)
-    problem_vars = torch.LongTensor(output_var_batches)
-    target = torch.LongTensor(target_batch)#.transpose(0, 1)
-    target_length = torch.LongTensor(target_length)
+    input_var = torch.LongTensor(input_batch).transpose(0, 1).to(device)
+    problem_vars = torch.LongTensor(output_var_batches).to(device)
+    target = torch.LongTensor(target_batch).to(device)
+    target_length = torch.LongTensor(target_length).to(device)
     # if useCustom:
     #     equation_targets_tensor = torch.LongTensor(equation_targets)
     # else:
@@ -304,11 +309,11 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     #     print("avail tokens", avail_tokens)
 
 
-    if USE_CUDA:
-        input_var = input_var.cuda()
-        seq_mask = seq_mask.cuda()
-        padding_hidden = padding_hidden.cuda()
-        num_mask = num_mask.cuda()
+    input_var = input_var.to(device)
+    seq_mask = seq_mask.to(device)
+    padding_hidden = padding_hidden.to(device)
+    num_mask = num_mask.to(device)
+
     batch_size = len(input_length)
 
     total_loss = None
@@ -521,8 +526,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
             actuct_num_or_opp.append(op_or_num)
 
-            if USE_CUDA:
-                generate_input = generate_input.cuda()
+            generate_input = generate_input.to(device)
 
             # takes:
             #     generate a left and right child node with a label
@@ -715,10 +719,9 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
         # batch_size x max_len x num_nums
         ith_equation_target = ith_equation_target.transpose(0, 1).contiguous()
-        if USE_CUDA:
             # all_leafs = all_leafs.cuda()
-            all_node_outputs2 = all_node_outputs2.cuda()
-            ith_equation_target = ith_equation_target.cuda()
+        all_node_outputs2 = all_node_outputs2.to(device)
+        ith_equation_target = ith_equation_target.to(device)
 
         # for batch in target:
         #     print([output_lang.index2word[_] for _ in batch])
@@ -968,10 +971,9 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
 
     batch_size = 1
 
-    if USE_CUDA:
-        input_var = input_var.cuda()
-        seq_mask = seq_mask.cuda()
-        padding_hidden = padding_hidden.cuda()
+    input_var = input_var.to(device)
+    seq_mask = seq_mask.to(device)
+    padding_hidden = padding_hidden.to(device)
         # num_mask = num_mask.cuda()
 
     # Run words through encoder
@@ -1187,8 +1189,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
                     if out_token < num_start:
                         # this is the token to generate l and r from
                         generate_input = torch.LongTensor([out_token])
-                        if USE_CUDA:
-                            generate_input = generate_input.cuda()
+                        generate_input = generate_input.to(device)
                         # get the left and right children and current label
                         left_child, right_child, node_label = models['generate'](current_embeddings, generate_input, current_context)
 
