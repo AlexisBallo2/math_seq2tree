@@ -41,6 +41,7 @@ def time_since(s):  # compute time
     return '%dh %dm %ds' % (h, m, s)
 
 # this equation keeps only operators 
+# @line_profiler.profile
 def generate_tree_input(target, decoder_output, nums_stack_batch, num_start, unk):
     # target[t] is the ACTUAL equation character at index t for each batch
     #    target[t] = 1 x num_batches
@@ -614,9 +615,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                         # current_num = op.goal_vect.squeeze(0)
                         current_num = models['merge'](op.embedding, sub_stree.embedding, current_num)
                         temp_encoder_outputs = encoder_outputs.transpose(0,1)
-                        encoder_mapping, decoder_mapping = models['semantic_alignment'](current_num, temp_encoder_outputs[idx])
+                        if useSemanticAlignment:
+                            encoder_mapping, decoder_mapping = models['semantic_alignment'](current_num, temp_encoder_outputs[idx])
                         # goal_out, t_out = models['fix_t'](op, current_num)
-                        all_sa_outputs.append((encoder_mapping, decoder_mapping))
+                            all_sa_outputs.append((encoder_mapping, decoder_mapping))
                         # all_t_alignment_outputs.append((goal_out, t_out))
                         #print('merged. o now of size', len(o))
                     # then re-add the node back to the stack
