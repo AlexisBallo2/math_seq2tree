@@ -248,7 +248,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
     num_equations_mse = []
     if useCustom:
-        pred_num_equations = models['num_x_predict'](encoder_outputs, problem_output)
+        pred_num_equations = models['num_x_predict'](problem_output)
         # pred_num_equations = models['num_x_predict'](encoder_outputs)
         # pred_num_equations = models['num_x_predict'](problem_output)
         max_pred_num_equations = max(pred_num_equations.argmax(dim = 1).tolist())
@@ -273,7 +273,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             d = output_lang.num_start +  num_size + len(generate_nums) + len(problem_vars[i].tolist())
             if useSNIMask:
                 cur_sni_list = is_sni_list[i].argmax(1)
-            # #     # flip the mask
+                # #     # flip the mask
                 flipped = cur_sni_list == 0
                 flipped = flipped.type(torch.int)
                 flipped = flipped.tolist()
@@ -355,7 +355,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         qs = problem_output
     if useCustom:
         # qs: batch_size x num_vars x hidden_size
-        xs = models['q_to_x'](encoder_var_outputs, qs, var_output)
+        xs = models['q_to_x'](encoder_var_outputs, qs)
     else:
         xs = None 
 

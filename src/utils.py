@@ -321,6 +321,35 @@ def read_draw_alignment(observation):
     return finals
         
 
+# def read_draw_alignment(observation):
+#     vars = ['m', 'n', 'o', 'p', 'q', 'r']
+#     mapVars = list(observation['answers'][0].keys())
+#     mapVarDict = {}
+#     for i, var in enumerate('lSolutions'):
+#         mapVarDict[var] = vars[i]
+#     templates = observation['Template']
+#     # templates = [i.replace("%", "") for i in templates]
+#     alignment = observation['numbers']
+#     mapping = {}
+#     for i, align in enumerate(alignment):
+#         item = align['key']
+#         value = align['value']
+#         mapping[item] = value
+#     finals = []
+#     for template in templates:
+#         final_single = ""
+#         for token in template.split(" "):
+#             if token in mapping:
+#                 final_single += str(mapping[token])
+#             elif token in mapVarDict:
+#                 final_single += mapVarDict[token]
+#             elif token == " ":
+#                 continue
+#             else:
+#                 final_single += token
+#         finals.append(final_single)
+#     return finals
+
 def read_pen_alignment(observation):
     vars = ['m', 'n', 'o', 'p', 'q', 'r']
     mapVars = list(observation['answers'][0].keys())
@@ -523,6 +552,30 @@ def read_epoch_state(path):
 
 
 
+def get_draw_train(pairs, type):
+
+    if type == "dev":
+        file = "data/DRAW/draw-train.txt"
+    elif type == "test":
+        file = "data/DRAW/draw-train.txt"
+    else:
+        file = "data/DRAW/draw-train.txt"
+
+    sets = []
+    with open (file, "r") as f:
+        for line in f:
+            sets.append(int(line.strip()))
+
+
+    print(sets)
+    final_set = []
+    for row in pairs:
+        if row['index'] in sets:
+            final_set.append(row)
+    return final_set
+
+
+
     # for file in os.listdir(path):
     #     print('file', file)
     #     if file == "models":
@@ -539,3 +592,4 @@ def read_epoch_state(path):
     #         with open(f"{path}/{file}", "r") as f:
     #             state_dict[file.replace(".json", "")] = json.loads(f.read())
     return state_dict
+

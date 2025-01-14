@@ -712,19 +712,12 @@ class PredictNumX(nn.Module):
 
 
     # def forward(self, goal_vect, eval = False):
-    def forward(self, encoder, hidden, eval = False):
-
-        # enc2 = encoder.transpose(0,1)
-        # attn = self.attn(hidden.unsqueeze(0), encoder, None)
-        # current_context = attn.bmm(enc2).squeeze(1)  # B x 1 x N
-        # out = self.fc1(current_context)
-        # return out
-
-
+    def forward(self, hidden, eval = False):
 
         # goal_vect = self.em_dropout(goal_vect)
         # "EPT-X paper"
-        temp = self.fc1(hidden)
+        temp05 = self.em_dropout(hidden)
+        temp = self.fc1(temp05)
         temp2 = self.relu(temp)
         temp3 = self.fc2(temp2)
 
@@ -734,47 +727,6 @@ class PredictNumX(nn.Module):
         out = self.softmax(temp4) * mask
         return out 
 
-        # hidden will be a list of unknown length with embed dimension of 512. 
-
-        # hidden = hidden.unsqueeze(0)
-        # if eval == False:
-        #     zeroList = [[[0.0] * 512] for _ in range(hidden.size(1))]
-        # else:
-        #     zeroList = [[[0.0] * 512] for _ in range(1)]
-        # padding_tensor = torch.tensor(zeroList)  # or any other values you want to pad with
-        # padding_tensor = padding_tensor.squeeze(1)
-        # num_padding_needed = 100 - hidden.size(0)
-
-        # # Ensure num_padding_needed is positive
-        # if num_padding_needed > 0:
-        #     padding = padding_tensor.unsqueeze(0).expand(num_padding_needed, -1, -1).to(device)
-        #     hidden2 = torch.cat((hidden, padding), dim=0)
-        # else:
-        #     # If padding is not needed, use the original tensor
-        #     hidden2 = hidden
-
-        # hidden2T = hidden2.transpose(0, 1)
-
-
-
-        # # pad this list to be 100 long
-        # # Initialize hidden and cell states with zeros
-        # h0 = torch.zeros(self.lstm.num_layers * 2, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
-        # c0 = torch.zeros(self.lstm.num_layers * 2, hidden2T.size(0), self.lstm.hidden_size).to(hidden2T.device)
-
-        # # Forward propagate LSTM
-        # # out: batch_size x max_tokens x hidden size
-        # out, _ = self.lstm(hidden2T, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
-        # # pass last token through feedforward nn
-        # final_token_emb = out[:, -1, 512:] + out[:, -1, :512]
-        # first_token_emb = out[:, 1, :512] + out[:, 1, 512:]
-        # emb = torch.cat((final_token_emb.to(device), first_token_emb.to(device)), dim = -1)
-        # out = self.fc(emb).squeeze(-1)  # out: tensor of shape (batch_size, output_size)
-        # # mask the first token (dont want to predict 0 xs)
-        # # out[:, 0] = -1e12
-        # out[:, 0] = 0
-        # softmax = torch.nn.Softmax(dim=-1)
-        # return softmax(out)
 
 class GenerateXs(nn.Module):
     def __init__(self, hidden_size, output_size, batch_size, dropout=0.5):
@@ -785,17 +737,6 @@ class GenerateXs(nn.Module):
         self.batch_size = batch_size
 
         self.em_dropout = nn.Dropout(dropout)
-        self.out = nn.Linear(hidden_size * 10, 1)
-
-        self.new_old_final = nn.Linear(hidden_size * 2, hidden_size)
-
-        self.K = nn.Linear(hidden_size, hidden_size)
-        self.V = nn.Linear(hidden_size, hidden_size)
-
-        # self.oneK = KMeans(n_clusters=1)
-        self.twoK = KMeans(n_clusters=2)
-        self.threeK = KMeans(n_clusters=3)
-        
 
         self.generate_1 = nn.Linear(hidden_size, hidden_size)
         self.generate_2 = nn.Linear(hidden_size, hidden_size)
@@ -806,34 +747,12 @@ class GenerateXs(nn.Module):
         self.generate_3g = nn.Linear(hidden_size, hidden_size)
         self.generate_4g = nn.Linear(hidden_size, hidden_size)
 
-        # self.generate_1 = nn.Linear(hidden_size * 2, hidden_size)
-        # self.generate_2 = nn.Linear(hidden_size * 2, hidden_size)
-        # self.generate_3 = nn.Linear(hidden_size * 2, hidden_size)
-        # self.generate_4 = nn.Linear(hidden_size * 2, hidden_size)
-        # self.generate_1g = nn.Linear(hidden_size * 2 , hidden_size)
-        # self.generate_2g = nn.Linear(hidden_size * 2, hidden_size)
-        # self.generate_3g = nn.Linear(hidden_size * 2, hidden_size)
-        # self.generate_4g = nn.Linear(hidden_size * 2, hidden_size)
-
-
-
 
     def forward(self, num_xs, hidden, problem_q):
         
         # hidden2: batch_size x tokens x hidden_size
 
         hidden2 = hidden.transpose(0,1)
-
-        # for batch in hidden2:
-        #     # if num_xs < 2:
-        #         # kmeans = self.oneK
-        #     elif num_xs < 3:
-        #         kmeans = self.twoK
-        #     else:
-        #         kmeans = self.threeK
-        #     result = kmeans(batch)
-            # print(result)
-
 
         # for each in batch
         out = []
@@ -842,16 +761,8 @@ class GenerateXs(nn.Module):
             nums_to_gen = num_xs
             # nums_to_gen = max(int(num_xs.tolist()), 1)
             # goal_vect = self.em_dropout(problem_q[i])
-            goal_vect = problem_q[i]
-            kt = self.K(hidden2[i]).transpose(0,1)
-            v = self.V(hidden2[i])
-            # for each number to gen
-            qkt = torch.matmul(goal_vect, kt)
-            smqkt = nn.functional.softmax(qkt)
-            # output: hidden_size
-            # outAttention = torch.sigmoid(torch.matmul(smqkt, v))
-            outAttention = torch.matmul(smqkt, v)
-            # xs.append(outAttention)
+            goal_vect = self.em_dropout(problem_q[i])
+
             for j in range(nums_to_gen):
                 if j == 0:
 
@@ -861,8 +772,6 @@ class GenerateXs(nn.Module):
                     # child_g = torch.sigmoid(self.generate_1g(torch.cat((goal_vect, outAttention), 0)))
                     child_g = torch.sigmoid(self.generate_1g(goal_vect))
                     # h_l = o_1 * C_l
-                    l_child = child * child_g 
-                    xs.append(l_child)
 
                 elif j == 1:
                     child = torch.tanh(self.generate_2(goal_vect))
@@ -870,9 +779,7 @@ class GenerateXs(nn.Module):
                      # o_l = sigmoid( W_ol [q c e(\hat y | P)] ) 
                     # child_g = torch.sigmoid(self.generate_2g(torch.cat((goal_vect, outAttention), 0)))
                     child_g = torch.sigmoid(self.generate_2g(goal_vect))
-                    # h_l = o_1 * C_l
-                    l_child = child * child_g 
-                    xs.append(l_child)
+
 
                 elif j == 2:
                     child = torch.tanh(self.generate_3(goal_vect))
@@ -881,9 +788,6 @@ class GenerateXs(nn.Module):
                     child_g = torch.sigmoid(self.generate_3g(goal_vect))
                     # child_g = torch.sigmoid(self.generate_3g(torch.cat((goal_vect, outAttention), 0)))
                     # h_l = o_1 * C_l
-                    l_child = child * child_g 
-                    xs.append(l_child)
-
                 else:
                     child = torch.tanh(self.generate_4(goal_vect))
                     # child = torch.tanh(self.generate_4(torch.cat((goal_vect, outAttention), 0)))
@@ -891,8 +795,9 @@ class GenerateXs(nn.Module):
                     child_g = torch.sigmoid(self.generate_4g(goal_vect))
                     # child_g = torch.sigmoid(self.generate_4g(torch.cat((goal_vect, outAttention), 0)))
                     # h_l = o_1 * C_l
-                    l_child = child * child_g 
-                    xs.append(l_child)
+                l_child = child * child_g 
+                xs.append(l_child)
+
             out.append(torch.stack(xs))
         final = torch.stack(out)
         return final
@@ -906,14 +811,14 @@ class XToQ(nn.Module):
         self.V = nn.Linear(hidden_size, hidden_size)
         self.lstm = nn.LSTM(hidden_size, hidden_size, 1, batch_first=True)
         self.fc = nn.Linear(hidden_size, 1)
-    def forward(self, hidden, x, problem_q):
+    def forward(self, hidden, x):
         # x = batch_size x num_xs x hidden_size
         # hidden = batch_size x tokens x hidden_size
 
         finals = []
 
         # hidden2 = batch_size x tokens x hidden_size
-        hidden2 = hidden.transpose(0,1)
+        hidden2 = self.em_dropout(hidden.transpose(0,1))
 
         # for each in batch
         for i in range(hidden2.shape[0]):
@@ -936,15 +841,6 @@ class XToQ(nn.Module):
             # need to change later
             qs = torch.stack(qs)#.transpose(0,1)
             finals.append(qs)
-            # having more than 1 q means we need a q that covers all q/xs
-            # if len(qs) > 1:
-            #     h0 = torch.zeros(1, self.lstm.num_layers, self.lstm.hidden_size).to(qs.device)
-            #     c0 = torch.zeros(1, self.lstm.num_layers, self.lstm.hidden_size).to(qs.device)
-
-            #     # Forward propagate LSTM
-            #     out1, _ = self.lstm(qs, (h0, c0))  # out: tensor of shape (seq_length, hidden_size)
-            #     qs = torch.cat((qs, out1[0].unsqueeze(0)), dim=0)
-            # finals.append(qs)
                 
         output = torch.stack(finals)
         return output

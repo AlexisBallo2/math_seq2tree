@@ -1,9 +1,13 @@
 import json
 
-file = "./draw-dev.txt"
+# file = "./draw-dev.txt"
 # file = "./draw-test.txt"
-all_file = "./draw.json"
-output_file = "./draw-dev.json"
+file = "./draw-train.txt"
+# all_file = "./draw.json"
+all_file = "../PEN.json"
+# output_file = "./draw-dev.json"
+# output_file = "./draw-test.json"
+output_file = "./draw-train.json"
 
 sets = []
 with open (file, "r") as f:
@@ -16,7 +20,7 @@ with open (all_file, "r") as f:
 print(sets)
 final_set = []
 for row in all_sets:
-    if row['iIndex'] in sets:
+    if row['dataset'] == "draw" and row['index'] in sets:
         final_set.append(row)
 
 with open(output_file, 'w') as f:

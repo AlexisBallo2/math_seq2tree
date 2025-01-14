@@ -839,8 +839,8 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             "equationTargetVars": equationTargetVars,
             "solution": targets,
             "pairNumMapping": pairNumMapping,
-            "specificDataset": sepcificDataset
-
+            "specificDataset": sepcificDataset,
+            "id": d['index'] 
         })
 
     temp_g = []

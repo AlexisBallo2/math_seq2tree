@@ -18,12 +18,16 @@ elif torch.cuda.is_available():
 else:
     device = torch.device("cpu")
 
+print("DEVICE", device)
+
 
 # do_saves = True
 do_saves = False 
 # use_save = True 
 use_save = False 
 
+# do_folds = True
+do_folds = False
 saved_epoch_completed = False
 fold_save_completed = False
 
@@ -46,7 +50,7 @@ if do_saves:
     save_folder = f"saves/{run_id}"
     os.makedirs(save_folder, exist_ok=True)
 
-sys.stdout = open('output.txt','wt')
+# sys.stdout = open('output.txt','wt')
 
 
 batch_size = 64
@@ -201,13 +205,14 @@ else:
     # pairs = temp_pairs
     # print(Counter(pairs_len))
 
-    fold_size = int(len(pairs) * 1/config['num_folds'])
-    fold_pairs = []
-    for split_fold in range(config['num_folds'] - 1):
-        fold_start = fold_size * split_fold
-        fold_end = fold_size * (split_fold + 1)
-        fold_pairs.append(pairs[fold_start:fold_end])
-    fold_pairs.append(pairs[(fold_size * (config['num_folds']-1)):])
+    if do_folds:
+        fold_size = int(len(pairs) * 1/config['num_folds'])
+        fold_pairs = []
+        for split_fold in range(config['num_folds'] - 1):
+            fold_start = fold_size * split_fold
+            fold_end = fold_size * (split_fold + 1)
+            fold_pairs.append(pairs[fold_start:fold_end])
+        fold_pairs.append(pairs[(fold_size * (config['num_folds']-1)):])
 
     best_acc_fold = []
 
@@ -300,12 +305,16 @@ for fold in range(existing_fold, folds_to_do):
         fold_loss = []
         fold_eval_accuracy = []
         fold_soln_eval_accuracy = []
-        # train on current fold, test on other folds
-        for fold_t in range(config["num_folds"]):
-            if fold_t == fold:
-                pairs_tested += fold_pairs[fold_t]
-            else:
-                pairs_trained += fold_pairs[fold_t]
+        if do_folds:
+            # train on current fold, test on other folds
+            for fold_t in range(config["num_folds"]):
+                if fold_t == fold:
+                    pairs_tested += fold_pairs[fold_t]
+                else:
+                    pairs_trained += fold_pairs[fold_t]
+        else:
+            pairs_tested = get_draw_train(pairs, 'test')
+            pairs_trained = get_draw_train(pairs, 'train')
 
         input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums, copy_nums, vars, config['useCustom'], config['useSeperateVars'], config['useBertEmbeddings'], tree=True)
         if do_saves:
@@ -700,7 +709,8 @@ for fold in range(existing_fold, folds_to_do):
             "fold_pairs": fold_pairs,
             "fold_accuracies": fold_accuracies,
         })
-    # break 
+    if not do_folds:
+        break
 
 # a, b, c = 0, 0, 0
 # for bl in range(len(best_acc_fold)):
