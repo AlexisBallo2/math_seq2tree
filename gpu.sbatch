@@ -15,6 +15,7 @@
 #SBATCH --time=7-00:0:00
 # Time limit hrs:min:sec 
 # NO SBATCH --output=./out.out
+#SBATCH --gres=gpu:1
 
 
 # print SLURM envirionment variables
