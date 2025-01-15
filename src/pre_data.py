@@ -876,8 +876,11 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             sepcificDataset = d['dataset']
             id_index = d['index']
         else:
+            if setName == "DRAW":
+                id_index = d['index'] 
+            else:
+                id_index = None
             sepcificDataset = setName.lower()
-            id_index = None
         pairs.append({
             "input_seq": input_seq,
             "equations": final_out_seq_list,
