@@ -26,8 +26,8 @@ do_saves = False
 # use_save = True 
 use_save = False 
 
-# do_folds = True
-do_folds = False
+do_folds = True
+# do_folds = False
 saved_epoch_completed = False
 fold_save_completed = False
 
@@ -136,8 +136,8 @@ else:
         "useOneEquation": False,
         'useBertEmbeddings': False,
         'useTFix' : False,
-        # "num_folds" : 2,
-        "num_folds" : 5,
+        "num_folds" : 2,
+        # "num_folds" : 5,
         # "num_obs": 20,   
         # "num_obs": 100,   
         "num_obs": None,   
@@ -202,6 +202,7 @@ else:
         if len(p['equations']) < 4:
             temp_pairs.append(p)
     pairs = temp_pairs
+    pairs = get_draw_train(pairs, 'dev')
     # pairs = temp_pairs
     # print(Counter(pairs_len))
 
