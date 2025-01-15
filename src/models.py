@@ -209,6 +209,9 @@ class EncoderSeq(nn.Module):
         self.input_lang = input_lang
         self.tokenizer = BertTokenizer.from_pretrained(model_name)
         self.model = BertModel.from_pretrained(model_name)
+        for name, param in list(self.model.named_parameters())[:-4]:
+            param.requires_grad = False               
+
 
         # Text to embed
         # text = "This is a sample sentence."
@@ -227,7 +230,7 @@ class EncoderSeq(nn.Module):
             for each_batch in input_per_batch:
                 string = [self.input_lang.index2word[i] for i in each_batch.tolist()]
                 input_ids = [self.tokenizer.encode(word, add_special_tokens=True) for word in string]
-                input_ids_padded = torch.nn.utils.rnn.pad_sequence([torch.tensor(x) for x in input_ids], batch_first=True)
+                input_ids_padded = torch.nn.utils.rnn.pad_sequence([torch.tensor(x) for x in input_ids], batch_first=True).to(device)
                 # with torch.no_grad():
                 outputs = self.model(input_ids_padded)
                 last_hidden_states = outputs.last_hidden_state

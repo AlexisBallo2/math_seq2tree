@@ -134,7 +134,8 @@ else:
         # "useOpScaling" : True,
         'useSNIMask' : False,
         "useOneEquation": False,
-        'useBertEmbeddings': False,
+        'useBertEmbeddings': True,
+        # 'useBertEmbeddings': False,
         'useTFix' : False,
         "num_folds" : 2,
         # "num_folds" : 5,
@@ -144,7 +145,7 @@ else:
     }
     config['title'] = f"{config['num_obs']} Observations, {config['n_epochs']} Epochs, Dataset = {config['setName']}, Custom = {config['useCustom']} ",
     if config['useBertEmbeddings']:
-        config['embedding_size ']= 768
+        config['embedding_size']= 768
 
 
     print("CONFIG \n", config)
