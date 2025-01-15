@@ -18,31 +18,79 @@ PAD_token = 0
 p = inflect.engine()
 replace = {}
 
-replace['two-thirds'] = 0.66666
-replace['three-fourths'] = 0.75
-replace['five-thirds'] = 1.66666
-replace['two-thirds'] = 0.66666
-replace['three-fourth'] = 0.75
-replace['one-sixth'] = 0.16666
-replace['one-tenth'] = 0.1
-replace['one-third'] = 0.33333
-replace['one-fourth'] = 0.25
-replace['two-fifths'] = 0.4
 
+def fraction_to_text(numerator, denominator):
 
-replace['one hundred sixty-two'] = 162
-replace['two hundred ninety-seven'] = 297
-replace['hundred sixty-two'] = 162
-replace['seventy-two'] = 72
+    # Create an inflect engine
+    p = inflect.engine()
+    
+    # Convert numbers to words
+    numerator_text = p.number_to_words(numerator)
+    denominator_text = p.number_to_words(denominator)
+    def rep(text):
+        text = p.plural(text)
+        text = text.replace("threes", "thirds")
+        text = text.replace("fours", "fourths")
+        text = text.replace("fives", "fifths")
+        text = text.replace("sixes", "sixths")
+        text = text.replace("sevens", "sevenths")
+        text = text.replace("eights", "eighths")
+        text = text.replace("nines", "ninths")
+        return text
+    
+    # Check if the denominator is 1 or equals the numerator (for whole numbers)
+    if denominator == 1:
+        return False 
+    elif numerator % denominator == 0:
+        return p.number_to_words(numerator // denominator)
+
+    # Construct the text for the fraction
+    fraction_text = f"{numerator_text}-{denominator_text if denominator == 1 else rep(denominator_text)}"
+    return fraction_text
+
+for i in range(1, 10):
+    for j in range(1, 10):
+        text = fraction_to_text(i, j)
+        if text:
+            replace[text] = round(i/j, 5)
+
+# no 10s  
+for i in range(200, 1, -1):
+    word = p.number_to_words(i).replace(" and", "")
+    if i % 10 == 0:
+        continue
+    else:
+        replace[word] = i
+
+# no 100s
+# add in the 10s
+for i in range(20, 1, -1):
+    word = p.number_to_words(i * 10).replace(" and", "")
+    if i % 100 == 0: 
+        continue
+    else:
+        replace[word] = i
+# add in the 100s
+for i in range(2, 1, -1):
+    word = p.number_to_words(i * 100).replace(" and", "")
+    replace[word] = i
+
+# replace['two-thirds'] = 0.66666
+# replace['three-fourths'] = 0.75
+# replace['five-thirds'] = 1.66666
+# replace['two-thirds'] = 0.66666
+# replace['three-fourth'] = 0.75
+# replace['one-sixth'] = 0.16666
+# replace['one-tenth'] = 0.1
+# replace['one-third'] = 0.33333
+# replace['one-fourth'] = 0.25
+# replace['two-fifths'] = 0.4
 
 
 replace['7.5 m'] = 7500000
 replace['114.7 m'] = 114700000
 
 replace['zero'] = 0
-replace['thirty nine'] = 39
-replace['sixteen'] = 39
-replace['eighteen'] = 18
 replace["4teen"] = 14
 replace['twice'] = 2
 replace['quarter'] = 0.25
@@ -85,10 +133,6 @@ def are_numbers_close(num1, num2, decimal_places=2):
     return round(num1, decimal_places) == round(num2, decimal_places)
 
 
-# replace[','] = ""
-for i in range(101, 1, -1):
-    word = p.number_to_words(i)
-    replace[word] = i
 
 
 
@@ -438,6 +482,8 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             seg = d["text"]
             seg = seg.lower()
             seg1 = seg
+            if 'two-fifths' in seg1.split():
+                print()
             if "seventy two" in seg:
                 print()
             for k,v in replace.items():

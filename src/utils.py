@@ -570,7 +570,7 @@ def get_draw_train(pairs, type):
     print(sets)
     final_set = []
     for row in pairs:
-        if row['index'] in sets:
+        if row['id'] in sets:
             final_set.append(row)
     return final_set
 
