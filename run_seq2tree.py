@@ -105,8 +105,8 @@ else:
         # "batch_size": 1,
         # "batch_size": 2,
         # "batch_size": 5,
-        "batch_size": 20,
-        # "batch_size": 64,
+        # "batch_size": 20,
+        "batch_size": 64,
         "embedding_size": 128,
         "hidden_size": 512,
         # "n_epochs": 15,
@@ -121,8 +121,8 @@ else:
         "useCustom": True,
         # "useCustom": False,
         # "setName" : "PEN",
-        # "setName" : "MATH",
-        "setName" : "DRAW",
+        "setName" : "MATH",
+        # "setName" : "DRAW",
         # "setName" : "MAWPS",
         # "setName" : "ALG",
         "useSubMethod": True,
@@ -134,11 +134,11 @@ else:
         # "useOpScaling" : True,
         'useSNIMask' : False,
         "useOneEquation": False,
-        'useBertEmbeddings': True,
-        # 'useBertEmbeddings': False,
+        # 'useBertEmbeddings': True,
+        'useBertEmbeddings': False,
         'useTFix' : False,
-        "num_folds" : 2,
-        # "num_folds" : 5,
+        # "num_folds" : 2,
+        "num_folds" : 5,
         # "num_obs": 20,   
         # "num_obs": 100,   
         "num_obs": None,   
@@ -203,7 +203,7 @@ else:
         if len(p['equations']) < 4:
             temp_pairs.append(p)
     pairs = temp_pairs
-    pairs = get_draw_train(pairs, 'dev')
+    # pairs = get_draw_train(pairs, 'dev')
     # pairs = temp_pairs
     # print(Counter(pairs_len))
 

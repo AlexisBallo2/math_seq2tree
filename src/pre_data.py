@@ -509,7 +509,24 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             # equations = [equ[2:] + "=X"]
             equations = [equ]
             if useEqunSolutions:
-                targets = [d['ans']]
+                # targets = [d['ans']]
+                raw_ans = d['ans']
+                if raw_ans.find("%") == -1 and raw_ans.find(")") == -1 and raw_ans.find('(') == -1:
+                    targets = [round(float(raw_ans))]
+                else:
+                    equ = equ.replace("%", "/100").replace('[', '(').replace(']', ')')
+                    temp = "Eq(" + equ.replace("=", ",") + ")"
+                    # sympy_eq = sp.simplify(temp)
+                    solved = solve(temp, dict=True)
+                    act_solns = [round(i) for i in (list(solved[0].values()))]
+                    targets = act_solns
+                # ans = d['ans']
+                # if ans.find("%") != -1:
+                #     ans = ans[:-1]
+                #     ans = float(ans) / 100
+                # else:
+                #     ans = sp.simplify(ans)
+                # targets = [round(ans)]
                     # continue
             else:
                 targets = ['disabled'] 
