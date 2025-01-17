@@ -31,6 +31,7 @@ do_folds = False
 saved_epoch_completed = False
 fold_save_completed = False
 
+beam_size = 5
 
 import sys
 args = sys.argv
@@ -105,15 +106,15 @@ else:
         # "batch_size": 1,
         # "batch_size": 2,
         # "batch_size": 5,
-        # "batch_size": 20,
-        "batch_size": 64,
+        "batch_size": 20,
+        # "batch_size": 64,
         "embedding_size": 128,
         "hidden_size": 512,
         # "n_epochs": 15,
         # "n_epochs": 20,
         # "n_epochs": 10,
         # "n_epochs" : 20,
-        "n_epochs" : 80,
+        "n_epochs" : 3,
         "learning_rate": 1e-3,
         "weight_decay": 1e-5,
         "beam_size": 5,
@@ -139,9 +140,9 @@ else:
         'useTFix' : False,
         # "num_folds" : 2,
         "num_folds" : 5,
-        # "num_obs": 20,   
+        "num_obs": 20,   
         # "num_obs": 100,   
-        "num_obs": None,   
+        # "num_obs": None,   
     }
     config['title'] = f"{config['num_obs']} Observations, {config['n_epochs']} Epochs, Dataset = {config['setName']}, Custom = {config['useCustom']} ",
     if config['useBertEmbeddings']:
@@ -564,41 +565,43 @@ for fold in range(existing_fold, folds_to_do):
                     v.eval()
                 input_batch_len = len(input_batches[idx])
                 start = time.perf_counter()
-                loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list, acc_soln = train_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx],output_var_solutions[idx], config['useCustom'], vars, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useSNIMask'], config['useTFix'], datasets[idx], False) 
+                solved = evaluate_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx],output_var_solutions[idx], config['useCustom'], vars, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useSNIMask'], config['useTFix'], datasets[idx], beam_size, False) 
                 end = time.perf_counter()
                 test_time_array.append([input_batch_len,end - start])
                 # testc.append(comparison)
-                batch_accuricies['eval_total_loss'] += loss
-                batch_eval_comparison.append(comparison)
-                batch_accuricies["eval_token"].append(acc)
-                batch_accuricies["eval_op_right"].append(op_right)
-                batch_accuricies["eval_num_x_mse"].append(num_x_mse)
-                batch_accuricies["eval_sni_acc"].append(sni_acc)
-                batch_accuricies['eval_loss_dict'].append(loss_dict)
+                if idx > 2:
+                    break
+                # batch_accuricies['eval_total_loss'] += loss
+                # batch_eval_comparison.append(comparison)
+                # batch_accuricies["eval_token"].append(acc)
+                # batch_accuricies["eval_op_right"].append(op_right)
+                # batch_accuricies["eval_num_x_mse"].append(num_x_mse)
+                # batch_accuricies["eval_sni_acc"].append(sni_acc)
+                # batch_accuricies['eval_loss_dict'].append(loss_dict)
                 if acc_soln == 1:
                     batch_accuricies["eval_soln"].append(1)
                 else:
                     batch_accuricies["eval_soln"].append(0)
 
-            batch_loss = batch_accuricies['eval_total_loss'] / len(input_lengths)
-            batch_eval_acc = sum(batch_accuricies["eval_token"]) / len(batch_accuricies["eval_token"])
-            batch_eval_op_right = sum(batch_accuricies["eval_op_right"]) / len(batch_accuricies["eval_op_right"])
-            batch_eval_num_x_mse = sum(batch_accuricies["eval_num_x_mse"]) / len(batch_accuricies["eval_num_x_mse"])
-            batch_eval_sni_acc = sum(batch_accuricies["eval_sni_acc"]) / len(batch_accuricies["eval_sni_acc"])
+            # batch_loss = batch_accuricies['eval_total_loss'] / len(input_lengths)
+            # batch_eval_acc = sum(batch_accuricies["eval_token"]) / len(batch_accuricies["eval_token"])
+            # batch_eval_op_right = sum(batch_accuricies["eval_op_right"]) / len(batch_accuricies["eval_op_right"])
+            # batch_eval_num_x_mse = sum(batch_accuricies["eval_num_x_mse"]) / len(batch_accuricies["eval_num_x_mse"])
+            # batch_eval_sni_acc = sum(batch_accuricies["eval_sni_acc"]) / len(batch_accuricies["eval_sni_acc"])
             batch_eval_soln_acc = sum(batch_accuricies["eval_soln"]) / len(batch_accuricies["eval_soln"])
-            print(epoch, 'batch eval soln', batch_eval_soln_acc)
-            eval_comparison.append(batch_eval_comparison)
+            # print(epoch, 'batch eval soln', batch_eval_soln_acc)
+            # eval_comparison.append(batch_eval_comparison)
 
-            print("loss:", batch_loss)
-            print("eval accuracy", batch_eval_acc)
+            # print("loss:", batch_loss)
+            # print("eval accuracy", batch_eval_acc)
 
-            fold_accuracies["eval_losses"].append(batch_loss)
-            fold_accuracies["eval_token"].append(batch_eval_acc)
-            fold_accuracies["eval_op_right"].append(batch_eval_op_right)
-            fold_accuracies["eval_num_x_mse"].append(batch_eval_num_x_mse)
-            fold_accuracies["eval_sni_acc"].append(batch_eval_sni_acc)
+            # fold_accuracies["eval_losses"].append(batch_loss)
+            # fold_accuracies["eval_token"].append(batch_eval_acc)
+            # fold_accuracies["eval_op_right"].append(batch_eval_op_right)
+            # fold_accuracies["eval_num_x_mse"].append(batch_eval_num_x_mse)
+            # fold_accuracies["eval_sni_acc"].append(batch_eval_sni_acc)
             fold_accuracies["eval_soln"].append(batch_eval_soln_acc)
-            fold_accuracies["eval_loss_dict"].append(batch_accuricies['eval_loss_dict'])
+            # fold_accuracies["eval_loss_dict"].append(batch_accuricies['eval_loss_dict'])
 
             print("------------------------------------------------------")
 

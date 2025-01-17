@@ -965,13 +965,14 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # Update parameters with optimizers
 
 # @line_profiler.profile
-def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, output_lang, num_pos, vars, useCustom, debug, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, equation_lengths, useSNIMask, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
+# def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, output_lang, num_pos, vars, useCustom, debug, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, equation_lengths, useSNIMask, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
+def evaluate_tree( input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets, var_pos, batch_sni, pair_mapping, solutions, useCustom, all_vars,  setName, useSemanticAlignment, useSeperateVars, useOpScaling, useSNIMask, useFixT, datasets, beam_size, inTraining, english=False):
 
     # seq_mask = torch.ByteTensor(1, input_length + len(vars)).fill_(0)
-    seq_mask = torch.ByteTensor(1, input_length).fill_(0)
+    seq_mask = torch.ByteTensor(1, input_length[0]).fill_(0)
     # Turn padded arrays into (batch_size x max_len) tensors, transpose into (max_len x batch_size)
     # input_var = torch.LongTensor(input_batch + [input_lang.word2index[i] for i in vars]).unsqueeze(1)
-    input_var = torch.LongTensor(input_batch).unsqueeze(1)
+    input_var = torch.LongTensor(input_batch).transpose(0,1).to(device)
 
 
     # Set to not-training mode to disable dropout
@@ -987,21 +988,21 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
 
     # Run words through encoder
     # encoder_outputs, problem_output = models['encoder'](input_var, [input_length + len(vars)])
-    encoder_outputs, problem_output = models['encoder'](input_var, [input_length])
-    encoder_var_outputs, var_output = models['encoder_var'](input_var, [input_length])
+    encoder_outputs, problem_output = models['encoder'](input_var, input_length)
+    encoder_var_outputs, var_output = models['encoder_var'](input_var, input_length)
 
     # Prepare input and output variables
     node_stacks = [[TreeNode(_)] for _ in problem_output.split(1, dim=0)]
 
-    num_size = len(num_pos)
-    all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, [num_pos], batch_size, num_size, models['encoder'].hidden_size)
+    num_size = len(num_pos[0])
+    all_nums_encoder_outputs = get_all_number_encoder_outputs(encoder_outputs, num_pos, batch_size, num_size, models['encoder'].hidden_size)
     num_start = output_lang.num_start
     # B x P x N
 
     # predict number of xs
     if useCustom:
-        # num_x = models['num_x_predict'](problem_output, eval=True).argmax().item()
-        num_x = len(equation_lengths)
+        num_x = models['num_x_predict'](problem_output).argmax().item()
+        # num_x = len(equation_lengths)
     else:
         num_x = 1
     print('predicted num x', num_x)
@@ -1027,49 +1028,53 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
         # var_size = len(var_pos[0])
         # # xs = get_all_number_encoder_outputs(encoder_outputs, var_pos, batch_size, var_size, models['encoder'].hidden_size)
         # # padd the xs in the first dim to match the length of variables
-        if (num_x) < len(vars):
-            padding = torch.zeros(1, len(vars) - num_x, 512)
-            qs = torch.cat((qs, padding.to(device)), dim=1).to(device)
-        if num_x > len(vars):
-            qs = qs[:, :len(vars), :]
     else: 
         qs = problem_output
 
     # get qs
-    if useCustom and useSeperateVars:
-        xs = models['q_to_x'](encoder_var_outputs, qs, var_output)
+    if useCustom:
+        xs = models['q_to_x'](encoder_var_outputs, qs)
         # xs = torch.zeros(1, len(vars), 512)
     else:
         xs = None
 
-    temp_encoder_outputs = encoder_outputs.transpose(0,1)
-    zero = torch.zeros(models['predict'].hidden_size)
-    num_window = []
-    for batch_num,batch in enumerate([num_pos]):
-        batch_windows = []
-        for num in batch:
-            num_emb_window = []
-            for i in range(num - 3, num+4):
-                if i < 0 or i >= input_length:
-                    num_emb_window.append(zero)
-                else:
-                    num_emb_window.append(temp_encoder_outputs[batch_num][i])
-            num_emb_window_stack = torch.stack(num_emb_window)
-            batch_windows.append(num_emb_window_stack)
-        stacked_batch = torch.stack(batch_windows)
-        num_window.append(stacked_batch)
-    # num_window = num_window
+    
+    if qs.size(1) < len(all_vars):
+        padding = torch.zeros(qs.size(0), len(all_vars) - num_x, 512)
+        qs = torch.cat((qs, padding.to(device)), dim=1).to(device)
+        xs = torch.cat((xs, padding.to(device)), dim=1).to(device)
+    if useCustom and num_x > len(all_vars):
+        qs = qs[:, :len(all_vars), :]
+        xs = xs[:, :len(all_vars), :]
+
+    # temp_encoder_outputs = encoder_outputs.transpose(0,1)
+    # zero = torch.zeros(models['predict'].hidden_size)
+    # num_window = []
+    # for batch_num,batch in enumerate([num_pos]):
+    #     batch_windows = []
+    #     for num in batch:
+    #         num_emb_window = []
+    #         for i in range(num - 3, num+4):
+    #             if i < 0 or i >= input_length:
+    #                 num_emb_window.append(zero)
+    #             else:
+    #                 num_emb_window.append(temp_encoder_outputs[batch_num][i])
+    #         num_emb_window_stack = torch.stack(num_emb_window)
+    #         batch_windows.append(num_emb_window_stack)
+    #     stacked_batch = torch.stack(batch_windows)
+    #     num_window.append(stacked_batch)
+    # # num_window = num_window
     print() 
 
     # run through sni
     is_sni_list = []
-    for i, batch in enumerate(num_window):
-        batch_is_sni = []
-        for j, num in enumerate(batch):
-            is_sni = models['sni'](num)
-            batch_is_sni.append(is_sni)
-        batch_is_sni = torch.stack(batch_is_sni).squeeze(1)
-        is_sni_list.append(batch_is_sni)
+    # for i, batch in enumerate(num_window):
+    #     batch_is_sni = []
+    #     for j, num in enumerate(batch):
+    #         is_sni = models['sni'](num)
+    #         batch_is_sni.append(is_sni)
+    #     batch_is_sni = torch.stack(batch_is_sni).squeeze(1)
+    #     is_sni_list.append(batch_is_sni)
     # is_sni_list = torch.stack(is_sni_list)
 
     # num_mask = torch.ByteTensor(1, len(num_pos) + len(generate_nums)).fill_(0)
@@ -1077,16 +1082,12 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
     # max_num_size = num_pos + len(generate_nums) + len(vars) 
     # in language its 
     # operators + gen numbers + vars + copy numbers
-    if useCustom and useSeperateVars:
-        if useSNIMask:
-            cur_sni_list = is_sni_list[0].argmax(1)
-            # flip the mask
-            flipped = cur_sni_list == 0
-            flipped = flipped.type(torch.int)
-            flipped = flipped.tolist()
-            num_mask.append([0] * len(generate_nums) + flipped)
+    if useCustom:
+        if num_x < len(all_vars):
+            problem_var_list = [0] * num_x + [1] * (len(all_vars) - num_x)
         else:
-            num_mask.append([0] * len(generate_nums) + [0] * num_size)
+            problem_var_list = [0] * len(all_vars)
+        num_mask.append([0] * output_lang.num_start + problem_var_list + [0] * len(generate_nums) + [0] * num_size)
         # num_mask.append([0] * len(generate_nums) + [0] * min(num_x, len(vars)) + [1] * (max(len(vars) - num_x, 0)) + [0] * num_size)
     else:
         num_mask.append([0] * len(generate_nums)  +  [0] * num_size )
@@ -1101,10 +1102,18 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
 
     final_beams = []
 
+    pred_equ_solutions = [None for _ in range(batch_size)]
     for i in range(num_x):
         # get the node stacks
         if useCustom:
-            ith_equation_goal = qs[:, i, :]
+            ith_equation_goal_old = qs[:, i, :]
+            if i > 0:
+                if len(final_beams[-1][0].node_stack[0]) > 0:
+                    ith_equation_goal = models['fix_t'](ith_equation_goal_old, final_beams[-1][0].node_stack[0][-1].embedding , encoder_outputs, problem_output, i)
+                else:
+                    ith_equation_goal = models['fix_t'](ith_equation_goal_old, padding_hidden , encoder_outputs, problem_output, i)
+            else:
+                ith_equation_goal = models['fix_t'](ith_equation_goal_old, [], encoder_outputs, problem_output, i)
             node_stacks = [[TreeNode(_)] for _ in ith_equation_goal.split(1, dim=0)]
         else:
             ith_equation_goal = problem_output
@@ -1118,7 +1127,8 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
         beams = [TreeBeam(0.0, node_stacks, embeddings_stacks, left_childs, [] )]
 
         # for t in range(max_length):
-        for t in range(equation_lengths[i]): 
+        max_length = max(target_length[0])
+        for t in range(max_length): 
             current_beams = []
             while len(beams) > 0:
                 b = beams.pop()
@@ -1129,7 +1139,7 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
                 # left_childs = torch.stack(b.left_childs)
                 left_childs = b.left_childs
 
-                num_score, op, var, current_embeddings, current_context, current_nums_embeddings = models['predict']( b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, debug, useSeperateVars, ith_equation_goal, useVarsAsNums)
+                num_score, op, var, current_embeddings, current_context, current_nums_embeddings = models['predict']( b.node_stack, left_childs, encoder_outputs, all_nums_encoder_outputs, padding_hidden, xs, seq_mask, num_mask, useCustom, useSeperateVars, ith_equation_goal)
 
                             # batch_size x 2 
                 if useOpScaling:
@@ -1156,13 +1166,10 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
                             out_score = nn.functional.log_softmax(torch.cat((scaled_op, scaled_num_score), 1), 1)
                     # out_score = nn.functional.log_softmax(torch.cat((scaled_op, scaled_var, scaled_num_score), dim=1), dim=1)
                 else:
-                    if useVarsAsNums :
+                    if useCustom:
+                        out_score = num_score
+                    else:
                         out_score = nn.functional.log_softmax(torch.cat((op, num_score), 1), 1)
-                    else:   
-                        if useSeperateVars:
-                            out_score = nn.functional.log_softmax(torch.cat((op, var, num_score), dim=1), dim=1)
-                        else:
-                            out_score = nn.functional.log_softmax(torch.cat((op, num_score), 1), 1)
                 # if useSeperateVars:
 
 
@@ -1210,10 +1217,10 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
                         # predicted token is a number
                         # get the token embedding - embedding of either the generate num or copy num
                         if useSeperateVars:
-                            if out_token < num_start + len(vars):
+                            if out_token < num_start + len(all_vars):
                                 current_num = xs[0, out_token - num_start].unsqueeze(0)
                             else:
-                                current_num = current_nums_embeddings[0, out_token - (num_start + len(vars))].unsqueeze(0)
+                                current_num = current_nums_embeddings[0, out_token - (num_start + len(all_vars))].unsqueeze(0)
                         else:
                                 current_num = current_nums_embeddings[0, out_token - num_start].unsqueeze(0)
                         
@@ -1249,6 +1256,50 @@ def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, 
         # else:
         #     possible_tokens = torch.cat((op_temp, var, num_score_temp), 1)
 
-        final_beams.append([beams[0].out, 1])
+        final_beams.append([beams[0]])
         # final_beams.append([beams[0].out, possible_tokens.argmax(dim=1)])
-    return final_beams, num_x 
+    print()
+    equation_set = []
+    for i in range(num_x):
+        equation = []
+        for j in final_beams[i][0].out:
+            equation.append(output_lang.index2word[j])
+        replace = replace_nums(pair_mapping[0], equation)
+        updated = from_prefix_to_infix(replace) 
+        if updated is not None:
+            equation_set.append("".join(updated) + " = 0 " )#+ replaced_targs[each_equation])
+        else:
+            equation_set.append(updated)
+    print('equation_set', equation_set)
+    invalid = False
+    for eq in equation_set:
+        if eq is None: 
+            invalid = True
+            break
+        symbols = eq.split()
+        for symbol in symbols:
+            if symbol[0] == 'N':
+                invalid = True
+                break
+    # solved_accs_lens.append(2)
+    solved_accs_lens = []
+    solved_accs_set = []
+    solved_accs = []
+
+    solved_accs_lens.append(len(solutions[0]))
+    solved_accs_set.append(datasets[0])
+    if invalid:
+        print('invalid, equ')
+        solved_accs.append(0)
+    else:
+        solved = solve_equation(equation_set, solutions[0])
+        if solved:
+            solved_accs.append(1)
+            print('solved true')
+            print('SOLVED:', datasets[0])
+        else:
+            solved_accs.append(0)
+            print('solved false')
+    print()
+    return solved_accs[0]
+    # return final_beams, num_x 
