@@ -1,0 +1,54 @@
+Job ID: 9034
+Node: node002 echo Starting: 10/03/24 14:03:25
+aballo
+Reading lines...
+Transfer numbers...
+Indexing words...
+keep_words 3671 / 9971 = 0.3682
+Indexed 3674 words in input language, 23 words in output
+Number of training data 18530
+Number of testind data 4632
+/home/lbiester/.conda/envs/CS457/lib/python3.10/site-packages/torch/optim/lr_scheduler.py:136: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn("Detected call of `lr_scheduler.step()` before `optimizer.step()`. "
+fold: 1
+epoch: 1
+loss: 1.2560271610103295
+training time 0h 5m 24s
+--------------------------------
+1097 1187 4632
+test_answer_acc 0.2368307426597582 0.2562607944732297
+testing time 0h 4m 1s
+------------------------------------------------------
+fold: 1
+epoch: 2
+loss: 1.0816990914312783
+training time 0h 5m 13s
+--------------------------------
+fold: 1
+epoch: 3
+loss: 1.1002287242760609
+training time 0h 5m 9s
+--------------------------------
+fold: 1
+epoch: 4
+loss: 1.1308126355626424
+training time 0h 6m 27s
+--------------------------------
+fold: 1
+epoch: 5
+loss: 1.2060338913348965
+training time 0h 5m 12s
+--------------------------------
+fold: 1
+epoch: 6
+loss: 1.2532480694092227
+training time 0h 5m 12s
+--------------------------------
+fold: 1
+epoch: 7
+loss: 1.2638199435429385
+training time 0h 5m 29s
+--------------------------------
+fold: 1
+epoch: 8
+slurmstepd: error: *** JOB 9034 ON node002 CANCELLED AT 2024-10-03T14:48:02 ***

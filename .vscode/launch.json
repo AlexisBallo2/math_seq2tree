@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug seq2tree",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "/Users/home/school/thesis/TESTING/math_seq2tree/run_seq2tree.py",
+            "console": "integratedTerminal",
+            "cwd" : "/Users/home/school/thesis/TESTING/math_seq2tree"
+
+        }
+    ]
+}
