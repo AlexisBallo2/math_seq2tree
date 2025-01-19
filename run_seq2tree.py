@@ -142,7 +142,7 @@ else:
         "num_folds" : 5,
         "num_obs": 20,   
         # "num_obs": 100,   
-        # "num_obs": None,   
+        "num_obs": None,   
     }
     config['title'] = f"{config['num_obs']} Observations, {config['n_epochs']} Epochs, Dataset = {config['setName']}, Custom = {config['useCustom']} ",
     if config['useBertEmbeddings']:
@@ -165,6 +165,7 @@ else:
 
 
     print("len data", len(data))
+
     # print()
     # data format:
     # {
@@ -177,6 +178,15 @@ else:
 
     pairs, generate_nums, copy_nums, vars = transfer_num(data, config['setName'], config['useCustom'], config['useEquSolutions'], config['useSubMethod'], config['useSeperateVars'])
     # pairs.shuffle()
+    # lens = []
+    # for d in pairs:
+    #     lens.append(len(d['equations']))
+    #     # if len(d['equations']) > 3:
+    #         # print(d['equations'])
+    # print(Counter(lens))
+    # print()
+
+
     random.shuffle(pairs)
     if config['num_obs']:
         pairs = pairs[0:config['num_obs']]

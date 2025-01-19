@@ -879,7 +879,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 replace = replace_nums(pair_mapping[i], equation)
                 updated = from_prefix_to_infix(replace) 
                 if updated is not None:
-                    equation_set.append("".join(updated) + " = 0 " )#+ replaced_targs[each_equation])
+                    if setName == 'MATH':
+                        equation_set.append("".join(updated) + " = x " )#+ replaced_targs[each_equation])
+                    else:
+                        equation_set.append("".join(updated) + " = 0 " )#+ replaced_targs[each_equation])
                 else:
                     equation_set.append(updated)
             print('equation_set', equation_set)
@@ -1267,7 +1270,10 @@ def evaluate_tree( input_batch, input_length, target_batch, target_length, nums_
         replace = replace_nums(pair_mapping[0], equation)
         updated = from_prefix_to_infix(replace) 
         if updated is not None:
-            equation_set.append("".join(updated) + " = 0 " )#+ replaced_targs[each_equation])
+            if setName == 'MATH':
+                equation_set.append("".join(updated) + " = x " )#+ replaced_targs[each_equation])
+            else:
+                equation_set.append("".join(updated) + " = 0 " )#+ replaced_targs[each_equation])
         else:
             equation_set.append(updated)
     print('equation_set', equation_set)
