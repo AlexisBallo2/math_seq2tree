@@ -26,8 +26,8 @@ do_saves = False
 # use_save = True 
 use_save = False 
 
-# do_folds = True
-do_folds = False
+do_folds = True
+# do_folds = False
 saved_epoch_completed = False
 fold_save_completed = False
 
@@ -106,8 +106,8 @@ else:
         # "batch_size": 1,
         # "batch_size": 2,
         # "batch_size": 5,
-        "batch_size": 20,
-        # "batch_size": 64,
+        # "batch_size": 20,
+        "batch_size": 64,
         "embedding_size": 128,
         "hidden_size": 512,
         # "n_epochs": 15,
@@ -581,8 +581,8 @@ for fold in range(existing_fold, folds_to_do):
                 end = time.perf_counter()
                 test_time_array.append([input_batch_len,end - start])
                 # testc.append(comparison)
-                if idx > 2:
-                    break
+                # if idx > 2:
+                #     break
                 # batch_accuricies['eval_total_loss'] += loss
                 # batch_eval_comparison.append(comparison)
                 # batch_accuricies["eval_token"].append(acc)
@@ -590,7 +590,7 @@ for fold in range(existing_fold, folds_to_do):
                 # batch_accuricies["eval_num_x_mse"].append(num_x_mse)
                 # batch_accuricies["eval_sni_acc"].append(sni_acc)
                 # batch_accuricies['eval_loss_dict'].append(loss_dict)
-                if acc_soln == 1:
+                if solved:
                     batch_accuricies["eval_soln"].append(1)
                 else:
                     batch_accuricies["eval_soln"].append(0)
