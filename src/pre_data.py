@@ -532,7 +532,25 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
                 targets = ['disabled'] 
             print(targets)
 
-        elif setName == "PEN" or setName == "DRAW" or setName == "MAWPS" or setName == "ALG":
+        elif setName == "ALG":
+            old = d["oldFormula"]
+            equations = []
+            for equ in old:
+                equations.append("".join([i for i in equ if i != " " and i != ""]))
+
+
+
+            if useEqunSolutions:
+                try:
+                    targets = [round(float(i)) for i in d["oldAnswer"][0]]
+                except:
+                    targets = []
+                    # continue
+            else:
+                targets = ['disabled']
+
+        # elif setName == "PEN" or setName == "DRAW" or setName == "MAWPS" or setName == "ALG":
+        elif setName == "PEN" or setName == "DRAW" or setName == "MAWPS":
             equations = read_pen_alignment(d)
             # equations = d["equations"]
             # mapNums = {}

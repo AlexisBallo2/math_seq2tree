@@ -120,15 +120,15 @@ else:
         "weight_decay": 1e-5,
         "beam_size": 5,
         "n_layers": 2,
-        # "useCustom": True,
-        "useCustom": False,
+        "useCustom": True,
+        # "useCustom": False,
         # "setName" : "PEN",
-        "setName" : "MATH",
+        # "setName" : "MATH",
         # "setName" : "DRAW",
         # "setName" : "MAWPS",
-        # "setName" : "ALG",
-        # "useSubMethod": True,
-        "useSubMethod": False,
+        "setName" : "ALG",
+        "useSubMethod": True,
+        # "useSubMethod": False,
         "useEquSolutions": True,
         # "useSeperateVars": False,
         "useSeperateVars": True,
@@ -177,29 +177,9 @@ else:
     # "equation":"x=80",
     # "ans":"80"
     # }'
-    # lens = []
-    # lens_solns = []
-    # lens_equs = []
-    # for d in data:
-    #     equs = len(d['equations'])
-    #     lens_equs.append(equs)
-    #     solns = len(d['oldAnswer'][0])
-    #     lens_solns.append(solns)
-    #     # lens.append(equs +  " - " + solns)
-    #     # if equs == 4:
-    #     #     print()
-    #     # if equs > solns:
-    #     if equs == 4 and solns == 3:
-    #         lens.append(1)
-    #     else:
-    #         lens.append(0)
-    #     # if len(d['equations']) > 3:
-    #         # print(d['equations'])
-    # print(sum(lens)/ len(lens))
-    # print(sum(lens))
-    # # print(Counter(lens_solns))
-    # # print()
-    # # print(Counter(lens_equs))
+
+    # print()
+    # print(Counter(lens_equs))
     # print()
 
     pairs, generate_nums, copy_nums, vars = transfer_num(data, config['setName'], config['useCustom'], config['useEquSolutions'], config['useSubMethod'], config['useSeperateVars'])
@@ -208,24 +188,25 @@ else:
     lens_solns = []
     lens_equs = []
 
-    for d in pairs:
-        equs = str(len(d['equations']))
-        lens_equs.append(equs)
-        solns = str(len(d['solution'])) 
-        lens_solns.append(solns)
-        # lens.append(equs +  " - " + solns)
-        if equs > solns:
-            lens.append(1)
-        else:
-            lens.append(0)
-        # if len(d['equations']) > 3:
-            # print(d['equations'])
-    print(sum(lens)/ len(lens))
-    print()
-    print(Counter(lens_solns))
-    print()
-    print(Counter(lens_equs))
-    print()
+
+    # for d in pairs:
+    #     equs = str(len(d['equations']))
+    #     lens_equs.append(equs)
+    #     solns = str(len(d['solution'])) 
+    #     lens_solns.append(solns)
+    #     # lens.append(equs +  " - " + solns)
+    #     if equs > solns:
+    #         lens.append(1)
+    #     else:
+    #         lens.append(0)
+    #     # if len(d['equations']) > 3:
+    #         # print(d['equations'])
+    # print(sum(lens)/ len(lens))
+    # print()
+    # print(Counter(lens_solns))
+    # print()
+    # print(Counter(lens_equs))
+    # print()
 
 
     random.shuffle(pairs)
@@ -258,6 +239,39 @@ else:
     # pairs = get_draw_train(pairs, 'dev')
     # pairs = temp_pairs
     # print(Counter(pairs_len))
+
+    lens = []
+    lens_solns = []
+    lens_equs = []
+    for d in pairs:
+        equs = d['equations']
+        for i in range(len(equs)):
+            if i >= len(equs):
+                lens.append(-1)
+            else:
+                splitted = equs[i]
+                lens.append(len(splitted))
+        # equs = len(d['equation'])
+        # lens.append(equs)
+        # lens_equs.append(equs)
+        # solns = len(d['oldAnswer'][0])
+        # lens_solns.append(solns)
+        # lens.append(equs +  " - " + solns)
+        # if equs == 4:
+        #     print()
+        # if equs > solns:
+        # if equs == 4 and solns == 3:
+        #     lens.append(1)
+        # else:
+        #     lens.append(0)
+        # if len(d['equations']) > 3:
+            # print(d['equations'])
+    # print(sum(lens)/ len(lens))
+    # print(json.dumps(lens))
+    # count = json.dumps(Counter(lens))
+    with open('math.json', 'w') as file:
+        json.dump(lens, file, indent=4) 
+
 
     if do_folds:
         fold_size = int(len(pairs) * 1/config['num_folds'])
@@ -617,7 +631,6 @@ for fold in range(existing_fold, folds_to_do):
                 for k, v in models.items():
                     v.eval()
                 input_batch_len = len(input_batches[idx])
-                start = time.perf_counter()
                 solved = evaluate_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx],output_var_solutions[idx], config['useCustom'], vars, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useSNIMask'], config['useTFix'], datasets[idx], beam_size, False) 
                 # test_time_array.append([input_batch_len,end - start])
                 # testc.append(comparison)
