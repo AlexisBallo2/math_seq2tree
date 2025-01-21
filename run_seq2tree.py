@@ -123,8 +123,8 @@ else:
         "useCustom": True,
         # "useCustom": False,
         # "setName" : "PEN",
-        "setName" : "MATH",
-        # "setName" : "DRAW",
+        # "setName" : "MATH",
+        "setName" : "DRAW",
         # "setName" : "MAWPS",
         # "setName" : "ALG",
         # "useSubMethod": True,
@@ -177,16 +177,55 @@ else:
     # "equation":"x=80",
     # "ans":"80"
     # }'
+    # lens = []
+    # lens_solns = []
+    # lens_equs = []
+    # for d in data:
+    #     equs = len(d['equations'])
+    #     lens_equs.append(equs)
+    #     solns = len(d['oldAnswer'][0])
+    #     lens_solns.append(solns)
+    #     # lens.append(equs +  " - " + solns)
+    #     # if equs == 4:
+    #     #     print()
+    #     # if equs > solns:
+    #     if equs == 4 and solns == 3:
+    #         lens.append(1)
+    #     else:
+    #         lens.append(0)
+    #     # if len(d['equations']) > 3:
+    #         # print(d['equations'])
+    # print(sum(lens)/ len(lens))
+    # print(sum(lens))
+    # # print(Counter(lens_solns))
+    # # print()
+    # # print(Counter(lens_equs))
+    # print()
 
     pairs, generate_nums, copy_nums, vars = transfer_num(data, config['setName'], config['useCustom'], config['useEquSolutions'], config['useSubMethod'], config['useSeperateVars'])
     # pairs.shuffle()
-    # lens = []
-    # for d in pairs:
-    #     lens.append(len(d['equations']))
-    #     # if len(d['equations']) > 3:
-    #         # print(d['equations'])
-    # print(Counter(lens))
-    # print()
+    lens = []
+    lens_solns = []
+    lens_equs = []
+
+    for d in pairs:
+        equs = str(len(d['equations']))
+        lens_equs.append(equs)
+        solns = str(len(d['solution'])) 
+        lens_solns.append(solns)
+        # lens.append(equs +  " - " + solns)
+        if equs > solns:
+            lens.append(1)
+        else:
+            lens.append(0)
+        # if len(d['equations']) > 3:
+            # print(d['equations'])
+    print(sum(lens)/ len(lens))
+    print()
+    print(Counter(lens_solns))
+    print()
+    print(Counter(lens_equs))
+    print()
 
 
     random.shuffle(pairs)
