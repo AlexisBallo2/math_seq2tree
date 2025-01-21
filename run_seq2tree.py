@@ -712,31 +712,31 @@ for fold in range(existing_fold, folds_to_do):
         print(k, v)
         print("\n")
     # print('COMPARISONS', train_comparison, eval_comparison)
-    write_comparison(train_comparison, eval_comparison)
+    # write_comparison(train_comparison, eval_comparison)
     # print('fold accuracies', fold_accuracies)
     # make_loss_graph(
     #     fold_accuracies['loss'], 
     #     f"src/post/loss-{time.time()}-{run_id}.png", config['title'],
     #     "Epoch", "Loss By Epoch"
         # )
-    make_eval_graph(
-        [fold_accuracies["train_losses"], fold_accuracies["eval_losses"]], 
-        ['Train', "Eval"],
-        f"src/post/loss-{time.time()}-{run_id}-fold_{fold}.png", config['title'],
-        "Epoch", "Loss By Epoch", None 
-        )
-    make_eval_graph(
-        [fold_accuracies["train_token"], fold_accuracies["eval_token"]], 
-        ['Train', "Eval"],
-        f"src/post/accuracy-{time.time()}-{run_id}-fold_{fold}.png", config['title'],
-        "Epoch", "Accuracy By Epoch", [0, 1]
-        )
+    # make_eval_graph(
+    #     [fold_accuracies["train_losses"], fold_accuracies["eval_losses"]], 
+    #     ['Train', "Eval"],
+    #     f"src/post/loss-{time.time()}-{run_id}-fold_{fold}.png", config['title'],
+    #     "Epoch", "Loss By Epoch", None 
+    #     )
+    # make_eval_graph(
+    #     [fold_accuracies["train_token"], fold_accuracies["eval_token"]], 
+    #     ['Train', "Eval"],
+    #     f"src/post/accuracy-{time.time()}-{run_id}-fold_{fold}.png", config['title'],
+    #     "Epoch", "Accuracy By Epoch", [0, 1]
+    #     )
     print('fold train accuracy', fold_accuracies["train_token"])
     print('fold eval accuracy', fold_accuracies['eval_token'])
     print('All TRAIN ACC', all_train_accuracys)
     print('ALL EVAL ACC', all_eval_accuracys)
     print('ALL EVAL SOLN ACC', all_soln_eval_accuracys)
-    process_loss_dicts(fold_accuracies['train_loss_dict'], fold_accuracies['eval_loss_dict'], f"src/post/loss-dict-{time.time()}-{run_id}-fold_{fold}.png")
+    # process_loss_dicts(fold_accuracies['train_loss_dict'], fold_accuracies['eval_loss_dict'], f"src/post/loss-dict-{time.time()}-{run_id}-fold_{fold}.png")
     if config["num_folds"] == 2:
         break
 
