@@ -553,7 +553,7 @@ for fold in range(existing_fold, folds_to_do):
             "eval_total_loss": 0, 
             "eval_loss_dict": []
         } 
-        start = time.time()
+        start = time.perf_counter()
         for idx in range(len(input_lengths)):
             # Zero gradients of both optimizers
             for optimizer in optimizers:
@@ -564,12 +564,10 @@ for fold in range(existing_fold, folds_to_do):
                 v.train()
 
             input_batch_len = len(input_batches[idx])
-            start = time.perf_counter()
             loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list, acc_soln = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
                 num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
                 output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx], output_var_solutions[idx], config['useCustom'], vars, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useSNIMask'], config['useTFix'], datasets[idx], True)
-            end = time.perf_counter()
             train_time_array.append([input_batch_len,end - start])
             train_comparison.append(comparison)
             # loss_total += loss
@@ -586,6 +584,8 @@ for fold in range(existing_fold, folds_to_do):
                 optimizer.step()
         # step the schedulers
 
+        end = time.perf_counter()
+        print('epoch', epoch, 'train time', end - start, 'for', len(input_lengths), 'samples')
 
         batch_loss = batch_accuricies['train_total_loss'] / len(input_lengths)
         batch_train_acc = sum(batch_accuricies["train_token"]) / len(batch_accuricies["train_token"])
@@ -606,6 +606,8 @@ for fold in range(existing_fold, folds_to_do):
 
         if True:
 
+
+            start = time.perf_counter()
             batch_eval_comparison = []
             # for test_batch in test_pairs:
             input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni, pair_mapping, datasets = prepare_train_batch(test_pairs, 1, vars, output_lang, input_lang)
@@ -617,7 +619,6 @@ for fold in range(existing_fold, folds_to_do):
                 input_batch_len = len(input_batches[idx])
                 start = time.perf_counter()
                 solved = evaluate_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx],output_var_solutions[idx], config['useCustom'], vars, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useSNIMask'], config['useTFix'], datasets[idx], beam_size, False) 
-                end = time.perf_counter()
                 test_time_array.append([input_batch_len,end - start])
                 # testc.append(comparison)
                 # if idx > 2:
@@ -639,8 +640,10 @@ for fold in range(existing_fold, folds_to_do):
             # batch_eval_op_right = sum(batch_accuricies["eval_op_right"]) / len(batch_accuricies["eval_op_right"])
             # batch_eval_num_x_mse = sum(batch_accuricies["eval_num_x_mse"]) / len(batch_accuricies["eval_num_x_mse"])
             # batch_eval_sni_acc = sum(batch_accuricies["eval_sni_acc"]) / len(batch_accuricies["eval_sni_acc"])
+            end = time.perf_counter()
             batch_eval_soln_acc = sum(batch_accuricies["eval_soln"]) / len(batch_accuricies["eval_soln"])
             print(epoch, 'batch eval soln', batch_eval_soln_acc)
+            print('epoch', epoch, 'test time', end - start, 'for', len(input_batches), 'samples')
             # eval_comparison.append(batch_eval_comparison)
 
             # print("loss:", batch_loss)
