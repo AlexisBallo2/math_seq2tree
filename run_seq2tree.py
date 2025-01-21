@@ -120,11 +120,11 @@ else:
         "weight_decay": 1e-5,
         "beam_size": 5,
         "n_layers": 2,
-        "useCustom": True,
-        # "useCustom": False,
+        # "useCustom": True,
+        "useCustom": False,
         # "setName" : "PEN",
-        # "setName" : "MATH",
-        "setName" : "DRAW",
+        "setName" : "MATH",
+        # "setName" : "DRAW",
         # "setName" : "MAWPS",
         # "setName" : "ALG",
         # "useSubMethod": True,
@@ -640,7 +640,7 @@ for fold in range(existing_fold, folds_to_do):
             # batch_eval_num_x_mse = sum(batch_accuricies["eval_num_x_mse"]) / len(batch_accuricies["eval_num_x_mse"])
             # batch_eval_sni_acc = sum(batch_accuricies["eval_sni_acc"]) / len(batch_accuricies["eval_sni_acc"])
             batch_eval_soln_acc = sum(batch_accuricies["eval_soln"]) / len(batch_accuricies["eval_soln"])
-            # print(epoch, 'batch eval soln', batch_eval_soln_acc)
+            print(epoch, 'batch eval soln', batch_eval_soln_acc)
             # eval_comparison.append(batch_eval_comparison)
 
             # print("loss:", batch_loss)
