@@ -1114,10 +1114,10 @@ def transfer_num_math(data):  # transfer num into "NUM"
             "equations": [out_seq],
             "nums": nums,
             "num_pos": num_pos,
-            # "allVars": allVars,
+            "allVars": ['X'],
             # "equationTargetVars": equationTargetVars,
             # "solution": targets,
-            # "pairNumMapping": pairNumMapping,
+            "pairNumMapping": None,
             # "specificDataset": sepcificDataset,
             # "id": id_index,
         })
@@ -1129,7 +1129,7 @@ def transfer_num_math(data):  # transfer num into "NUM"
             temp_g.append(g)
 
     # copy_nums: max length of numbers
-    return pairs, temp_g, copy_nums
+    return pairs, temp_g, copy_nums, ['X']
 
 
 

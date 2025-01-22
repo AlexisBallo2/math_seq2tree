@@ -185,7 +185,7 @@ else:
 
     # data = data[0:20]
     if config['setName'] == "MATH":
-        pairs, generate_nums, copy_nums = transfer_num_math(data)
+        pairs, generate_nums, copy_nums, vars = transfer_num_math(data)
     else:
         pairs, generate_nums, copy_nums, vars = transfer_num(data, config['setName'], config['useCustom'], config['useEquSolutions'], config['useSubMethod'], config['useSeperateVars'])
     # pairs.shuffle()
