@@ -616,7 +616,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                         # current_num = op.goal_vect.squeeze(0)
                         current_num = models['merge'](op.embedding, sub_stree.embedding, current_num)
                         temp_encoder_outputs = encoder_outputs.transpose(0,1)
-                        if useSemanticAlignment:
+                        if useCustom and useSemanticAlignment:
                             encoder_mapping, decoder_mapping = models['semantic_alignment'](current_num, temp_encoder_outputs[idx])
                         # goal_out, t_out = models['fix_t'](op, current_num)
                             all_sa_outputs.append((encoder_mapping, decoder_mapping))
@@ -796,7 +796,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         #     all_sa_outputs = new_all_sa_outputs
 
 
-        if useSemanticAlignment: 
+        if useCustom and useSemanticAlignment: 
             semantic_alignment_loss = nn.MSELoss()
             total_semanti_alognment_loss = torch.tensor(-1e-3, dtype=torch.float32).to(device)
             sa_len = len(all_sa_outputs)
