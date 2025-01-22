@@ -1115,7 +1115,7 @@ def transfer_num_math(data):  # transfer num into "NUM"
             "nums": nums,
             "num_pos": num_pos,
             "allVars": ['X'],
-            # "equationTargetVars": equationTargetVars,
+            "equationTargetVars": ['X'],
             # "solution": targets,
             "pairNumMapping": None,
             # "specificDataset": sepcificDataset,
