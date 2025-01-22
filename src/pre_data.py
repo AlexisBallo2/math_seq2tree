@@ -549,8 +549,25 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             else:
                 targets = ['disabled']
 
+        elif setName == "MAWPS":
+            equations = read_pen_alignment(d)
+            # equations = [d["oldFormula"]]
+            # equations = []
+            # for equ in old:
+            #     equations.append("".join([i for i in equ if i != " " and i != ""]))
+            answers = [i for i in d['answers'][0].values() if type(i) == bool]
+
+            if useEqunSolutions:
+                try:
+                    targets = [round(float(i)) for i in answers]
+                except:
+                    targets = []
+                    # continue
+            else:
+                targets = ['disabled']
+
         # elif setName == "PEN" or setName == "DRAW" or setName == "MAWPS" or setName == "ALG":
-        elif setName == "PEN" or setName == "DRAW" or setName == "MAWPS":
+        elif setName == "PEN" or setName == "DRAW":
             equations = read_pen_alignment(d)
             # equations = d["equations"]
             # mapNums = {}
@@ -774,7 +791,8 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
                 allVarsTemp += unique
             allVars.append([item for item in list(set(allVarsTemp)) if item != "" ])
         allVarsParsed = list(set([var for vars in allVars for var in vars if var != ""]))
-        allVarsTranslated = [variableHierarchy[i] for i in range(len(list(set([var for vars in allVars for var in vars if var != ""]))))]
+        unique = list(set([var for vars in allVars for var in vars if var != ""]))
+        allVarsTranslated = [variableHierarchy[i] for i in range(len(unique))]
         allVarsMappings = [{"var": var, "mapping": variableHierarchy[i]} for i, var in enumerate(allVarsParsed)]
         vars += allVarsTranslated
 
