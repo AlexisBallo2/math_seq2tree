@@ -37,13 +37,19 @@ def solve_equation(equations, solutions):
     except:
         return False
 
-def replace_nums(mapping, equation):
+def replace_nums(mapping, equation, nums, num_stack):
     final_equation = []
     for token in equation:
         if mapping.get(token, "") != "":
             final_equation.append(mapping[token])
+        # pop from num stack
+        elif token[0] == "N":
+            pos_list = num_stack.pop()
+            c = nums[pos_list[0]]
+            final_equation.append(c)
         else:
             final_equation.append(token)
+    
     return final_equation
 
 

@@ -1533,10 +1533,10 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             # "nums_sni": nums_sni,
             "num_pos": pair['num_pos'],
             "num_stack": num_stacks,
-            # "allVars": pair['allVars'],
+            "allVars": pair['allVars'],
             # "equationTargetVars": equation_target,
             # "solution":  pair['solution'],
-            # "pairNumMapping": pair['pairNumMapping'],
+            "pairNumMapping": pair['pairNumMapping'],
             # "specificDataset": pair['specificDataset']
         })
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
@@ -1595,10 +1595,10 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             # "nums_sni": nums_sni,
             "num_pos": pair['num_pos'],
             "num_stack": num_stacks,
-            # "allVars": pair['allVars'],
+            "allVars": pair['allVars'],
             # "equationTargetVars": equation_target,
             # "solution": pair['solution'],
-            # "pairNumMapping": pair['pairNumMapping'],
+            "pairNumMapping": pair['pairNumMapping'],
             # "specificDataset": pair['specificDataset']
         })
     print('Number of testind data %d' % (len(test_pairs)))
@@ -1786,9 +1786,9 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
             input_batch.append(pad_seq(pair['input_cell'], pair['input_len'], input_len_max))
 
             # var_pos = [li + i for i in range(len(var_list))]
-            # var_pos = [pair['input_len'] + i for i in range(len(pair['allVars']))]
-            var_pos = []
-            # var_size = len(pair['allVars'])
+            var_pos = [pair['input_len'] + i for i in range(len(pair['allVars']))]
+            # var_pos = []
+            var_size = len(pair['allVars'])
             var_size = 0
             var_pos_in_inputs.append(var_pos)
 
@@ -1809,16 +1809,16 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
             # tar
 
             # batch_snis.append(pair['nums_sni'])
-            # pair_mappings_batch.append(pair['pairNumMapping'])
+            pair_mappings_batch.append(pair['pairNumMapping'])
             # batch_datasets.append(pair['specificDataset'])
 
             cur_vars = []
-            # for var in vars:
-            #     if var in pair['allVars']:
-            #         cur_vars.append(0)
-            #     else:
-            #         cur_vars.append(1)
-            # output_vars.append(cur_vars)
+            for var in vars:
+                if var in pair['allVars']:
+                    cur_vars.append(0)
+                else:
+                    cur_vars.append(1)
+            output_vars.append(cur_vars)
 
         input_batches.append(input_batch)
         nums_batches.append(num_batch)

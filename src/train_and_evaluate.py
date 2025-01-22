@@ -1285,65 +1285,68 @@ def evaluate_tree( input_batch, input_length, target_batch, target_length, nums_
         final_beams.append([beams[0]])
         # final_beams.append([beams[0].out, possible_tokens.argmax(dim=1)])
     print()
-    equation_set = []
-    for i in range(num_x):
-        equation = []
-        try:
-            val_ac, equ_ac, _, _ = compute_prefix_tree_result(final_beams[i][0].out, target_batch[i][0], output_lang, nums_batch[i], nums_stack_batch[i][0])
-        except Exception as e:
-            print("ERROR", e)
-            val_ac = False
-            equ_ac = False
-        if equ_ac:
-            print('solved true')
-            # print('SOLVED:', datasets[i])
-            return 1
-        else:
-            # solved_accs.append(0)
-            print('solved false')
-            return 0
-        # for j in final_beams[i][0].out:
-            # equation.append(output_lang.index2word[j])
-            # equation.append(output_lang.index2word[j])
-    #     replace = replace_nums(pair_mapping[0], equation)
-    #     updated = from_prefix_to_infix(replace) 
-    #     if updated is not None:
-    #         if setName == 'MATH':
-    #             equation_set.append("".join(updated) + " = x " )#+ replaced_targs[each_equation])
-    #         else:
-    #             equation_set.append("".join(updated) + " = 0 " )#+ replaced_targs[each_equation])
-    #     else:
-    #         equation_set.append(updated)
-    # print('equation_set', equation_set)
-    # invalid = False
-    # for eq in equation_set:
-    #     if eq is None: 
-    #         invalid = True
-    #         break
-    #     symbols = eq.split()
-    #     for symbol in symbols:
-    #         if symbol[0] == 'N':
-    #             invalid = True
-    #             break
+    if setName == 'MATH' or useCustom == False:
+        for i in range(num_x):
+            equation = []
+            try:
+                val_ac, equ_ac, _, _ = compute_prefix_tree_result(final_beams[i][0].out, target_batch[i][0], output_lang, nums_batch[i], nums_stack_batch[i][0])
+            except Exception as e:
+                print("ERROR", e)
+                val_ac = False
+                equ_ac = False
+            if equ_ac:
+                print('solved true')
+                # print('SOLVED:', datasets[i])
+                return 1
+            else:
+                # solved_accs.append(0)
+                print('solved false')
+                return 0
+    else:
+        equation_set = []
+        for i in range(num_x):
+            equation = []
+            for j in final_beams[i][0].out:
+                # equation.append(output_lang.index2word[j])
+                equation.append(output_lang.index2word[j])
+            replace = replace_nums(pair_mapping[0], equation, nums_batch[0], nums_stack_batch[0])
+            updated = from_prefix_to_infix(replace) 
+            if updated is not None:
+                    equation_set.append("".join(updated) + " = 0 " )#+ replaced_targs[each_equation])
+            else:
+                equation_set.append(updated)
+        print('equation_set', equation_set)
+        invalid = False
+        for eq in equation_set:
+            if eq is None: 
+                invalid = True
+                break
+            symbols = eq.split()
+            for symbol in symbols:
+                if symbol[0] == 'N':
+                    invalid = True
+                    break
     # # solved_accs_lens.append(2)
-    # solved_accs_lens = []
-    # solved_accs_set = []
-    # solved_accs = []
+        solved_accs_lens = []
+        solved_accs_set = []
+        solved_accs = []
 
-    # solved_accs_lens.append(len(solutions[0]))
-    # solved_accs_set.append(datasets[0])
-    # if invalid:
-    #     print('invalid, equ')
-    #     solved_accs.append(0)
-    # else:
-    #     solved = solve_equation(equation_set, solutions[0])
-    #     if solved:
-    #         solved_accs.append(1)
-    #         print('solved true')
-    #         print('SOLVED:', datasets[0])
-    #     else:
-    #         solved_accs.append(0)
-    #         print('solved false')
-    # print()
+        # solved_accs_lens.append(len(solutions[0]))
+        # solved_accs_set.append(datasets[0])
+        if invalid:
+            print('invalid, equ')
+            solved_accs.append(0)
+        else:
+            solved = solve_equation(equation_set, solutions[0])
+            if solved:
+                # solved_accs.append(1)
+                print('solved true')
+                # print('SOLVED:', datasets[0])
+                return 1
+            else:
+                # solved_accs.append(0)
+                print('solved false')
+                return 0
+        print()
     # return solved_accs[0]
     # return final_beams, num_x 
