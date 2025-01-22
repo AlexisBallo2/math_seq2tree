@@ -976,6 +976,161 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
         return pairs, temp_g, copy_nums, orderedVars
     else:
         return pairs, temp_g, copy_nums, [] 
+    
+def transfer_num_math(data):  # transfer num into "NUM"
+    print("Transfer numbers...")
+    # number regex
+    pattern = re.compile("\d*\(\d+/\d+\)\d*|\d+\.\d+%?|\d+%?")
+    pairs = []
+    generate_nums = []
+    generate_nums_dict = {}
+    copy_nums = 0
+    for d in data:
+        # numbers in this problem's text
+        nums = []
+        # text after masking
+        input_seq = []
+        # break up segmented text into each word
+        seg = d["segmented_text"].strip().split(" ")
+
+        # strip "x=" from the equation
+        equations = d["equation"][2:]
+
+        for s in seg:
+            # search if its a number
+            pos = re.search(pattern, s)
+
+            # if its a number (pos is not None and the start of the number is at the start of the string)
+            if pos and pos.start() == 0:
+                # appeend the captured number only (not surrounding text in the word)
+                nums.append(s[pos.start(): pos.end()])
+                # mask the number in the input sequence
+                input_seq.append("NUM")
+                # if there was trailing text after the num (ex "80km/h" -> "80") append text to seq (ex "km/h")
+                if pos.end() < len(s):
+                    input_seq.append(s[pos.end():])
+            else:
+                # not number: just append word
+                input_seq.append(s)
+        if copy_nums < len(nums):
+            copy_nums = len(nums)
+
+        # fractions in the text
+        nums_fraction = []
+
+        # for nums in this problem
+        for num in nums:
+            # capture it if it's a fraction
+            if re.search("\d*\(\d+/\d+\)\d*", num):
+                nums_fraction.append(num)
+
+        # sort the fractions by length (not magnitude?). longest first
+        nums_fraction = sorted(nums_fraction, key=lambda x: len(x), reverse=True)
+
+        # seg the equation and tag the num
+        # ex st: '(11-1)*2'
+        def seg_and_tag(st):  
+            # will become: 
+
+            res = []
+            # for largest to smallest fractions:
+            for n in nums_fraction:
+                # if fraction in this equation
+                if n in st:
+                    # find where in the equation
+                    p_start = st.find(n)
+                    p_end = p_start + len(n)
+                    # if there is text before the fraction, seq_and_tag it seperately
+                    if p_start > 0:
+                        res += seg_and_tag(st[:p_start])
+                    # if this fraction is in the input text, append it as "N#"
+                    if nums.count(n) == 1:
+                        res.append("N"+str(nums.index(n)))
+                    # if not, leave as variable
+                    else:
+                        res.append(n)
+                    # recurse if text after number
+                    if p_end < len(st):
+                        res += seg_and_tag(st[p_end:])
+                    return res
+            # if no fractions, or fractions are not in equation 
+            # sequence and tag non fractions
+            pos_st = re.search("\d+\.\d+%?|\d+%?", st)
+            # if have number
+            if pos_st:
+                p_start = pos_st.start()
+                p_end = pos_st.end()
+                if p_start > 0:
+                    # seq and tag text before number
+                    res += seg_and_tag(st[:p_start])
+                # strip text around number
+                st_num = st[p_start:p_end]
+                if nums.count(st_num) == 1:
+                    # same as fractions, append as "N#" if in the input text 
+                    res.append("N"+str(nums.index(st_num)))
+                else:
+                    # if 
+                    res.append(st_num)
+                if p_end < len(st):
+                    # seq and tag text after number
+                    res += seg_and_tag(st[p_end:])
+                return res
+            # if no number
+            for ss in st:
+                # just keep text
+                res.append(ss)
+            return res
+
+        # tag the equation (replace numbers (only ones that are in the input text), in the equation with "N#")
+        # ex: ['(', 'N1', '-', '1', ')', '*', 'N0']
+        out_seq = seg_and_tag(equations)
+
+
+        # for each elem in equation sequence 
+        for s in out_seq:  
+            # if the first char is a digit and it's not in the input text 
+            # this happens if we have a number in the equation that is not in the input text
+            # store 
+            #   list of numbers in the equation that are not in the input text
+            #   dict of the number and the number of times it appears in the equation
+            if s[0].isdigit() and s not in generate_nums and s not in nums:
+                generate_nums.append(s)
+                generate_nums_dict[s] = 0
+            if s in generate_nums and s not in nums:
+                generate_nums_dict[s] = generate_nums_dict[s] + 1
+
+        num_pos = []
+        for i, j in enumerate(input_seq):
+            if j == "NUM":
+                num_pos.append(i)
+        assert len(nums) == len(num_pos)
+        # input_seq: masked text
+        # out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
+        # nums: list of numbers in the text
+        # num_pos: list of positions of the numbers in the text
+        # pairs.append((input_seq, out_seq, nums, num_pos))
+        pairs.append({
+            "input_seq": input_seq,
+            "equations": [out_seq],
+            "nums": nums,
+            "num_pos": num_pos,
+            # "allVars": allVars,
+            # "equationTargetVars": equationTargetVars,
+            # "solution": targets,
+            # "pairNumMapping": pairNumMapping,
+            # "specificDataset": sepcificDataset,
+            # "id": id_index,
+        })
+
+    temp_g = []
+    for g in generate_nums:
+        # only keep generated numbers if they are common in the text
+        if generate_nums_dict[g] >= 5:
+            temp_g.append(g)
+
+    # copy_nums: max length of numbers
+    return pairs, temp_g, copy_nums
+
 
 
 def transfer_english_num(data):  # transfer num into "NUM"
@@ -1328,6 +1483,8 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
                     num_stack.append([_ for _ in range(len(pair['nums']))])
 
             # ???
+            if len(num_stack) != 0:
+                print()
             num_stack.reverse()
             num_stacks.append(num_stack)
 
@@ -1338,8 +1495,9 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         if useCustom:
             # equation_target = [output_lang.word2index[equ] for equ in pair['equationTargetVars']]
             equation_target = indexes_from_sentence(output_lang, pair['equationTargetVars'])
-        else: 
-            equation_target = pair['equationTargetVars']
+        # else: 
+        #     # if
+        #     equation_target = pair['equationTargetVars']
         # equation_target = ["" for equ in pair[5]]
         # pair
         #   input: sentence with all numbers masked as NUM
@@ -1351,19 +1509,19 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         #   [[] of where each token in the equation is found in the nums array]
         # train_pairs.append((input_cell, len(input_cell), output_cell, [len(equ) for equ in output_cell],
         #                     pair[2], pair[3], num_stacks, pair[4], equation_target, pair[6], pair[7]))
-        nums_sni = []
-        for num in pair['nums']:
-            key = None
-            for k, v in pair['pairNumMapping'].items():
-                if num == v:
-                    key = k
-                    break
-            sig = 0 
-            for equ in pair['equations']:
-                if key in equ:
-                    sig = 1 
-                    break
-            nums_sni.append(sig)
+        # nums_sni = []
+        # for num in pair['nums']:
+        #     key = None
+        #     for k, v in pair['pairNumMapping'].items():
+        #         if num == v:
+        #             key = k
+        #             break
+        #     sig = 0 
+        #     for equ in pair['equations']:
+        #         if key in equ:
+        #             sig = 1 
+        #             break
+        #     nums_sni.append(sig)
 
 
         train_pairs.append({
@@ -1372,14 +1530,14 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             "equations" : output_cell,
             "equation_lens": [len(equ) for equ in output_cell],
             "nums": pair['nums'],
-            "nums_sni": nums_sni,
+            # "nums_sni": nums_sni,
             "num_pos": pair['num_pos'],
             "num_stack": num_stacks,
-            "allVars": pair['allVars'],
-            "equationTargetVars": equation_target,
-            "solution":  pair['solution'],
-            "pairNumMapping": pair['pairNumMapping'],
-            "specificDataset": pair['specificDataset']
+            # "allVars": pair['allVars'],
+            # "equationTargetVars": equation_target,
+            # "solution":  pair['solution'],
+            # "pairNumMapping": pair['pairNumMapping'],
+            # "specificDataset": pair['specificDataset']
         })
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
     print('Number of training data %d' % (len(train_pairs)))
@@ -1408,22 +1566,22 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
         if useCustom:
             # equation_target = [output_lang.word2index[equ] for equ in pair['equationTargetVars']]
             equation_target = indexes_from_sentence(output_lang, pair['equationTargetVars'])
-        else: 
-            equation_target = pair['equationTargetVars']
+        # else: 
+        #     equation_target = pair['equationTargetVars']
         
-        nums_sni = []
-        for num in pair['nums']:
-            key = None
-            for k, v in pair['pairNumMapping'].items():
-                if num == v:
-                    key = k
-                    break
-            sig = 0 
-            for equ in pair['equations']:
-                if key in equ:
-                    sig = 1 
-                    break
-            nums_sni.append(sig)
+        # nums_sni = []
+        # for num in pair['nums']:
+        #     key = None
+        #     for k, v in pair['pairNumMapping'].items():
+        #         if num == v:
+        #             key = k
+        #             break
+        #     sig = 0 
+        #     for equ in pair['equations']:
+        #         if key in equ:
+        #             sig = 1 
+        #             break
+        #     nums_sni.append(sig)
         # train_pairs.append((input_cell, len(input_cell), output_cell, len(output_cell),
         #                     pair[2], pair[3], num_stack, pair[4]))
         # test_pairs.append((input_cell, len(input_cell), output_cell, [len(equ) for equ in output_cell],
@@ -1434,14 +1592,14 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             "equations": output_cell,
             "equation_lens": [len(equ) for equ in output_cell],
             "nums": pair['nums'],
-            "nums_sni": nums_sni,
+            # "nums_sni": nums_sni,
             "num_pos": pair['num_pos'],
             "num_stack": num_stacks,
-            "allVars": pair['allVars'],
-            "equationTargetVars": equation_target,
-            "solution": pair['solution'],
-            "pairNumMapping": pair['pairNumMapping'],
-            "specificDataset": pair['specificDataset']
+            # "allVars": pair['allVars'],
+            # "equationTargetVars": equation_target,
+            # "solution": pair['solution'],
+            # "pairNumMapping": pair['pairNumMapping'],
+            # "specificDataset": pair['specificDataset']
         })
     print('Number of testind data %d' % (len(test_pairs)))
     return input_lang, output_lang, train_pairs, test_pairs
@@ -1608,7 +1766,8 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
             max_equ_length = max(max_equ_length, max(pair['equation_lens']))
             # input_len_max = max(input_len_max, li + len(vars))
             input_len_max = max(input_len_max, pair['input_len'])
-            targets_len_max = max(targets_len_max, len(pair['equationTargetVars']))
+            # targets_len_max = max(targets_len_max, len(pair['equationTargetVars']))
+            targets_len_max = 0
 
         # for i, li, j, lj, num, num_pos, num_stack, var_list, equ_targets, var_solns, num_mapping in batch:
         for pair in batch:
@@ -1627,8 +1786,10 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
             input_batch.append(pad_seq(pair['input_cell'], pair['input_len'], input_len_max))
 
             # var_pos = [li + i for i in range(len(var_list))]
-            var_pos = [pair['input_len'] + i for i in range(len(pair['allVars']))]
-            var_size = len(pair['allVars'])
+            # var_pos = [pair['input_len'] + i for i in range(len(pair['allVars']))]
+            var_pos = []
+            # var_size = len(pair['allVars'])
+            var_size = 0
             var_pos_in_inputs.append(var_pos)
 
 
@@ -1642,20 +1803,22 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
             num_pos_batch.append(pair['num_pos'])
             # size of numbers from input
             num_size_batch.append(len(pair['nums']))
-            output_var_solutions.append(pair['solution'])
-            targets.append(pair['equationTargetVars'] + [0 for _ in range(targets_len_max - len(pair['equationTargetVars']))])
+            # output_var_solutions.append(pair['solution'])
+            output_var_solutions.append([])
+            # targets.append(pair['equationTargetVars'] + [0 for _ in range(targets_len_max - len(pair['equationTargetVars']))])
+            # tar
 
-            batch_snis.append(pair['nums_sni'])
-            pair_mappings_batch.append(pair['pairNumMapping'])
-            batch_datasets.append(pair['specificDataset'])
+            # batch_snis.append(pair['nums_sni'])
+            # pair_mappings_batch.append(pair['pairNumMapping'])
+            # batch_datasets.append(pair['specificDataset'])
 
             cur_vars = []
-            for var in vars:
-                if var in pair['allVars']:
-                    cur_vars.append(0)
-                else:
-                    cur_vars.append(1)
-            output_vars.append(cur_vars)
+            # for var in vars:
+            #     if var in pair['allVars']:
+            #         cur_vars.append(0)
+            #     else:
+            #         cur_vars.append(1)
+            # output_vars.append(cur_vars)
 
         input_batches.append(input_batch)
         nums_batches.append(num_batch)

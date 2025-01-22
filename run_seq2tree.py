@@ -184,7 +184,10 @@ else:
     # print()
 
     # data = data[0:20]
-    pairs, generate_nums, copy_nums, vars = transfer_num(data, config['setName'], config['useCustom'], config['useEquSolutions'], config['useSubMethod'], config['useSeperateVars'])
+    if config['setName'] == "MATH":
+        pairs, generate_nums, copy_nums = transfer_num_math(data)
+    else:
+        pairs, generate_nums, copy_nums, vars = transfer_num(data, config['setName'], config['useCustom'], config['useEquSolutions'], config['useSubMethod'], config['useSeperateVars'])
     # pairs.shuffle()
     # lens = []
     # lens_solns = []
@@ -417,13 +420,20 @@ for fold in range(existing_fold, folds_to_do):
         # define models
         encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=config['embedding_size'], hidden_size=config['hidden_size'],n_layers=config['n_layers'], useBertEmbeddings = config['useBertEmbeddings'], input_lang=input_lang)
         encoder_var = EncoderSeq(input_size=input_lang.n_words, embedding_size=config["embedding_size"], hidden_size=config['hidden_size'],n_layers=config['n_layers'], useBertEmbeddings = config['useBertEmbeddings'], input_lang=input_lang)
-        if config['useSeperateVars']:
-            op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars)
+        if config['useCustom']:
+            if config['useSeperateVars']:
+                op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars)
+            else:
+                op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums)
         else:
             op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums)
 
-        predict = Prediction(hidden_size=config['hidden_size'], op_nums=op_nums, input_size=len(generate_nums), num_vars=len(vars))
-        predict_output = Prediction(hidden_size=config['hidden_size'], op_nums=op_nums, input_size=len(generate_nums), num_vars=len(vars))
+        if config['useCustom']:
+            predict = Prediction(hidden_size=config['hidden_size'], op_nums=op_nums, input_size=len(generate_nums), num_vars=len(vars))
+            predict_output = Prediction(hidden_size=config['hidden_size'], op_nums=op_nums, input_size=len(generate_nums), num_vars=len(vars))
+        else:
+            predict = Prediction(hidden_size=config['hidden_size'], op_nums=op_nums, input_size=len(generate_nums), num_vars=0)
+            predict_output = Prediction(hidden_size=config['hidden_size'], op_nums=op_nums, input_size=len(generate_nums), num_vars=0)
         generate = GenerateNode(hidden_size=config['hidden_size'], op_nums=op_nums, embedding_size=config['embedding_size'])
         merge = Merge(hidden_size=config['hidden_size'], embedding_size=config['embedding_size'])
 
