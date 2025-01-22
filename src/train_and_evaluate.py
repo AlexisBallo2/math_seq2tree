@@ -876,12 +876,12 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 equation_vals = all_comparisons[each_equation][i].get("pred_vals", "NA") #+ [" = ", equation_targts_specific[each_equation]]
                 actual = all_comparisons[each_equation][i].get("actual", "NA")
 
-                # try:
-                val_ac, equ_ac, _, _ = compute_prefix_tree_result(equation_vals, target_batch[i][0], output_lang, nums_batch[i], nums_stack_batch[i][0])
-                # except Exception as e:
-                #     print("ERROR", e)
-                #     val_ac = False
-                #     equ_ac = False
+                try:
+                    val_ac, equ_ac, _, _ = compute_prefix_tree_result(equation_vals, target_batch[i][0], output_lang, nums_batch[i], nums_stack_batch[i][0])
+                except Exception as e:
+                    print("ERROR", e)
+                    val_ac = False
+                    equ_ac = False
 
                 if equ_ac:
                     solved_accs.append(1)
@@ -1285,12 +1285,12 @@ def evaluate_tree( input_batch, input_length, target_batch, target_length, nums_
     equation_set = []
     for i in range(num_x):
         equation = []
-        # try:
-        val_ac, equ_ac, _, _ = compute_prefix_tree_result(final_beams[i][0].out, target_batch[i][0], output_lang, nums_batch[i], nums_stack_batch[i][0])
-        # except Exception as e:
-            # print("ERROR", e)
-        # val_ac = False
-        # equ_ac = False
+        try:
+            val_ac, equ_ac, _, _ = compute_prefix_tree_result(final_beams[i][0].out, target_batch[i][0], output_lang, nums_batch[i], nums_stack_batch[i][0])
+        except Exception as e:
+            print("ERROR", e)
+            val_ac = False
+            equ_ac = False
         if equ_ac:
             print('solved true')
             print('SOLVED:', datasets[i])
