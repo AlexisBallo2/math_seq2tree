@@ -886,7 +886,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 if equ_ac:
                     solved_accs.append(1)
                     print('solved true')
-                    print('SOLVED:', datasets[i])
+                    # print('SOLVED:', datasets[i])
                 else:
                     solved_accs.append(0)
                     print('solved false')
@@ -1293,7 +1293,7 @@ def evaluate_tree( input_batch, input_length, target_batch, target_length, nums_
             equ_ac = False
         if equ_ac:
             print('solved true')
-            print('SOLVED:', datasets[i])
+            # print('SOLVED:', datasets[i])
             return 1
         else:
             # solved_accs.append(0)
