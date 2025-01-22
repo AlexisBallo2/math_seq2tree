@@ -603,6 +603,7 @@ def compute_prefix_tree_result(test_res, test_tar, output_lang, num_list, num_st
         return True, True, test_res, test_tar
     test = out_expression_list(test_res, output_lang, num_list)
     tar = out_expression_list(test_tar, output_lang, num_list, deepcopy(num_stack))
+    print('test', 'tar', test, tar)
     # print(test, tar)
     if test is None:
         return False, False, test, tar
