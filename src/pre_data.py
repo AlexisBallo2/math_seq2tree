@@ -958,8 +958,13 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
     temp_g = []
     for g in generate_nums:
         # only keep generated numbers if they are common in the text
-        if generate_nums_dict[g] >= 20:
-            temp_g.append(g)
+        if setName == "MATH":
+            if generate_nums_dict[g] >= 5:
+                temp_g.append(g)
+        else:
+            if generate_nums_dict[g] >= 20:
+                temp_g.append(g)
+
 
     # copy_nums: max length of numbers
     setVars = list(set(vars))
