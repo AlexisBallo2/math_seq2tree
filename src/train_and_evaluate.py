@@ -149,7 +149,7 @@ class TreeEmbedding:  # the class save the tree
         self.goal_vect = goal_vect
 
 # @line_profiler.profile
-def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets, var_pos, batch_sni, pair_mapping, solutions, useCustom, all_vars,  setName, useSemanticAlignment, useSeperateVars, useOpScaling, useSNIMask, useFixT, datasets, inTraining, english=False):
+def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, nums_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets, var_pos, batch_sni, pair_mapping, solutions, useCustom, all_vars,  setName, useSemanticAlignment, useSeperateVars, useOpScaling, useSNIMask, useFixT, datasets, inTraining, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -777,6 +777,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             print(f"        actual:     {act_comp}")
             comparison.append({
                 'prediction': pred_comp,
+                'pred_vals': [i.item() for i in vals],
                 'actual': act_comp 
             })
         print("\n")
@@ -872,47 +873,59 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 # first equation
                 # for j in range(len(all_comparisons)):
                 equation = all_comparisons[each_equation][i].get("prediction", "NA") #+ [" = ", equation_targts_specific[each_equation]]
+                equation_vals = all_comparisons[each_equation][i].get("pred_vals", "NA") #+ [" = ", equation_targts_specific[each_equation]]
                 actual = all_comparisons[each_equation][i].get("actual", "NA")
-                print('actual', actual)
-                print('equation', equation)
-                # equation = all_comparisons[each_equation][i].get("actual", "NA") #+ [" = ", equation_targts_specific[each_equation]]
-                # print()
-                replace = replace_nums(pair_mapping[i], equation)
-                updated = from_prefix_to_infix(replace) 
-                if updated is not None:
-                    if setName == 'MATH':
-                        equation_set.append("".join(updated) + " = x " )#+ replaced_targs[each_equation])
-                    else:
-                        equation_set.append("".join(updated) + " = 0 " )#+ replaced_targs[each_equation])
-                else:
-                    equation_set.append(updated)
-            print('equation_set', equation_set)
-            invalid = False
-            for eq in equation_set:
-                if eq is None: 
-                    invalid = True
-                    break
-                symbols = eq.split()
-                for symbol in symbols:
-                    if symbol[0] == 'N':
-                        invalid = True
-                        break
-            # solved_accs_lens.append(2)
-            solved_accs_lens.append(num_equations.item())
-            solved_accs_set.append(datasets[i])
-            if invalid:
-                print('invalid, equ')
-                solved_accs.append(0)
-            else:
-                solved = solve_equation(equation_set, solutions[i])
-                if solved:
+
+                val_ac, equ_ac, _, _ = compute_prefix_tree_result(equation_vals, target_batch[i][0], output_lang, nums_batch[i], nums_stack_batch[i])
+
+                if equ_ac:
                     solved_accs.append(1)
                     print('solved true')
                     print('SOLVED:', datasets[i])
                 else:
                     solved_accs.append(0)
                     print('solved false')
-            # print()
+
+            #     print('actual', actual)
+            #     print('equation', equation)
+            #     # equation = all_comparisons[each_equation][i].get("actual", "NA") #+ [" = ", equation_targts_specific[each_equation]]
+            #     # print()
+            #     replace = replace_nums(pair_mapping[i], equation)
+            #     updated = from_prefix_to_infix(replace) 
+            #     if updated is not None:
+            #         if setName == 'MATH':
+            #             equation_set.append("".join(updated) + " = x " )#+ replaced_targs[each_equation])
+            #         else:
+            #             equation_set.append("".join(updated) + " = 0 " )#+ replaced_targs[each_equation])
+            #     else:
+            #         equation_set.append(updated)
+            # print('equation_set', equation_set)
+            # invalid = False
+            # for eq in equation_set:
+            #     if eq is None: 
+            #         invalid = True
+            #         break
+            #     symbols = eq.split()
+            #     for symbol in symbols:
+            #         if symbol[0] == 'N':
+            #             invalid = True
+            #             break
+            # # solved_accs_lens.append(2)
+            # solved_accs_lens.append(num_equations.item())
+            # solved_accs_set.append(datasets[i])
+            # if invalid:
+            #     print('invalid, equ')
+            #     solved_accs.append(0)
+            # else:
+            #     solved = solve_equation(equation_set, solutions[i])
+            #     if solved:
+            #         solved_accs.append(1)
+            #         print('solved true')
+            #         print('SOLVED:', datasets[i])
+            #     else:
+            #         solved_accs.append(0)
+            #         print('solved false')
+            # # print()
     
 
         # num_equations = len(all_comparisons)
@@ -970,7 +983,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
 # @line_profiler.profile
 # def evaluate_tree(input_batch, input_length, generate_nums, models, input_lang, output_lang, num_pos, vars, useCustom, debug, useSemanticAlignment, useSeperateVars, useOpScaling, useVarsAsNums, equation_lengths, useSNIMask, beam_size=5, english=False, max_length=MAX_OUTPUT_LENGTH):
-def evaluate_tree( input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets, var_pos, batch_sni, pair_mapping, solutions, useCustom, all_vars,  setName, useSemanticAlignment, useSeperateVars, useOpScaling, useSNIMask, useFixT, datasets, beam_size, inTraining, english=False):
+def evaluate_tree( input_batch, input_length, target_batch, target_length, nums_stack_batch, nums_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets, var_pos, batch_sni, pair_mapping, solutions, useCustom, all_vars,  setName, useSemanticAlignment, useSeperateVars, useOpScaling, useSNIMask, useFixT, datasets, beam_size, inTraining, english=False):
 
     # seq_mask = torch.ByteTensor(1, input_length + len(vars)).fill_(0)
     seq_mask = torch.ByteTensor(1, input_length[0]).fill_(0)

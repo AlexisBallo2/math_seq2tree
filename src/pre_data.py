@@ -507,7 +507,11 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
         if setName == "MATH":
             equ = d["equation"]
             # equations = [equ[2:] + "=X"]
-            equations = [equ]
+            if useCustom:
+                equations = [equ]
+            else:
+                equations = [equ[2:]]
+
             if useEqunSolutions:
                 # targets = [d['ans']]
                 raw_ans = d['ans']
@@ -848,78 +852,82 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
         # out_len = len(out_seq)
         # if out_len > 3:
         #     print()
-        for outputEquation in out_seq:
-            if "," in outputEquation:
-                outputEquation = [i for i in outputEquation if i != ","]
-                if len(outputEquation) == 1:
+        if useCustom:
+            for outputEquation in out_seq:
+                if "," in outputEquation:
+                    outputEquation = [i for i in outputEquation if i != ","]
+                    if len(outputEquation) == 1:
+                        continue
+                if "." in outputEquation:
+                    outputEquation = [i for i in outputEquation if i != "."]
+                    if len(outputEquation) == 1:
+                        continue
+                # only want equations in this form
+                if outputEquation[-2] == "=":
+                    # outputEquation += ["-", outputEquation[-1]]
+                    # outputEquation.append()
+
+                    # equationTargetVars.append(outputEquation[-1])
+                    if useSubMethod:
+                        equationTargetVars.append("0")
+                        final_out_seq_list.append(outputEquation[:-2] + ["-", outputEquation[-1]])
+                    else:
+                        equationTargetVars.append(outputEquation[-1])
+                        final_out_seq_list.append(outputEquation[:-2])
+
+                elif outputEquation[1] == "=":
+
+                    # equationTargetVars.append(outputEquation[0])
+                    if useSubMethod:
+                        equationTargetVars.append("0")
+                        final_out_seq_list.append(outputEquation[2:] + ["-", outputEquation[0]])
+                    else:
+                        equationTargetVars.append(outputEquation[0])
+                        final_out_seq_list.append(outputEquation[2:])
+
+                else:
+                    # if it is a+b = n+z
+                    equals_index = outputEquation.index("=")
+                    # equ_1 = outputEquation[:equals_index]
+                    # final_out_seq_list.append(equ_1)
+                    # equ_2 = outputEquation[equals_index+1:]
+                    # final_out_seq_list.append(equ_2)
+                    # var = "Y" if "Y" not in equ_1 else "X"
+                    equ_1 = outputEquation[:equals_index]
+                    equ_2 = outputEquation[equals_index+1:]
+                    if "Y" not in equ_1:
+                        var = "Y"
+                    elif "X" not in equ_1:
+                        var = "X"
+                    else:
+                        var = "Z"
+                    if useSubMethod:
+                        final_out_seq_list.append(equ_1 + ["-", var])
+                        final_out_seq_list.append(equ_2 + ["-", var])
+                        equationTargetVars.append("0")
+                        equationTargetVars.append("0")
+                        allVars.append(var)
+                        allVars = list(set(allVars))
+                        vars += var
+
+                    else:
+                        final_out_seq_list.append(equ_1)
+                        final_out_seq_list.append(equ_2)
+                        equationTargetVars.append(var)
+                        equationTargetVars.append(var)
+                        allVars.append(var)
+                        allVars = list(set(allVars))
+                        vars += var
+                if len(final_out_seq_list) > 3:
+                    # 1 with 4, ignore it 
+                    print()
                     continue
-            if "." in outputEquation:
-                outputEquation = [i for i in outputEquation if i != "."]
-                if len(outputEquation) == 1:
-                    continue
-            # only want equations in this form
-            if outputEquation[-2] == "=":
-                # outputEquation += ["-", outputEquation[-1]]
-                # outputEquation.append()
-
-                # equationTargetVars.append(outputEquation[-1])
-                if useSubMethod:
-                    equationTargetVars.append("0")
-                    final_out_seq_list.append(outputEquation[:-2] + ["-", outputEquation[-1]])
-                else:
-                    equationTargetVars.append(outputEquation[-1])
-                    final_out_seq_list.append(outputEquation[:-2])
-
-            elif outputEquation[1] == "=":
-
-                # equationTargetVars.append(outputEquation[0])
-                if useSubMethod:
-                    equationTargetVars.append("0")
-                    final_out_seq_list.append(outputEquation[2:] + ["-", outputEquation[0]])
-                else:
-                    equationTargetVars.append(outputEquation[0])
-                    final_out_seq_list.append(outputEquation[2:])
-
-            else:
-                # if it is a+b = n+z
-                equals_index = outputEquation.index("=")
-                # equ_1 = outputEquation[:equals_index]
-                # final_out_seq_list.append(equ_1)
-                # equ_2 = outputEquation[equals_index+1:]
-                # final_out_seq_list.append(equ_2)
-                # var = "Y" if "Y" not in equ_1 else "X"
-                equ_1 = outputEquation[:equals_index]
-                equ_2 = outputEquation[equals_index+1:]
-                if "Y" not in equ_1:
-                    var = "Y"
-                elif "X" not in equ_1:
-                    var = "X"
-                else:
-                    var = "Z"
-                if useSubMethod:
-                    final_out_seq_list.append(equ_1 + ["-", var])
-                    final_out_seq_list.append(equ_2 + ["-", var])
-                    equationTargetVars.append("0")
-                    equationTargetVars.append("0")
-                    allVars.append(var)
-                    allVars = list(set(allVars))
-                    vars += var
-
-                else:
-                    final_out_seq_list.append(equ_1)
-                    final_out_seq_list.append(equ_2)
-                    equationTargetVars.append(var)
-                    equationTargetVars.append(var)
-                    allVars.append(var)
-                    allVars = list(set(allVars))
-                    vars += var
-            if len(final_out_seq_list) > 3:
-                # 1 with 4, ignore it 
-                print()
-                continue
             # if len(equationTargetVars) != len(final_out_seq_list):
             #     print()
             #     continue
+        else:
+            for outputEquation in out_seq:
+                final_out_seq_list.append(outputEquation)
         # input_seq: masked text
         # out_seq: equation with in text numbers replaced with "N#", and other numbers left as is
         # nums: list of numbers in the text
@@ -1548,6 +1556,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
     output_batches = []
     num_stack_batches = []  # save the num stack which
     num_pos_batches = []
+    num_actual_batches = []
     num_size_batches = []
     output_vars_batches = []
 
@@ -1575,6 +1584,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
         input_batch = []
         output_batch = []
         num_batch = []
+        nums_actual = []
         num_stack_batch = []
         num_pos_batch = []
         num_size_batch = []
@@ -1605,6 +1615,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
             # max_equ_length = max(max_equ_length, max(lj))
 
             num_batch.append(len(pair['nums']))
+            nums_actual.append(pair['nums'])
             # input batch: padded input text
             # inputs_with_vars_appended = i + [input_lang.word2index[i] for i in vars]
             # input_batch.append(pad_seq(inputs_with_vars_appended, li + len(vars), input_len_max))
@@ -1648,6 +1659,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
         output_batches.append(output_batch)
         output_vars_batches.append(output_vars)
         num_stack_batches.append(num_stack_batch)
+        num_actual_batches.append(nums_actual)
         num_pos_batches.append(num_pos_batch)
         num_size_batches.append(num_size_batch)
         total_output_solutions.append(output_var_solutions)
@@ -1664,7 +1676,7 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
     # num_stack_batches: the corresponding nums lists
     # num_pos_batches: positions of the numbers lists
     # num_size_batches: number of numbers from the input text
-    return input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_vars_batches, total_output_solutions, total_targets, var_pos_in_input, batches_sni, pair_mappings, datasets
+    return input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_actual_batches, num_stack_batches, num_pos_batches, num_size_batches, output_vars_batches, total_output_solutions, total_targets, var_pos_in_input, batches_sni, pair_mappings, datasets
 
 
 def get_num_stack(eq, output_lang, num_pos):

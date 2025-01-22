@@ -55,13 +55,13 @@ if do_saves:
 
 
 # batch_size = 64
-# torch.manual_seed(10)
-# torch.use_deterministic_algorithms(True)
-# torch.backends.cudnn.deterministic = True
-# torch.backends.cudnn.benchmark = False
-# random.seed(10)
-# torch.cuda.manual_seed_all(2)
-# np.random.seed(10)
+torch.manual_seed(10)
+torch.use_deterministic_algorithms(True)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+random.seed(10)
+torch.cuda.manual_seed_all(2)
+np.random.seed(10)
 
 
 if use_save:
@@ -106,8 +106,8 @@ else:
         # "batch_size": 1,
         # "batch_size": 2,
         # "batch_size": 5,
-        "batch_size": 20,
-        # "batch_size": 64,
+        # "batch_size": 20,
+        "batch_size": 64,
         "embedding_size": 128,
         "hidden_size": 512,
         # "n_epochs": 15,
@@ -120,11 +120,11 @@ else:
         "weight_decay": 1e-5,
         "beam_size": 5,
         "n_layers": 2,
-        "useCustom": True,
-        # "useCustom": False,
+        # "useCustom": True,
+        "useCustom": False,
         # "setName" : "PEN",
-        # "setName" : "MATH",
-        "setName" : "DRAW",
+        "setName" : "MATH",
+        # "setName" : "DRAW",
         # "setName" : "MAWPS",
         # "setName" : "ALG",
         "useSubMethod": True,
@@ -183,11 +183,12 @@ else:
     # print(Counter(lens_equs))
     # print()
 
+    # data = data[0:20]
     pairs, generate_nums, copy_nums, vars = transfer_num(data, config['setName'], config['useCustom'], config['useEquSolutions'], config['useSubMethod'], config['useSeperateVars'])
     # pairs.shuffle()
-    lens = []
-    lens_solns = []
-    lens_equs = []
+    # lens = []
+    # lens_solns = []
+    # lens_equs = []
 
 
     # for d in pairs:
@@ -210,7 +211,7 @@ else:
     # print()
 
 
-    random.shuffle(pairs)
+    # random.shuffle(pairs)
     if config['num_obs']:
         pairs = pairs[0:config['num_obs']]
     # pairs: list of tuples:
@@ -241,37 +242,37 @@ else:
     # pairs = temp_pairs
     # print(Counter(pairs_len))
 
-    lens = []
-    lens_solns = []
-    lens_equs = []
-    for d in pairs:
-        equs = d['equations']
-        for i in range(len(equs)):
-            if i >= len(equs):
-                lens.append(-1)
-            else:
-                splitted = equs[i]
-                lens.append(len(splitted))
-        # equs = len(d['equation'])
-        # lens.append(equs)
-        # lens_equs.append(equs)
-        # solns = len(d['oldAnswer'][0])
-        # lens_solns.append(solns)
-        # lens.append(equs +  " - " + solns)
-        # if equs == 4:
-        #     print()
-        # if equs > solns:
-        # if equs == 4 and solns == 3:
-        #     lens.append(1)
-        # else:
-        #     lens.append(0)
-        # if len(d['equations']) > 3:
-            # print(d['equations'])
-    # print(sum(lens)/ len(lens))
-    # print(json.dumps(lens))
-    # count = json.dumps(Counter(lens))
-    with open('math.json', 'w') as file:
-        json.dump(lens, file, indent=4) 
+    # lens = []
+    # lens_solns = []
+    # lens_equs = []
+    # for d in pairs:
+    #     equs = d['equations']
+    #     for i in range(len(equs)):
+    #         if i >= len(equs):
+    #             lens.append(-1)
+    #         else:
+    #             splitted = equs[i]
+    #             lens.append(len(splitted))
+    #     # equs = len(d['equation'])
+    #     # lens.append(equs)
+    #     # lens_equs.append(equs)
+    #     # solns = len(d['oldAnswer'][0])
+    #     # lens_solns.append(solns)
+    #     # lens.append(equs +  " - " + solns)
+    #     # if equs == 4:
+    #     #     print()
+    #     # if equs > solns:
+    #     # if equs == 4 and solns == 3:
+    #     #     lens.append(1)
+    #     # else:
+    #     #     lens.append(0)
+    #     # if len(d['equations']) > 3:
+    #         # print(d['equations'])
+    # # print(sum(lens)/ len(lens))
+    # # print(json.dumps(lens))
+    # # count = json.dumps(Counter(lens))
+    # with open('math.json', 'w') as file:
+    #     json.dump(lens, file, indent=4) 
 
 
     if do_folds:
@@ -544,7 +545,7 @@ for fold in range(existing_fold, folds_to_do):
         # num_stack_batches: the corresponding nums lists
         # num_pos_batches: positions of the numbers lists
         # num_size_batches: number of numbers from the input text
-        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni, pair_mapping, datasets = prepare_train_batch(train_pairs, config['batch_size'], vars, output_lang, input_lang)
+        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_actual_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni, pair_mapping, datasets = prepare_train_batch(train_pairs, config['batch_size'], vars, output_lang, input_lang)
         # generate temp x vectors
 
         print("fold:", fold + 1)
@@ -581,7 +582,7 @@ for fold in range(existing_fold, folds_to_do):
             input_batch_len = len(input_batches[idx])
             loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list, acc_soln = train_tree(
                 input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
-                num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
+                num_stack_batches[idx], num_actual_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
                 output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx], output_var_solutions[idx], config['useCustom'], vars, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useSNIMask'], config['useTFix'], datasets[idx], True)
             # train_time_array.append([input_batch_len,end - start])
             train_comparison.append(comparison)
@@ -625,14 +626,14 @@ for fold in range(existing_fold, folds_to_do):
             start = time.perf_counter()
             batch_eval_comparison = []
             # for test_batch in test_pairs:
-            input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni, pair_mapping, datasets = prepare_train_batch(test_pairs, 1, vars, output_lang, input_lang)
+            input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_actual_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni, pair_mapping, datasets = prepare_train_batch(test_pairs, 1, vars, output_lang, input_lang)
             for idx in range(len(input_lengths)):
                 for optimizer in optimizers:
                     optimizer.zero_grad()
                 for k, v in models.items():
                     v.eval()
                 input_batch_len = len(input_batches[idx])
-                solved = evaluate_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx],output_var_solutions[idx], config['useCustom'], vars, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useSNIMask'], config['useTFix'], datasets[idx], beam_size, False) 
+                solved = evaluate_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], nums_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx],output_var_solutions[idx], config['useCustom'], vars, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useSNIMask'], config['useTFix'], datasets[idx], beam_size, False) 
                 # test_time_array.append([input_batch_len,end - start])
                 # testc.append(comparison)
                 # if idx > 2:
