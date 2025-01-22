@@ -44,9 +44,13 @@ def replace_nums(mapping, equation, nums, num_stack):
             final_equation.append(mapping[token])
         # pop from num stack
         elif token[0] == "N":
-            pos_list = num_stack.pop()
-            c = nums[pos_list[0]]
-            final_equation.append(c)
+            if mapping.get("N1", "") != "":
+                final_equation.append(mapping["N1"])
+            else:
+                final_equation.append(nums[0])
+            # pos_list = num_stack.pop()
+            # c = nums[pos_list[0]]
+            # final_equation.append(c)
         else:
             final_equation.append(token)
     
