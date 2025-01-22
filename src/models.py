@@ -209,7 +209,7 @@ class EncoderSeq(nn.Module):
         self.input_lang = input_lang
         self.tokenizer = BertTokenizer.from_pretrained(model_name)
         self.model = BertModel.from_pretrained(model_name)
-        for name, param in list(self.model.named_parameters())[:-4]:
+        for name, param in list(self.model.named_parameters())[:-2]:
             param.requires_grad = False               
 
 
