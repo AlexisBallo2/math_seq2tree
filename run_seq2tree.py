@@ -115,7 +115,7 @@ else:
         # "n_epochs": 10,
         # "n_epochs" : 20,
         # "n_epochs" : 3,
-        # "n_epochs" : 80,
+        "n_epochs" : 80,
         "learning_rate": 1e-3,
         "weight_decay": 1e-5,
         "beam_size": 5,
@@ -643,7 +643,11 @@ for fold in range(existing_fold, folds_to_do):
                 for k, v in models.items():
                     v.eval()
                 input_batch_len = len(input_batches[idx])
-                solved = evaluate_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_actual_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx],output_var_solutions[idx], config['useCustom'], vars, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useSNIMask'], config['useTFix'], datasets[idx], beam_size, False) 
+                # solved = evaluate_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_actual_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx],output_var_solutions[idx], config['useCustom'], vars, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useSNIMask'], config['useTFix'], datasets[idx], beam_size, False) 
+                loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list, solved = train_tree(                input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
+
+                num_stack_batches[idx], num_actual_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
+                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx], output_var_solutions[idx], config['useCustom'], vars, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useSNIMask'], config['useTFix'], datasets[idx], False) 
                 # test_time_array.append([input_batch_len,end - start])
                 # testc.append(comparison)
                 # if idx > 2:

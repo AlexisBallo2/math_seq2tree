@@ -302,6 +302,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 num_mask.append([0] * output_lang.num_start + problem_var_list + [0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
         else:
             d = num_size + len(generate_nums)
+            # num_mask.append([0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
             num_mask.append([0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
     num_mask = torch.ByteTensor(num_mask)
 
@@ -864,7 +865,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
 
     # if using equation solutions:
-    if True:
+    if not inTraining:
         solved_accs = []
         solved_accs_lens = []
         solved_accs_set = []
@@ -879,8 +880,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 equation_vals = all_comparisons[each_equation][i].get("pred_vals", "NA") #+ [" = ", equation_targts_specific[each_equation]]
                 actual = all_comparisons[each_equation][i].get("actual", "NA")
 
-                print('not eval train' )
-                solved_accs.append(0)
+                # print('not eval train' )
+                # solved_accs.append(0)
                 # try:
                 #     val_ac, equ_ac, _, _ = compute_prefix_tree_result(equation_vals, target_batch[i][0], output_lang, nums_batch[i], nums_stack_batch[i][0])
                 # except Exception as e:
@@ -896,46 +897,46 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 #     solved_accs.append(0)
                 #     print('solved false')
 
-            #     print('actual', actual)
-            #     print('equation', equation)
-            #     # equation = all_comparisons[each_equation][i].get("actual", "NA") #+ [" = ", equation_targts_specific[each_equation]]
-            #     # print()
-            #     replace = replace_nums(pair_mapping[i], equation)
-            #     updated = from_prefix_to_infix(replace) 
-            #     if updated is not None:
-            #         if setName == 'MATH':
-            #             equation_set.append("".join(updated) + " = x " )#+ replaced_targs[each_equation])
-            #         else:
-            #             equation_set.append("".join(updated) + " = 0 " )#+ replaced_targs[each_equation])
-            #     else:
-            #         equation_set.append(updated)
-            # print('equation_set', equation_set)
-            # invalid = False
-            # for eq in equation_set:
-            #     if eq is None: 
-            #         invalid = True
-            #         break
-            #     symbols = eq.split()
-            #     for symbol in symbols:
-            #         if symbol[0] == 'N':
-            #             invalid = True
-            #             break
-            # # solved_accs_lens.append(2)
-            # solved_accs_lens.append(num_equations.item())
+                print('actual', actual)
+                print('equation', equation)
+                equation = all_comparisons[each_equation][i].get("prediction", "NA") #+ [" = ", equation_targts_specific[each_equation]]
+                # print()
+                replace = replace_nums(pair_mapping[i], equation, nums_batch[i], nums_stack_batch[i])
+                updated = from_prefix_to_infix(replace) 
+                if updated is not None:
+                    if setName == 'MATH':
+                        equation_set.append("".join(updated) + " = x " )#+ replaced_targs[each_equation])
+                    else:
+                        equation_set.append("".join(updated) + " = 0 " )#+ replaced_targs[each_equation])
+                else:
+                    equation_set.append(updated)
+            print('equation_set', equation_set)
+            invalid = False
+            for eq in equation_set:
+                if eq is None: 
+                    invalid = True
+                    break
+                symbols = eq.split()
+                for symbol in symbols:
+                    if symbol[0] == 'N':
+                        invalid = True
+                        break
+            # solved_accs_lens.append(2)
+            solved_accs_lens.append(num_equations.item())
             # solved_accs_set.append(datasets[i])
-            # if invalid:
-            #     print('invalid, equ')
-            #     solved_accs.append(0)
-            # else:
-            #     solved = solve_equation(equation_set, solutions[i])
-            #     if solved:
-            #         solved_accs.append(1)
-            #         print('solved true')
-            #         print('SOLVED:', datasets[i])
-            #     else:
-            #         solved_accs.append(0)
-            #         print('solved false')
-            # # print()
+            if invalid:
+                print('invalid, equ')
+                solved_accs.append(0)
+            else:
+                solved = solve_equation(equation_set, solutions[i])
+                if solved:
+                    solved_accs.append(1)
+                    print('solved true')
+                    # print('SOLVED:', datasets[i])
+                else:
+                    solved_accs.append(0)
+                    print('solved false')
+            # print()
     
 
         # num_equations = len(all_comparisons)
@@ -944,6 +945,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         #     equation_set = []
         #     for i in range(num_equations):
         #         equation_set.append(all_comparisons[i][equ])
+    else:
+        solved_accs_lens = []
+        solved_accs_set = []
+        solved_accs = [0]
 
     
     if useCustom:
