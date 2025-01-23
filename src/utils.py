@@ -697,3 +697,17 @@ def compute_prefix_expression(pre_fix):
     if len(st) == 1:
         return st.pop()
     return None
+
+
+def make_gts_graph():
+    obs = [100, 500, 1000, 5000, 10000, 23000]
+    obs = [i*4/5 for i in obs]
+    acc = [0.35, 0.48, 0.525, 0.65, 0.66, 0.73]
+    plt.plot(obs, acc)
+    plt.title("GTS Accuracy on MATH23K by Training Set Size  ")
+    plt.xlabel("Training Set Size")
+    plt.ylabel("Solution Accuracy")
+    plt.savefig('gts-accuracy.pdf')
+    # plt.show()
+
+# make_gts_graph()

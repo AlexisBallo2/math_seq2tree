@@ -26,8 +26,8 @@ do_saves = False
 # use_save = True 
 use_save = False 
 
-do_folds = True
-# do_folds = False
+# do_folds = True
+do_folds = False
 saved_epoch_completed = False
 fold_save_completed = False
 
@@ -106,8 +106,8 @@ else:
         # "batch_size": 1,
         # "batch_size": 2,
         # "batch_size": 5,
-        # "batch_size": 20,
-        "batch_size": 64,
+        "batch_size": 20,
+        # "batch_size": 64,
         "embedding_size": 128,
         "hidden_size": 512,
         # "n_epochs": 15,
@@ -138,14 +138,14 @@ else:
         # "useOpScaling" : True,
         'useSNIMask' : False,
         "useOneEquation": False,
-        # 'useBertEmbeddings': True,
-        'useBertEmbeddings': False,
+        'useBertEmbeddings': True,
+        # 'useBertEmbeddings': False,
         'useTFix' : False,
         # "num_folds" : 2,
         "num_folds" : 5,
-        "num_obs": 20,   
+        # "num_obs": 20,   
         # "num_obs": 10,   
-        # "num_obs": None,   
+        "num_obs": None,   
     }
     config['title'] = f"{config['num_obs']} Observations, {config['n_epochs']} Epochs, Dataset = {config['setName']}, Custom = {config['useCustom']} ",
     if config['useBertEmbeddings']:
