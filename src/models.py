@@ -209,6 +209,9 @@ class EncoderSeq(nn.Module):
         self.input_lang = input_lang
         self.tokenizer = BertTokenizer.from_pretrained(model_name)
         self.model = BertModel.from_pretrained(model_name)
+        for param in list(self.model.parameters())[:-2]:
+            param.requires_grad = False
+        self.model.to(device)
 
         # Text to embed
         # text = "This is a sample sentence."
@@ -227,7 +230,7 @@ class EncoderSeq(nn.Module):
             for each_batch in input_per_batch:
                 string = [self.input_lang.index2word[i] for i in each_batch.tolist()]
                 input_ids = [self.tokenizer.encode(word, add_special_tokens=True) for word in string]
-                input_ids_padded = torch.nn.utils.rnn.pad_sequence([torch.tensor(x) for x in input_ids], batch_first=True)
+                input_ids_padded = torch.nn.utils.rnn.pad_sequence([torch.tensor(x) for x in input_ids], batch_first=True).to(device)
                 # with torch.no_grad():
                 outputs = self.model(input_ids_padded)
                 last_hidden_states = outputs.last_hidden_state
@@ -250,11 +253,11 @@ class EncoderSeq(nn.Module):
         # 32 x 20 x 128
         # embedded1 = self.embedding(input_seqs)  # S x B x E
         if self.useBertEmbeddings:
-            embedded1 = self.getEmbeddings(input_seqs)
+            embedded1 = self.getEmbeddings(input_seqs).to(device)
         else:
             embedded1 = self.embedding(input_seqs)
         # embedded1 = self.tokenizer(input_seqs, return_tensors='pt')
-        embedded = self.em_dropout(embedded1)
+        embedded = self.em_dropout(embedded1).to(device)
         # packed = lengths x embedding
         # with multiple batches it seems to concatenate the padded 
         # sequences of variable length

@@ -796,10 +796,12 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
         if useSemanticAlignment: 
             semantic_alignment_loss = nn.MSELoss()
-            total_semanti_alognment_loss = torch.tensor(-1e-3, dtype=torch.float32)
+            total_semanti_alognment_loss = torch.tensor(-1e-3, dtype=torch.float32).to(device)
             sa_len = len(all_sa_outputs)
             for sa_pair in all_sa_outputs:
-                total_semanti_alognment_loss += semantic_alignment_loss(sa_pair[0],sa_pair[1]) * 10
+                add_1 = semantic_alignment_loss(sa_pair[0],sa_pair[1])
+                add_1.to(device)
+                total_semanti_alognment_loss +=  add_1 * 10
             # print(total_semanti_alognment_loss)
             # print()
             if sa_len == 0:
