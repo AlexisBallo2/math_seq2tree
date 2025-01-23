@@ -1597,7 +1597,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             "num_stack": num_stacks,
             "allVars": pair['allVars'],
             # "equationTargetVars": equation_target,
-            # "solution": pair['solution'],
+            "solution": pair['solution'],
             "pairNumMapping": pair['pairNumMapping'],
             # "specificDataset": pair['specificDataset']
         })
@@ -1803,8 +1803,8 @@ def prepare_train_batch(pairs_to_batch, batch_size, vars, output_lang, input_lan
             num_pos_batch.append(pair['num_pos'])
             # size of numbers from input
             num_size_batch.append(len(pair['nums']))
-            # output_var_solutions.append(pair['solution'])
-            output_var_solutions.append([])
+            output_var_solutions.append(pair['solution'])
+            # output_var_solutions.append([])
             # targets.append(pair['equationTargetVars'] + [0 for _ in range(targets_len_max - len(pair['equationTargetVars']))])
             # tar
 

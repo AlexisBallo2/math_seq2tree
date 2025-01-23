@@ -123,8 +123,8 @@ else:
         "useCustom": True,
         # "useCustom": False,
         # "setName" : "PEN",
-        "setName" : "MATH",
-        # "setName" : "DRAW",
+        # "setName" : "MATH",
+        "setName" : "DRAW",
         # "setName" : "MAWPS",
         # "setName" : "ALG",
         "useSubMethod": True,
@@ -143,9 +143,9 @@ else:
         'useTFix' : False,
         # "num_folds" : 2,
         "num_folds" : 5,
-        # "num_obs": 20,   
+        "num_obs": 20,   
         # "num_obs": 10,   
-        "num_obs": None,   
+        # "num_obs": None,   
     }
     config['title'] = f"{config['num_obs']} Observations, {config['n_epochs']} Epochs, Dataset = {config['setName']}, Custom = {config['useCustom']} ",
     if config['useBertEmbeddings']:
