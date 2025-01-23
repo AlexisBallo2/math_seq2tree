@@ -149,7 +149,7 @@ class TreeEmbedding:  # the class save the tree
         self.goal_vect = goal_vect
 
 # @line_profiler.profile
-def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets, var_pos, batch_sni, pair_mapping, solutions, useCustom, all_vars,  setName, useSemanticAlignment, useSeperateVars, useOpScaling, useSNIMask, useFixT, datasets, inTraining, english=False):
+def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets, var_pos, batch_sni, pair_mapping, solutions, useCustom, all_vars,  setName, useSemanticAlignment, useSeperateVars, useOpScaling, useSNIMask, useFixT, datasets, opsInNN, inTraining, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
     # target_batch: padded outputs
@@ -263,14 +263,19 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     # 0s where the numbers are from input, 1s where not in input
     num_mask = []
     if useCustom and useSeperateVars:
-        # max_num_size = max(num_size_batch) + len(generate_nums)  
-        max_num_size = output_lang.num_start + max(num_size_batch) + len(generate_nums) + len(all_vars) 
+        if opsInNN:
+            max_num_size = max(num_size_batch) + len(generate_nums) + len(all_vars) 
+        else:
+            max_num_size = output_lang.num_start + max(num_size_batch) + len(generate_nums) + len(all_vars) 
     else:
         max_num_size = max(num_size_batch) + len(generate_nums) 
 
     for i, num_size in enumerate(num_size_batch):
         if useCustom and useSeperateVars:
-            d = output_lang.num_start +  num_size + len(generate_nums) + len(problem_vars[i].tolist())
+            if opsInNN:
+                d = num_size + len(generate_nums) + len(problem_vars[i].tolist())
+            else:
+                d = output_lang.num_start +  num_size + len(generate_nums) + len(problem_vars[i].tolist())
             if useSNIMask:
                 cur_sni_list = is_sni_list[i].argmax(1)
                 # #     # flip the mask
@@ -278,25 +283,33 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 flipped = flipped.type(torch.int)
                 flipped = flipped.tolist()
                 if inTraining:
-                    num_mask.append([0] * output_lang.num_start + problem_vars[i].tolist() + [0] * len(generate_nums) + flipped + [1] * (max_num_size - d))
+                    num_mask.append(problem_vars[i].tolist() + [0] * len(generate_nums) + flipped + [1] * (max_num_size - d))
+                    # num_mask.append([0] * output_lang.num_start + problem_vars[i].tolist() + [0] * len(generate_nums) + flipped + [1] * (max_num_size - d))
                 else:
                     num_vars_predicted = pred_num_equations.argmax().item()
                     if num_vars_predicted < len(all_vars):
                         problem_var_list = [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
                     else:
                         problem_var_list = [0] * len(all_vars)
-                    num_mask.append([0] * output_lang.num_start + problem_var_list + [0] * len(generate_nums) + flipped + [1] * (max_num_size - d))
+                    num_mask.append(problem_var_list + [0] * len(generate_nums) + flipped + [1] * (max_num_size - d))
+                    # num_mask.append([0] * output_lang.num_start + problem_var_list + [0] * len(generate_nums) + flipped + [1] * (max_num_size - d))
             else:
             
                 if inTraining:
-                    num_mask.append([0] * output_lang.num_start + problem_vars[i].tolist() + [0] * len(generate_nums) + [0] * num_size  + [1] * (max_num_size - d))
+                    if opsInNN:
+                        num_mask.append(problem_vars[i].tolist() + [0] * len(generate_nums) + [0] * num_size  + [1] * (max_num_size - d))
+                    else:
+                        num_mask.append([0] * output_lang.num_start + problem_vars[i].tolist() + [0] * len(generate_nums) + [0] * num_size  + [1] * (max_num_size - d))
                 else:
                     num_vars_predicted = pred_num_equations[i].argmax().item()
                     if num_vars_predicted < len(all_vars):
                         problem_var_list = [0] * num_vars_predicted  + [1] * (len(all_vars) - num_vars_predicted)
                     else:
                         problem_var_list = [0] * len(all_vars)
-                    num_mask.append([0] * output_lang.num_start + problem_var_list + [0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
+                    if opsInNN:
+                        num_mask.append(problem_var_list + [0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
+                    else:
+                        num_mask.append([0] * output_lang.num_start + problem_var_list + [0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
         else:
             d = num_size + len(generate_nums)
             num_mask.append([0] * len(generate_nums) + [0] * num_size + [1] * (max_num_size - d))
@@ -464,7 +477,11 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 # all_num_opp_scale.append(num_or_opp_weight)
 
                 if useCustom:
-                    outputs = num_score
+                    # outputs = torch.cat((op, num_score), 1)
+                    if opsInNN:
+                        outputs = torch.cat((op, num_score), 1)
+                    else:
+                        outputs = num_score
                 else:
                     outputs = torch.cat((op, num_score), 1)
                 # if useVarsAsNums:

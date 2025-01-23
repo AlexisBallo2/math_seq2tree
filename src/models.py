@@ -400,7 +400,7 @@ class NumOrOpp(nn.Module):
 class Prediction(nn.Module):
     # a seq2tree decoder with Problem aware dynamic encoding
 
-    def __init__(self, hidden_size, op_nums, input_size, num_vars, dropout=0.5):
+    def __init__(self, hidden_size, op_nums, input_size, num_vars, dropout=0.5, opsInNN = False):
         super(Prediction, self).__init__()
 
         # Keep for reference
@@ -429,6 +429,8 @@ class Prediction(nn.Module):
         self.score = Score(hidden_size * 2, hidden_size)
 
         self.irr = TokenIrrevalant(hidden_size, 2, dropout)
+
+        self.oppsInNN = opsInNN
 
     # @line_profiler.profile  
     def forward(self, node_stacks, left_childs, encoder_outputs, num_pades, padding_hidden, xs, seq_mask, mask_nums, useCustom, useSeperateVars,all_q):
@@ -523,9 +525,13 @@ class Prediction(nn.Module):
             if useSeperateVars:
             # embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
             # embedding_weight = torch.cat((embedding_weight1, xs, num_pades), dim=1)  # B x O x N
-                embedding_weight = torch.cat((repeated, xs, embedding_weight1, num_pades), dim=1)  # B x O x N
+                if self.oppsInNN:
+                    embedding_weight = torch.cat((xs, embedding_weight1, num_pades), dim=1)  # B x O x N
+                else:
+                    embedding_weight = torch.cat((repeated, xs, embedding_weight1, num_pades), dim=1)  # B x O x N
             else:
                 embedding_weight = torch.cat((repeated, embedding_weight1, num_pades), dim=1)  # B x O x N
+                # embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
 
             #  embedding_weight = torch.cat((xs, embedding_weight1, num_pades), dim=1)  # B x O x N
         else:
@@ -581,7 +587,10 @@ class Prediction(nn.Module):
         # if useVarsAsNums:
         var = None
         if useCustom:
-            op = None
+            if self.oppsInNN:
+                op = self.ops(leaf_input)
+            else:
+                op = None
         else:
             op = self.ops(leaf_input)
         # else:
