@@ -897,7 +897,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 # print()
                 replace = replace_nums(pair_mapping[i], equation)
                 updated = from_prefix_to_infix(replace) 
-                equation_set.append("".join(updated) + " = 0 " )#+ replaced_targs[each_equation])
+                if setName == "MATH":
+                    equation_set.append("".join(updated) + " = x " )#+ replaced_targs[each_equation])
+                else:
+                    equation_set.append("".join(updated) + " = 0 " )#+ replaced_targs[each_equation])
             print('equation_set', equation_set)
             invalid = False
             for eq in equation_set:
