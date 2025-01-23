@@ -130,13 +130,8 @@ else:
         "useEquSolutions": True,
         # "useSeperateVars": False,
         "useSeperateVars": True,
-<<<<<<< HEAD
         # "useSemanticAlignment": True,
         "useSemanticAlignment": False,
-=======
-        "useSemanticAlignment": True,
-        # "useSemanticAlignment": False,
->>>>>>> 9bb280117d250e92aae028a1a2aacef29d921196
         # "opsInNN" : True,
         "opsInNN" : False,
         "useOpScaling" : False,
