@@ -999,11 +999,11 @@ class FixT(nn.Module):
 
     def forward(self,  ith_goal, t_embs, encoder_outputs, goal_vect_global, cur_equation):
         if cur_equation == 0:
-            c = self.dropout(ith_goal)
-            g = torch.tanh(self.concat_l(c))
-            t = torch.sigmoid(self.concat_lg(c))
-            out = g * t
-            return out
+            # c = self.dropout(ith_goal)
+            # g = torch.tanh(self.concat_l(c))
+            # t = torch.sigmoid(self.concat_lg(c))
+            # out = g * t
+            return ith_goal 
         else:
             outs = []
             for i, batch in enumerate(t_embs):
