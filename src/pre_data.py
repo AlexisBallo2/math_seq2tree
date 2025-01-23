@@ -1047,6 +1047,15 @@ def transfer_num_math(data):  # transfer num into "NUM"
         mapping = {}
         for num in nums:
             mapping[num] = "N"+str(nums.index(num))
+        # ans 
+        ans_temp = d['ans']
+        # ans = sp.simplify(ans_temp)
+        if "%" in d['ans']:
+            ans = float(ans_temp.replace("%", ""))/100
+        elif "(" in d['ans']:
+            ans = sp.simplify(ans)
+        else:
+            ans = float(ans_temp)
         pairs.append({
             "input_seq": input_seq,
             "equations": [out_seq],
@@ -1054,7 +1063,7 @@ def transfer_num_math(data):  # transfer num into "NUM"
             "num_pos": num_pos,
             "allVars": ['X'],
             "equationTargetVars": ['X'],
-            "solution": [d['ans']],
+            "solution": [round(ans)],
             "pairNumMapping": mapping,
             "specificDataset": "math",
             # "id": id_index,
