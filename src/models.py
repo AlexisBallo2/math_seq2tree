@@ -1008,6 +1008,7 @@ class FixT(nn.Module):
 
     def forward(self,  ith_goal, t_embs, encoder_outputs, goal_vect_global, cur_equation):
         if cur_equation == 0:
+            # return ith_goal
             c = self.dropout(ith_goal)
             g = torch.tanh(self.concat_l(c))
             t = torch.sigmoid(self.concat_lg(c))

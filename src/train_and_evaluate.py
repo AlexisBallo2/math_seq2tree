@@ -897,14 +897,21 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 # print()
                 replace = replace_nums(pair_mapping[i], equation)
                 updated = from_prefix_to_infix(replace) 
-                equation_set.append("".join(updated) + " = 0 " )#+ replaced_targs[each_equation])
+                if updated:
+                    equation_set.append("".join(updated) + " = 0 " )#+ replaced_targs[each_equation])
+                else: 
+                    equation_set.append(updated)
             print('equation_set', equation_set)
             invalid = False
             for eq in equation_set:
+                if eq == None:
+                    invalid = True
+                    break
                 symbols = eq.split()
                 for symbol in symbols:
                     if symbol[0] == 'N':
                         invalid = True
+                        break
             # solved_accs_lens.append(2)
             solved_accs_lens.append(num_equations.item())
             solved_accs_set.append(datasets[i])
