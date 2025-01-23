@@ -1046,7 +1046,7 @@ def transfer_num_math(data):  # transfer num into "NUM"
         # pairs.append((input_seq, out_seq, nums, num_pos))
         mapping = {}
         for num in nums:
-            mapping[num] = "N"+str(nums.index(num))
+            mapping["N"+str(nums.index(num))] = num
         # ans 
         ans_temp = d['ans']
         # ans = sp.simplify(ans_temp)

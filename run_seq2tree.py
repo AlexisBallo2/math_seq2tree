@@ -119,8 +119,8 @@ else:
         "weight_decay": 1e-5,
         "beam_size": 5,
         "n_layers": 2,
-        "useCustom": True,
-        # "useCustom": False,
+        # "useCustom": True,
+        "useCustom": False,
         # "setName" : "PEN",
         "setName" : "MATH",
         # "setName" : "DRAW",
@@ -143,6 +143,7 @@ else:
         'useTFix' : False,
         # "num_folds" : 2,
         "num_folds" : 5,
+        # "num_obs": 10,   
         # "num_obs": 50,   
         # "num_obs": 100,   
         "num_obs": None,   
@@ -355,8 +356,11 @@ for fold in range(existing_fold, folds_to_do):
         # define models
         encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=config['embedding_size'], hidden_size=config['hidden_size'],n_layers=config['n_layers'], useBertEmbeddings = config['useBertEmbeddings'], input_lang=input_lang)
         encoder_var = EncoderSeq(input_size=input_lang.n_words, embedding_size=config["embedding_size"], hidden_size=config['hidden_size'],n_layers=config['n_layers'], useBertEmbeddings = config['useBertEmbeddings'], input_lang=input_lang)
-        if config['useSeperateVars']:
-            op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars)
+        if config['useCustom']:
+            if config['useSeperateVars']:
+                op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars)
+            else:
+                op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums)
         else:
             op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums)
 
