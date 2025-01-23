@@ -1535,7 +1535,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, cop
             "num_stack": num_stacks,
             "allVars": pair['allVars'],
             # "equationTargetVars": equation_target,
-            # "solution":  pair['solution'],
+            "solution":  pair['solution'],
             "pairNumMapping": pair['pairNumMapping'],
             # "specificDataset": pair['specificDataset']
         })
