@@ -523,11 +523,11 @@ class Prediction(nn.Module):
             if useSeperateVars:
             # embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
             # embedding_weight = torch.cat((embedding_weight1, xs, num_pades), dim=1)  # B x O x N
-                # embedding_weight = torch.cat((repeated, xs, embedding_weight1, num_pades), dim=1)  # B x O x N
-                embedding_weight = torch.cat((xs, embedding_weight1, num_pades), dim=1)  # B x O x N
+                embedding_weight = torch.cat((repeated, xs, embedding_weight1, num_pades), dim=1)  # B x O x N
+                # embedding_weight = torch.cat((xs, embedding_weight1, num_pades), dim=1)  # B x O x N
             else:
-                # embedding_weight = torch.cat((repeated, embedding_weight1, num_pades), dim=1)  # B x O x N
-                embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
+                embedding_weight = torch.cat((repeated, embedding_weight1, num_pades), dim=1)  # B x O x N
+                # embedding_weight = torch.cat((embedding_weight1, num_pades), dim=1)  # B x O x N
 
             #  embedding_weight = torch.cat((xs, embedding_weight1, num_pades), dim=1)  # B x O x N
         else:
@@ -582,10 +582,10 @@ class Prediction(nn.Module):
         # op = self.ops2(op)
         # if useVarsAsNums:
         var = None
-        # if useCustom:
-        #     op = None
-        # else:
-        op = self.ops(leaf_input)
+        if useCustom:
+            op = None
+        else:
+            op = self.ops(leaf_input)
         # else:
         #     var = self.var(leaf_input)
 

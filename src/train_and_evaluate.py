@@ -267,7 +267,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         # max_num_size = max(num_size_batch) + len(generate_nums)  
         max_num_size = output_lang.num_start + max(num_size_batch) + len(generate_nums) + len(all_vars) 
     else:
-        max_num_size = max(num_size_batch) + len(generate_nums) 
+        max_num_size = output_lang.num_start + max(num_size_batch) + len(generate_nums) 
 
     for i, num_size in enumerate(num_size_batch):
         if useCustom and useSeperateVars:
@@ -290,9 +290,9 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             # else:
             
             if inTraining:
-                num_mask.append(problem_vars[i].tolist() + [0] * len(generate_nums) + [0] * num_size  + [1] * (max_num_size - d))
                 # num_mask.append(problem_vars[i].tolist() + [0] * len(generate_nums) + [0] * num_size  + [1] * (max_num_size - d))
-                # num_mask.append([0] * output_lang.num_start + problem_vars[i].tolist() + [0] * len(generate_nums) + [0] * num_size  + [1] * (max_num_size - d))
+                # num_mask.append(problem_vars[i].tolist() + [0] * len(generate_nums) + [0] * num_size  + [1] * (max_num_size - d))
+                num_mask.append([0] * output_lang.num_start + problem_vars[i].tolist() + [0] * len(generate_nums) + [0] * num_size  + [1] * (max_num_size - d))
             else:
                 num_vars_predicted = pred_num_equations[i].argmax().item()
                 if num_vars_predicted < len(all_vars):
@@ -467,8 +467,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                 # all_num_opp_scale.append(num_or_opp_weight)
 
                 if useCustom:
-                    # outputs = num_score
-                    outputs = torch.cat((op, num_score), 1)
+                    outputs = num_score
+                    # outputs = torch.cat((op, num_score), 1)
                 else:
                     outputs = torch.cat((op, num_score), 1)
                 # if useVarsAsNums:
@@ -1115,8 +1115,8 @@ def evaluate_tree( input_batch, input_length, target_batch, target_length, nums_
             problem_var_list = [0] * num_x + [1] * (len(all_vars) - num_x)
         else:
             problem_var_list = [0] * len(all_vars)
-        num_mask.append(problem_var_list + [0] * len(generate_nums) + [0] * num_size)
-        # num_mask.append([0] * output_lang.num_start + problem_var_list + [0] * len(generate_nums) + [0] * num_size)
+        # num_mask.append(problem_var_list + [0] * len(generate_nums) + [0] * num_size)
+        num_mask.append([0] * output_lang.num_start + problem_var_list + [0] * len(generate_nums) + [0] * num_size)
         # num_mask.append([0] * len(generate_nums) + [0] * min(num_x, len(vars)) + [1] * (max(len(vars) - num_x, 0)) + [0] * num_size)
     else:
         num_mask.append([0] * len(generate_nums)  +  [0] * num_size )
@@ -1197,8 +1197,8 @@ def evaluate_tree( input_batch, input_length, target_batch, target_length, nums_
                 #     # out_score = nn.functional.log_softmax(torch.cat((scaled_op, scaled_var, scaled_num_score), dim=1), dim=1)
                 # else:
                 if useCustom:
-                    # out_score = num_score
-                    out_score = nn.functional.log_softmax(torch.cat((op, num_score), 1), 1)
+                    out_score = num_score
+                    # out_score = nn.functional.log_softmax(torch.cat((op, num_score), 1), 1)
                 else:
                     out_score = nn.functional.log_softmax(torch.cat((op, num_score), 1), 1)
                 # if useSeperateVars:
