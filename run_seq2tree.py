@@ -122,16 +122,16 @@ else:
         "useCustom": True,
         # "useCustom": False,
         # "setName" : "PEN",
-        "setName" : "MATH",
-        # "setName" : "DRAW",
+        # "setName" : "MATH",
+        "setName" : "DRAW",
         # "setName" : "MAWPS",
         # "setName" : "ALG",
         "useSubMethod": True,
         "useEquSolutions": True,
         # "useSeperateVars": False,
         "useSeperateVars": True,
-        "useSemanticAlignment": True,
-        # "useSemanticAlignment": False,
+        # "useSemanticAlignment": True,
+        "useSemanticAlignment": False,
         "useOpScaling" : False,
         # "useOpScaling" : True,
         'useSNIMask' : False,
@@ -150,17 +150,21 @@ else:
         config['embedding_size ']= 768
 
 
-    print("CONFIG \n", config)
-    if config['setName']== "DRAW":
-        data = load_DRAW_data("data/PEN.json", "draw")
-    elif config['setName']== "PEN":
-        data = load_DRAW_data("data/PEN.json")
-    elif config['setName']== "MAWPS":
-        data = load_DRAW_data("data/PEN.json", 'mawps')
-    elif config['setName']== "ALG":
-        data = load_DRAW_data("data/PEN.json", 'alg514')
-    else:
-        data = load_raw_data("data/Math_23K.json")
+    draw_data = load_DRAW_data("data/PEN.json", "draw")
+    alg_data = load_DRAW_data("data/PEN.json", 'alg514')
+
+    data = draw_data + alg_data 
+    # print("CONFIG \n", config)
+    # if config['setName']== "DRAW":
+    #     data = load_DRAW_data("data/PEN.json", "draw")
+    # elif config['setName']== "PEN":
+    #     data = load_DRAW_data("data/PEN.json")
+    # elif config['setName']== "MAWPS":
+    #     data = load_DRAW_data("data/PEN.json", 'mawps')
+    # elif config['setName']== "ALG":
+    #     data = load_DRAW_data("data/PEN.json", 'alg514')
+    # else:
+    #     data = load_raw_data("data/Math_23K.json")
     if config['num_obs']:
         data = data[0:config['num_obs']]
 
@@ -205,17 +209,27 @@ else:
         if len(p['equations']) < 4:
             temp_pairs.append(p)
     pairs = temp_pairs
+
+    draw_pairs = [i for i in pairs if i['specificDataset'] == 'draw']
+    alg_pairs = [i for i in pairs if i['specificDataset'] == 'alg514']
     # pairs = temp_pairs
     # print(Counter(pairs_len))
 
     if do_folds:
-        fold_size = int(len(pairs) * 1/config['num_folds'])
-        fold_pairs = []
+        fold_size_draw = int(len(draw_pairs) * 1/config['num_folds'])
+        fold_size_alg = int(len(alg_data) * 1/config['num_folds'])
+        fold_pairs_draw = []
+        fold_pairs_alg = []
         for split_fold in range(config['num_folds'] - 1):
-            fold_start = fold_size * split_fold
-            fold_end = fold_size * (split_fold + 1)
-            fold_pairs.append(pairs[fold_start:fold_end])
-        fold_pairs.append(pairs[(fold_size * (config['num_folds']-1)):])
+            fold_start_alg = fold_size_alg * split_fold
+            fold_end_alg = fold_size_alg * (split_fold + 1)
+
+            fold_start_draw = fold_size_draw * split_fold
+            fold_end_draw = fold_size_draw * (split_fold + 1)
+            fold_pairs_draw.append(draw_pairs[fold_start_draw:fold_end_draw])
+            fold_pairs_alg.append(alg_pairs[fold_start_alg:fold_end_alg])
+        fold_pairs_draw.append(draw_pairs[(fold_size_draw * (config['num_folds']-1)):])
+        fold_pairs_alg.append(alg_pairs[(fold_size_alg * (config['num_folds']-1)):])
 
     best_acc_fold = []
 
@@ -312,14 +326,18 @@ for fold in range(existing_fold, folds_to_do):
             # train on current fold, test on other folds
             for fold_t in range(config["num_folds"]):
                 if fold_t == fold:
-                    pairs_tested += fold_pairs[fold_t]
+                    # pairs_tested += fold_pairs[fold_t]
+                    pairs_tested += fold_pairs_alg[fold_t]
+                    pairs_tested += fold_pairs_draw[fold_t]
                 else:
-                    pairs_trained += fold_pairs[fold_t]
+                    pairs_trained += fold_pairs_alg[fold_t]
+                    pairs_trained += fold_pairs_draw[fold_t]
+                    # pairs_trained += fold_pairs[fold_t]
         else:
             pairs_tested = get_draw_train(pairs, 'test')
             pairs_trained = get_draw_train(pairs, 'train')
 
-        input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums, copy_nums, vars, config['useCustom'], config['useSeperateVars'], config['useBertEmbeddings'], tree=True)
+        input_lang, output_lang, train_pairs_full, test_pairs_full = prepare_data(pairs_trained, pairs_tested, 5, generate_nums, copy_nums, vars, config['useCustom'], config['useSeperateVars'], config['useBertEmbeddings'], tree=True)
         if do_saves:
             save_fold_state(save_folder, {
             "config": config,
@@ -331,7 +349,7 @@ for fold in range(existing_fold, folds_to_do):
             'pairs_tested': pairs_tested,
             'pairs_trained': pairs_trained,
             "train_pairs": train_pairs,
-            "test_pairs": test_pairs,
+            "test_pairs": test_pairs_full,
             "fold": fold,
             "fold_pairs": fold_pairs,
             "fold_accuracies": fold_accuracies,
@@ -463,257 +481,264 @@ for fold in range(existing_fold, folds_to_do):
     generate_num_ids = []
     for num in generate_nums:
         generate_num_ids.append(output_lang.word2index[num])
+    
+    for set in ['draw', 'alg']:
+        train_pairs = [i for i in train_pairs_full if i['specificDataset'] == 'draw']
+        test_pairs = [i for i in test_pairs_full if i['specificDataset'] == 'draw']
 
-    for epoch in range(start_epoch, config['n_epochs']):
-        for scheduler in schedulers:
-            scheduler.step()
-        # for scheduler in schedulers:
-        #     scheduler.step()
-        # loss_total = 0
-        # input_batches: padded inputs
-        # input_lengths: length of the inputs (without padding)
-        # output_batches: padded outputs
-        # output_length: length of the outputs (without padding)
-        # num_batches: numbers from the input text 
-        # num_stack_batches: the corresponding nums lists
-        # num_pos_batches: positions of the numbers lists
-        # num_size_batches: number of numbers from the input text
-        input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni, pair_mapping, datasets = prepare_train_batch(train_pairs, config['batch_size'], vars, output_lang, input_lang)
-        # generate temp x vectors
+        for epoch in range(start_epoch, config['n_epochs']):
+            for scheduler in schedulers:
+                scheduler.step()
+            # for scheduler in schedulers:
+            #     scheduler.step()
+            # loss_total = 0
+            # input_batches: padded inputs
+            # input_lengths: length of the inputs (without padding)
+            # output_batches: padded outputs
+            # output_length: length of the outputs (without padding)
+            # num_batches: numbers from the input text 
+            # num_stack_batches: the corresponding nums lists
+            # num_pos_batches: positions of the numbers lists
+            # num_size_batches: number of numbers from the input text
 
-        print("fold:", fold + 1)
-        print("epoch:", epoch + 1)
-        train_accuracys = []
-        batch_accuricies = {
-            "train_token": [],
-            "train_soln": [],
-            "train_num_x_mse": [],
-            "train_op_right": [],
-            "train_sni_acc": [],
-            "train_total_loss": 0,
-            "train_loss_dict": [],
+            input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni, pair_mapping, datasets = prepare_train_batch(train_pairs, config['batch_size'], vars, output_lang, input_lang)
+            # generate temp x vectors
 
-
-            "eval_token": [],
-            "eval_soln": [],
-            "eval_op_right": [],
-            "eval_num_x_mse": [],
-            "eval_sni_acc": [],
-            "eval_total_loss": 0, 
-            "eval_loss_dict": []
-        } 
-        start = time.time()
-        for idx in range(len(input_lengths)):
-            # Zero gradients of both optimizers
-            for optimizer in optimizers:
-                optimizer.zero_grad()
-
-            # Make sure all are in training mode
-            for k,v in models.items():
-                v.train()
-
-            input_batch_len = len(input_batches[idx])
-            start = time.perf_counter()
-            loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list, acc_soln = train_tree(
-                input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
-                num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
-                output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx], output_var_solutions[idx], config['useCustom'], vars, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useSNIMask'], config['useTFix'], datasets[idx], True)
-            end = time.perf_counter()
-            train_time_array.append([input_batch_len,end - start])
-            train_comparison.append(comparison)
-            # loss_total += loss
-            batch_accuricies['train_total_loss'] += loss
-            batch_accuricies["train_token"].append(acc)
-            batch_accuricies["train_op_right"].append(op_right)
-            batch_accuricies["train_num_x_mse"].append(num_x_mse)
-            batch_accuricies["train_sni_acc"].append(sni_acc)
-            batch_accuricies['train_loss_dict'].append(loss_dict)
-            # train_accuracys.append(acc)
-            
-            # Step the optimizers
-            for optimizer in optimizers:
-                optimizer.step()
-        # step the schedulers
+            print("fold:", fold + 1)
+            print("epoch:", epoch + 1)
+            print("set:", set)
+            train_accuracys = []
+            batch_accuricies = {
+                "train_token": [],
+                "train_soln": [],
+                "train_num_x_mse": [],
+                "train_op_right": [],
+                "train_sni_acc": [],
+                "train_total_loss": 0,
+                "train_loss_dict": [],
 
 
-        batch_loss = batch_accuricies['train_total_loss'] / len(input_lengths)
-        batch_train_acc = sum(batch_accuricies["train_token"]) / len(batch_accuricies["train_token"])
-        batch_train_op_right = sum(batch_accuricies["train_op_right"]) / len(batch_accuricies["train_op_right"])
-        batch_train_num_x_mse = sum(batch_accuricies["train_num_x_mse"]) / len(batch_accuricies["train_num_x_mse"])
-        batch_train_sni_acc = sum(batch_accuricies["train_sni_acc"]) / len(batch_accuricies["train_sni_acc"])
-
-        print("loss:", batch_loss)
-        print("train accuracy", batch_train_acc)
-
-        fold_accuracies["train_losses"].append(batch_loss)
-        fold_accuracies["train_token"].append(batch_train_acc)
-        fold_accuracies["train_op_right"].append(batch_train_op_right)
-        fold_accuracies["train_num_x_mse"].append(batch_train_num_x_mse)
-        fold_accuracies["train_sni_acc"].append(batch_train_sni_acc)
-        fold_accuracies["train_loss_dict"].append(batch_accuricies['train_loss_dict'])
-
-
-        if True:
-
-            batch_eval_comparison = []
-            # for test_batch in test_pairs:
-            input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni, pair_mapping, datasets = prepare_train_batch(test_pairs, 1, vars, output_lang, input_lang)
+                "eval_token": [],
+                "eval_soln": [],
+                "eval_op_right": [],
+                "eval_num_x_mse": [],
+                "eval_sni_acc": [],
+                "eval_total_loss": 0, 
+                "eval_loss_dict": []
+            } 
+            start = time.time()
             for idx in range(len(input_lengths)):
+                # Zero gradients of both optimizers
                 for optimizer in optimizers:
                     optimizer.zero_grad()
-                for k, v in models.items():
-                    v.eval()
+
+                # Make sure all are in training mode
+                for k,v in models.items():
+                    v.train()
+
                 input_batch_len = len(input_batches[idx])
                 start = time.perf_counter()
-                loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list, acc_soln = train_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx],output_var_solutions[idx], config['useCustom'], vars, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useSNIMask'], config['useTFix'], datasets[idx], False) 
+                loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list, acc_soln = train_tree(
+                    input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx],
+                    num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models,
+                    output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx], output_var_solutions[idx], config['useCustom'], vars, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useSNIMask'], config['useTFix'], datasets[idx], True)
                 end = time.perf_counter()
-                test_time_array.append([input_batch_len,end - start])
-                # testc.append(comparison)
-                batch_accuricies['eval_total_loss'] += loss
-                batch_eval_comparison.append(comparison)
-                batch_accuricies["eval_token"].append(acc)
-                batch_accuricies["eval_op_right"].append(op_right)
-                batch_accuricies["eval_num_x_mse"].append(num_x_mse)
-                batch_accuricies["eval_sni_acc"].append(sni_acc)
-                batch_accuricies['eval_loss_dict'].append(loss_dict)
-                if acc_soln == 1:
-                    batch_accuricies["eval_soln"].append(1)
-                else:
-                    batch_accuricies["eval_soln"].append(0)
+                train_time_array.append([input_batch_len,end - start])
+                train_comparison.append(comparison)
+                # loss_total += loss
+                batch_accuricies['train_total_loss'] += loss
+                batch_accuricies["train_token"].append(acc)
+                batch_accuricies["train_op_right"].append(op_right)
+                batch_accuricies["train_num_x_mse"].append(num_x_mse)
+                batch_accuricies["train_sni_acc"].append(sni_acc)
+                batch_accuricies['train_loss_dict'].append(loss_dict)
+                # train_accuracys.append(acc)
+                
+                # Step the optimizers
+                for optimizer in optimizers:
+                    optimizer.step()
+            # step the schedulers
 
-            batch_loss = batch_accuricies['eval_total_loss'] / len(input_lengths)
-            batch_eval_acc = sum(batch_accuricies["eval_token"]) / len(batch_accuricies["eval_token"])
-            batch_eval_op_right = sum(batch_accuricies["eval_op_right"]) / len(batch_accuricies["eval_op_right"])
-            batch_eval_num_x_mse = sum(batch_accuricies["eval_num_x_mse"]) / len(batch_accuricies["eval_num_x_mse"])
-            batch_eval_sni_acc = sum(batch_accuricies["eval_sni_acc"]) / len(batch_accuricies["eval_sni_acc"])
-            batch_eval_soln_acc = sum(batch_accuricies["eval_soln"]) / len(batch_accuricies["eval_soln"])
-            print(epoch, 'batch eval soln', batch_eval_soln_acc)
-            eval_comparison.append(batch_eval_comparison)
+
+            batch_loss = batch_accuricies['train_total_loss'] / len(input_lengths)
+            batch_train_acc = sum(batch_accuricies["train_token"]) / len(batch_accuricies["train_token"])
+            batch_train_op_right = sum(batch_accuricies["train_op_right"]) / len(batch_accuricies["train_op_right"])
+            batch_train_num_x_mse = sum(batch_accuricies["train_num_x_mse"]) / len(batch_accuricies["train_num_x_mse"])
+            batch_train_sni_acc = sum(batch_accuricies["train_sni_acc"]) / len(batch_accuricies["train_sni_acc"])
 
             print("loss:", batch_loss)
-            print("eval accuracy", batch_eval_acc)
+            print("train accuracy", batch_train_acc)
 
-            fold_accuracies["eval_losses"].append(batch_loss)
-            fold_accuracies["eval_token"].append(batch_eval_acc)
-            fold_accuracies["eval_op_right"].append(batch_eval_op_right)
-            fold_accuracies["eval_num_x_mse"].append(batch_eval_num_x_mse)
-            fold_accuracies["eval_sni_acc"].append(batch_eval_sni_acc)
-            fold_accuracies["eval_soln"].append(batch_eval_soln_acc)
-            fold_accuracies["eval_loss_dict"].append(batch_accuricies['eval_loss_dict'])
+            fold_accuracies["train_losses"].append(batch_loss)
+            fold_accuracies["train_token"].append(batch_train_acc)
+            fold_accuracies["train_op_right"].append(batch_train_op_right)
+            fold_accuracies["train_num_x_mse"].append(batch_train_num_x_mse)
+            fold_accuracies["train_sni_acc"].append(batch_train_sni_acc)
+            fold_accuracies["train_loss_dict"].append(batch_accuricies['train_loss_dict'])
 
-            print("------------------------------------------------------")
 
-            if (epoch + 1) % 5 == 0 and do_saves:
-                save_epoch_state(save_folder, {
-                    "models": models,
-                    "optimizers": optimizers,
-                    "schedulers": schedulers,
-                    "fold_accuracies": fold_accuracies,
-                    'epoch': epoch,
-                })
-                save_general_state(save_folder, {
-                    'config' : config,
-                    "pairs": pairs,
-                    "all_train_accuracys": all_train_accuracys,
-                    "all_train_loss": all_train_loss,
-                    "all_eval_loss": all_eval_loss,
-                    "all_eval_accuracys": all_eval_accuracys,
-                    "all_soln_eval_accuracys": all_soln_eval_accuracys,
-                    "train_comparison": train_comparison,
-                    "eval_comparison": eval_comparison,
-                    "total_training_time": total_training_time,
-                    "total_inference_time": total_inference_time,
-                    "train_time_array": train_time_array,
-                    "test_time_array": test_time_array,
-                    "existing_fold": existing_fold,
-                    # "full_start": full_start,
-                })
-            saved_epoch_completed = True
-    saved_fold_completed = True 
-    all_train_accuracys.append(fold_accuracies["train_token"])
-    all_eval_accuracys.append(fold_accuracies["eval_token"])
+            if True:
 
-    all_train_loss.append(fold_accuracies["train_losses"])
-    all_eval_loss.append(fold_accuracies["eval_losses"])
-    all_soln_eval_accuracys.append(fold_accuracies["eval_soln"])
+                batch_eval_comparison = []
+                # for test_batch in test_pairs:
+                input_batches, input_lengths, output_batches, output_lengths, nums_batches, num_stack_batches, num_pos_batches, num_size_batches, output_var_batches, output_var_solutions, equation_targets, var_pos, batches_sni, pair_mapping, datasets = prepare_train_batch(test_pairs, 1, vars, output_lang, input_lang)
+                for idx in range(len(input_lengths)):
+                    for optimizer in optimizers:
+                        optimizer.zero_grad()
+                    for k, v in models.items():
+                        v.eval()
+                    input_batch_len = len(input_batches[idx])
+                    start = time.perf_counter()
+                    loss, acc, num_x_mse, comparison, op_right, sni_acc, loss_dict, acc_list, acc_soln = train_tree( input_batches[idx], input_lengths[idx], output_batches[idx], output_lengths[idx], num_stack_batches[idx], num_size_batches[idx], output_var_batches[idx], generate_num_ids, models, output_lang, num_pos_batches[idx], equation_targets[idx], var_pos[idx], batches_sni[idx], pair_mapping[idx],output_var_solutions[idx], config['useCustom'], vars, config['setName'], config['useSemanticAlignment'], config['useSeperateVars'], config['useOpScaling'], config['useSNIMask'], config['useTFix'], datasets[idx], False) 
+                    end = time.perf_counter()
+                    test_time_array.append([input_batch_len,end - start])
+                    # testc.append(comparison)
+                    batch_accuricies['eval_total_loss'] += loss
+                    batch_eval_comparison.append(comparison)
+                    batch_accuricies["eval_token"].append(acc)
+                    batch_accuricies["eval_op_right"].append(op_right)
+                    batch_accuricies["eval_num_x_mse"].append(num_x_mse)
+                    batch_accuricies["eval_sni_acc"].append(sni_acc)
+                    batch_accuricies['eval_loss_dict'].append(loss_dict)
+                    if acc_soln == 1:
+                        batch_accuricies["eval_soln"].append(1)
+                    else:
+                        batch_accuricies["eval_soln"].append(0)
 
-    # all_soln_eval_accuracys.append(fold_accuracies["eval_soln"])
+                batch_loss = batch_accuricies['eval_total_loss'] / len(input_lengths)
+                batch_eval_acc = sum(batch_accuricies["eval_token"]) / len(batch_accuricies["eval_token"])
+                batch_eval_op_right = sum(batch_accuricies["eval_op_right"]) / len(batch_accuricies["eval_op_right"])
+                batch_eval_num_x_mse = sum(batch_accuricies["eval_num_x_mse"]) / len(batch_accuricies["eval_num_x_mse"])
+                batch_eval_sni_acc = sum(batch_accuricies["eval_sni_acc"]) / len(batch_accuricies["eval_sni_acc"])
+                batch_eval_soln_acc = sum(batch_accuricies["eval_soln"]) / len(batch_accuricies["eval_soln"])
+                print(epoch, 'batch eval soln', batch_eval_soln_acc)
+                eval_comparison.append(batch_eval_comparison)
 
-    for k, v in fold_accuracies.items():
-        print(k, v)
-        print("\n")
-    # print('COMPARISONS', train_comparison, eval_comparison)
-    write_comparison(train_comparison, eval_comparison)
-    # print('fold accuracies', fold_accuracies)
-    # make_loss_graph(
-    #     fold_accuracies['loss'], 
-    #     f"src/post/loss-{time.time()}-{run_id}.png", config['title'],
-    #     "Epoch", "Loss By Epoch"
-        # )
-    make_eval_graph(
-        [fold_accuracies["train_losses"], fold_accuracies["eval_losses"]], 
-        ['Train', "Eval"],
-        f"src/post/loss-{time.time()}-{run_id}-fold_{fold}.png", config['title'],
-        "Epoch", "Loss By Epoch", None 
-        )
-    make_eval_graph(
-        [fold_accuracies["train_token"], fold_accuracies["eval_token"]], 
-        ['Train', "Eval"],
-        f"src/post/accuracy-{time.time()}-{run_id}-fold_{fold}.png", config['title'],
-        "Epoch", "Accuracy By Epoch", [0, 1]
-        )
-    print('fold train accuracy', fold_accuracies["train_token"])
-    print('fold eval accuracy', fold_accuracies['eval_token'])
-    print('All TRAIN ACC', all_train_accuracys)
-    print('ALL EVAL ACC', all_eval_accuracys)
-    print('ALL EVAL SOLN ACC', all_soln_eval_accuracys)
-    process_loss_dicts(fold_accuracies['train_loss_dict'], fold_accuracies['eval_loss_dict'], f"src/post/loss-dict-{time.time()}-{run_id}-fold_{fold}.png")
-    if config["num_folds"] == 2:
-        break
+                print("loss:", batch_loss)
+                print("eval accuracy", batch_eval_acc)
 
-    if do_saves:
-        save_epoch_state(save_folder, {
-            "models": models,
-            "optimizers": optimizers,
-            "schedulers": schedulers,
-            "fold_accuracies": fold_accuracies,
-            'epoch': epoch,
-        })
-        save_general_state(save_folder, {
-            'config' : config,
-            "pairs": pairs,
-            "all_train_accuracys": all_train_accuracys,
-            "all_train_loss": all_train_loss,
-            "all_eval_loss": all_eval_loss,
-            "all_eval_accuracys": all_eval_accuracys,
-            "all_soln_eval_accuracys": all_soln_eval_accuracys,
-            "train_comparison": train_comparison,
-            "eval_comparison": eval_comparison,
-            "total_training_time": total_training_time,
-            "total_inference_time": total_inference_time,
-            "train_time_array": train_time_array,
-            "test_time_array": test_time_array,
-            "existing_fold": existing_fold,
-            # "full_start": full_start,
-        })
-        save_fold_state(save_folder, {
-            "config": config,
-            "generate_nums": generate_nums,
-            "copy_nums": copy_nums,
-            "vars": vars,
-            "input_lang": input_lang,
-            "output_lang": output_lang,
-            'pairs_tested': pairs_tested,
-            'pairs_trained': pairs_trained,
-            "train_pairs": train_pairs,
-            "test_pairs": test_pairs,
-            "generate_num_ids": generate_num_ids,
-            "fold": fold,
-            "fold_pairs": fold_pairs,
-            "fold_accuracies": fold_accuracies,
-        })
-    if not do_folds:
-        break
+                fold_accuracies["eval_losses"].append(batch_loss)
+                fold_accuracies["eval_token"].append(batch_eval_acc)
+                fold_accuracies["eval_op_right"].append(batch_eval_op_right)
+                fold_accuracies["eval_num_x_mse"].append(batch_eval_num_x_mse)
+                fold_accuracies["eval_sni_acc"].append(batch_eval_sni_acc)
+                fold_accuracies["eval_soln"].append(batch_eval_soln_acc)
+                fold_accuracies["eval_loss_dict"].append(batch_accuricies['eval_loss_dict'])
+
+                print("------------------------------------------------------")
+
+                if (epoch + 1) % 5 == 0 and do_saves:
+                    save_epoch_state(save_folder, {
+                        "models": models,
+                        "optimizers": optimizers,
+                        "schedulers": schedulers,
+                        "fold_accuracies": fold_accuracies,
+                        'epoch': epoch,
+                    })
+                    save_general_state(save_folder, {
+                        'config' : config,
+                        "pairs": pairs,
+                        "all_train_accuracys": all_train_accuracys,
+                        "all_train_loss": all_train_loss,
+                        "all_eval_loss": all_eval_loss,
+                        "all_eval_accuracys": all_eval_accuracys,
+                        "all_soln_eval_accuracys": all_soln_eval_accuracys,
+                        "train_comparison": train_comparison,
+                        "eval_comparison": eval_comparison,
+                        "total_training_time": total_training_time,
+                        "total_inference_time": total_inference_time,
+                        "train_time_array": train_time_array,
+                        "test_time_array": test_time_array,
+                        "existing_fold": existing_fold,
+                        # "full_start": full_start,
+                    })
+                saved_epoch_completed = True
+        saved_fold_completed = True 
+        all_train_accuracys.append(fold_accuracies["train_token"])
+        all_eval_accuracys.append(fold_accuracies["eval_token"])
+
+        all_train_loss.append(fold_accuracies["train_losses"])
+        all_eval_loss.append(fold_accuracies["eval_losses"])
+        all_soln_eval_accuracys.append(fold_accuracies["eval_soln"])
+
+        # all_soln_eval_accuracys.append(fold_accuracies["eval_soln"])
+
+        for k, v in fold_accuracies.items():
+            print(k, v)
+            print("\n")
+        # print('COMPARISONS', train_comparison, eval_comparison)
+        write_comparison(train_comparison, eval_comparison)
+        # print('fold accuracies', fold_accuracies)
+        # make_loss_graph(
+        #     fold_accuracies['loss'], 
+        #     f"src/post/loss-{time.time()}-{run_id}.png", config['title'],
+        #     "Epoch", "Loss By Epoch"
+            # )
+        make_eval_graph(
+            [fold_accuracies["train_losses"], fold_accuracies["eval_losses"]], 
+            ['Train', "Eval"],
+            f"src/post/loss-{time.time()}-{run_id}-fold_{fold}.png", config['title'],
+            "Epoch", "Loss By Epoch", None 
+            )
+        make_eval_graph(
+            [fold_accuracies["train_token"], fold_accuracies["eval_token"]], 
+            ['Train', "Eval"],
+            f"src/post/accuracy-{time.time()}-{run_id}-fold_{fold}.png", config['title'],
+            "Epoch", "Accuracy By Epoch", [0, 1]
+            )
+        print('fold train accuracy', fold_accuracies["train_token"])
+        print('fold eval accuracy', fold_accuracies['eval_token'])
+        print('All TRAIN ACC', all_train_accuracys)
+        print('ALL EVAL ACC', all_eval_accuracys)
+        print('ALL EVAL SOLN ACC', all_soln_eval_accuracys)
+        process_loss_dicts(fold_accuracies['train_loss_dict'], fold_accuracies['eval_loss_dict'], f"src/post/loss-dict-{time.time()}-{run_id}-fold_{fold}.png")
+        print('SET', set, 'acc', batch_eval_soln_acc)
+        # if config["num_folds"] == 2:
+
+        if do_saves:
+            save_epoch_state(save_folder, {
+                "models": models,
+                "optimizers": optimizers,
+                "schedulers": schedulers,
+                "fold_accuracies": fold_accuracies,
+                'epoch': epoch,
+            })
+            save_general_state(save_folder, {
+                'config' : config,
+                "pairs": pairs,
+                "all_train_accuracys": all_train_accuracys,
+                "all_train_loss": all_train_loss,
+                "all_eval_loss": all_eval_loss,
+                "all_eval_accuracys": all_eval_accuracys,
+                "all_soln_eval_accuracys": all_soln_eval_accuracys,
+                "train_comparison": train_comparison,
+                "eval_comparison": eval_comparison,
+                "total_training_time": total_training_time,
+                "total_inference_time": total_inference_time,
+                "train_time_array": train_time_array,
+                "test_time_array": test_time_array,
+                "existing_fold": existing_fold,
+                # "full_start": full_start,
+            })
+            save_fold_state(save_folder, {
+                "config": config,
+                "generate_nums": generate_nums,
+                "copy_nums": copy_nums,
+                "vars": vars,
+                "input_lang": input_lang,
+                "output_lang": output_lang,
+                'pairs_tested': pairs_tested,
+                'pairs_trained': pairs_trained,
+                "train_pairs": train_pairs,
+                "test_pairs": test_pairs,
+                "generate_num_ids": generate_num_ids,
+                "fold": fold,
+                "fold_pairs": fold_pairs,
+                "fold_accuracies": fold_accuracies,
+            })
+        if not do_folds:
+            break
+    break
 
 # a, b, c = 0, 0, 0
 # for bl in range(len(best_acc_fold)):
