@@ -1116,7 +1116,7 @@ def transfer_num_math(data):  # transfer num into "NUM"
             "num_pos": num_pos,
             "allVars": ['X'],
             "equationTargetVars": ['X'],
-            # "solution": targets,
+            "solution": [d['ans']],
             "pairNumMapping": None,
             # "specificDataset": sepcificDataset,
             # "id": id_index,
