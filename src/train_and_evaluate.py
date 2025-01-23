@@ -1,5 +1,5 @@
 # coding: utf-8
-# import line_profiler
+import line_profiler
 
 from src.masked_cross_entropy import *
 from src.pre_data import *
@@ -148,7 +148,7 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
         self.goal_vect = goal_vect
 
-# @line_profiler.profile
+@line_profiler.profile
 def train_tree(input_batch, input_length, target_batch, target_length, nums_stack_batch, num_size_batch, output_var_batches, generate_nums, models, output_lang, num_pos, equation_targets, var_pos, batch_sni, pair_mapping, solutions, useCustom, all_vars,  setName, useSemanticAlignment, useSeperateVars, useOpScaling, useSNIMask, useFixT, datasets, opsInNN, inTraining, english=False):
     # input_batch: padded inputs
     # input_length: length of the inputs (without padding)
