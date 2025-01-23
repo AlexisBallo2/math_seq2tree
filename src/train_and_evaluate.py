@@ -917,7 +917,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             solved_accs_set.append(datasets[i])
             if invalid:
                 print('invalid, equ')
-                solved_accs.append(1)
+                solved_accs.append(0)
             else:
                 solved = solve_equation(equation_set, solutions[i])
                 if solved:

@@ -130,8 +130,13 @@ else:
         "useEquSolutions": True,
         # "useSeperateVars": False,
         "useSeperateVars": True,
+<<<<<<< HEAD
         # "useSemanticAlignment": True,
         "useSemanticAlignment": False,
+=======
+        "useSemanticAlignment": True,
+        # "useSemanticAlignment": False,
+>>>>>>> 9bb280117d250e92aae028a1a2aacef29d921196
         # "opsInNN" : True,
         "opsInNN" : False,
         "useOpScaling" : False,
@@ -143,6 +148,7 @@ else:
         'useTFix' : False,
         # "num_folds" : 2,
         "num_folds" : 5,
+        # "num_obs": 10,   
         # "num_obs": 50,   
         # "num_obs": 100,   
         "num_obs": None,   
@@ -178,7 +184,10 @@ else:
     # "ans":"80"
     # }'
 
-    pairs, generate_nums, copy_nums, vars = transfer_num(data, config['setName'], config['useCustom'], config['useEquSolutions'], config['useSubMethod'], config['useSeperateVars'])
+    if config['setName'] == "MATH":
+        pairs, generate_nums, copy_nums, vars = transfer_num_math(data)
+    else:
+        pairs, generate_nums, copy_nums, vars = transfer_num(data, config['setName'], config['useCustom'], config['useEquSolutions'], config['useSubMethod'], config['useSeperateVars'])
     # pairs.shuffle()
     random.shuffle(pairs)
     if config['num_obs']:
@@ -352,8 +361,11 @@ for fold in range(existing_fold, folds_to_do):
         # define models
         encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=config['embedding_size'], hidden_size=config['hidden_size'],n_layers=config['n_layers'], useBertEmbeddings = config['useBertEmbeddings'], input_lang=input_lang)
         encoder_var = EncoderSeq(input_size=input_lang.n_words, embedding_size=config["embedding_size"], hidden_size=config['hidden_size'],n_layers=config['n_layers'], useBertEmbeddings = config['useBertEmbeddings'], input_lang=input_lang)
-        if config['useSeperateVars']:
-            op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars)
+        if config['useCustom']:
+            if config['useSeperateVars']:
+                op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums) - len(vars)
+            else:
+                op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums)
         else:
             op_nums = output_lang.n_words - copy_nums - 1 - len(generate_nums)
 
