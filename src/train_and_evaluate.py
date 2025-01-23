@@ -878,7 +878,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
 
     # if using equation solutions:
-    if True:
+    if not inTraining:
         solved_accs = []
         solved_accs_lens = []
         solved_accs_set = []
@@ -921,6 +921,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                     solved_accs.append(0)
                     print('solved false')
             print()
+    else:
+        solved_accs = [0]
+        solved_accs_lens = []
+        solved_accs_set = []
     
 
         # num_equations = len(all_comparisons)
