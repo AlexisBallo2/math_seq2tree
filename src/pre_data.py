@@ -876,6 +876,11 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             sepcificDataset = d['dataset']
         else:
             sepcificDataset = setName.lower()
+        
+        if setName == "MATH":
+            id_temp = 0 
+        else: 
+            id_temp = d['index']
         pairs.append({
             "input_seq": input_seq,
             "equations": final_out_seq_list,
@@ -886,7 +891,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             "solution": targets,
             "pairNumMapping": pairNumMapping,
             "specificDataset": sepcificDataset,
-            "id": d['index'] 
+            "id": id_temp 
         })
 
     temp_g = []

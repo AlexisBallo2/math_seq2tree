@@ -26,8 +26,8 @@ do_saves = False
 # use_save = True 
 use_save = False 
 
-# do_folds = True
-do_folds = False
+do_folds = True
+# do_folds = False
 saved_epoch_completed = False
 fold_save_completed = False
 
@@ -105,10 +105,10 @@ else:
         # "batch_size": 1,
         # "batch_size": 2,
         # "batch_size": 5,
-        "batch_size": 20,
-        # "batch_size": 64,
-        # "embedding_size": 128,
+        # "batch_size": 20,
+        "batch_size": 64,
         "embedding_size": 768,
+        # "embedding_size": 128,
         "hidden_size": 512,
         # "n_epochs": 15,
         # "n_epochs": 20,
@@ -122,8 +122,8 @@ else:
         "useCustom": True,
         # "useCustom": False,
         # "setName" : "PEN",
-        # "setName" : "MATH",
-        "setName" : "DRAW",
+        "setName" : "MATH",
+        # "setName" : "DRAW",
         # "setName" : "MAWPS",
         # "setName" : "ALG",
         "useSubMethod": True,
