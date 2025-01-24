@@ -26,8 +26,8 @@ do_saves = False
 # use_save = True 
 use_save = False 
 
-do_folds = True
-# do_folds = False
+# do_folds = True
+do_folds = False
 saved_epoch_completed = False
 fold_save_completed = False
 
@@ -122,8 +122,8 @@ else:
         # "useCustom": True,
         "useCustom": False,
         # "setName" : "PEN",
-        "setName" : "MATH",
-        # "setName" : "DRAW",
+        # "setName" : "MATH",
+        "setName" : "DRAW",
         # "setName" : "MAWPS",
         # "setName" : "ALG",
         "useSubMethod": True,
