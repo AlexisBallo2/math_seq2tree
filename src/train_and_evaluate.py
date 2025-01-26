@@ -397,6 +397,7 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
     for cur_equation in range(num_equations_to_do):
         # select the ith equation in each obs
         ith_equation_target = deepcopy(target[:, cur_equation, :].transpose(0,1))
+        ith_equation_target_untouched = deepcopy(target[:, cur_equation, :].transpose(0,1))
         # if useCustom:
         #     # ith_equation_solution = deepcopy(equation_targets_tensor[:, cur_equation])
         # else:
@@ -418,7 +419,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             ith_equation_num_stacks.append(stack[cur_equation])
 
         # max_target_length = int(max(ith_equation_target_lengths.tolist()))
-        max_target_length = len(ith_equation_target)
+        if inTraining:
+            max_target_length = len(ith_equation_target)
+        else:
+            max_target_length = MAX_OUTPUT_LENGTH
 
         all_node_outputs = []
         embeddings_stacks = [[] for _ in range(batch_size)]
@@ -432,6 +436,12 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         q_t = []
 
         for t in range(max_target_length):
+
+            if not inTraining:
+                if len(node_stacks[0]) == 0:
+                    left_childs = [_.embedding for _ in embeddings_stacks[0]]
+                    # current_beams.append(b)
+                    continue
 
             # predict gets the encodings and embeddings for the current node 
             #   num_score: batch_size x num_length
@@ -513,11 +523,32 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
             # if output_lang.word2index['UNK'] in ith_equation_target[t].tolist():
                 # print('unk token')
                 # hasUnk = True
-            target_t, generate_input = generate_tree_input(ith_equation_target[t].tolist(), outputs, ith_equation_num_stacks, num_start, unk)
+            if useCustom:
+                if inTraining:
+                    target_t, generate_input = generate_tree_input(ith_equation_target[t].tolist(), outputs, ith_equation_num_stacks, num_start, unk)
+                else:
+                    # target_t_act, generate_input_act = generate_tree_input(ith_equation_target_untouched[t].tolist(), outputs, ith_equation_num_stacks, num_start, unk)
+                    target_t = outputs.argmax(dim=1)
+                    if target_t < num_start:
+                        generate_input = target_t
+                    else:
+                        generate_input = torch.tensor(0).unsqueeze(0)
+            else:
+                target_t, generate_input = generate_tree_input(ith_equation_target[t].tolist(), outputs, ith_equation_num_stacks, num_start, unk)
 
             # if output_lang.word2index['UNK'] in target_t.tolist():
             #     print('unk token')
-            ith_equation_target[t] = target_t
+            
+            if inTraining:
+                ith_equation_target[t] = target_t
+            else:
+                if t >= len(ith_equation_target):
+                    # expand the target
+                    ith_equation_target = torch.cat((ith_equation_target, target_t.unsqueeze(0)), 0)
+                else:
+                    ith_equation_target[t] = target_t
+                    # ith_equation_target_untouched[t] = target_t_act
+
             op_or_num = target_t.clone().detach() # < num_start
             # if useVarsAsNums:
             #     for i, num in enumerate(target_t):
@@ -738,6 +769,8 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
 
         # batch_size x max_len x num_nums
         ith_equation_target = ith_equation_target.transpose(0, 1).contiguous()
+
+        ith_equation_target_untouched = ith_equation_target_untouched.transpose(0, 1).contiguous()
             # all_leafs = all_leafs.cuda()
         all_node_outputs2 = all_node_outputs2.to(device)
         ith_equation_target = ith_equation_target.to(device)
@@ -745,7 +778,10 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
         # for batch in target:
         #     print([output_lang.index2word[_] for _ in batch])
         #print('done equation')
-        current_equation_loss = masked_cross_entropy(all_node_outputs2, ith_equation_target, ith_equation_target_lengths )
+        if inTraining:
+            current_equation_loss = masked_cross_entropy(all_node_outputs2, ith_equation_target, ith_equation_target_lengths )
+        else:
+            current_equation_loss = torch.tensor(0)
         # current_equation_loss = torch.nn.CrossEntropyLoss(reduction="none")(all_node_outputs2.view(-1, all_node_outputs2.size(2)), ith_equation_target.view(-1).to(device)).mean()
 
         
@@ -787,12 +823,17 @@ def train_tree(input_batch, input_length, target_batch, target_length, nums_stac
                         # cur_same += 1
             # print(f"        prediction: {[output_lang.index2word[_] for _ in vals[0:equ_length]]}")
             # print(f"        actual:     {[output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]}")
-            pred_comp = [output_lang.index2word[_] for _ in vals[0:equ_length]]
-            act_comp = [output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]
-            print(f"        prediction: {pred_comp}")
+            # pred_comp = [output_lang.index2word[_] for _ in vals[0:equ_length]]
+            if inTraining:
+                pred_comp_not_cut = [output_lang.index2word[_] for _ in vals]
+                act_comp = [output_lang.index2word[_] for _ in ith_equation_target[i][0:equ_length]]
+            else:
+                pred_comp_not_cut = [output_lang.index2word[_] for _ in vals]
+                act_comp = [output_lang.index2word[_] for _ in ith_equation_target_untouched[i][0:equ_length] if _ < len(output_lang.index2word)]
+            print(f"        prediction: {pred_comp_not_cut}")
             print(f"        actual:     {act_comp}")
             comparison.append({
-                'prediction': pred_comp,
+                'prediction': pred_comp_not_cut,
                 'actual': act_comp 
             })
         print("\n")
