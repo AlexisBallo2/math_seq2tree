@@ -26,8 +26,8 @@ do_saves = False
 # use_save = True 
 use_save = False 
 
-do_folds = True
-# do_folds = False
+# do_folds = True
+do_folds = False
 saved_epoch_completed = False
 fold_save_completed = False
 
@@ -105,8 +105,8 @@ else:
         # "batch_size": 1,
         # "batch_size": 2,
         # "batch_size": 5,
-        # "batch_size": 20,
-        "batch_size": 64,
+        "batch_size": 20,
+        # "batch_size": 64,
         # "embedding_size": 768,
         "embedding_size": 128,
         "hidden_size": 512,
@@ -119,19 +119,19 @@ else:
         "weight_decay": 1e-5,
         "beam_size": 5,
         "n_layers": 2,
-        # "useCustom": True,
-        "useCustom": False,
+        "useCustom": True,
+        # "useCustom": False,
         # "setName" : "PEN",
-        "setName" : "MATH",
-        # "setName" : "DRAW",
+        # "setName" : "MATH",
+        "setName" : "DRAW",
         # "setName" : "MAWPS",
         # "setName" : "ALG",
         "useSubMethod": True,
         "useEquSolutions": True,
         # "useSeperateVars": False,
         "useSeperateVars": True,
-        # "useSemanticAlignment": True,
-        "useSemanticAlignment": False,
+        "useSemanticAlignment": True,
+        # "useSemanticAlignment": False,
         # "opsInNN" : True,
         "opsInNN" : False,
         "useOpScaling" : False,
@@ -150,7 +150,7 @@ else:
     }
     config['title'] = f"{config['num_obs']} Observations, {config['n_epochs']} Epochs, Dataset = {config['setName']}, Custom = {config['useCustom']} ",
     if config['useBertEmbeddings']:
-        config['embedding_size ']= 768
+        config['embedding_size']= 768
 
 
     print("CONFIG \n", config)
