@@ -64,12 +64,13 @@ if do_saves:
 
 
 if use_save:
+    print()
     # config = json.load(open(f"{save_folder}/config.json"))
-    load = read_general_state(read_save_folder)
-    config = load['config']
-    print("CONFIG \n", config)
-    data = load['pairs']
-    pairs = data
+    # load = read_general_state(read_save_folder)
+    # config = load['config']
+    # print("CONFIG \n", config)
+    # data = load['pairs']
+    # pairs = data
     # generate_nums = load['generate_nums']
     # copy_nums = load['copy_nums']
     # vars = load['vars']
@@ -84,29 +85,29 @@ if use_save:
     # models = load['models']
     # optimizers = load['optimizers']
     # schedulers = load['schedulers']
-    train_comparison = load['train_comparison']
-    eval_comparison = load['eval_comparison']
-    all_train_accuracys = load['all_train_accuracys']
-    all_train_loss = load['all_train_loss']
-    all_eval_loss = load['all_eval_loss']
-    all_eval_accuracys = load['all_eval_accuracys']
-    all_soln_eval_accuracys = load['all_soln_eval_accuracys']
-    total_training_time = load['total_training_time']
-    total_inference_time = load['total_inference_time']
-    train_time_array = load['train_time_array']
-    test_time_array = load['test_time_array']
-    # full_start = load['full_start']
-    existing_fold = load['existing_fold']
-    generate_nums = load['generate_nums']
-    copy_nums = load['copy_nums']
-    vars = load['vars']
+    # train_comparison = load['train_comparison']
+    # eval_comparison = load['eval_comparison']
+    # all_train_accuracys = load['all_train_accuracys']
+    # all_train_loss = load['all_train_loss']
+    # all_eval_loss = load['all_eval_loss']
+    # all_eval_accuracys = load['all_eval_accuracys']
+    # all_soln_eval_accuracys = load['all_soln_eval_accuracys']
+    # total_training_time = load['total_training_time']
+    # total_inference_time = load['total_inference_time']
+    # train_time_array = load['train_time_array']
+    # test_time_array = load['test_time_array']
+    # # full_start = load['full_start']
+    # existing_fold = load['existing_fold']
+    # generate_nums = load['generate_nums']
+    # copy_nums = load['copy_nums']
+    # vars = load['vars']
 else:
     config = {
         # "batch_size": 1,
         # "batch_size": 2,
         # "batch_size": 5,
-        # "batch_size": 20,
-        "batch_size": 64,
+        "batch_size": 20,
+        # "batch_size": 64,
         # "embedding_size": 768,
         "embedding_size": 128,
         "hidden_size": 512,
@@ -121,9 +122,9 @@ else:
         "n_layers": 2,
         "useCustom": True,
         # "useCustom": False,
-        # "setName" : "PEN",
+        "setName" : "PEN",
         # "setName" : "MATH",
-        "setName" : "DRAW",
+        # "setName" : "DRAW",
         # "setName" : "MAWPS",
         # "setName" : "ALG",
         "useSubMethod": True,
@@ -251,26 +252,27 @@ else:
     existing_fold = 0
 
     if do_saves:
-        save_general_state(save_folder, {
-            'config' : config,
-            "pairs": pairs,
-            "all_train_accuracys": all_train_accuracys,
-            "all_train_loss": all_train_loss,
-            "all_eval_loss": all_eval_loss,
-            "all_eval_accuracys": all_eval_accuracys,
-            "all_soln_eval_accuracys": all_soln_eval_accuracys,
-            "train_comparison": train_comparison,
-            "eval_comparison": eval_comparison,
-            "total_training_time": total_training_time,
-            "total_inference_time": total_inference_time,
-            "train_time_array": train_time_array,
-            "test_time_array": test_time_array,
-            "existing_fold": existing_fold,
-            'generate_nums': generate_nums,
-            'copy_nums': copy_nums,
-            'vars': vars,
-            # "full_start": full_start,
-        })
+        print()
+        # save_general_state(save_folder, {
+        #     'config' : config,
+        #     "pairs": pairs,
+        #     "all_train_accuracys": all_train_accuracys,
+        #     "all_train_loss": all_train_loss,
+        #     "all_eval_loss": all_eval_loss,
+        #     "all_eval_accuracys": all_eval_accuracys,
+        #     "all_soln_eval_accuracys": all_soln_eval_accuracys,
+        #     "train_comparison": train_comparison,
+        #     "eval_comparison": eval_comparison,
+        #     "total_training_time": total_training_time,
+        #     "total_inference_time": total_inference_time,
+        #     "train_time_array": train_time_array,
+        #     "test_time_array": test_time_array,
+        #     "existing_fold": existing_fold,
+        #     'generate_nums': generate_nums,
+        #     'copy_nums': copy_nums,
+        #     'vars': vars,
+        #     # "full_start": full_start,
+        # })
 
 
 # full_start = time.time()
@@ -281,17 +283,18 @@ folds_to_do = config['num_folds']
 
 for fold in range(existing_fold, folds_to_do):
     if use_save and fold_save_completed == False:
-        fold_save = read_fold_state(read_save_folder)
-        pairs_tested = fold_save['pairs_tested']
-        pairs_trained = fold_save['pairs_trained']
-        fold_accuracies = fold_save['fold_accuracies']
-        fold_pairs = fold_save['fold_pairs']
+        print()
+        # fold_save = read_fold_state(read_save_folder)
+        # pairs_tested = fold_save['pairs_tested']
+        # pairs_trained = fold_save['pairs_trained']
+        # fold_accuracies = fold_save['fold_accuracies']
+        # fold_pairs = fold_save['fold_pairs']
 
-        output_lang = fold_save['output_lang']
-        output_lang = Lang().fromJSON(output_lang)
+        # output_lang = fold_save['output_lang']
+        # output_lang = Lang().fromJSON(output_lang)
 
-        input_lang = fold_save['input_lang']
-        input_lang = Lang().fromJSON(input_lang)
+        # input_lang = fold_save['input_lang']
+        # input_lang = Lang().fromJSON(input_lang)
 
     else:
         pairs_tested = []
@@ -328,42 +331,48 @@ for fold in range(existing_fold, folds_to_do):
                 if fold_t == fold:
                     # pairs_tested += fold_pairs[fold_t]
                     pairs_tested += fold_pairs_alg[fold_t]
-                    pairs_tested += fold_pairs_draw[fold_t]
+                    # pairs_tested += fold_pairs_draw[fold_t]
                 else:
                     pairs_trained += fold_pairs_alg[fold_t]
-                    pairs_trained += fold_pairs_draw[fold_t]
+                    # pairs_trained += fold_pairs_draw[fold_t]
                     # pairs_trained += fold_pairs[fold_t]
         else:
             pairs_tested = get_draw_train(pairs, 'test')
             pairs_trained = get_draw_train(pairs, 'train')
+        
+        # add draw 
+        pairs_tested += get_draw_train(pairs, 'test')
+        pairs_trained += get_draw_train(pairs, 'train')
 
         input_lang, output_lang, train_pairs_full, test_pairs_full = prepare_data(pairs_trained, pairs_tested, 5, generate_nums, copy_nums, vars, config['useCustom'], config['useSeperateVars'], config['useBertEmbeddings'], tree=True)
         if do_saves:
-            save_fold_state(save_folder, {
-            "config": config,
-            "generate_nums": generate_nums,
-            "copy_nums": copy_nums,
-            "vars": vars,
-            "input_lang": input_lang,
-            "output_lang": output_lang,
-            'pairs_tested': pairs_tested,
-            'pairs_trained': pairs_trained,
-            "train_pairs": train_pairs,
-            "test_pairs": test_pairs_full,
-            "fold": fold,
-            "fold_pairs": fold_pairs,
-            "fold_accuracies": fold_accuracies,
-            })
+            print()
+            # save_fold_state(save_folder, {
+            # "config": config,
+            # "generate_nums": generate_nums,
+            # "copy_nums": copy_nums,
+            # "vars": vars,
+            # "input_lang": input_lang,
+            # "output_lang": output_lang,
+            # 'pairs_tested': pairs_tested,
+            # 'pairs_trained': pairs_trained,
+            # "train_pairs": train_pairs,
+            # "test_pairs": test_pairs_full,
+            # "fold": fold,
+            # "fold_pairs": fold_pairs,
+            # "fold_accuracies": fold_accuracies,
+            # })
         
 
     if use_save and saved_epoch_completed == False:
-        epoch_load = read_epoch_state(read_save_folder)
+        print()
+        # epoch_load = read_epoch_state(read_save_folder)
 
-        start_epoch = epoch_load['epoch']
+        # start_epoch = epoch_load['epoch']
 
-        models = epoch_load['models']
-        optimizers = epoch_load['optimizers']
-        schedulers = epoch_load['schedulers']
+        # models = epoch_load['models']
+        # optimizers = epoch_load['optimizers']
+        # schedulers = epoch_load['schedulers']
     else:
         # define models
         encoder = EncoderSeq(input_size=input_lang.n_words, embedding_size=config['embedding_size'], hidden_size=config['hidden_size'],n_layers=config['n_layers'], useBertEmbeddings = config['useBertEmbeddings'], input_lang=input_lang)
@@ -483,6 +492,7 @@ for fold in range(existing_fold, folds_to_do):
         generate_num_ids.append(output_lang.word2index[num])
     
     for set in ['draw', 'alg']:
+            
         train_pairs = [i for i in train_pairs_full if i['specificDataset'] == 'draw']
         test_pairs = [i for i in test_pairs_full if i['specificDataset'] == 'draw']
 
