@@ -555,9 +555,9 @@ def read_epoch_state(path):
 def get_draw_train(pairs, type):
 
     if type == "dev":
-        file = "data/DRAW/draw-train.txt"
+        file = "data/DRAW/draw-dev.txt"
     elif type == "test":
-        file = "data/DRAW/draw-train.txt"
+        file = "data/DRAW/draw-test.txt"
     else:
         file = "data/DRAW/draw-train.txt"
 
@@ -570,7 +570,8 @@ def get_draw_train(pairs, type):
     print(sets)
     final_set = []
     for row in pairs:
-        if row['id'] in sets:
+        print(row)
+        if row['index'] in sets:
             final_set.append(row)
     return final_set
 
