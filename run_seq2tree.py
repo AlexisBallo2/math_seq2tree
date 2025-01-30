@@ -119,8 +119,8 @@ else:
         "weight_decay": 1e-5,
         "beam_size": 5,
         "n_layers": 2,
-        # "useCustom": True,
-        "useCustom": False,
+        "useCustom": True,
+        # "useCustom": False,
         # "setName" : "PEN",
         # "setName" : "MATH",
         "setName" : "DRAW",
@@ -197,19 +197,37 @@ else:
 
     temp_pairs = []
     # pairs_len = []
+    
+    # equation lens
+    lens = []
+    accs_lens = []
+    targes = []
     for p in pairs:
         # input_seq, prefixed equation, nums, num_pos
         p['equations'] = [from_infix_to_prefix(equ) for equ in p['equations']]
         # lenof = len(p['equations'])
         # pairs_len.append(lenof)
-        if config['useOneEquation']:
-            equ_with_equals = []
-            for equ in p['equations']:
-                equ_with_equals += equ
-            p['equations'] = [equ_with_equals]
-            p['equationTargetVars'] = ["0"]
+        # if config['useOneEquation']:
+        #     equ_with_equals = []
+        #     for equ in p['equations']:
+        #         equ_with_equals += equ
+        #     p['equations'] = [equ_with_equals]
+        #     p['equationTargetVars'] = ["0"]
+        lens.append(len(p['equations']))
+        accs_lens.append(len(p['solution']))
         if len(p['equations']) < 4:
             temp_pairs.append(p)
+        if len(p['equations']) == 1 and len(p['solution']) == 1:
+            targes.append(1)
+        else:  
+            targes.append(0)
+            # temp_pairs.append(p)
+        # if len(p['equations']) >= 4:
+        #     print()
+            # temp_pairs.append(p)
+    print("lens",  Counter(lens))
+    print("accs",  Counter(accs_lens))
+    print('targes', sum(targes), len(targes), sum(targes)/len(targes))
     pairs = temp_pairs
     # pairs = temp_pairs
     # print(Counter(pairs_len))

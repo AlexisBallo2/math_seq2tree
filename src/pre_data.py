@@ -516,8 +516,9 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             print(targets)
 
         elif setName == "PEN" or setName == "DRAW" or setName == "MAWPS" or setName == "ALG":
-            equations = read_pen_alignment(d)
-            # equations = d["equations"]
+            # equations = read_pen_alignment(d)
+            # equations = d["oldFormula"]
+            equTemps = d["oldFormula"]
             # mapNums = {}
             # tempVars = ['X', 'Y', 'Z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
             # for k,v in d['answers'][0].items():
@@ -549,14 +550,16 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             # # equTemps = d["oldFormula"]
             # # if type(equTemps) == str:
             # #     equTemps = [equTemps]
-            # # equations = []
-            # # for equation in equTemps:
-            # #     equations.append("".join([i for i in equation if i != " " and i != ""]))
+            equations = []
+            for equation in equTemps:
+                equations.append("".join([i for i in equation if i != " " and i != ""]))
             if useEqunSolutions:
-                try:
-                    targets = [round(float(i)) for i in d["oldAnswer"][0]]
-                except:
-                    targets = []
+                # try:
+                targets = [int(round(float(i), 2)) for i in d["oldAnswer"][0]]
+                    # targets = [round(float(i)) for i in list(d['answers'][0].values()) if type(i) == int or type(i) == float] 
+                    # targets = [round(float(i)) for i in d["oldAnswer"][0]]
+                # except:
+                #     targets = []
                     # continue
             else:
                 targets = ['disabled']
@@ -837,29 +840,30 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
                 # var = "Y" if "Y" not in equ_1 else "X"
                 equ_1 = outputEquation[:equals_index]
                 equ_2 = outputEquation[equals_index+1:]
-                if "Y" not in equ_1:
-                    var = "Y"
-                elif "X" not in equ_1:
-                    var = "X"
-                else:
-                    var = "Z"
+                # if "Y" not in equ_1:
+                #     var = "Y"
+                # elif "X" not in equ_1:
+                #     var = "X"
+                # else:
+                #     var = "Z"
                 if useSubMethod:
-                    final_out_seq_list.append(equ_1 + ["-", var])
-                    final_out_seq_list.append(equ_2 + ["-", var])
+                    final_out_seq_list.append(equ_1 + ["-", "("] + equ_2 + [")"])
+                    # final_out_seq_list.append(equ_2 + ["-", var])
+                    # equationTargetVars.append("0")
                     equationTargetVars.append("0")
-                    equationTargetVars.append("0")
-                    allVars.append(var)
-                    allVars = list(set(allVars))
-                    vars += var
+                    # allVars.append(var)
+                    # allVars = list(set(allVars))
+                    # vars += var
+                print()
 
-                else:
-                    final_out_seq_list.append(equ_1)
-                    final_out_seq_list.append(equ_2)
-                    equationTargetVars.append(var)
-                    equationTargetVars.append(var)
-                    allVars.append(var)
-                    allVars = list(set(allVars))
-                    vars += var
+                # else:
+                #     final_out_seq_list.append(equ_1)
+                #     final_out_seq_list.append(equ_2)
+                #     equationTargetVars.append(var)
+                #     equationTargetVars.append(var)
+                #     allVars.append(var)
+                #     allVars = list(set(allVars))
+                #     vars += var
             if len(final_out_seq_list) > 3:
                 # 1 with 4, ignore it 
                 print()
