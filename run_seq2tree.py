@@ -26,8 +26,8 @@ do_saves = False
 # use_save = True 
 use_save = False 
 
-# do_folds = True
-do_folds = False
+do_folds = True
+# do_folds = False
 saved_epoch_completed = False
 fold_save_completed = False
 
@@ -105,8 +105,8 @@ else:
         # "batch_size": 1,
         # "batch_size": 2,
         # "batch_size": 5,
-        "batch_size": 20,
-        # "batch_size": 64,
+        # "batch_size": 20,
+        "batch_size": 64,
         # "embedding_size": 768,
         "embedding_size": 128,
         "hidden_size": 512,
@@ -130,8 +130,8 @@ else:
         "useEquSolutions": True,
         # "useSeperateVars": False,
         "useSeperateVars": True,
-        "useSemanticAlignment": True,
-        # "useSemanticAlignment": False,
+        # "useSemanticAlignment": True,
+        "useSemanticAlignment": False,
         # "opsInNN" : True,
         "opsInNN" : False,
         "useOpScaling" : False,
@@ -183,6 +183,8 @@ else:
         pairs, generate_nums, copy_nums, vars = transfer_num_math(data)
     else:
         pairs, generate_nums, copy_nums, vars = transfer_num(data, config['setName'], config['useCustom'], config['useEquSolutions'], config['useSubMethod'], config['useSeperateVars'])
+
+    pairs = get_draw_train(pairs, 'dev')
     # pairs.shuffle()
     random.shuffle(pairs)
     if config['num_obs']:

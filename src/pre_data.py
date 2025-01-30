@@ -516,8 +516,8 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             print(targets)
 
         elif setName == "PEN" or setName == "DRAW" or setName == "MAWPS" or setName == "ALG":
-            equations = read_pen_alignment(d)
-            # equations = d["equations"]
+            # equations = read_pen_alignment(d)
+            equTemps = d["oldFormula"]
             # mapNums = {}
             # tempVars = ['X', 'Y', 'Z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
             # for k,v in d['answers'][0].items():
@@ -549,12 +549,13 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             # # equTemps = d["oldFormula"]
             # # if type(equTemps) == str:
             # #     equTemps = [equTemps]
-            # # equations = []
-            # # for equation in equTemps:
-            # #     equations.append("".join([i for i in equation if i != " " and i != ""]))
+            equations = []
+            for equation in equTemps:
+                equations.append("".join([i for i in equation if i != " " and i != ""]))
             if useEqunSolutions:
                 try:
-                    targets = [round(float(i)) for i in d["oldAnswer"][0]]
+                    targets = [int(round(float(i))) for i in d["oldAnswer"][0]]
+                    # targets = [round(float(i, 2)) for i in list(d['answers'][0].values()) if type(i) == int or type(i) == float] 
                 except:
                     targets = []
                     # continue
@@ -837,29 +838,31 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
                 # var = "Y" if "Y" not in equ_1 else "X"
                 equ_1 = outputEquation[:equals_index]
                 equ_2 = outputEquation[equals_index+1:]
-                if "Y" not in equ_1:
-                    var = "Y"
-                elif "X" not in equ_1:
-                    var = "X"
-                else:
-                    var = "Z"
+                # if "Y" not in equ_1:
+                #     var = "Y"
+                # elif "X" not in equ_1:
+                #     var = "X"
+                # else:
+                #     var = "Z"
                 if useSubMethod:
-                    final_out_seq_list.append(equ_1 + ["-", var])
-                    final_out_seq_list.append(equ_2 + ["-", var])
+                    final_out_seq_list.append(equ_1 + ["-", "("] + equ_2 + [")"])
                     equationTargetVars.append("0")
-                    equationTargetVars.append("0")
-                    allVars.append(var)
-                    allVars = list(set(allVars))
-                    vars += var
+                #     final_out_seq_list.append(equ_1 + ["-", var])
+                #     final_out_seq_list.append(equ_2 + ["-", var])
+                #     equationTargetVars.append("0")
+                #     equationTargetVars.append("0")
+                #     allVars.append(var)
+                #     allVars = list(set(allVars))
+                #     vars += var
 
-                else:
-                    final_out_seq_list.append(equ_1)
-                    final_out_seq_list.append(equ_2)
-                    equationTargetVars.append(var)
-                    equationTargetVars.append(var)
-                    allVars.append(var)
-                    allVars = list(set(allVars))
-                    vars += var
+                # else:
+                #     final_out_seq_list.append(equ_1)
+                #     final_out_seq_list.append(equ_2)
+                #     equationTargetVars.append(var)
+                #     equationTargetVars.append(var)
+                #     allVars.append(var)
+                #     allVars = list(set(allVars))
+                #     vars += var
             if len(final_out_seq_list) > 3:
                 # 1 with 4, ignore it 
                 print()
@@ -897,7 +900,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
     temp_g = []
     for g in generate_nums:
         # only keep generated numbers if they are common in the text
-        if generate_nums_dict[g] >= 20:
+        if generate_nums_dict[g] >= 5:
             temp_g.append(g)
 
     # copy_nums: max length of numbers
