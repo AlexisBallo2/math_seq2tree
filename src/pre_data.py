@@ -517,7 +517,6 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
 
         elif setName == "PEN" or setName == "DRAW" or setName == "MAWPS" or setName == "ALG":
             # equations = read_pen_alignment(d)
-            # equations = d["oldFormula"]
             equTemps = d["oldFormula"]
             # mapNums = {}
             # tempVars = ['X', 'Y', 'Z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
@@ -554,12 +553,11 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
             for equation in equTemps:
                 equations.append("".join([i for i in equation if i != " " and i != ""]))
             if useEqunSolutions:
-                # try:
-                targets = [int(round(float(i), 2)) for i in d["oldAnswer"][0]]
-                    # targets = [round(float(i)) for i in list(d['answers'][0].values()) if type(i) == int or type(i) == float] 
-                    # targets = [round(float(i)) for i in d["oldAnswer"][0]]
-                # except:
-                #     targets = []
+                try:
+                    targets = [int(round(float(i))) for i in d["oldAnswer"][0]]
+                    # targets = [round(float(i, 2)) for i in list(d['answers'][0].values()) if type(i) == int or type(i) == float] 
+                except:
+                    targets = []
                     # continue
             else:
                 targets = ['disabled']
@@ -848,13 +846,14 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
                 #     var = "Z"
                 if useSubMethod:
                     final_out_seq_list.append(equ_1 + ["-", "("] + equ_2 + [")"])
-                    # final_out_seq_list.append(equ_2 + ["-", var])
-                    # equationTargetVars.append("0")
                     equationTargetVars.append("0")
-                    # allVars.append(var)
-                    # allVars = list(set(allVars))
-                    # vars += var
-                print()
+                #     final_out_seq_list.append(equ_1 + ["-", var])
+                #     final_out_seq_list.append(equ_2 + ["-", var])
+                #     equationTargetVars.append("0")
+                #     equationTargetVars.append("0")
+                #     allVars.append(var)
+                #     allVars = list(set(allVars))
+                #     vars += var
 
                 # else:
                 #     final_out_seq_list.append(equ_1)
@@ -901,7 +900,7 @@ def transfer_num(data, setName, useCustom, useEqunSolutions, useSubMethod, useSe
     temp_g = []
     for g in generate_nums:
         # only keep generated numbers if they are common in the text
-        if generate_nums_dict[g] >= 20:
+        if generate_nums_dict[g] >= 5:
             temp_g.append(g)
 
     # copy_nums: max length of numbers

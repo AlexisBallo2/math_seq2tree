@@ -26,8 +26,8 @@ do_saves = False
 # use_save = True 
 use_save = False 
 
-# do_folds = True
-do_folds = False
+do_folds = True
+# do_folds = False
 saved_epoch_completed = False
 fold_save_completed = False
 
@@ -105,8 +105,8 @@ else:
         # "batch_size": 1,
         # "batch_size": 2,
         # "batch_size": 5,
-        # "batch_size": 5,
-        "batch_size": 64,
+        "batch_size": 20,
+        # "batch_size": 64,
         # "embedding_size": 768,
         "embedding_size": 128,
         "hidden_size": 512,
@@ -130,16 +130,16 @@ else:
         "useEquSolutions": True,
         # "useSeperateVars": False,
         "useSeperateVars": True,
-        "useSemanticAlignment": True,
-        # "useSemanticAlignment": False,
+        # "useSemanticAlignment": True,
+        "useSemanticAlignment": False,
         # "opsInNN" : True,
         "opsInNN" : False,
         "useOpScaling" : False,
         # "useOpScaling" : True,
         'useSNIMask' : False,
         "useOneEquation": False,
-        # 'useBertEmbeddings': True,
-        'useBertEmbeddings': False,
+        'useBertEmbeddings': True,
+        # 'useBertEmbeddings': False,
         'useTFix' : False,
         # "num_folds" : 2,
         "num_folds" : 5,
@@ -150,7 +150,7 @@ else:
     }
     config['title'] = f"{config['num_obs']} Observations, {config['n_epochs']} Epochs, Dataset = {config['setName']}, Custom = {config['useCustom']} ",
     if config['useBertEmbeddings']:
-        config['embedding_size ']= 768
+        config['embedding_size']= 768
 
 
     print("CONFIG \n", config)
@@ -179,10 +179,12 @@ else:
     # "ans":"80"
     # }'
 
+    data = get_draw_train(data, 'dev')
     if config['setName'] == "MATH":
         pairs, generate_nums, copy_nums, vars = transfer_num_math(data)
     else:
         pairs, generate_nums, copy_nums, vars = transfer_num(data, config['setName'], config['useCustom'], config['useEquSolutions'], config['useSubMethod'], config['useSeperateVars'])
+
     # pairs.shuffle()
     random.shuffle(pairs)
     if config['num_obs']:
@@ -387,8 +389,8 @@ for fold in range(existing_fold, folds_to_do):
         generate = GenerateNode(hidden_size=config['hidden_size'], op_nums=op_nums, embedding_size=config['embedding_size'])
         merge = Merge(hidden_size=config['hidden_size'], embedding_size=config['embedding_size'])
 
-        num_x_predict = PredictNumX(hidden_size=config['hidden_size'], output_size=4, batch_size=config['batch_size'])
-        x_generate = GenerateXs(hidden_size=config['hidden_size'], output_size=4, batch_size=config['batch_size'])
+        num_x_predict = PredictNumX(hidden_size=config['hidden_size'], output_size=3, batch_size=config['batch_size'])
+        x_generate = GenerateXs(hidden_size=config['hidden_size'], output_size=3, batch_size=config['batch_size'])
         x_to_q = XToQ(hidden_size=config['hidden_size'])
 
         sementic_alignment = Seq2TreeSemanticAlignment(encoder_hidden_size=config['hidden_size'], decoder_hidden_size=config['hidden_size'], hidden_size=config['hidden_size'])

@@ -234,7 +234,7 @@ def from_prefix_to_infix(prefix):
 
         return stack[0]
     except:
-        return "".join(prefix) 
+        return None
 
 
 # print(from_prefix_to_infix(["+", "1", "2"]))
