@@ -21,13 +21,21 @@ else:
 print("DEVICE", device)
 
 
+devSet = False
+
 # do_saves = True
 do_saves = False 
 # use_save = True 
 use_save = False 
 
-do_folds = True
-# do_folds = False
+if devSet:
+    # if dev set, do folds with dev
+    do_folds = True
+else:
+    # if not dev set, use the splits
+    do_folds = False
+
+
 saved_epoch_completed = False
 fold_save_completed = False
 
@@ -138,8 +146,8 @@ else:
         # "useOpScaling" : True,
         'useSNIMask' : False,
         "useOneEquation": False,
-        'useBertEmbeddings': True,
-        # 'useBertEmbeddings': False,
+        # 'useBertEmbeddings': True,
+        'useBertEmbeddings': False,
         'useTFix' : False,
         # "num_folds" : 2,
         "num_folds" : 5,
@@ -179,7 +187,13 @@ else:
     # "ans":"80"
     # }'
 
-    data = get_draw_train(data, 'dev')
+    # if using dev set, use dev set
+    if devSet:
+        data = get_draw_train(data, 'dev', 'index')
+    else:
+        data = get_draw_train(data, 'train', 'index') + get_draw_train(data, 'test', 'index')
+
+
     if config['setName'] == "MATH":
         pairs, generate_nums, copy_nums, vars = transfer_num_math(data)
     else:
@@ -324,8 +338,8 @@ for fold in range(existing_fold, folds_to_do):
                 else:
                     pairs_trained += fold_pairs[fold_t]
         else:
-            pairs_tested = get_draw_train(pairs, 'test')
-            pairs_trained = get_draw_train(pairs, 'train')
+            pairs_tested = get_draw_train(pairs, 'test', 'id')
+            pairs_trained = get_draw_train(pairs, 'train', 'id')
 
         input_lang, output_lang, train_pairs, test_pairs = prepare_data(pairs_trained, pairs_tested, 5, generate_nums, copy_nums, vars, config['useCustom'], config['useSeperateVars'], config['useBertEmbeddings'], tree=True)
         if do_saves:

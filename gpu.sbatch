@@ -8,10 +8,11 @@
 # Where to send mail
 #SBATCH --mail-type=ALL
 # Mail events (NONE, BEGIN, END, FAIL, ALL)
+#SBATCH --mem=230gb
 # Job memory request 
 #SBATCH --partition=gpu-long
 # Partition (queue) 
-#SBATCH --time=2:00:00
+#SBATCH --time=7-00:0:00
 # Time limit hrs:min:sec 
 # NO SBATCH --output=./out.out
 #SBATCH --gres=gpu:1
