@@ -187,6 +187,23 @@ else:
     # "ans":"80"
     # }'
 
+
+    firsts = []
+    seconds = []
+    for d in data:
+        first_equation_length = len([i for i in d['equations'][0].split() if i != " "])
+        firsts.append(first_equation_length)
+        if len(d['equations']) > 1:
+            second_equation_length = len([i for i in d['equations'][1].split() if i != " "])
+            seconds.append(second_equation_length)
+    print("firsts", sum(firsts)/len(firsts))
+    print("seconds", sum(seconds)/len(seconds))
+
+    print()
+        
+
+
+    
     # if using dev set, use dev set
     if devSet:
         data = get_draw_train(data, 'dev', 'index')
